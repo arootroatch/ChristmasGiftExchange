@@ -1,6 +1,8 @@
-const nameTemplate = '<input type="text" class="name" id="'
-const h1div = document.getElementById("h1");
 let house1 = [];
+let houseTemplate = `<div class="household">
+    <input type="text" class="name">
+    <button class="name-button" onclick="addName(this)">Add Name</button>
+</div>`
 
 function addName(e) {
     let parentDiv = e.parentNode.id;
@@ -14,3 +16,6 @@ function addName(e) {
     }    
 }
 
+function addHouse(e) {
+    e.insertAdjacentHTML("beforebegin", houseTemplate);
+}
