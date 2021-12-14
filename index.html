@@ -8,12 +8,20 @@
         <meta name="description" content="Easily generate a randomized list to know who each person in your family gets to buy a present for.">
     </head>
     <body>
-        <div id="h1" class="household">
-            <input type="text" id="h1n1" class="name">
+        <div id="0" class="household">
+            <h2>Household Name: <input type="text" class="house-heading"></h2>
+            <input type="text" id="input0" class="name-input">
             <button class="name-button" id="h1b1" onclick="addName(this)">Add Name</button>
 
         </div>
         <button onclick="addHouse(this)">Add Household</button>
+        <button>Generate List</button>
+        <table>
+            <tr>
+                <th>Giver</th>
+                <th>Recipient</th>
+            </tr>
+        </table>
     </body>
 <script type="text/javascript" src="scripts.js"></script>
 </html>
