@@ -1,17 +1,15 @@
 let houses = [[]];
 let houseID = 1;
-let allNameInputs = document.getElementsByClassName("name-input");
-let allNameButtons = document.getElementsByClassName("name-button");
 
-//event listener for enter key
-for (let i = 0; i<allNameInputs.length; i++){
-    allNameInputs[i].addEventListener('keyup', function(e){
-        if (e.keyCode === 13){
-            e.preventDefault();
-            allNameButtons[i].click();
-        }
-    })
+// event listener for enter key
+function enterClick(evt){
+    if (evt.key === 'Enter'){
+        evt.preventDefault();
+        document.getElementById("b0").click();
+    }
 }
+document.getElementById("input0").addEventListener('keyup', enterClick);
+
 
 function addName(e) {
     let parentDiv = e.parentNode.id;
@@ -31,30 +29,20 @@ function addHouse(e) {
     let houseTemplate = `<div class="household" id="${houseID}">
     <h2>Household Name: <input type="text" class="house-heading"></h2>
     <input type="text" class="name-input" id="input${houseID}">
-    <button class="name-button" onclick="addName(this)">Add Name</button>
+    <button class="name-button" onclick="addName(this)" id="b${houseID}">Add Name</button>
     </div>`
     e.insertAdjacentHTML("beforebegin", houseTemplate);
+    
+    let btn = document.getElementById(`b${houseID}`);
+    document.getElementById(`input${houseID}`).addEventListener('keyup', evt => {
+        if (evt.key === 'Enter'){
+            evt.preventDefault();
+            btn.click();
+        }
+    });
+    console.log(document.getElementById(`b${houseID}`));
     houseID++;
     houses.push([]);
 
-    //event listeners for enter key
-    allNameInputs = document.getElementsByClassName("name-input");
-    allNameButtons = document.getElementsByClassName("name-button");
-    console.log(houses);
-    for (let i = 0; i<allNameInputs.length; i++){
-        allNameInputs[i].removeEventListener('keyup', function(e){
-            if (e.keyCode === 13){
-                e.preventDefault();
-                allNameButtons[i].click();
-            }
-        })
-    }
-    for (let i = 0; i<allNameInputs.length; i++){
-        allNameInputs[i].addEventListener('keyup', function(e){
-            if (e.keyCode === 13){
-                e.preventDefault();
-                allNameButtons[i].click();
-            }
-        })
-    }
+
 }
