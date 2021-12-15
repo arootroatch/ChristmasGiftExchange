@@ -1,6 +1,7 @@
 let houses = [[]];
 let houseID = 1;
 
+
 // event listener for enter key
 function enterClick(evt){
     if (evt.key === 'Enter'){
@@ -20,8 +21,6 @@ function addName(e) {
     } else {
         document.getElementById(inputID).insertAdjacentHTML("beforebegin", `<p class="name-entered">${nameInput}</p>`);
         houses[parentDiv].push(nameInput);
-        console.log(houses);
-        console.log(inputID);
     }    
 }
 
@@ -40,9 +39,61 @@ function addHouse(e) {
             btn.click();
         }
     });
-    console.log(document.getElementById(`b${houseID}`));
     houseID++;
     houses.push([]);
 
+    console.log(houses.length);
+}
 
+
+
+function generateList() {
+    let numberOfHouses = houses.length;
+    let names = houses.flat();
+    let numberOfNames = names.length;
+
+    for (let i=numberOfNames; i>0; i--){
+        let x = Math.floor(i * Math.random());
+        let y = Math.floor(numberOfHouses * Math.random());
+        let giverName = names[x];
+        let recipientArr = houses[y];
+        console.log(recipientArr.length);
+        if (houses[y].includes(giverName)){
+            if (y === houses.length - 1){
+                y--;
+                let z = Math.floor(recipientArr.length * Math.random());
+                let recipient = recipientArr[z];
+                document.getElementById('table').insertAdjacentHTML("beforeend", `<tr>
+                    <td>${giverName}</td>
+                    <td>${recipient}</td>
+                </tr>`)
+                // recipientArr.splice(z, 1);
+                names.splice(x, 1);
+                console.log(y, z, houses[y][z]);
+            } else {
+                y++
+                let z = Math.floor(recipientArr.length * Math.random());
+                let recipient = recipientArr[z];
+                document.getElementById('table').insertAdjacentHTML("beforeend", `<tr>
+                    <td>${giverName}</td>
+                    <td>${recipient}</td>
+                </tr>`)
+                // recipientArr.splice(z, 1);
+                names.splice(x, 1);
+                console.log(y, z, houses[y][z]);
+
+            }
+        } else {
+            let z = Math.floor(recipientArr.length * Math.random());
+            let recipient = recipientArr[z];
+                document.getElementById('table').insertAdjacentHTML("beforeend", `<tr>
+                    <td>${giverName}</td>
+                    <td>${recipient}</td>
+                </tr>`)
+                // recipientArr.splice(z, 1);
+                names.splice(x, 1);
+                console.log(y, z, houses[y][z]);
+
+        }
+    }
 }
