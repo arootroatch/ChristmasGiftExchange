@@ -11,11 +11,11 @@
         <div id="0" class="household">
             <h2>Household Name: <input type="text" class="house-heading"></h2>
             <input type="text" id="input0" class="name-input">
-            <button class="name-button" id="b0" onclick="addName(this)">Add Name</button>
+            <button class="name-button" id="b0" onclick="addName(this)">Add Name (Enter)</button>
 
         </div>
-        <button onclick="addHouse(this)">Add Household</button>
-        <button onclick="generateList()">Generate List</button>
+        <button id="addHouse" onclick="addHouse(this)">Add Household (Shift+Enter)</button>
+        <button id="generate" onclick="generateList()">Generate List (Ctrl+Enter)</button>
         <table id="table">
             <tr>
                 <th>Giver</th>

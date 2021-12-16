@@ -1,17 +1,30 @@
 let houses = [[]];
+let copyOfHouses = [[]];
 let houseID = 1;
 let recipients = [];
-let givers = [];
 
 // event listener for enter key
 function enterClick(evt){
-    if (evt.key === 'Enter'){
+    if (!evt.shiftKey && !evt.ctrlKey && evt.key === 'Enter'){
         evt.preventDefault();
         document.getElementById("b0").click();
     }
 }
+function enterAddHouse(evt){
+    if (evt.shiftKey && evt.key === 'Enter'){
+        evt.preventDefault;
+        document.getElementById("addHouse").click();
+    }
+}
+function enterGenerate(evt){
+    if (evt.ctrlKey && evt.key === 'Enter'){
+        evt.preventDefault;
+        document.getElementById('generate').click();
+    }
+}
+window.addEventListener('keyup', enterAddHouse);
+window.addEventListener('keyup', enterGenerate);
 document.getElementById("input0").addEventListener('keyup', enterClick);
-
 
 function addName(e) {
     let parentDiv = e.parentNode.id;
@@ -22,6 +35,7 @@ function addName(e) {
     } else {
         document.getElementById(inputID).insertAdjacentHTML("beforebegin", `<p class="name-entered">${nameInput}</p>`);
         houses[parentDiv].push(nameInput);
+        copyOfHouses[parentDiv].push(nameInput);
     }
     e.previousElementSibling.value = '';    
 }
@@ -36,13 +50,14 @@ function addHouse(e) {
     
     let btn = document.getElementById(`b${houseID}`);
     document.getElementById(`input${houseID}`).addEventListener('keyup', evt => {
-        if (evt.key === 'Enter'){
+        if (!evt.shiftKey && !evt.ctrlKey && evt.key === 'Enter'){
             evt.preventDefault();
             btn.click();
         }
     });
     houseID++;
     houses.push([]);
+    copyOfHouses.push([]);
 
     console.log(houses.length);
 }
@@ -53,29 +68,26 @@ function generateList() {
     // console.log('first', houses);
     let numberOfHouses = houses.length;
     let names = houses.flat();
-    let recipientsToChoose = [...houses];
     let recipientArr;
     let recipient;
     let z;
-
-    for (let i=names.length; i>1; i--){
+    for (let i=names.length; i>=1; i--){
         //randomly choose giver name and which subArray for recipients
         let x = Math.floor(i * Math.random());
         let y = Math.floor(numberOfHouses * Math.random());
         let giverName = names[x];
-        givers.push(giverName); //add givername to givers array
         names.splice(x, 1); //remove giver name from names to choose from
 
         //test if giver name exists in chosen recipient subArray and change subArray if so
-        if (houses[y].includes(giverName)){
-            if (y === houses.length - 1){
+        if (copyOfHouses[y].includes(giverName)){
+            if (y === copyOfHouses.length - 1){
                 y--;
             } else {
                 y++;
             }
         }
 
-        recipientArr = recipientsToChoose[y];
+        recipientArr = copyOfHouses[y];
         //randomly choose name inside of recipient subArray and test if it has already been used (exists in recipients array)
         z = Math.floor(recipientArr.length * Math.random());
         recipient = recipientArr[z];
@@ -86,28 +98,18 @@ function generateList() {
         }
 
         recipients.push(recipient); //add recipient name to recipient array
-        recipientArr.splice(z, 1); //remove recipient name from possibilities 
+        console.log(y, z);
+        recipientArr.splice(z, 1); //remove name from possible options
         
-        if (recipientArr === []){
-            recipientsToChoose.splice(y, 1); //check if that leaves an empty array and remove if so
+        if (recipientArr.length === 0){
+            copyOfHouses.splice(y, 1); //check if that leaves an empty array and remove if so
             numberOfHouses--; //decrement number of houses to prevent undefined 
-            console.log(recipientsToChoose);
+            console.log('decrement houses', numberOfHouses);
         }
         document.getElementById('table').insertAdjacentHTML("beforeend", `<tr>
             <td>${giverName}</td>
             <td>${recipient}</td>
         </tr>`);
     }
-    console.table(givers);
-    console.table(recipients);
-    // generateHTMLTable();
 }
 
-function generateHTMLTable() {
-    for (let i = 0; i<givers.length; i++){
-        document.getElementById('table').insertAdjacentHTML("beforeend", `<tr>
-            <td>${givers[i]}</td>
-            <td>${recipients[i]}</td>
-        </tr>`);
-    }
-}
