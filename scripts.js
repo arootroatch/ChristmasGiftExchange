@@ -53,6 +53,7 @@ function generateList() {
     // console.log('first', houses);
     let numberOfHouses = houses.length;
     let names = houses.flat();
+    let recipientsToChoose = [...houses];
     let recipientArr;
     let recipient;
     let z;
@@ -74,7 +75,7 @@ function generateList() {
             }
         }
 
-        recipientArr = houses[y];
+        recipientArr = recipientsToChoose[y];
         //randomly choose name inside of recipient subArray and test if it has already been used (exists in recipients array)
         z = Math.floor(recipientArr.length * Math.random());
         recipient = recipientArr[z];
@@ -85,6 +86,13 @@ function generateList() {
         }
 
         recipients.push(recipient); //add recipient name to recipient array
+        recipientArr.splice(z, 1); //remove recipient name from possibilities 
+        
+        if (recipientArr === []){
+            recipientsToChoose.splice(y, 1); //check if that leaves an empty array and remove if so
+            numberOfHouses--; //decrement number of houses to prevent undefined 
+            console.log(recipientsToChoose);
+        }
         document.getElementById('table').insertAdjacentHTML("beforeend", `<tr>
             <td>${giverName}</td>
             <td>${recipient}</td>
