@@ -1,7 +1,8 @@
 let houses = [[]];
-let copyOfHouses = [[]];
+let copyOfHouses;
 let houseID = 1;
 let recipients = [];
+let counter;
 
 // event listener for enter key
 function enterClick(evt){
@@ -35,14 +36,13 @@ function addName(e) {
     } else {
         document.getElementById(inputID).insertAdjacentHTML("beforebegin", `<p class="name-entered">${nameInput}</p>`);
         houses[parentDiv].push(nameInput);
-        copyOfHouses[parentDiv].push(nameInput);
     }
     e.previousElementSibling.value = '';    
 }
 
 function addHouse(e) {
     let houseTemplate = `<div class="household" id="${houseID}">
-    <h2>Household Name: <input type="text" class="house-heading"></h2>
+    <h2>Household ${houseID+1}</h2>
     <input type="text" class="name-input" id="input${houseID}">
     <button class="name-button" onclick="addName(this)" id="b${houseID}">Add Name</button>
     </div>`
@@ -57,59 +57,101 @@ function addHouse(e) {
     });
     houseID++;
     houses.push([]);
-    copyOfHouses.push([]);
+    // copyOfHouses.push([]);
 
-    console.log(houses.length);
 }
 
+function deepCopy(arr){
+    for (x=0; x<arr.length-1; x++){
+        copyOfHouses.push([]);
+    }
+    for (i=0; i<arr.length; i++){
+        for (j=0; j<arr[i].length; j++){
+            copyOfHouses[i].push(arr[i][j]);
+        }
+    }
+    console.log('deepCopy')
+    console.log(copyOfHouses);
+}
+function clearTable(){
+    //clear table but keep header row
+    let parentNode = document.getElementById('table-body');
+    console.log(parentNode.childNodes);
+    console.log(parentNode.firstChild);
+    while (parentNode.firstChild){
+        parentNode.removeChild(parentNode.firstChild);
+    }
+}
+function initCounter(){
+    counter = 0;
+    generateList();
+    function generateList() {
+        console.log('start', counter);
+        // console.log('first', houses);
+        let numberOfHouses = houses.length;
+        let names = houses.flat();
+        let recipientArr;
+        let recipient;
+        let y;
+        let x;
+        let broken = false;
+        copyOfHouses = [[]];
+        
+        clearTable();
+        deepCopy(houses);
+        if(counter>=10){
+            alert("No possible combinations! Please try a different configuraion/number of names.")
+        }else{
+            for (let i=0; i<names.length; i++){ 
+                //randomly choose giver name and which subArray for recipients
+                let giverName = names[i];
+                x = Math.floor(numberOfHouses * Math.random()); 
+                //find chosen subArray in original Array
+                let originalArray;
+                function findOriginal(){
+                    let searchElem = copyOfHouses[x][0];
+                    let searched;
+                    for (originalArray = 0; originalArray<houses.length; originalArray++){
+                        searched=houses[originalArray].indexOf(searchElem);
+                        if (searched>-1){
+                            break;
+                        }
+                    }
+                }
+                findOriginal();
 
+                if (houses[originalArray].includes(giverName) && numberOfHouses<=1){
+                    console.log('Out of options!');
+                    broken = true;
+                    counter++;
+                    break;
+                }
 
-function generateList() {
-    // console.log('first', houses);
-    let numberOfHouses = houses.length;
-    let names = houses.flat();
-    let recipientArr;
-    let recipient;
-    let z;
-    for (let i=names.length; i>=1; i--){
-        //randomly choose giver name and which subArray for recipients
-        let x = Math.floor(i * Math.random());
-        let y = Math.floor(numberOfHouses * Math.random());
-        let giverName = names[x];
-        names.splice(x, 1); //remove giver name from names to choose from
-
-        //test if giver name exists in chosen recipient subArray and change subArray if so
-        if (copyOfHouses[y].includes(giverName)){
-            if (y === copyOfHouses.length - 1){
-                y--;
-            } else {
-                y++;
+                while (houses[originalArray].includes(giverName)){
+                    x = Math.floor(numberOfHouses * Math.random());
+                    findOriginal();
+                }
+                
+                //randomly choose name inside of recipient subArray and test if it has already been used (exists in recipients array)
+                recipientArr = copyOfHouses[x];
+                y = Math.floor(recipientArr.length * Math.random());
+                recipient = recipientArr[y];
+                
+                recipientArr.splice(y, 1); //remove name from possible options
+                
+                if (recipientArr.length === 0){
+                    copyOfHouses.splice(x, 1); //check if that leaves an empty array and remove if so
+                    numberOfHouses--; //decrement number of houses to prevent undefined 
+                }
+                document.getElementById('table-body').insertAdjacentHTML("beforeend", `<tr>
+                    <td>${giverName}</td>
+                    <td>${recipient}</td>
+                </tr>`);
+            }
+            if (broken===true){
+                generateList();
             }
         }
-
-        recipientArr = copyOfHouses[y];
-        //randomly choose name inside of recipient subArray and test if it has already been used (exists in recipients array)
-        z = Math.floor(recipientArr.length * Math.random());
-        recipient = recipientArr[z];
-
-        while (recipients.includes(recipient)) {
-            z = Math.floor(recipientArr.length * Math.random());
-            recipient = recipientArr[z];
-        }
-
-        recipients.push(recipient); //add recipient name to recipient array
-        console.log(y, z);
-        recipientArr.splice(z, 1); //remove name from possible options
-        
-        if (recipientArr.length === 0){
-            copyOfHouses.splice(y, 1); //check if that leaves an empty array and remove if so
-            numberOfHouses--; //decrement number of houses to prevent undefined 
-            console.log('decrement houses', numberOfHouses);
-        }
-        document.getElementById('table').insertAdjacentHTML("beforeend", `<tr>
-            <td>${giverName}</td>
-            <td>${recipient}</td>
-        </tr>`);
     }
 }
 
