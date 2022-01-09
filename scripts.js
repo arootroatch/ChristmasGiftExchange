@@ -12,13 +12,13 @@ function enterClick(evt){
     }
 }
 function enterAddHouse(evt){
-    if (evt.shiftKey && evt.keyCode == 13){
+    if (evt.keyCode == 16 && evt.keyCode == 13){
         evt.preventDefault;
         document.getElementById("addHouse").click();
     }
 }
 function enterGenerate(evt){
-    if (evt.ctrlKey && evt.keyCode == 13){
+    if (evt.keyCode == 17 && evt.keyCode == 13){
         evt.preventDefault;
         document.getElementById('generate').click();
     }
