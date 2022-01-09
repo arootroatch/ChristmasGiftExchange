@@ -16,6 +16,7 @@ body {
     margin: 0 auto;
     padding-right: 20px;
     padding-left: 20px;
+    padding-bottom: 50px;
 }
 
 h1 {
@@ -103,5 +104,4 @@ h1 {
 }
 #addHouse, #generate{
     margin-top: 10px;
-    margin-bottom: 20px;
 }

@@ -37,7 +37,7 @@ function addName(e) {
         <br id="br${nameInput}">`);
         houses[parentDiv].push(nameInput);
     }
-    e.previousElementSibling.value = '';    
+    document.getElementById(inputID).value='';    
 }
 
 function deleteName(e){
@@ -65,6 +65,7 @@ function addHouse(e) {
             btn.click();
         }
     });
+    document.getElementById(`input${houseID}`).focus();
     houseID++;
     houses.push([]);
     // copyOfHouses.push([]);
@@ -77,6 +78,7 @@ function deleteHouse(e){
     houses.splice(houseDiv, 1);
     console.log(houses);
     document.getElementById(houseDiv).remove();
+    document.getElementById(`input${houseDiv-1}`).focus();
     houseID--;
 
 }
