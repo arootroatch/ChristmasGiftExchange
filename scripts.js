@@ -23,17 +23,15 @@ function enterGenerate(evt){
         document.getElementById('generate').click();
     }
 }
-// window.addEventListener('keyup', enterAddHouse);
-// window.addEventListener('keyup', enterGenerate);
+window.addEventListener('keyup', enterAddHouse);
+window.addEventListener('keyup', enterGenerate);
 document.getElementById("input0").addEventListener('keyup', enterClick);
 
 function addName(e) {
     let parentDiv = e.parentNode.id;
     let nameInput = e.previousElementSibling.value;
     let inputID = e.previousElementSibling.id;
-    if (nameInput === ''){
-        alert("Please enter a name in the input field");
-    } else {
+    if (nameInput !== ''){
         document.getElementById(inputID).insertAdjacentHTML("beforebegin", `<button onclick="deleteName(this)" class="delete-name">X</button>
         <p class="name-entered" id="${nameInput}">${nameInput}</p>
         <br id="br${nameInput}">`);
