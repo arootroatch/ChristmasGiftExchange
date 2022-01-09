@@ -44,7 +44,7 @@ function addHouse(e) {
     let houseTemplate = `<div class="household" id="${houseID}">
     <h2>Household ${houseID+1}</h2>
     <input type="text" class="name-input" id="input${houseID}">
-    <button class="name-button" onclick="addName(this)" id="b${houseID}">Add Name</button>
+    <button class="name-button" onclick="addName(this)" id="b${houseID}">Add Name (Enter)</button>
     </div>`
     e.insertAdjacentHTML("beforebegin", houseTemplate);
     

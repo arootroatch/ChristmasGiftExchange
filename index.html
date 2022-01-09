@@ -8,25 +8,29 @@
         <meta name="description" content="Easily generate a randomized list to know who each person in your family gets to buy a present for.">
     </head>
     <body>
-        <div id="0" class="household">
-            <h2>Household 1</h2>
-            <input type="text" id="input0" class="name-input">
-            <button class="name-button" id="b0" onclick="addName(this)">Add Name (Enter)</button>
-
+        <div id="flex-div">
+            <div>
+                <div id="0" class="household">
+                    <h2 id="house1-header">Household 1</h2>
+                    <input type="text" id="input0" class="name-input">
+                    <button class="name-button" id="b0" onclick="addName(this)">Add Name (Enter)</button>
+        
+                </div>
+                <button id="addHouse" onclick="addHouse(this)">Add Household (Shift+Enter)</button>
+                <button id="generate" onclick="initCounter()">Generate List (Ctrl+Enter)</button>
+            </div>
+            <table id="table">
+                <thead>
+                    <tr>
+                        <th>Giver</th>
+                        <th>Recipient</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body">
+                   
+                </tbody>
+            </table>
         </div>
-        <button id="addHouse" onclick="addHouse(this)">Add Household (Shift+Enter)</button>
-        <button id="generate" onclick="initCounter()">Generate List (Ctrl+Enter)</button>
-        <table id="table">
-            <thead>
-                <tr>
-                    <th>Giver</th>
-                    <th>Recipient</th>
-                </tr>
-            </thead>
-            <tbody id="table-body">
-                
-            </tbody>
-        </table>
     </body>
 <script type="text/javascript" src="scripts.js"></script>
 </html>

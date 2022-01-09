@@ -1,0 +1,60 @@
+html {
+    font-family: Arial, Helvetica, sans-serif;
+    height: 100%;
+    /* background: radial-gradient( rgb(90, 0, 0) 70%, rgb(50, 0, 0)); */
+    overscroll-behavior-y: none;
+    /* height: 100%; */
+}
+
+body {
+    overscroll-behavior-y: none;
+}
+
+#flex-div {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: flex-start;
+}
+#table td, #table th {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+#table tr:nth-child(even){
+    background-color: #f2f2f2;
+}
+
+#table tr {
+    font-size: 1em;
+}
+
+#table th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #04AA6D;
+    color: white;
+}
+
+#table {
+    min-width: 25%;
+    border-collapse: collapse;
+    max-width: 50%;
+}
+
+#house1-header {
+    margin-top: 0;
+}
+
+.household p {
+    margin: 5px;
+}
+
+.household h2 {
+    margin-bottom: 10px;
+}
+
+#addHouse, #generate{
+    margin-top: 20px;
+}
