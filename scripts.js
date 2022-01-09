@@ -6,7 +6,7 @@ let counter;
 
 // event listener for enter key
 function enterClick(evt){
-    if (!evt.shiftKey && !evt.ctrlKey && evt.keyCode == 13){
+    if ( evt.keyCode == 13){
         evt.preventDefault();
         document.getElementById("b0").click();
     }
