@@ -34,10 +34,21 @@ function addName(e) {
     if (nameInput === ''){
         alert("Please enter a name in the input field");
     } else {
-        document.getElementById(inputID).insertAdjacentHTML("beforebegin", `<p class="name-entered">${nameInput}</p>`);
+        document.getElementById(inputID).insertAdjacentHTML("beforebegin", `<p class="name-entered" id="${nameInput}">${nameInput}</p>
+        <button onclick="deleteName(this)" class="delete-name">Delete Name</button><br>`);
         houses[parentDiv].push(nameInput);
     }
     e.previousElementSibling.value = '';    
+}
+
+function deleteName(e){
+    let parentDiv = e.parentNode.id;
+    let name = e.previousElementSibling.id
+    let index = houses[parentDiv].indexOf(name);
+    houses[parentDiv].splice(index, 1);
+    document.getElementById(name).remove();
+    e.nextElementSibling.remove();
+    e.remove();
 }
 
 function addHouse(e) {
@@ -46,7 +57,7 @@ function addHouse(e) {
     <input type="text" class="name-input" id="input${houseID}">
     <button class="name-button" onclick="addName(this)" id="b${houseID}">Add Name (Enter)</button>
     </div>`
-    e.insertAdjacentHTML("beforebegin", houseTemplate);
+    e.previousElementSibling.insertAdjacentHTML("beforebegin", houseTemplate);
     
     let btn = document.getElementById(`b${houseID}`);
     document.getElementById(`input${houseID}`).addEventListener('keyup', evt => {
@@ -58,6 +69,16 @@ function addHouse(e) {
     houseID++;
     houses.push([]);
     // copyOfHouses.push([]);
+
+}
+
+function deleteHouse(e){
+    console.log(houses);
+    let houseDiv = e.previousElementSibling.id;
+    houses.splice(houseDiv, 1);
+    console.log(houses);
+    document.getElementById(houseDiv).remove();
+    houseID--;
 
 }
 
@@ -99,7 +120,7 @@ function initCounter(){
         
         clearTable();
         deepCopy(houses);
-        if(counter>=10){
+        if(counter>=25){
             alert("No possible combinations! Please try a different configuraion/number of names.")
         }else{
             for (let i=0; i<names.length; i++){ 

@@ -10,6 +10,7 @@ body {
     overscroll-behavior-y: none;
     background-image: linear-gradient(rgba(0, 0, 0, 0.7) 80%, rgba(0, 0, 0, 1)), url(Gift-Giving-Banner.jpeg);
     background-size: cover;
+    background-attachment: fixed;
     color: rgb(226, 226, 226);
     max-width: 1000px;
     margin: 0 auto;
@@ -29,7 +30,7 @@ h1 {
     /* margin-right: 18px; */
     line-height: 1.5em;
     text-align: justify;
-    max-width: 500px;
+    max-width: 600px;
     
 }
 #flex-div {
@@ -38,6 +39,11 @@ h1 {
     justify-content:space-between;
     align-items: flex-start;
 }
+.delete-name{
+    display: inline-block;
+    text-align: right;
+}
+
 #table td, #table th {
     border: 1px solid #ddd;
     padding: 8px;
@@ -75,6 +81,7 @@ h1 {
 
 .household p {
     margin: 5px;
+    display: inline-block;
 }
 
 .household h2 {
@@ -85,4 +92,5 @@ h1 {
 
 #addHouse, #generate{
     margin-top: 20px;
+    margin-bottom: 20px;
 }
