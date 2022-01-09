@@ -134,7 +134,7 @@ function initCounter(){
     if (empty===false){
         generateList();
     } else {
-        alert('Please delete the empty household');
+        alert('Please delete the empty household and try again');
     }
     function generateList() {
         console.log('start', counter);
