@@ -30,10 +30,10 @@ function enterGenerate(evt){
         document.getElementById('generate').click();
     }
 }
+document.getElementById("input0").addEventListener('keyup', enterClick);
 if (isMobile===false){
     window.addEventListener('keyup', enterAddHouse);
     window.addEventListener('keyup', enterGenerate);
-    document.getElementById("input0").addEventListener('keyup', enterClick);
 }
 
 
