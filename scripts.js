@@ -3,11 +3,12 @@ let copyOfHouses;
 let houseID = 1;
 let recipients = [];
 let counter;
-let isMobile = false;
-console.log(isMobile);
+let isMobile;
+
 if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
     isMobile = true;
-    console.log(isMobile);
+} else {
+    isMobile=false;
 }
 
 // event listener for enter key
@@ -29,11 +30,12 @@ function enterGenerate(evt){
         document.getElementById('generate').click();
     }
 }
-window.addEventListener('keyup', enterAddHouse);
 if (isMobile===false){
+    window.addEventListener('keyup', enterAddHouse);
     window.addEventListener('keyup', enterGenerate);
     document.getElementById("input0").addEventListener('keyup', enterClick);
 }
+
 
 function addName(e) {
     let parentDiv = e.parentNode.id;
