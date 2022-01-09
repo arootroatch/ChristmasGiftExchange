@@ -86,10 +86,8 @@ function addHouse(e) {
 }
 
 function deleteHouse(e){
-    console.log(houses);
     let houseDiv = e.previousElementSibling.id;
     houses.splice(houseDiv, 1);
-    console.log(houses);
     document.getElementById(houseDiv).remove();
     document.getElementById(`input${houseDiv-1}`).focus();
     houseID--;
@@ -105,14 +103,10 @@ function deepCopy(arr){
             copyOfHouses[i].push(arr[i][j]);
         }
     }
-    console.log('deepCopy')
-    console.log(copyOfHouses);
 }
 function clearTable(){
     //clear table but keep header row
     let parentNode = document.getElementById('table-body');
-    console.log(parentNode.childNodes);
-    console.log(parentNode.firstChild);
     while (parentNode.firstChild){
         parentNode.removeChild(parentNode.firstChild);
     }
@@ -121,7 +115,6 @@ function findEmpty(){
     for (let i=0; i<houses.length; i++){
         if (houses[i].length<1){
             empty = true;
-            console.log(empty);
             break;
         } else {
             empty =false;
@@ -137,8 +130,6 @@ function initCounter(){
         alert('Please delete the empty household and try again');
     }
     function generateList() {
-        console.log('start', counter);
-        // console.log('first', houses);
         let numberOfHouses = houses.length;
         let names = houses.flat();
         let recipientArr;
@@ -172,7 +163,6 @@ function initCounter(){
                 findOriginal();
 
                 if (houses[originalArray].includes(giverName) && numberOfHouses<=1){
-                    console.log('Out of options!');
                     broken = true;
                     counter++;
                     break;
