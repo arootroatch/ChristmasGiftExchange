@@ -41,7 +41,13 @@ h1 {
 }
 .delete-name{
     display: inline-block;
-    text-align: right;
+    background-color: transparent;
+    border: 1px solid #bb0000;
+    fill: none;
+    color: #bb0000;
+    cursor: pointer;
+    font-size: 10px;
+    padding: 2px 5px;
 }
 
 #table td, #table th {

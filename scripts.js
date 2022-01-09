@@ -34,8 +34,9 @@ function addName(e) {
     if (nameInput === ''){
         alert("Please enter a name in the input field");
     } else {
-        document.getElementById(inputID).insertAdjacentHTML("beforebegin", `<p class="name-entered" id="${nameInput}">${nameInput}</p>
-        <button onclick="deleteName(this)" class="delete-name">Delete Name</button><br>`);
+        document.getElementById(inputID).insertAdjacentHTML("beforebegin", `<button onclick="deleteName(this)" class="delete-name">X</button>
+        <p class="name-entered" id="${nameInput}">${nameInput}</p>
+        <br id="br${nameInput}">`);
         houses[parentDiv].push(nameInput);
     }
     e.previousElementSibling.value = '';    
@@ -43,11 +44,11 @@ function addName(e) {
 
 function deleteName(e){
     let parentDiv = e.parentNode.id;
-    let name = e.previousElementSibling.id
+    let name = e.nextElementSibling.id;
     let index = houses[parentDiv].indexOf(name);
     houses[parentDiv].splice(index, 1);
     document.getElementById(name).remove();
-    e.nextElementSibling.remove();
+    document.getElementById(`br${name}`).remove();
     e.remove();
 }
 
