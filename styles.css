@@ -99,6 +99,7 @@ h1 {
 }
 #deleteHouse{
     margin-top: 20px;
+    display: block;
 }
 #addHouse, #generate{
     margin-top: 10px;
