@@ -5,6 +5,7 @@ let recipients = [];
 let counter;
 let isMobile;
 let empty;
+let duplicate;
 
 if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
     isMobile = true;
@@ -121,11 +122,32 @@ function findEmpty(){
         }
     }
 }
+
+function findDuplicate(){
+    let searchNames = houses.flat();
+    function hasDuplicates(arr) {
+        return new Set(arr).size !== arr.length;
+    }
+    console.log(hasDuplicates(searchNames));
+    if (hasDuplicates(searchNames)){
+        duplicate = true;
+        console.log(duplicate);
+    } else {
+        duplicate=false;
+        console.log(duplicate);
+    }
+}
+
 function initCounter(){
     counter = 0;
     findEmpty();
+    findDuplicate();
     if (empty===false){
-        generateList();
+        if (duplicate===false){
+            generateList();
+        } else {
+            alert('Please check that all names are unique and try again. Consider adding last initials, last names, or nicknames.')
+        }
     } else {
         alert('Please delete the empty household and try again');
     }
