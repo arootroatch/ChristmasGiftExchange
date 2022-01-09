@@ -50,6 +50,8 @@ h1 {
     padding: 2px 5px;
 }
 
+
+
 #table td, #table th {
     border: 1px solid #ddd;
     padding: 8px;
@@ -95,8 +97,10 @@ h1 {
     text-shadow: 2px 2px 2px rgb(114, 114, 114);
 
 }
-
-#addHouse, #generate{
+#deleteHouse{
     margin-top: 20px;
+}
+#addHouse, #generate{
+    margin-top: 10px;
     margin-bottom: 20px;
 }
