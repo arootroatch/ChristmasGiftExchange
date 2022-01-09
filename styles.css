@@ -8,12 +8,34 @@ html {
 
 body {
     overscroll-behavior-y: none;
+    background-image: linear-gradient(rgba(0, 0, 0, 0.7) 80%, rgba(0, 0, 0, 1)), url(Gift-Giving-Banner.jpeg);
+    background-size: cover;
+    color: rgb(226, 226, 226);
+    max-width: 1000px;
+    margin: 0 auto;
+    padding-right: 20px;
+    padding-left: 20px;
 }
 
+h1 {
+    text-align: center;
+    text-shadow: 2px 2px 4px rgb(114, 114, 114) ;
+}
+
+#intro {
+    background-image: linear-gradient(rgba(0,0,0,0.25), rgba(0,0,0,0.25));
+    padding: 10px;
+    margin: 20px auto;
+    /* margin-right: 18px; */
+    line-height: 1.5em;
+    text-align: justify;
+    max-width: 500px;
+    
+}
 #flex-div {
     display: flex;
     flex-direction: row;
-    justify-content: space-evenly;
+    justify-content:space-between;
     align-items: flex-start;
 }
 #table td, #table th {
@@ -22,7 +44,10 @@ body {
 }
 
 #table tr:nth-child(even){
-    background-color: #f2f2f2;
+    background-color: #4b4b4b71;
+}
+#table tr:nth-child(odd){
+    background-color: #33333371;
 }
 
 #table tr {
@@ -33,14 +58,15 @@ body {
     padding-top: 12px;
     padding-bottom: 12px;
     text-align: left;
-    background-color: #04AA6D;
+    background-color: #053b17b6;
     color: white;
 }
 
 #table {
-    min-width: 25%;
+    min-width: 35%;
     border-collapse: collapse;
     max-width: 50%;
+    margin-right: 20px;
 }
 
 #house1-header {
@@ -53,6 +79,8 @@ body {
 
 .household h2 {
     margin-bottom: 10px;
+    text-shadow: 2px 2px 2px rgb(114, 114, 114);
+
 }
 
 #addHouse, #generate{
