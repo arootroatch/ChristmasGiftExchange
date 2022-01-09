@@ -4,9 +4,10 @@ let houseID = 1;
 let recipients = [];
 let counter;
 let isMobile = false;
-
+console.log(isMobile);
 if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
     isMobile = true;
+    console.log(isMobile);
 }
 
 // event listener for enter key
