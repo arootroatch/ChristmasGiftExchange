@@ -3,6 +3,11 @@ let copyOfHouses;
 let houseID = 1;
 let recipients = [];
 let counter;
+let isMobile = false;
+
+if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+    isMobile = true;
+}
 
 // event listener for enter key
 function enterClick(evt){
@@ -18,14 +23,16 @@ function enterAddHouse(evt){
     }
 }
 function enterGenerate(evt){
-    if (evt.keyCode == 17 && evt.keyCode === 13){
+    if (evt.ctrlKey && evt.keyCode === 13){
         evt.preventDefault;
         document.getElementById('generate').click();
     }
 }
 window.addEventListener('keyup', enterAddHouse);
-window.addEventListener('keyup', enterGenerate);
-document.getElementById("input0").addEventListener('keyup', enterClick);
+if (isMobile===false){
+    window.addEventListener('keyup', enterGenerate);
+    document.getElementById("input0").addEventListener('keyup', enterClick);
+}
 
 function addName(e) {
     let parentDiv = e.parentNode.id;
