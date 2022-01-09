@@ -6,19 +6,19 @@ let counter;
 
 // event listener for enter key
 function enterClick(evt){
-    if (!evt.shiftKey && !evt.ctrlKey && evt.key === 'Enter'){
+    if (!evt.shiftKey && !evt.ctrlKey && evt.keyCode == 13){
         evt.preventDefault();
         document.getElementById("b0").click();
     }
 }
 function enterAddHouse(evt){
-    if (evt.shiftKey && evt.key === 'Enter'){
+    if (evt.shiftKey && evt.keyCode == 13){
         evt.preventDefault;
         document.getElementById("addHouse").click();
     }
 }
 function enterGenerate(evt){
-    if (evt.ctrlKey && evt.key === 'Enter'){
+    if (evt.ctrlKey && evt.keyCode == 13){
         evt.preventDefault;
         document.getElementById('generate').click();
     }
