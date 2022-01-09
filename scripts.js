@@ -4,6 +4,7 @@ let houseID = 1;
 let recipients = [];
 let counter;
 let isMobile;
+let empty;
 
 if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
     isMobile = true;
@@ -116,9 +117,25 @@ function clearTable(){
         parentNode.removeChild(parentNode.firstChild);
     }
 }
+function findEmpty(){
+    for (let i=0; i<houses.length; i++){
+        if (houses[i].length<1){
+            empty = true;
+            console.log(empty);
+            break;
+        } else {
+            empty =false;
+        }
+    }
+}
 function initCounter(){
     counter = 0;
-    generateList();
+    findEmpty();
+    if (empty===false){
+        generateList();
+    } else {
+        alert('Please delete the empty household');
+    }
     function generateList() {
         console.log('start', counter);
         // console.log('first', houses);
