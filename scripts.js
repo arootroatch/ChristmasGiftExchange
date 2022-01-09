@@ -42,6 +42,8 @@ function addName(e) {
     let nameInput = e.previousElementSibling.value;
     let inputID = e.previousElementSibling.id;
     if (nameInput !== ''){
+        let capitalized = nameInput.charAt(0).toUpperCase() + nameInput.slice(1);
+        nameInput = capitalized;
         document.getElementById(inputID).insertAdjacentHTML("beforebegin", `<button onclick="deleteName(this)" class="delete-name">X</button>
         <p class="name-entered" id="${nameInput}">${nameInput}</p>
         <br id="br${nameInput}">`);

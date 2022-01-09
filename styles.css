@@ -51,6 +51,9 @@ h1 {
     padding: 2px 5px;
 }
 
+.name-input {
+    text-transform: capitalize;
+}
 
 
 #table td, #table th {
