@@ -62,7 +62,7 @@ function addHouse(e) {
     
     let btn = document.getElementById(`b${houseID}`);
     document.getElementById(`input${houseID}`).addEventListener('keyup', evt => {
-        if (!evt.shiftKey && !evt.ctrlKey && evt.key === 'Enter'){
+        if (evt.keyCode == 13){
             evt.preventDefault();
             btn.click();
         }
