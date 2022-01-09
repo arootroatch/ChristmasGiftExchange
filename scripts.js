@@ -23,8 +23,8 @@ function enterGenerate(evt){
         document.getElementById('generate').click();
     }
 }
-window.addEventListener('keyup', enterAddHouse);
-window.addEventListener('keyup', enterGenerate);
+// window.addEventListener('keyup', enterAddHouse);
+// window.addEventListener('keyup', enterGenerate);
 document.getElementById("input0").addEventListener('keyup', enterClick);
 
 function addName(e) {
