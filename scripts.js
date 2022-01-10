@@ -6,6 +6,7 @@ let counter;
 let isMobile;
 let empty;
 let duplicate;
+let nameNumber=1;
 
 if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
     isMobile = true;
@@ -47,9 +48,10 @@ function addName(e) {
         let capitalized = nameInput.charAt(0).toUpperCase() + nameInput.slice(1);
         nameInput = capitalized;
         document.getElementById(inputID).insertAdjacentHTML("beforebegin", `<button onclick="deleteName(this)" class="delete-name">X</button>
-        <p class="name-entered" id="${nameInput}">${nameInput}</p>
-        <br id="br${nameInput}">`);
+        <p class="name-entered" id="${nameInput}${nameNumber}">${nameInput}</p>
+        <br id="br${nameInput}${nameNumber}">`);
         houses[parentDiv].push(nameInput);
+        nameNumber++;
     }
     document.getElementById(inputID).value='';    
 }
@@ -57,11 +59,14 @@ function addName(e) {
 function deleteName(e){
     let parentDiv = e.parentNode.id;
     let name = e.nextElementSibling.id;
-    let index = houses[parentDiv].indexOf(name);
+    let index = houses[parentDiv].indexOf(e.nextElementSibling.innerHTML);
+    console.log(name);
+    console.log(index);
     houses[parentDiv].splice(index, 1);
     document.getElementById(name).remove();
     document.getElementById(`br${name}`).remove();
     e.remove();
+    console.log(houses);
 }
 
 function addHouse(e) {
@@ -139,6 +144,7 @@ function findDuplicate(){
 }
 
 function initCounter(){
+    console.log(houses);
     counter = 0;
     findEmpty();
     findDuplicate();
