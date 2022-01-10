@@ -13,15 +13,14 @@
         <div id="flex-div">
             <div>
                 <div id="0" class="household">
-                    <h2 id="house1-header">Household 1</h2>
+                    <h2 id="house1-header" contenteditable="true">Household 1</h2>
                     <input type="text" id="input0" class="name-input">
-                    <button class="name-button" type="submit" id="b0" onclick="addName(this)">Add Name (Enter)</button>
+                    <button class="button" type="submit" id="b0" onclick="addName(this)">Add Name (Enter)</button>
                     
                 </div>
-                <button id="deleteHouse" onclick="deleteHouse(this)">Delete Last Household</button>
-                <button id="addHouse" onclick="addHouse(this)">Add Household (Shift+Enter)</button>
-                <button id="generate" onclick="initCounter()">Generate List (Ctrl+Enter)</button>
-                <button  onclick="findDuplicate()">duplicate</button>
+                <button class="button" id="deleteHouse" onclick="deleteHouse(this)">Delete Last Household</button>
+                <button class="button" id="addHouse" onclick="addHouse(this)">Add Household (Shift+Enter)</button>
+                <button class="button" id="generate" onclick="initCounter()">Generate List (Ctrl+Enter)</button>
             </div>
             <table id="table">
                 <thead>
@@ -31,7 +30,22 @@
                     </tr>
                 </thead>
                 <tbody id="table-body">
-            
+                    <tr>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                    </tr>
                 </tbody>
             </table>
         </div>

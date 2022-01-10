@@ -71,7 +71,7 @@ function deleteName(e){
 
 function addHouse(e) {
     let houseTemplate = `<div class="household" id="${houseID}">
-    <h2>Household ${houseID+1}</h2>
+    <h2 contenteditable="true">Household ${houseID+1}</h2>
     <input type="text" class="name-input" id="input${houseID}">
     <button type="submit" class="name-button" onclick="addName(this)" id="b${houseID}">Add Name (Enter)</button>
     </div>`

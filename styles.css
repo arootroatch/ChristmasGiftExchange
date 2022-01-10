@@ -57,15 +57,18 @@ h1 {
 
 
 #table td, #table th {
-    border: 1px solid #ddd;
     padding: 8px;
+
+}
+#table td {
+    height: 20px;
 }
 
 #table tr:nth-child(even){
-    background-color: #4b4b4b71;
+    background-color: #4b4b4b9f;
 }
 #table tr:nth-child(odd){
-    background-color: #33333371;
+    background-color: #3333339f;
 }
 
 #table tr {
@@ -75,16 +78,21 @@ h1 {
 #table th {
     padding-top: 12px;
     padding-bottom: 12px;
-    text-align: left;
-    background-color: #053b17b6;
+    text-align: center;
+    background-color: #4e1f20c9;
     color: white;
+    text-shadow: 2px 2px 2px rgb(114, 114, 114);
 }
+
 
 #table {
     min-width: 35%;
     border-collapse: collapse;
     max-width: 50%;
     margin-right: 20px;
+    border-radius: 20px 20px 0 0;
+    overflow: hidden;
+
 }
 
 #house1-header {
@@ -100,6 +108,27 @@ h1 {
     margin-bottom: 10px;
     text-shadow: 2px 2px 2px rgb(114, 114, 114);
 
+}
+.button {
+    background-color: #4e1f20c9;
+    /* #4b2223 */
+    color: rgb(226, 226, 226);
+    border: none;
+    box-shadow: 0 1px 0 0 #3b0e0fc9, 0 2px 0 0 #3b0e0fc9, 0 3px 0 0 #3b0e0fc9, 0 4px 4px 0 #3b0e0fc9; 
+    transition: .2s;
+    border-radius: 20px;
+    padding: 5px 15px;
+    cursor: pointer;
+}
+
+.button:hover {
+    transform: translate(0, 2px);
+    box-shadow: 0 1px 0 0 #3b0e0fc9, 0 2px 4px 0 #3b0e0fc9;
+}
+
+.button:active {
+    transform: translate(0, 4px);
+    box-shadow: none;
 }
 #deleteHouse{
     margin-top: 20px;
