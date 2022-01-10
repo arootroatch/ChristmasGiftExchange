@@ -73,7 +73,7 @@ function addHouse(e) {
     let houseTemplate = `<div class="household" id="${houseID}">
     <h2 contenteditable="true">Household ${houseID+1}</h2>
     <input type="text" class="name-input" id="input${houseID}">
-    <button type="submit" class="name-button" onclick="addName(this)" id="b${houseID}">Add Name (Enter)</button>
+    <button type="submit" class="button" onclick="addName(this)" id="b${houseID}">Add Name (Enter)</button>
     </div>`
     e.previousElementSibling.insertAdjacentHTML("beforebegin", houseTemplate);
     
