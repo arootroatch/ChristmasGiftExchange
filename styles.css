@@ -6,15 +6,23 @@ html {
 
 body {
     overscroll-behavior-y: none;
-    background-image: linear-gradient(rgba(0, 0, 0, 0.7) 80%, rgba(0, 0, 0, 1)), url(Gift-Giving-Banner.jpeg);
-    background-size: cover;
-    background-attachment: fixed;
     color: rgb(226, 226, 226);
     max-width: 800px;
     margin: 0 auto;
     padding-right: 20px;
     padding-left: 20px;
     padding-bottom: 50px;
+}
+
+#background{
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    background-image: linear-gradient(rgba(0, 0, 0, 0.7) 80%, rgba(0, 0, 0, 1)), url(Gift-Giving-Banner.jpeg);
+    background-size: cover;
 }
 
 h1 {
@@ -156,6 +164,9 @@ h1 {
    }
    #deleteHouse {
        margin:50px auto 0 auto;
+   }
+   body{
+       background-attachment: scroll;
    }
 
 }
