@@ -75,7 +75,7 @@ function addHouse(e) {
     <input type="text" class="name-input" id="input${houseID}">
     <button type="submit" class="button" onclick="addName(this)" id="b${houseID}">Add Name (Enter)</button>
     </div>`
-    e.previousElementSibling.insertAdjacentHTML("beforebegin", houseTemplate);
+    e.parentNode.insertAdjacentHTML("beforebegin", houseTemplate);
     
     let btn = document.getElementById(`b${houseID}`);
     document.getElementById(`input${houseID}`).addEventListener('keyup', evt => {
