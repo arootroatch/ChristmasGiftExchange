@@ -126,7 +126,7 @@ h1 {
     border-radius: 20px;
     padding: 15px 10px;
     cursor: pointer;
-    max-width: 150px;
+    width: 150px;
 }
 
 .button:hover, .btn-bottom:hover {
