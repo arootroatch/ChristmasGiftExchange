@@ -144,7 +144,6 @@ function findDuplicate(){
 }
 
 function initCounter(){
-    console.log(houses);
     counter = 0;
     findEmpty();
     findDuplicate();
@@ -167,11 +166,11 @@ function initCounter(){
         let broken = false;
         copyOfHouses = [[]];
         
-        clearTable();
         deepCopy(houses);
         if(counter>=25){
             alert("No possible combinations! Please try a different configuraion/number of names.")
         }else{
+            clearTable();
             for (let i=0; i<names.length; i++){ 
                 //randomly choose giver name and which subArray for recipients
                 let giverName = names[i];
