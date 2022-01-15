@@ -92,7 +92,8 @@ function addHouse(e) {
 }
 
 function deleteHouse(e){
-    let houseDiv = e.previousElementSibling.id;
+    let btnDiv = e.parentNode;
+    let houseDiv = btnDiv.previousElementSibling.id;
     houses.splice(houseDiv, 1);
     document.getElementById(houseDiv).remove();
     document.getElementById(`input${houseDiv-1}`).focus();
