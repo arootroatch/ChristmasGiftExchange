@@ -169,6 +169,22 @@ function initCounter(){
         deepCopy(houses);
         if(counter>=25){
             alert("No possible combinations! Please try a different configuraion/number of names.")
+            document.getElementById('table-body').insertAdjacentHTML("beforeend", `<tr>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                </tr>`);
         }else{
             clearTable();
             for (let i=0; i<names.length; i++){ 
