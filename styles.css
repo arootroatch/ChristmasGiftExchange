@@ -127,6 +127,9 @@ h1 {
     padding: 15px 10px;
     cursor: pointer;
     width: 150px;
+    font-weight: bold;
+    text-shadow: 2px 2px 2px rgb(114, 114, 114);
+
 }
 
 .button:hover, .btn-bottom:hover {

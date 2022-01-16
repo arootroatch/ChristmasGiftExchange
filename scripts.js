@@ -94,10 +94,12 @@ function addHouse(e) {
 function deleteHouse(e){
     let btnDiv = e.parentNode;
     let houseDiv = btnDiv.previousElementSibling.id;
-    houses.splice(houseDiv, 1);
-    document.getElementById(houseDiv).remove();
-    document.getElementById(`input${houseDiv-1}`).focus();
-    houseID--;
+    if (houseDiv !== "0"){
+        houses.splice(houseDiv, 1);
+        document.getElementById(houseDiv).remove();
+        document.getElementById(`input${houseDiv-1}`).focus();
+        houseID--;
+    }
 
 }
 
