@@ -131,6 +131,9 @@ h1 {
     text-shadow: 2px 2px 2px rgb(114, 114, 114);
 
 }
+#btn-div{
+    max-width: 350px;
+}
 
 .button:hover, .btn-bottom:hover {
     transform: translate(0, 2px);
@@ -143,7 +146,7 @@ h1 {
 }
 #deleteHouse{
     margin-top: 50px;
-    display: block;
+    display: inline-block;
 }
 #addHouse, #generate{
     margin-top: 10px;
@@ -175,7 +178,7 @@ h1 {
        text-align: center;
    }
    #btn-div{
-       text-align: center;
+       margin:0 auto;
    }
 
 }

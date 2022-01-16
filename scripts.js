@@ -242,3 +242,84 @@ function initCounter(){
     }
 }
 
+function anyToAny(){
+    counter = 0;
+    findEmpty();
+    findDuplicate();
+    if (empty===false){
+        if (duplicate===false){
+            generateListAny();
+        } else {
+            alert('Please check that all names are unique and try again. Consider adding last initials, last names, or nicknames.')
+        }
+    } else {
+        alert('Please delete the empty household and try again');
+    }
+    function generateListAny(){
+        let names = houses.flat();
+        let possibleRecipients = houses.flat();
+        let recipientArr;
+        let recipient;
+        let y;
+        let x;
+        let broken = false;
+        let numberOfNames = possibleRecipients.length-1;
+        
+        if(counter>=25){
+            alert("No possible combinations! Please try a different configuraion/number of names.")
+            document.getElementById('table-body').insertAdjacentHTML("beforeend", `<tr>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                </tr>`);
+        }else{
+            clearTable();
+            for (let i=0; i<names.length; i++){ 
+                //randomly choose giver name and which subArray for recipients
+                let giverName = names[i];
+                x = Math.floor(numberOfNames * Math.random()); 
+                recipient = possibleRecipients[x];
+                
+                if(possibleRecipients[x]===giverName && numberOfNames<=1){
+                    broken = true;
+                    counter++;
+                    break;
+                }
+
+                while (possibleRecipients[x]===giverName){
+                    x = Math.floor(numberOfNames* Math.random());
+                }
+                
+                //randomly choose name inside of recipient subArray and test if it has already been used (exists in recipients array)
+                recipientArr = copyOfHouses[x];
+                y = Math.floor(recipientArr.length * Math.random());
+                recipient = recipientArr[y];
+                
+                recipientArr.splice(y, 1); //remove name from possible options
+                
+                if (recipientArr.length === 0){
+                    copyOfHouses.splice(x, 1); //check if that leaves an empty array and remove if so
+                    numberOfHouses--; //decrement number of houses to prevent undefined 
+                }
+                document.getElementById('table-body').insertAdjacentHTML("beforeend", `<tr>
+                    <td>${giverName}</td>
+                    <td>${recipient}</td>
+                </tr>`);
+            }
+            if (broken===true){
+                generateList();
+            }
+        }
+    }
+}
