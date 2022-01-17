@@ -190,4 +190,7 @@ h1 {
     .name-input, .button, .delete-name{
         margin-left: calc((100vw - 193px)/2);
     }
+    #any-to-any{
+        margin-top: 10px;
+    }
 }
