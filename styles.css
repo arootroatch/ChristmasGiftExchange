@@ -182,3 +182,12 @@ h1 {
    }
 
 }
+
+@media screen and (max-width: 345px) {
+    #btn-div{
+        width: 150px;
+    }
+    .name-input, .button, .delete-name{
+        margin-left: calc((100vw - 193px)/2);
+    }
+}
