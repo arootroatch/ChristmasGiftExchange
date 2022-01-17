@@ -139,10 +139,8 @@ function findDuplicate(){
     console.log(hasDuplicates(searchNames));
     if (hasDuplicates(searchNames)){
         duplicate = true;
-        console.log(duplicate);
     } else {
         duplicate=false;
-        console.log(duplicate);
     }
 }
 
@@ -258,12 +256,13 @@ function anyToAny(){
     function generateListAny(){
         let names = houses.flat();
         let possibleRecipients = houses.flat();
-        let recipientArr;
         let recipient;
-        let y;
+        let recipients=[];
         let x;
         let broken = false;
-        let numberOfNames = possibleRecipients.length-1;
+        let numberOfNames = possibleRecipients.length;
+        console.log(possibleRecipients);
+        console.log(counter);
         
         if(counter>=25){
             alert("No possible combinations! Please try a different configuraion/number of names.")
@@ -290,35 +289,38 @@ function anyToAny(){
                 let giverName = names[i];
                 x = Math.floor(numberOfNames * Math.random()); 
                 recipient = possibleRecipients[x];
+                console.log('giver', giverName);
+                console.log('recipient', recipient);
                 
-                if(possibleRecipients[x]===giverName && numberOfNames<=1){
-                    broken = true;
-                    counter++;
-                    break;
-                }
-
                 while (possibleRecipients[x]===giverName){
                     x = Math.floor(numberOfNames* Math.random());
+                    recipient = possibleRecipients[x];
+                    if(possibleRecipients[x]===giverName && numberOfNames<=1){
+                        broken = true;
+                        counter++;
+                        break;
+                    }
+                }                
+                while (recipients.includes(recipient)){
+                    x = Math.floor(numberOfNames* Math.random());
+                    recipient = possibleRecipients[x];
+                    if (recipients.includes(recipient) && numberOfNames<=1){
+                        broken=true;
+                        counter++;
+                        break;
+                    }
                 }
-                
-                //randomly choose name inside of recipient subArray and test if it has already been used (exists in recipients array)
-                recipientArr = copyOfHouses[x];
-                y = Math.floor(recipientArr.length * Math.random());
-                recipient = recipientArr[y];
-                
-                recipientArr.splice(y, 1); //remove name from possible options
-                
-                if (recipientArr.length === 0){
-                    copyOfHouses.splice(x, 1); //check if that leaves an empty array and remove if so
-                    numberOfHouses--; //decrement number of houses to prevent undefined 
-                }
+                recipients.push(recipient);
+                possibleRecipients.splice(x, 1); //remove name from possible options
+                numberOfNames--;
+                console.log(possibleRecipients);
                 document.getElementById('table-body').insertAdjacentHTML("beforeend", `<tr>
                     <td>${giverName}</td>
                     <td>${recipient}</td>
                 </tr>`);
             }
             if (broken===true){
-                generateList();
+                generateListAny();
             }
         }
     }
