@@ -48,6 +48,7 @@ if (isMobile === false) {
 function Giver(name, recipient) {
   this.name = name;
   this.recipient = recipient;
+  this.selected = false;
 }
 
 function addName(e) {
@@ -66,7 +67,6 @@ function addName(e) {
       </div>`
     );
     givers.push(new Giver(nameInput, ""));
-    console.log(givers);
     // houses[parentDiv].push(nameInput);
     nameNumber++;
   }
@@ -77,7 +77,6 @@ function deleteName(e) {
   let parentDiv = e.parentNode.id;
   let nameId = e.nextElementSibling.id;
   let name = e.nextElementSibling.innerHTML;
-  console.log(name, typeof name);
   let index;
   for (let i = 0; i < givers.length; i++) {
     if (Object.hasOwn(givers[i], name)) {
@@ -93,14 +92,16 @@ function deleteName(e) {
 }
 
 function addHouse(e) {
-  let houseTemplate = `<div class="household" id="${houseID}" ondrop="drop(event)" ondragover="allowDrop(event)">
-    <h2 contenteditable="true">Household ${houseID + 1}</h2>
-    </div>`;
+  let houseTemplate =(
+    `<div class="household" id="${houseID}" ondrop="drop(event)" ondragover="allowDrop(event)">
+      <h2 contenteditable="true">Household ${houseID + 1}</h2>
+      <select name="${houseID}-select" id="${houseID}-select">
+        <option disabled selected>--Select a name--</option>
+        ${givers.map((x)=>`<option value="${x.name}" ${x.selected ? `disabled` : null}>${x.name}</option>`)}
+      </select>
+    </div>`);
   e.parentNode.insertAdjacentHTML("beforebegin", houseTemplate);
-
-  let btn = document.getElementById(`b${houseID}`);
   houseID += 1;
-  console.log(houseID);
   houses.push([]);
   // copyOfHouses.push([]);
 }
