@@ -107,12 +107,21 @@ h1 {
     margin-top: 0;
 }
 
+.household{
+    margin-top: 1rem;
+    min-height: 5rem;
+    border: 2px solid rgba(255, 255, 255, 0.695);
+    padding: 1rem;
+    border-radius: 0.5rem;
+}
+
 .household p {
     margin: 5px;
     display: inline-block;
 }
 
 .household h2 {
+    margin-top: 0;
     margin-bottom: 10px;
     text-shadow: 2px 2px 2px rgb(114, 114, 114);
 

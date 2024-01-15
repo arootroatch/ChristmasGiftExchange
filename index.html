@@ -13,11 +13,15 @@
         <p id="intro">For families who draw names for their holiday gift exchange, here's a web app to make it easier! People that are put in the same household will not be paired to each other. Additionally, someone put in a household by themselves will be able to be paired to anyone. For two of the same name, please add a last initial or alternate spelling to make them unique. It will auto-capitalize first names.</p>
         <div id="flex-div">
             <div>
-                <div id="0" class="household">
-                    <h2 id="house1-header" contenteditable="true">Household 1 <span id="edit-span">(Click to edit)</span> </h2>
+                <div id="name-list" class="household">
+                    <h2 id="house1-header">Participant Names</h2>
+                    <div class="name-wrapper" id="wrapper0" draggable="true" ondragstart="drag(event)">
+                        <button onclick="deleteName(this)" class="delete-name">X</button>
+                        <p class="name-entered" id="Alex1">Alex</p>
+                        <br id="brAlex1">
+                    </div>
                     <input type="text" id="input0" class="name-input">
                     <button class="button" type="submit" id="b0" onclick="addName(this)">Add Name (Enter)</button>
-                    
                 </div>
                 <div id="btn-div">                    
                     <button class="btn-bottom" id="deleteHouse" onclick="deleteHouse(this)">Delete Last<br>Household</button>
@@ -55,4 +59,5 @@
         </div>
     </body>
 <script type="text/javascript" src="scripts.js"></script>
+<script type="text/javascript" src="dragDrop.js"></script>
 </html>
