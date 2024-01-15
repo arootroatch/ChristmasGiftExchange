@@ -99,16 +99,8 @@ function addHouse(e) {
   e.parentNode.insertAdjacentHTML("beforebegin", houseTemplate);
 
   let btn = document.getElementById(`b${houseID}`);
-  document
-    .getElementById(`input${houseID}`)
-    .addEventListener("keyup", (evt) => {
-      if (evt.keyCode == 13) {
-        evt.preventDefault();
-        btn.click();
-      }
-    });
-  document.getElementById(`input${houseID}`).focus();
-  houseID++;
+  houseID += 1;
+  console.log(houseID);
   houses.push([]);
   // copyOfHouses.push([]);
 }
@@ -117,9 +109,11 @@ function deleteHouse(e) {
   let btnDiv = e.parentNode;
   let houseDiv = btnDiv.previousElementSibling.id;
 
-  houses.splice(houseDiv, 1);
-  document.getElementById(houseDiv).remove();
-  houseID--;
+  if (houseDiv !== "name-list") {
+    houses.splice(houseDiv, 1);
+    document.getElementById(houseDiv).remove();
+    houseID-1 < 0 ? (houseID = 0) : houseID--;
+  }
 }
 
 function deepCopy(arr) {
