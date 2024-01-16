@@ -93,7 +93,7 @@ function addHouse() {
   let houseTemplate =(
     `<div class="household" id="${houseID}">
       <h2 contenteditable="true">Household ${houseID + 1} <span class="edit-span">(Click here to edit)</span></h2>
-      <div class="name-container" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+      <div class="name-container" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
       <select class="name-select" name="${houseID}-select" id="${houseID}-select" onchange="insertName(event)">
         <option disabled selected value="option${houseID}">-- Select a name --</option>
         ${givers.map((x)=>`<option value="${x.name}">${x.name}</option>`)}

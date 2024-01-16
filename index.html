@@ -20,7 +20,7 @@
             <div id="left-container">
                 <div id="name-list">
                     <h2 id="house1-header">Participant Names</h2>
-                    <div class="name-container" ondrop="drop(event)" id="participants" ondragover="allowDrop(event)"></div>
+                    <div class="name-container" ondrop="drop(event)" id="participants" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
                     <input type="text" id="input0" class="name-input">
                     <button class="button" type="submit" id="b0" onclick="addName(this)">Add Name (Enter)</button>
                 </div>
