@@ -1,5 +1,5 @@
 let givers = [];
-let houses = [[]];
+let houses = [];
 let copyOfHouses;
 let houseID = 0;
 let recipients = [];
@@ -53,12 +53,11 @@ function Giver(name, recipient) {
 function addName(e) {
   let parentDiv = e.parentNode.id;
   let nameInput = e.previousElementSibling.value;
-  let inputID = e.previousElementSibling.id;
   if (nameInput !== "") {
     let capitalized = nameInput.charAt(0).toUpperCase() + nameInput.slice(1);
     nameInput = capitalized;
-    document.getElementById(inputID).insertAdjacentHTML(
-      "beforebegin",
+    document.getElementById('participants').insertAdjacentHTML(
+      "beforeend",
       `<div class="name-wrapper" id="wrapper-${nameInput}" draggable="true" ondragstart="drag(event)">
         <button onclick="deleteName(this)" class="delete-name">X</button>
         <p class="name-entered" id="${nameInput}${nameNumber}">${nameInput}</p>
@@ -69,7 +68,7 @@ function addName(e) {
     // houses[parentDiv].push(nameInput);
     nameNumber++;
   }
-  document.getElementById(inputID).value = "";
+  document.getElementById('input0').value = "";
 }
 
 function deleteName(e) {
@@ -169,8 +168,41 @@ function findDuplicate() {
   }
 }
 
+function fillHouses(){
+  houses = [];
+
+  // get names from all houses 
+  houseClass = document.getElementsByClassName('household');
+  for (let i = 0; i<houseClass.length; i++){
+    let tempArr = [];
+    houseClass[i].childNodes.forEach((x)=>{
+      if(x.className==='name-container'){
+        x.childNodes.forEach((y)=>{
+          if(y.tagName==="DIV"){
+            tempArr.push(y.id.slice(8));
+          }
+        });
+      }
+    });
+    houses.push(tempArr);
+  }
+
+  // get names from participants list if any
+  let nameList = document.getElementById('name-list').childNodes;
+  nameList.forEach((x)=>{
+    if(x.className==='name-container'){
+      x.childNodes.forEach((y)=>{
+        if(y.tagName==='DIV'){
+          houses.push([y.id.slice(8)]);
+        }
+      });
+    }
+  });
+}
+
 function initCounter() {
   counter = 0;
+  fillHouses();
   findEmpty();
   findDuplicate();
   if (empty === false) {
@@ -186,7 +218,6 @@ function initCounter() {
   }
   function generateList() {
     let numberOfHouses = houses.length;
-    let names = houses.flat();
     let recipientArr;
     let recipient;
     let y;
@@ -202,27 +233,27 @@ function initCounter() {
       document.getElementById("table-body").insertAdjacentHTML(
         "beforeend",
         `<tr>
-                    <td></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                </tr>`
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+        </tr>`
       );
     } else {
       clearTable();
-      for (let i = 0; i < names.length; i++) {
+      for (let i = 0; i < givers.length; i++) {
         //randomly choose giver name and which subArray for recipients
-        let giverName = names[i];
+        let giverName = givers[i].name;
         x = Math.floor(numberOfHouses * Math.random());
         //find chosen subArray in original Array
         let originalArray;
@@ -257,6 +288,7 @@ function initCounter() {
         recipientArr = copyOfHouses[x];
         y = Math.floor(recipientArr.length * Math.random());
         recipient = recipientArr[y];
+        givers[i].recipient = recipient;
 
         recipientArr.splice(y, 1); //remove name from possible options
 
@@ -268,108 +300,12 @@ function initCounter() {
           "beforeend",
           `<tr>
                     <td>${giverName}</td>
-                    <td>${recipient}</td>
+                    <td>${givers[i].recipient}</td>
                 </tr>`
         );
       }
       if (broken === true) {
         generateList();
-      }
-    }
-  }
-}
-
-function anyToAny() {
-  counter = 0;
-  findEmpty();
-  findDuplicate();
-  if (empty === false) {
-    if (duplicate === false) {
-      generateListAny();
-    } else {
-      alert(
-        "Please check that all names are unique and try again. Consider adding last initials, last names, or nicknames."
-      );
-    }
-  } else {
-    alert("Please delete the empty household and try again");
-  }
-  function generateListAny() {
-    let names = houses.flat();
-    let possibleRecipients = houses.flat();
-    let recipient;
-    let recipients = [];
-    let x;
-    let broken = false;
-    let numberOfNames = possibleRecipients.length;
-    // console.log(possibleRecipients);
-    // console.log(counter);
-
-    if (counter >= 25) {
-      alert(
-        "No possible combinations! Please try a different configuraion/number of names."
-      );
-      document.getElementById("table-body").insertAdjacentHTML(
-        "beforeend",
-        `<tr>
-                    <td></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                </tr>`
-      );
-    } else {
-      clearTable();
-      for (let i = 0; i < names.length; i++) {
-        //randomly choose giver name and which subArray for recipients
-        let giverName = names[i];
-        x = Math.floor(numberOfNames * Math.random());
-        recipient = possibleRecipients[x];
-        // console.log('giver', giverName);
-        // console.log('recipient', recipient);
-
-        while (possibleRecipients[x] === giverName) {
-          x = Math.floor(numberOfNames * Math.random());
-          recipient = possibleRecipients[x];
-          if (possibleRecipients[x] === giverName && numberOfNames <= 1) {
-            broken = true;
-            counter++;
-            break;
-          }
-        }
-        while (recipients.includes(recipient)) {
-          x = Math.floor(numberOfNames * Math.random());
-          recipient = possibleRecipients[x];
-          if (recipients.includes(recipient) && numberOfNames <= 1) {
-            broken = true;
-            counter++;
-            break;
-          }
-        }
-        recipients.push(recipient);
-        possibleRecipients.splice(x, 1); //remove name from possible options
-        numberOfNames--;
-        // console.log(possibleRecipients);
-        document.getElementById("table-body").insertAdjacentHTML(
-          "beforeend",
-          `<tr>
-                    <td>${giverName}</td>
-                    <td>${recipient}</td>
-                </tr>`
-        );
-      }
-      if (broken === true) {
-        generateListAny();
       }
     }
   }

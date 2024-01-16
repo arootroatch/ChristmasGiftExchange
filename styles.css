@@ -107,7 +107,7 @@ h1 {
     margin-top: 0;
 }
 
-.household{
+.household, #name-list{
     margin-top: 1rem;
     min-height: 5rem;
     border: 2px solid rgba(255, 255, 255, 0.695);
@@ -115,12 +115,12 @@ h1 {
     border-radius: 0.5rem;
 }
 
-.household p {
+.household p, #name-list p {
     margin: 5px;
     display: inline-block;
 }
 
-.household h2 {
+.household h2, #name-list h2 {
     margin-top: 0;
     margin-bottom: 10px;
     text-shadow: 2px 2px 2px rgb(114, 114, 114);
@@ -136,7 +136,7 @@ h1 {
 }
 
 .name-container {
-    padding-bottom: 25px;
+    padding-bottom: 25px; /* Keep space to enable drag and drop */
 }
 
 .button, .btn-bottom {
@@ -151,10 +151,15 @@ h1 {
     width: 150px;
     font-weight: bold;
     text-shadow: 2px 2px 2px rgb(114, 114, 114);
+    margin: 0 5px;
 
 }
 #btn-div{
-    max-width: 305px;
+    display: flex;
+    max-width: 100%;
+    height: auto;
+    justify-content: center;
+    margin-bottom: 20px;
 }
 
 .button:hover, .btn-bottom:hover {
@@ -166,13 +171,7 @@ h1 {
     transform: translate(0, 4px);
     box-shadow: none;
 }
-#deleteHouse{
-    margin-top: 50px;
-    display: inline-block;
-}
-#addHouse, #generate{
-    margin-top: 10px;
-}
+
 
 /* media queries */
 
@@ -192,11 +191,11 @@ h1 {
    body{
        background-attachment: scroll;
    }
-   .household {
+   .household, #name-list {
        margin: 0 auto;
        max-width: 320px;
    }
-   .household h2 {
+   .household h2, #name-list h2 {
        text-align: center;
    }
    #btn-div{

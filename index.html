@@ -11,18 +11,18 @@
         <div id="background"></div>
         <h1>Gift Exchange Generator</h1>
         <p id="intro">For families who draw names for their holiday gift exchange, here's a web app to make it easier! People that are put in the same household will not be paired to each other. Additionally, someone put in a household by themselves will be able to be paired to anyone. For two of the same name, please add a last initial or alternate spelling to make them unique. It will auto-capitalize first names.</p>
+        <div id="btn-div">                    
+            <button class="btn-bottom" id="deleteHouse" onclick="deleteHouse(this)">Delete Last<br>Household</button>
+            <button class="btn-bottom" id="addHouse" onclick="addHouse(this)">Add Household<br>(Shift+Enter)</button>
+            <button class="btn-bottom" id="generate" onclick="initCounter()">Generate List<br>(Ctrl+Enter)</button>
+        </div>
         <div id="flex-div">
             <div>
-                <div id="name-list" class="household">
+                <div id="name-list">
                     <h2 id="house1-header">Participant Names</h2>
+                    <div class="name-container" ondrop="drop(event)" id="participants" ondragover="allowDrop(event)"></div>
                     <input type="text" id="input0" class="name-input">
                     <button class="button" type="submit" id="b0" onclick="addName(this)">Add Name (Enter)</button>
-                </div>
-                <div id="btn-div">                    
-                    <button class="btn-bottom" id="deleteHouse" onclick="deleteHouse(this)">Delete Last<br>Household</button>
-                    <button class="btn-bottom" id="addHouse" onclick="addHouse(this)">Add Household<br>(Shift+Enter)</button>
-                    <button class="btn-bottom" id="any-to-any" onclick="anyToAny()">Match Anyone<br>to Anyone!</button>
-                    <button class="btn-bottom" id="generate" onclick="initCounter()">Generate List<br>(Ctrl+Enter)</button>
                 </div>
             </div>
             <table id="table">
