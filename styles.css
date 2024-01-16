@@ -47,7 +47,7 @@ h1 {
     align-items: flex-start;
     width: 100%;
 }
-#edit-span{
+.edit-span{
     font-size: .7em;
 }
 .delete-name{
