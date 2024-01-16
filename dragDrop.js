@@ -1,5 +1,8 @@
 function allowDrop(ev) {
-  ev.preventDefault();
+  // prevent dropping inside of another name div
+  if (ev.target.className === 'name-container'){
+    ev.preventDefault();
+  }
 }
 
 function drag(ev) {
@@ -7,7 +10,10 @@ function drag(ev) {
 }
 
 function drop(ev) {
-  ev.preventDefault();
-  var data = ev.dataTransfer.getData("text");
-  ev.target.appendChild(document.getElementById(data));
+  // prevent droping inside of another name
+  if (ev.target.className === 'name-container'){
+    ev.preventDefault();
+    var data = ev.dataTransfer.getData("text");
+    ev.target.appendChild(document.getElementById(data));
+  }
 }

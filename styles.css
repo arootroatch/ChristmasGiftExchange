@@ -126,6 +126,19 @@ h1 {
     text-shadow: 2px 2px 2px rgb(114, 114, 114);
 
 }
+
+.name-select{
+    width: 100%;
+    color: black;
+    text-align: center;
+    margin-top: 15px;
+
+}
+
+.name-container {
+    padding-bottom: 25px;
+}
+
 .button, .btn-bottom {
     background-color: #4e1f20c9;
     color: rgb(226, 226, 226);

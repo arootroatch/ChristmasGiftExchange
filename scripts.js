@@ -48,7 +48,6 @@ if (isMobile === false) {
 function Giver(name, recipient) {
   this.name = name;
   this.recipient = recipient;
-  this.selected = false;
 }
 
 function addName(e) {
@@ -60,7 +59,7 @@ function addName(e) {
     nameInput = capitalized;
     document.getElementById(inputID).insertAdjacentHTML(
       "beforebegin",
-      `<div class="name-wrapper" id="wrapper${nameNumber}" draggable="true" ondragstart="drag(event)">
+      `<div class="name-wrapper" id="wrapper-${nameInput}" draggable="true" ondragstart="drag(event)">
         <button onclick="deleteName(this)" class="delete-name">X</button>
         <p class="name-entered" id="${nameInput}${nameNumber}">${nameInput}</p>
         <br id="br${nameInput}${nameNumber}">
@@ -93,17 +92,29 @@ function deleteName(e) {
 
 function addHouse(e) {
   let houseTemplate =(
-    `<div class="household" id="${houseID}" ondrop="drop(event)" ondragover="allowDrop(event)">
+    `<div class="household" id="${houseID}">
       <h2 contenteditable="true">Household ${houseID + 1}</h2>
-      <select name="${houseID}-select" id="${houseID}-select">
-        <option disabled selected>--Select a name--</option>
-        ${givers.map((x)=>`<option value="${x.name}" ${x.selected ? `disabled` : null}>${x.name}</option>`)}
+      <div class="name-container" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+      <select class="name-select" name="${houseID}-select" id="${houseID}-select" onchange="insertName(event)">
+        <option disabled selected value="option${houseID}">-- Select a name --</option>
+        ${givers.map((x)=>`<option value="${x.name}">${x.name}</option>`)}
       </select>
     </div>`);
   e.parentNode.insertAdjacentHTML("beforebegin", houseTemplate);
   houseID += 1;
   houses.push([]);
   // copyOfHouses.push([]);
+}
+
+// insert name into div from select and remove from participant list
+function insertName(e){
+  let firstName = e.target.value
+  let nameDiv = document.getElementById(`wrapper-${firstName}`);
+  e.target.previousElementSibling.appendChild(nameDiv);
+
+  // set select back to saying "select a name"
+  label = e.target.firstElementChild.value;
+  e.target.value = label;
 }
 
 function deleteHouse(e) {
