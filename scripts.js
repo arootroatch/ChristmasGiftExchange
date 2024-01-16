@@ -89,7 +89,7 @@ function deleteName(e) {
   e.remove();
 }
 
-function addHouse(e) {
+function addHouse() {
   let houseTemplate =(
     `<div class="household" id="${houseID}">
       <h2 contenteditable="true">Household ${houseID + 1}</h2>
@@ -99,10 +99,8 @@ function addHouse(e) {
         ${givers.map((x)=>`<option value="${x.name}">${x.name}</option>`)}
       </select>
     </div>`);
-  e.parentNode.insertAdjacentHTML("beforebegin", houseTemplate);
+  document.getElementById('left-container').insertAdjacentHTML("beforeend", houseTemplate);
   houseID += 1;
-  houses.push([]);
-  // copyOfHouses.push([]);
 }
 
 // insert name into div from select and remove from participant list
@@ -117,11 +115,10 @@ function insertName(e){
 }
 
 function deleteHouse(e) {
-  let btnDiv = e.parentNode;
-  let houseDiv = btnDiv.previousElementSibling.id;
+  let container = document.getElementById('left-container');
+  let houseDiv = container.lastChild.id;
 
   if (houseDiv !== "name-list") {
-    houses.splice(houseDiv, 1);
     document.getElementById(houseDiv).remove();
     houseID-1 < 0 ? (houseID = 0) : houseID--;
   }
