@@ -94,6 +94,17 @@ function addHouse() {
   houseID += 1;
 }
 
+function toggleInstructions(){
+  let intro = document.getElementById('intro');
+  if(intro.style.display==="none"){
+    intro.style.display="block";
+    document.getElementById('instructions').innerHTML = "Hide Instructions";
+  } else {
+    intro.style.display="none";
+    document.getElementById('instructions').innerHTML = "Show Instructions";
+  }
+}
+
 // insert name into div from select and remove from participant list
 function insertName(e) {
   let firstName = e.target.value;
@@ -212,7 +223,6 @@ function start(){
   generateList();
 
   function generateList() {
-    console.log("GENERATING")
     let duplicate;
     let recipient;
     let y;
@@ -220,9 +230,7 @@ function start(){
     let broken = false;
     fillHouses();
     deepCopy(houses);
-    console.log("houses", houses);
     let numberOfHouses = houses.length;
-    console.log("numberOfHouses", numberOfHouses);
     findDuplicate();
 
     if (duplicate) {
@@ -258,19 +266,14 @@ function start(){
       givers.forEach((a)=>{
         //sequentially choose giver name and randomly choose which subArray for recipient
         let giverName = a.name;
-        console.log('giver', giverName);
         x = Math.floor(numberOfHouses * Math.random());
         // randomly choose name inside
         y = Math.floor((availRecipients[x].length) * Math.random());
         recipient = availRecipients[x][y];
-        console.log('take one', recipient);
         // check if name is in giver's household
         let prevX=x;
         for (let j = 0; j<houses.length; j++){
-          console.log(houses[j].includes(recipient));
           if(houses[j].includes(recipient)){
-            console.log(houses[j]);
-            console.log(houses[j].includes(giverName));
             if(houses[j].includes(giverName)){
               // uh-oh are we out of options?
               if(numberOfHouses<=1){
@@ -285,13 +288,11 @@ function start(){
               // choose new recipient from new array
               y = Math.floor((availRecipients[x].length) * Math.random());
               recipient = availRecipients[x][y];
-              console.log('take two', recipient);
             }
           }
         }
         // assign recipient in giver's object
         a.recipient = recipient;
-        console.log("final recipient", recipient);
   
         availRecipients[x].splice(y, 1); //remove name from possible options
   

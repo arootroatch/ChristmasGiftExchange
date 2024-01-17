@@ -10,12 +10,12 @@
     <body>
         <div id="background"></div>
         <h1>Gift Exchange Generator</h1>
-        <p id="intro">For families who draw names for their holiday gift exchange, here's a web app to make it easier! People that are put in the same household will not be paired to each other. Additionally, someone put in a household by themselves will be able to be paired to anyone. For two of the same name, please add a last initial or alternate spelling to make them unique. It will auto-capitalize first names.</p>
+        <p id="intro" class="closed">For families who draw names for their holiday gift exchange, here's a web app to make it easier! <br><br> Step 1: Enter the  names of everyone participating in the gift exchange. Make sure all names are unique. If two people have the same name, please add a last initial or alternate spelling of their name.<br><br> Step 2 (optional): To stop some people from getting each others' names, add households to group them together. You can drag and drop to move people around or select their name from the drop down in each box. Names in the top box will be matched to anyone. <br><br> Step 3: Click "Generate List" and watch it go!</p>
         <div id="btn-div">                    
             <button class="btn-bottom" id="deleteHouse" onclick="deleteHouse()">Delete Last<br>Household</button>
             <button class="btn-bottom" id="addHouse" onclick="addHouse()">Add Household<br>(Shift+Enter)</button>
             <button class="btn-bottom" id="generate" onclick="start()">Generate List<br>(Ctrl+Enter)</button>
-            <button class="btn-bottom" id="generate" onclick="fillHouses()">TEST<br>(Ctrl+Enter)</button>
+            <button class="btn-bottom" id="instructions" onclick="toggleInstructions()">Hide Instructions</button>
         </div>
         <div id="flex-div">
             <div id="left-container">

@@ -37,9 +37,11 @@ h1 {
     line-height: 1.5em;
     text-align: justify;
     max-width: 600px;
-    
+    transition: height 1s;
+    overflow: hidden;
     
 }
+
 #flex-div {
     display: flex;
     flex-direction: row;
