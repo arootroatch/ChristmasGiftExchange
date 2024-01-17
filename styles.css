@@ -100,8 +100,10 @@ h1 {
 #table {
     border-collapse: collapse;
     width: 45%;
+    min-width: 300px;
     border-radius: 20px 20px 0 0;
     overflow: hidden;
+    margin-left: 10px;
 
 }
 
@@ -187,9 +189,6 @@ h1 {
        max-width: 350px;
        
    }
-   #deleteHouse {
-       margin:50px auto 0 auto;
-   }
    body{
        background-attachment: scroll;
    }
@@ -200,20 +199,26 @@ h1 {
    .household h2, #name-list h2 {
        text-align: center;
    }
-   #btn-div{
-       margin:0 auto;
-   }
+
 
 }
 
-@media screen and (max-width: 345px) {
+@media screen and (max-width: 553px) {
     #btn-div{
-        width: 150px;
+        flex-wrap: wrap;
+        max-width: 400px;
+        margin: 0 auto;
     }
-    .name-input, .button, .delete-name{
-        margin-left: calc((100vw - 193px)/2);
-    }
-    #any-to-any{
+    #generate, #instructions{
         margin-top: 10px;
+    }
+    #flex-div {
+        margin-top: 10px;
+    }
+}
+@media screen and (max-width: 359px) {
+    #btn-div{
+        width: 100vw;
+        margin: 0 auto;
     }
 }
