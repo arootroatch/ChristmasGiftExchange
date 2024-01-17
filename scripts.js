@@ -254,9 +254,10 @@ function start(){
       );
     } else {
       clearTable();
-      for (let i = 0; i < givers.length; i++) {
+      // for (let i = 0; i < givers.length; i++)
+      givers.forEach((a)=>{
         //sequentially choose giver name and randomly choose which subArray for recipient
-        let giverName = givers[i].name;
+        let giverName = a.name;
         console.log('giver', giverName);
         x = Math.floor(numberOfHouses * Math.random());
         // randomly choose name inside
@@ -289,7 +290,7 @@ function start(){
           }
         }
         // assign recipient in giver's object
-        givers[i].recipient = recipient;
+        a.recipient = recipient;
         console.log("final recipient", recipient);
   
         availRecipients[x].splice(y, 1); //remove name from possible options
@@ -302,11 +303,11 @@ function start(){
           "beforeend",
           `<tr>
               <td>${giverName}</td>
-              <td>${givers[i].recipient}</td>
+              <td>${a.recipient}</td>
           </tr>`
         );
+      });
 
-      } 
         
       if (broken === true) {
         generateList();
