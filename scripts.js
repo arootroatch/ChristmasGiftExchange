@@ -1,13 +1,9 @@
 let givers = [];
 let houses = [];
-let copyOfHouses;
 let houseID = 0;
-let recipients = [];
-let counter;
 let isMobile;
-let empty;
-let duplicate;
 let nameNumber = 1;
+let availRecipients =[]; // for deleting names from the recipient pool
 
 if (
   /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
@@ -51,12 +47,11 @@ function Giver(name, recipient) {
 }
 
 function addName(e) {
-  let parentDiv = e.parentNode.id;
   let nameInput = e.previousElementSibling.value;
   if (nameInput !== "") {
     let capitalized = nameInput.charAt(0).toUpperCase() + nameInput.slice(1);
     nameInput = capitalized;
-    document.getElementById('participants').insertAdjacentHTML(
+    document.getElementById("participants").insertAdjacentHTML(
       "beforeend",
       `<div class="name-wrapper" id="wrapper-${nameInput}" draggable="true" ondragstart="drag(event)">
         <button onclick="deleteName(this)" class="delete-name">X</button>
@@ -65,47 +60,43 @@ function addName(e) {
       </div>`
     );
     givers.push(new Giver(nameInput, ""));
-    // houses[parentDiv].push(nameInput);
     nameNumber++;
   }
-  document.getElementById('input0').value = "";
+  document.getElementById("input0").value = "";
 }
 
 function deleteName(e) {
-  let parentDiv = e.parentNode.id;
-  let nameId = e.nextElementSibling.id;
+  let nameWrapper = e.parentNode.id;
   let name = e.nextElementSibling.innerHTML;
-  let index;
   for (let i = 0; i < givers.length; i++) {
-    if (Object.hasOwn(givers[i], name)) {
-      index = i;
-      return index;
+    if (givers[i].name === name) {
+      givers.splice(i, 1);
     }
   }
 
-  givers.splice(index, 1);
-  document.getElementById(nameId).remove();
-  document.getElementById(`br${nameId}`).remove();
-  e.remove();
+  document.getElementById(nameWrapper).remove();
 }
 
 function addHouse() {
-  let houseTemplate =(
-    `<div class="household" id="${houseID}">
-      <h2 contenteditable="true">Household ${houseID + 1} <span class="edit-span">(Click here to edit)</span></h2>
+  let houseTemplate = `<div class="household" id="${houseID}">
+      <h2 contenteditable="true">Household ${
+        houseID + 1
+      } <span class="edit-span">(Click here to edit)</span></h2>
       <div class="name-container" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
       <select class="name-select" name="${houseID}-select" id="${houseID}-select" onchange="insertName(event)">
         <option disabled selected value="option${houseID}">-- Select a name --</option>
-        ${givers.map((x)=>`<option value="${x.name}">${x.name}</option>`)}
+        ${givers.map((x) => `<option value="${x.name}">${x.name}</option>`)}
       </select>
-    </div>`);
-  document.getElementById('left-container').insertAdjacentHTML("beforeend", houseTemplate);
+    </div>`;
+  document
+    .getElementById("left-container")
+    .insertAdjacentHTML("beforeend", houseTemplate);
   houseID += 1;
 }
 
 // insert name into div from select and remove from participant list
-function insertName(e){
-  let firstName = e.target.value
+function insertName(e) {
+  let firstName = e.target.value;
   let nameDiv = document.getElementById(`wrapper-${firstName}`);
   e.target.previousElementSibling.appendChild(nameDiv);
 
@@ -114,26 +105,42 @@ function insertName(e){
   e.target.value = label;
 }
 
-function deleteHouse(e) {
-  let container = document.getElementById('left-container');
-  let houseDiv = container.lastChild.id;
+function deleteHouse() {
+  // find last household
+  let container = document.getElementById("left-container");
+  let houseDiv = container.lastChild;
+  let name;
 
-  if (houseDiv !== "name-list") {
-    document.getElementById(houseDiv).remove();
-    houseID-1 < 0 ? (houseID = 0) : houseID--;
-  }
+  houseDiv.childNodes.forEach((x) => {
+    // search inside last household for name container
+    if (x.className === "name-container") {
+      // grab name from each name wrapper div
+      x.childNodes.forEach((y) => {
+        name = y.id.slice(8);
+        // search the givers array for an object with that same name and delete it
+        for (let i = 0; i < givers.length; i++) {
+          if (givers[i].name === name) {
+            givers.splice(i, 1);
+          }
+        }
+      });
+      // delete entire div from DOM
+      houseDiv.remove();
+    }
+  });
 }
 
 function deepCopy(arr) {
-  for (x = 0; x < arr.length - 1; x++) {
-    copyOfHouses.push([]);
-  }
+  arr.forEach((x)=>{
+    availRecipients.push([]);
+  })
   for (i = 0; i < arr.length; i++) {
     for (j = 0; j < arr[i].length; j++) {
-      copyOfHouses[i].push(arr[i][j]);
+      availRecipients[i].push(arr[i][j]);
     }
   }
 }
+
 function clearTable() {
   //clear table but keep header row
   let parentNode = document.getElementById("table-body");
@@ -157,7 +164,6 @@ function findDuplicate() {
   function hasDuplicates(arr) {
     return new Set(arr).size !== arr.length;
   }
-  // console.log(hasDuplicates(searchNames));
   if (hasDuplicates(searchNames)) {
     duplicate = true;
   } else {
@@ -165,31 +171,35 @@ function findDuplicate() {
   }
 }
 
-function fillHouses(){
+function fillHouses() {
   houses = [];
 
-  // get names from all houses 
-  houseClass = document.getElementsByClassName('household');
-  for (let i = 0; i<houseClass.length; i++){
+  // get names from all houses
+  houseClass = document.getElementsByClassName("household");
+  for (let i = 0; i < houseClass.length; i++) {
     let tempArr = [];
-    houseClass[i].childNodes.forEach((x)=>{
-      if(x.className==='name-container'){
-        x.childNodes.forEach((y)=>{
-          if(y.tagName==="DIV"){
+    houseClass[i].childNodes.forEach((x) => {
+      if (x.className === "name-container") {
+        x.childNodes.forEach((y) => {
+          if (y.tagName === "DIV") {
             tempArr.push(y.id.slice(8));
           }
         });
       }
     });
-    houses.push(tempArr);
+    // don't push empty array
+    if (tempArr.length > 0) {
+      houses.push(tempArr);
+    }
   }
 
   // get names from participants list if any
-  let nameList = document.getElementById('name-list').childNodes;
-  nameList.forEach((x)=>{
-    if(x.className==='name-container'){
-      x.childNodes.forEach((y)=>{
-        if(y.tagName==='DIV'){
+  let nameList = document.getElementById("name-list").childNodes;
+  nameList.forEach((x) => {
+    if (x.className === "name-container") {
+      x.childNodes.forEach((y) => {
+        if (y.tagName === "DIV") {
+          // add them to their own array so they can be matched with anybody
           houses.push([y.id.slice(8)]);
         }
       });
@@ -197,110 +207,107 @@ function fillHouses(){
   });
 }
 
-function initCounter() {
-  counter = 0;
-  fillHouses();
-  findEmpty();
-  findDuplicate();
-  if (empty === false) {
-    if (duplicate === false) {
-      generateList();
-    } else {
-      alert(
-        "Please check that all names are unique and try again. Consider adding last initials, last names, or nicknames."
-      );
-    }
-  } else {
-    alert("Please delete the empty household and try again");
-  }
+function start(){
+  let counter = 0;
+  generateList();
+
   function generateList() {
-    let numberOfHouses = houses.length;
-    let recipientArr;
+    console.log("GENERATING")
+    let duplicate;
     let recipient;
     let y;
     let x;
     let broken = false;
-    copyOfHouses = [[]];
-
+    fillHouses();
     deepCopy(houses);
-    if (counter >= 25) {
+    console.log("houses", houses);
+    let numberOfHouses = houses.length;
+    console.log("numberOfHouses", numberOfHouses);
+    findDuplicate();
+
+    if (duplicate) {
+      alert(
+        "Please check that all names are unique and try again. Consider adding last initials, last names, or nicknames."
+      );
+    } else if (counter >= 25) {
       alert(
         "No possible combinations! Please try a different configuraion/number of names."
       );
       document.getElementById("table-body").insertAdjacentHTML(
         "beforeend",
         `<tr>
-            <td></td>
-            <td></td>
-        </tr>
-        <tr>
-            <td></td>
-            <td></td>
-        </tr>
-        <tr>
-            <td></td>
-            <td></td>
-        </tr>
-        <tr>
-            <td></td>
-            <td></td>
-        </tr>`
+              <td></td>
+              <td></td>
+          </tr>
+          <tr>
+              <td></td>
+              <td></td>
+          </tr>
+          <tr>
+              <td></td>
+              <td></td>
+          </tr>
+          <tr>
+              <td></td>
+              <td></td>
+          </tr>`
       );
     } else {
       clearTable();
       for (let i = 0; i < givers.length; i++) {
-        //randomly choose giver name and which subArray for recipients
+        //sequentially choose giver name and randomly choose which subArray for recipient
         let giverName = givers[i].name;
+        console.log('giver', giverName);
         x = Math.floor(numberOfHouses * Math.random());
-        //find chosen subArray in original Array
-        let originalArray;
-        function findOriginal() {
-          let searchElem = copyOfHouses[x][0];
-          let searched;
-          for (
-            originalArray = 0;
-            originalArray < houses.length;
-            originalArray++
-          ) {
-            searched = houses[originalArray].indexOf(searchElem);
-            if (searched > -1) {
-              break;
+        // randomly choose name inside
+        y = Math.floor((availRecipients[x].length) * Math.random());
+        recipient = availRecipients[x][y];
+        console.log('take one', recipient);
+        // check if name is in giver's household
+        let prevX=x;
+        for (let j = 0; j<houses.length; j++){
+          console.log(houses[j].includes(recipient));
+          if(houses[j].includes(recipient)){
+            console.log(houses[j]);
+            console.log(houses[j].includes(giverName));
+            if(houses[j].includes(giverName)){
+              // uh-oh are we out of options?
+              if(numberOfHouses<=1){
+                broken = true;
+                counter++;
+                break;
+              } 
+              // find new array and make sure it's not the same one as before
+              while (x===prevX){
+                x = Math.floor(numberOfHouses * Math.random());
+              }
+              // choose new recipient from new array
+              y = Math.floor((availRecipients[x].length) * Math.random());
+              recipient = availRecipients[x][y];
+              console.log('take two', recipient);
             }
           }
         }
-        findOriginal();
-
-        if (houses[originalArray].includes(giverName) && numberOfHouses <= 1) {
-          broken = true;
-          counter++;
-          break;
-        }
-
-        while (houses[originalArray].includes(giverName)) {
-          x = Math.floor(numberOfHouses * Math.random());
-          findOriginal();
-        }
-
-        //randomly choose name inside of recipient subArray and test if it has already been used (exists in recipients array)
-        recipientArr = copyOfHouses[x];
-        y = Math.floor(recipientArr.length * Math.random());
-        recipient = recipientArr[y];
+        // assign recipient in giver's object
         givers[i].recipient = recipient;
-
-        recipientArr.splice(y, 1); //remove name from possible options
-
-        if (recipientArr.length === 0) {
-          copyOfHouses.splice(x, 1); //check if that leaves an empty array and remove if so
-          numberOfHouses--; //decrement number of houses to prevent undefined
+        console.log("final recipient", recipient);
+  
+        availRecipients[x].splice(y, 1); //remove name from possible options
+  
+        if (availRecipients[x].length === 0) {
+          availRecipients.splice(x, 1); //check if that leaves an empty array and remove if so
+          numberOfHouses-1 > -1 ? numberOfHouses-- : numberOfHouses = 0; //decrement number of houses to prevent undefined when randomly selecting next array. don't let it fall under zero
         }
         document.getElementById("table-body").insertAdjacentHTML(
           "beforeend",
           `<tr>
-                    <td>${giverName}</td>
-                    <td>${givers[i].recipient}</td>
-                </tr>`
+              <td>${giverName}</td>
+              <td>${givers[i].recipient}</td>
+          </tr>`
         );
-      }
+
+      } 
+        
       if (broken === true) {
         generateList();
       }
