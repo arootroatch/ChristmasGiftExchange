@@ -41,9 +41,11 @@ if (isMobile === false) {
 }
 
 // object constructor function
-function Giver(name, recipient) {
+function Giver(name, recipient, email) {
   this.name = name;
+  this.email = email;
   this.recipient = recipient;
+  this.date = String(new Date());
 }
 
 function addName(e) {
@@ -59,7 +61,8 @@ function addName(e) {
         <br id="br${nameInput}${nameNumber}">
       </div>`
     );
-    givers.push(new Giver(nameInput, ""));
+    givers.push(new Giver(nameInput, "", ""));
+    console.log(givers);
     nameNumber++;
   }
   document.getElementById("input0").value = "";
@@ -159,16 +162,6 @@ function clearTable() {
     parentNode.removeChild(parentNode.firstChild);
   }
 }
-function findEmpty() {
-  for (let i = 0; i < houses.length; i++) {
-    if (houses[i].length < 1) {
-      empty = true;
-      break;
-    } else {
-      empty = false;
-    }
-  }
-}
 
 function findDuplicate() {
   let searchNames = houses.flat();
@@ -239,7 +232,7 @@ function start(){
       );
     } else if (counter >= 25) {
       alert(
-        "No possible combinations! Please try a different configuraion/number of names."
+        "No possible combinations! Please try a different configuration/number of names."
       );
       document.getElementById("table-body").insertAdjacentHTML(
         "beforeend",
@@ -316,3 +309,44 @@ function start(){
     }
   }
 }
+
+// module.exports = {givers} 
+
+
+import React from "./node_modules/react/index"
+// import { Resend } from 'resend';
+import secretSantaEmail from './emails';
+
+
+const sendSecretSantaEmail = async () => {
+  console.log('clicked');
+  // create batch of emails for single API call
+  const emailBatchArr = givers.map(giver =>(
+    {
+      from: "Gift Exchange <onboarding@resend.dev>",
+      to: giver.email,
+      subject: "Here's who you're buying a present for!",      
+      react: React.createElement(secretSantaEmail, {
+        name: giver.name,
+        recipient: giver.recipient
+      })
+    }
+  ));
+  console.log(emailBatchArr);
+
+  // let data;
+
+  // try {
+  //   data = await resend.batch.send(emailBatchArr);
+  // } catch (error: unknown) {
+  //   return {
+  //     error: getErrorMessage(error),
+  //   }
+  // }
+  // return {
+  //   data,
+  // }
+};
+
+// import change this into a module, functions need to be made available to the window again for onclick attribute to work
+window._allFns = {start, insertName, deleteHouse,toggleInstructions,addHouse,deleteName, addName, sendSecretSantaEmail}

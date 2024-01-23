@@ -1,0 +1,28 @@
+{
+  "name": "christmas-gift-exchange",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Gift exchange generator site for holiday name picking",
+  "main": "dragDrop.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "email dev"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arootroatch/ChristmasGiftExchange.git"
+  },
+  "author": "Alex Root-Roatch",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/arootroatch/ChristmasGiftExchange/issues"
+  },
+  "homepage": "https://github.com/arootroatch/ChristmasGiftExchange#readme",
+  "dependencies": {
+    "@react-email/components": "0.0.14",
+    "dotenv": "^16.3.2",
+    "mongodb": "^6.3.0",
+    "react-email": "2.0.0",
+    "resend": "^3.1.0"
+  }
+}

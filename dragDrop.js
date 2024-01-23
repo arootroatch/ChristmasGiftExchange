@@ -11,7 +11,7 @@ function drag(ev) {
 }
 
 function drop(ev) {
-  // prevent droping inside of another name
+  // prevent dropping inside of another name
   if (ev.target.className === 'name-container'){
     ev.preventDefault();
     var data = ev.dataTransfer.getData("text");
@@ -24,3 +24,5 @@ function drop(ev) {
 function dragLeave(ev){
   ev.target.style.backgroundColor="transparent";
 }
+
+
