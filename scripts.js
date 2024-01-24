@@ -313,26 +313,27 @@ function start(){
 // module.exports = {givers} 
 
 
-import React from "./node_modules/react/index"
+// import React from "./node_modules/react/index"
 // import { Resend } from 'resend';
-import secretSantaEmail from './emails';
+// import secretSantaEmail from './emails/index.tsx';
 
 
-const sendSecretSantaEmail = async () => {
-  console.log('clicked');
-  // create batch of emails for single API call
-  const emailBatchArr = givers.map(giver =>(
-    {
-      from: "Gift Exchange <onboarding@resend.dev>",
-      to: giver.email,
-      subject: "Here's who you're buying a present for!",      
-      react: React.createElement(secretSantaEmail, {
-        name: giver.name,
-        recipient: giver.recipient
-      })
-    }
-  ));
-  console.log(emailBatchArr);
+
+// const sendSecretSantaEmail = async () => {
+//   console.log('clicked');
+//   // create batch of emails for single API call
+//   const emailBatchArr = givers.map(giver =>(
+//     {
+//       from: "Gift Exchange <onboarding@resend.dev>",
+//       to: giver.email,
+//       subject: "Here's who you're buying a present for!",      
+//       react: React.createElement(secretSantaEmail, {
+//         name: giver.name,
+//         recipient: giver.recipient
+//       })
+//     }
+//   ));
+//   console.log(emailBatchArr);
 
   // let data;
 
@@ -346,7 +347,7 @@ const sendSecretSantaEmail = async () => {
   // return {
   //   data,
   // }
-};
+// };
 
 // import change this into a module, functions need to be made available to the window again for onclick attribute to work
-window._allFns = {start, insertName, deleteHouse,toggleInstructions,addHouse,deleteName, addName, sendSecretSantaEmail}
+// window._allFns = {start, insertName, deleteHouse,toggleInstructions,addHouse,deleteName, addName, sendSecretSantaEmail}
