@@ -36,24 +36,3 @@ async function postToDb(){
 
 };
 
-async function dispatchEmail(){
-
-  await fetch(
-    `${process.env.URL}/.netlify/functions/emails/secret-santa`,
-    {
-      headers: {
-        "netlify-emails-secret": process.env.NETLIFY_EMAILS_SECRET,
-      },
-      method: "POST",
-      body: JSON.stringify({
-        from: "",
-        to: "",
-        subject: "",
-        parameters: {
-          name: "", 
-          recipient: ""
-        },
-      }),
-    }
-  );
-}
