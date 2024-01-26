@@ -12,11 +12,7 @@ async function getName(){
 
   let results = await fetch("/.netlify/functions/get_name", options).then(response => response.json());
   console.log(results.recipient);
-  // results.forEach(result => {
-  //   const listItem = document.createElement("li");
-  //   listItem.innerText = result.title;
-  //   document.getElementById("names").appendChild(listItem);
-  // });
+
 };
 
 async function postToDb(){

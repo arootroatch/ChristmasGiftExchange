@@ -2,7 +2,7 @@ function allowDrop(ev) {
   // prevent dropping inside of another name div
   if (ev.target.className === 'name-container'){
     ev.preventDefault();
-    ev.target.style.backgroundColor = "#ffffff35";
+    ev.target.style.backgroundColor = "#ffffff9e";
   }
 }
 

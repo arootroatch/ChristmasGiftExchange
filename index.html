@@ -8,51 +8,56 @@
         <meta name="description" content="Easily generate a randomized list to know who each person in your family gets to buy a present for.">
     </head>
     <body>
+        <div id="snackbar" class="hide"></div>
         <div id="background"></div>
-        <h1>Gift Exchange Generator</h1>
-        <p id="intro" class="closed">For families who draw names for their holiday gift exchange, here's a web app to make it easier! <br><br> Step 1: Enter the  names of everyone participating in the gift exchange. Make sure all names are unique. If two people have the same name, please add a last initial or alternate spelling of their name.<br><br> Step 2 (optional): To stop some people from getting each others' names, add households to group them together. You can drag and drop to move people around or select their name from the drop down in each box. Names in the top box will be matched to anyone. <br><br> Step 3: Click "Generate List" and watch it go!</p>
-        <div id="btn-div">                    
-            <button class="btn-bottom" id="deleteHouse" onclick="deleteHouse()">Delete Last<br>Household</button>
-            <button class="btn-bottom" id="addHouse" onclick="addHouse()">Add Household<br>(Shift+Enter)</button>
-            <button class="btn-bottom" id="generate" onclick="start()">Generate List<br>(Ctrl+Enter)</button>
-            <button class="btn-bottom" id="instructions" onclick="toggleInstructions()">Hide Instructions</button>
-            <button class="btn-bottom" id="test" onclick="batchEmails()">Send Email</button>
-        </div>
-        <div id="flex-div">
-            <div id="left-container">
-                <div id="name-list">
-                    <h2 id="house1-header">Participant Names</h2>
-                    <div class="name-container" ondrop="drop(event)" id="participants" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
-                    <input type="text" id="input0" class="name-input">
-                    <button class="button" type="submit" id="b0" onclick="addName(this)">Add Name (Enter)</button>
-                </div>
+        <div id="control-strip">
+            <div id="btn-div">                    
+                <button class="btn-bottom" id="deleteHouse" onclick="deleteHouse()">Delete Last<br>Household</button>
+                <button class="btn-bottom" id="addHouse" onclick="addHouse()">Add Household<br><span class="shortcut">(Shift+Enter)</span></button>
+                <button class="btn-bottom" id="generate" onclick="start()">Generate List<br><span class="shortcut">(Ctrl+Enter)</span></button>
+                <button class="btn-bottom" id="instructions" onclick="toggleInstructions()">Hide Instructions</button>
+                <button class="btn-bottom" id="test" onclick="batchEmails()">Send Email</button>
             </div>
-            <table id="table">
-                <thead>
-                    <tr>
-                        <th>Giver</th>
-                        <th>Recipient</th>
-                    </tr>
-                </thead>
-                <tbody id="table-body">
-                    <tr>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                </tbody>
-            </table>
+        </div>
+        <div id="container">
+            <h1>Gift Exchange Generator</h1>
+            <p id="intro" class="closed">For families who draw names for their holiday gift exchange, here's a web app to make it easier! <br><br> Step 1: Enter the  names of everyone participating in the gift exchange. Make sure all names are unique. If two people have the same name, please add a last initial or alternate spelling of their name.<br><br> Step 2 (optional): To stop some people from getting each others' names, add households to group them together. You can drag and drop to move people around or select their name from the drop down in each box. Names in the top box will be matched to anyone. <br><br> Step 3: Click "Generate List" and watch it go!</p>
+            <div id="flex-div">
+                <div id="left-container">
+                    <div id="name-list">
+                        <h2 id="house1-header">Participant Names</h2>
+                        <div class="name-container" ondrop="drop(event)" id="participants" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
+                        <input type="text" id="input0" class="name-input">
+                        <button class="button" type="submit" id="b0" onclick="addName(this)">Add Name (Enter)</button>
+                    </div>
+                </div>
+                <table id="table">
+                    <thead>
+                        <tr>
+                            <th>Giver</th>
+                            <th>Recipient</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body">
+                        <tr>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </body>
 <script type="text/javascript" src="scripts.js"></script>

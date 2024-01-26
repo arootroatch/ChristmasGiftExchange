@@ -4,6 +4,7 @@ let houseID = 0;
 let isMobile;
 let nameNumber = 1;
 let availRecipients = []; // for deleting names from the recipient pool
+let duplicate;
 
 if (
   /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
@@ -216,7 +217,6 @@ function start() {
   generateList();
 
   function generateList() {
-    let duplicate;
     let recipient;
     let y;
     let x;
@@ -225,14 +225,15 @@ function start() {
     deepCopy(houses);
     let numberOfHouses = houses.length;
     findDuplicate();
-
+    console.log(duplicate);
     if (duplicate) {
-      alert(
-        "Please check that all names are unique and try again. Consider adding last initials, last names, or nicknames."
+      showSnackbar(
+        "Duplicate name detected! Please delete the duplicate and re-enter it with a last initial, nickname, or alternate spelling.",
+        "error"
       );
     } else if (counter >= 25) {
-      alert(
-        "No possible combinations! Please try a different configuration/number of names."
+      showSnackbar(
+        "No possible combinations! Please try a different configuration/number of names.", "error"
       );
       document.getElementById("table-body").insertAdjacentHTML(
         "beforeend",
@@ -309,29 +310,50 @@ function start() {
   }
 }
 
+// snackbar
+function showSnackbar(message, status) {
+  const bar = document.getElementById("snackbar");
+  if (status === "error") {
+    bar.style.color = "#b31e20";
+    bar.style.border = "3px solid #b31e20";
+  } else if (status === "success") {
+    bar.style.color = "#198c0a";
+    bar.style.border = "2px solid #198c0a";
+  }
+  bar.innerHTML = message;
+  bar.classList.replace('hide', 'show');
+  setTimeout(() => {
+    bar.classList.add("hide");
+  }, 10000);
+  setTimeout(() => {
+    bar.classList.remove("show");
+  }, 10500);
+}
+
 // send emails
 
 function batchEmails() {
   let i = 0;
   let count = 0;
-  let promises = givers
-    .map(async (giver) => {
-      i++;
-      await fetch("/.netlify/functions/dispatchEmail", {
-        method: "POST",
-        mode: "cors",
-        body: JSON.stringify({
-          name: giver.name,
-          recipient: giver.recipient,
-        }),
-      }).then((response) => {
-        console.log(response.status === 200);
-        if (response.status === 200) {
-          count++;
-        }
-      });
-    })
-    Promise.all(promises).then(()=>{
-      alert(`Sent ${count} of ${givers.length} emails successfully!`)
-    })
+  let promises = givers.map(async (giver) => {
+    i++;
+    await fetch("/.netlify/functions/dispatchEmail", {
+      method: "POST",
+      mode: "cors",
+      body: JSON.stringify({
+        name: giver.name,
+        recipient: giver.recipient,
+      }),
+    }).then((response) => {
+      console.log(response.status === 200);
+      if (response.status === 200) {
+        count++;
+      }
+    });
+  });
+  Promise.all(promises).then(() => {
+    showSnackbar(`Sent ${count} of ${givers.length} emails successfully!`, "success");
+  });
 }
+
+// window._allFns = {batchEmails, start, deleteHouse, insertName, toggleInstructions, addHouse,deleteName,addName}
