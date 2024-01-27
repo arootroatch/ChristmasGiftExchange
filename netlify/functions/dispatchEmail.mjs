@@ -21,7 +21,7 @@ const handler = async (event)=>{
       method: "POST",
       body: JSON.stringify({
         from: "alex@soundrootsproductions.com",
-        to: "alex@soundrootsproductions.com",
+        to: giver.email,
         subject: "Your gift exchange recipient name has arrived!",
         parameters: {
           name: giver.name, 

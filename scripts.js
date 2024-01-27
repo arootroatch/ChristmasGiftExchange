@@ -5,6 +5,7 @@ let isMobile;
 let nameNumber = 1;
 let availRecipients = []; // for deleting names from the recipient pool
 let duplicate;
+let generated = false;
 
 if (
   /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
@@ -225,15 +226,17 @@ function start() {
     deepCopy(houses);
     let numberOfHouses = houses.length;
     findDuplicate();
-    console.log(duplicate);
-    if (duplicate) {
+    if (houses.length < 1) {
+      showSnackbar("Please enter participants' names.", "error");
+    } else if (duplicate) {
       showSnackbar(
         "Duplicate name detected! Please delete the duplicate and re-enter it with a last initial, nickname, or alternate spelling.",
         "error"
       );
     } else if (counter >= 25) {
       showSnackbar(
-        "No possible combinations! Please try a different configuration/number of names.", "error"
+        "No possible combinations! Please try a different configuration/number of names.",
+        "error"
       );
       document.getElementById("table-body").insertAdjacentHTML(
         "beforeend",
@@ -294,6 +297,7 @@ function start() {
           availRecipients.splice(x, 1); //check if that leaves an empty array and remove if so
           numberOfHouses - 1 > -1 ? numberOfHouses-- : (numberOfHouses = 0); //decrement number of houses to prevent undefined when randomly selecting next array. don't let it fall under zero
         }
+        generated = true;
         document.getElementById("table-body").insertAdjacentHTML(
           "beforeend",
           `<tr>
@@ -304,6 +308,7 @@ function start() {
       });
 
       if (broken === true) {
+        generated = false;
         generateList();
       }
     }
@@ -321,18 +326,80 @@ function showSnackbar(message, status) {
     bar.style.border = "2px solid #198c0a";
   }
   bar.innerHTML = message;
-  bar.classList.replace('hide', 'show');
+  bar.classList.replace("hidden", "show");
   setTimeout(() => {
     bar.classList.add("hide");
-  }, 10000);
+  }, 8000);
+  // give the keyframes animation time to run before changing classes
   setTimeout(() => {
-    bar.classList.remove("show");
-  }, 10500);
+    bar.classList.replace("show", "hidden");
+    bar.classList.remove("hide");
+  }, 8500);
+}
+
+// collect emails
+function showEmailTable() {
+  if (!generated) {
+    showSnackbar(
+      `Please click "Generate List" before entering emails.`,
+      "error"
+    );
+  } else {
+    const table = document.getElementById("emailTable");
+    const body = document.getElementById("emailTableBody");
+    // use a for loop instead of forEach to get access to the index -- this will be used later for adding the emails to the giver objects
+    for (let i = 0; i < givers.length; i++) {
+      body.insertAdjacentHTML(
+        "afterbegin",
+        `<tr>
+            <td>${givers[i].name}</td>
+            <td><input type="email" required class="emailInput" name=${givers[i].name} id=${i}></td>
+        </tr>`
+      );
+    }
+    table.classList.replace("hidden", "show");
+  }
+}
+
+function confirmEmails(e){
+  e.preventDefault;
+  document.getElementById('btnRow').innerHTML = `
+    <td style="color:#b31e20">Please verify that all email addresses entered are correct.</td>
+    <td><button type="submit" class="button" id="submitEmails" onclick="submitEmails(this)">All emails are correct!</button></td>
+  `
+} 
+
+function submitEmails(e) {
+  e.preventDefault;
+  const btn = document.getElementById("submitEmails");
+  btn.innerHTML="Loading...";
+  btn.style.color = "#808080"
+  const emailInputs = Array.from(document.getElementsByClassName("emailInput"));
+  // create an array of objects with names, emails, and which index in the givers array
+  const emails = emailInputs.map((input) => {
+    return {
+      name: input.name,
+      email: input.value.trim(),
+      index: input.id,
+    };
+  });
+
+  // update each giver array with the matching email
+  emails.forEach((obj) => {
+    let i = parseInt(obj.index);
+    givers[i].email = obj.email;
+  });
+
+  postToDb();
 }
 
 // send emails
 
 function batchEmails() {
+  const btn = document.getElementById("sendEmails");
+  btn.innerHTML="Loading...";
+  btn.style.color = "#808080"
+
   let i = 0;
   let count = 0;
   let promises = givers.map(async (giver) => {
@@ -343,6 +410,7 @@ function batchEmails() {
       body: JSON.stringify({
         name: giver.name,
         recipient: giver.recipient,
+        email: giver.email
       }),
     }).then((response) => {
       console.log(response.status === 200);
@@ -352,8 +420,61 @@ function batchEmails() {
     });
   });
   Promise.all(promises).then(() => {
-    showSnackbar(`Sent ${count} of ${givers.length} emails successfully!`, "success");
+    const sendEmails= document.getElementById('sendEmails');
+      sendEmails.classList.add("hide");
+      setTimeout(() => {
+        sendEmails.classList.replace("show", "hidden");
+        sendEmails.classList.remove("hide");
+      }, 500);
+    showSnackbar(
+      `Sent ${count} of ${givers.length} emails successfully!`,
+      "success"
+    );
   });
 }
 
-// window._allFns = {batchEmails, start, deleteHouse, insertName, toggleInstructions, addHouse,deleteName,addName}
+async function getName() {
+  let email = document.getElementById("email-input").value;
+
+  const options = {
+    method: "POST", // *GET, POST, PUT, DELETE, etc.
+    mode: "cors",
+    body: email, // GET requests can't have a body
+  };
+
+  let results = await fetch("/.netlify/functions/get_name", options).then(
+    (response) => response.json()
+  );
+}
+
+async function postToDb() {
+  const options = {
+    method: "POST", // *GET, POST, PUT, DELETE, etc.
+    mode: "cors",
+    body: JSON.stringify(givers), // GET requests can't have a body
+  };
+
+  let results = await fetch("/.netlify/functions/postToDb", options).then(
+    (response) => {
+      if (response.status === 200) {
+        const sendDiv = document.getElementById("sendEmails");
+        sendDiv.innerHTML = `
+          <p>${givers.length} email addresses added successfully!</p>
+          <p>Now let's send out those emails:</p>
+          <button class="button" id="sendEmails" onclick="batchEmails()">Send Emails</button>
+        `;
+        sendDiv.classList.replace("hidden", "show");
+        
+        // hide the emails table
+        const table= document.getElementById('emailTable');
+        table.classList.add("hide");
+        setTimeout(() => {
+          table.classList.replace("show", "hidden");
+          table.classList.remove("hide");
+        }, 500);
+      } else {
+        console.log(response.body);
+      }
+    }
+  );
+}
