@@ -558,3 +558,19 @@ h1 {
     padding-right: 5px;
    }
 }
+
+@media screen and (max-width:499px) and (max-height: 818px){
+    #container{
+        height: 70vh;
+    }
+}
+@media screen and (max-width:499px)and (max-height: 732px){
+    #container{
+        height: 68vh;
+    }
+}
+@media screen and (max-width:499px) and (max-height: 689px){
+    #container{
+        height: 66vh;
+    }
+}
