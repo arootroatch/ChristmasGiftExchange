@@ -16,7 +16,7 @@ body {
 #container{
     max-width: 100%;
     padding: 60px 20px 0 20px;
-    height: 87vh;
+    height: 80vh;
     overflow-y: scroll;
 }
 
@@ -439,7 +439,7 @@ h1 {
         padding-bottom: 5px;
     }
     #container{
-        height: 79vh;
+        height: 76vh;
     }
 
 }
@@ -516,12 +516,17 @@ h1 {
         margin-top: 10px;
     }
 }
+@media screen and (max-width: 507px){
+    #queryBtnDiv{
+        flex-direction: column;
+    }
+}
 @media screen and (max-width: 499px) {
     #name-list.secret{
         padding-bottom:50px;
     }
     #container{
-        height: 75vh;
+        height: 73vh;
     }
     #btn-div{
         max-width: 338px;
@@ -537,11 +542,6 @@ h1 {
     }
 }
 
-@media screen and (max-width: 507px){
-    #queryBtnDiv{
-        flex-direction: column;
-    }
-}
 @media screen and (max-width: 429px){
     #btn-div.secret{
         max-width: 290px;
