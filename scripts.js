@@ -6,6 +6,7 @@ let nameNumber = 1;
 let availRecipients = []; // for deleting names from the recipient pool
 let duplicate;
 let generated = false;
+let introIndex=0;
 
 if (
   /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
@@ -484,17 +485,59 @@ async function getName(e) {
     mode: "cors",
     body: email, // GET requests can't have a body
   };
-
+  let errorMsg=""
   let results = await fetch("/.netlify/functions/get_name", options).then(
     (response) => response.json()
-  );
-  let timestamp = Date.parse(results.date);
-  let date = new Date(timestamp);
-  console.log(date.toDateString(), results.recipient);
-  document.getElementById("query").innerHTML = `
-    <div>
-        As of ${date.toDateString()}, you're buying a gift for <span>${results.recipient}!</span>
+  ).catch((error)=>errorMsg=error);
+  if (errorMsg !== ""){
+    document.getElementById("query").innerHTML=`
+    <div style="color:#b31e20">
+        Email address not found!
     </div>
-    <button class="button" onclick="hideQuery()">Hide</button>
-  `;
+    <button class="button" onclick="hideQuery()">Dismiss</button>
+    `
+    setTimeout(()=>{
+      document.getElementById("query").innerHTML=`
+      <div>
+          Need to know who you're buying a gift for?
+          <input type="email" id="emailQuery" placeholder="Enter your email to search">
+      </div>
+      <button type="submit" class="button" onclick="getName(this)" id="emailQueryBtn">Search it!</button>
+      <button class="button" onclick="hideQuery()">Dismiss</button>
+    `
+    },2000)
+  } else {
+    let timestamp = Date.parse(results.date);
+    let date = new Date(timestamp);
+    console.log(date.toDateString(), results.recipient);
+    document.getElementById("query").innerHTML = `
+      <div>
+          As of ${date.toDateString()}, you're buying a gift for <span>${results.recipient}!</span>
+      </div>
+      <button class="button" onclick="hideQuery()">Dismiss</button>
+    `;
+  }
 }
+
+function introNext(){
+  introIndex+1===introArr.length ? introIndex=0 : introIndex++;
+  const introDiv = document.getElementById('introPara');
+  introDiv.innerHTML=`<p>${introArr[introIndex]}</p>`;
+}
+function introPrev(){
+  introIndex-1<0 ? introIndex=introArr.length-1 : introIndex--;
+  const introDiv = document.getElementById('introPara');
+  introDiv.innerHTML=`<p>${introArr[introIndex]}</p>`;
+}
+
+let introArr = [
+ `For families who draw names for their holiday gift exchange, here's a web app to make it easier!`,
+
+ `<span style="font-weight:bold">Step 1 / 4:</span> Enter the names of everyone participating in the gift exchange. Make sure all names are unique. If two people have the same name, please add a last initial or alternate spelling of their name.`,
+
+ `<span style="font-weight:bold">Step 2 / 4</span> (optional): To stop some people from getting each others' names, add households to group them together. You can drag and drop to move people around or select their name from the drop down in each box. Names in the top box will be matched to anyone.`,
+
+ `<span style="font-weight:bold">Step 3 / 4:</span> Click "Generate List" and watch it go!`,
+
+ `<span style="font-weight:bold">Step 4 / 4:</span> Click "Enter Email Addresses" to email everyone their recipient's name.`
+]
