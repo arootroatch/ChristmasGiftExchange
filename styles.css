@@ -15,7 +15,7 @@ body {
 
 #container{
     max-width: 100%;
-    padding: 0px 20px;
+    padding: 60px 20px 0 20px;
     height: 87vh;
     overflow-y: scroll;
 }
@@ -345,6 +345,7 @@ h1 {
     transform: translateX(100%);
     animation: email-fadein 0.5s 2s forwards;
     transition: all 0.5s;
+    z-index: 10;
     button {
         width: 80px;
         padding: 5px;
