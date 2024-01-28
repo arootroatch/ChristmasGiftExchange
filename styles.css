@@ -263,6 +263,7 @@ h1 {
     from {top: 20px; opacity: 1;}
     to {top: 0; opacity: 0;}
   }
+
   
 
 /* ---------------- EMAIL ENTRY ------------------------------ */
@@ -322,6 +323,66 @@ h1 {
 
 
 }
+
+/* -----------  QUERY------------------ */
+
+.emailQuery {
+    display: flex;
+    align-items: center;
+    background-color: white;
+    position: fixed;
+    top: 0;
+    right: 0;
+    border-radius: 10px;
+    color: black;
+    padding: 5px;
+    border: 3px solid #69292a;
+    transform: translateX(100%);
+    animation: email-fadein 0.5s 2s forwards;
+    transition: all 0.5s;
+    button {
+        width: 80px;
+        padding: 5px;
+        margin-bottom: 2px;
+    }
+    div {
+        display: flex;
+        flex-direction: column;
+        margin-right: 5px;
+        text-align: center;
+    }
+    input {
+        margin-top: 5px;
+    }
+    span {
+        color: #198c0a;
+        font-weight: bold;
+        font-size: 1.2rem;
+    }
+}
+
+.hideQuery{
+    animation: email-fadeout 0.5s forwards;
+  }
+  /* Animations for emailQuery */
+  @-webkit-keyframes email-fadein {
+    from {opacity: 0; transform: translateX(100%);}
+    to {opacity: 1; transform: translateX(0);}
+  }
+  
+  @keyframes email-fadein {
+    from {opacity: 0; transform: translateX(100%);}
+    to {opacity: 1; transform: translateX(0);}
+  }
+  @-webkit-keyframes email-fadeout {
+    from {opacity: 1; transform: translateX(0);}
+    to {opacity: 0; transform: translateX(100%);}
+  }
+  
+  @keyframes email-fadeout {
+    from {opacity: 1; transform: translateX(0);}
+    to {opacity: 0; transform: translateX(100%);}
+  }
 
 
 /* ---------------- MEDIA QUERIES-------------------------- */

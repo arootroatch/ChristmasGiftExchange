@@ -10,6 +10,14 @@
     <body>
         <div id="snackbar" class="hidden"></div>
         <div id="sendEmails" class="sendEmails hidden"></div>
+        <div id="query" class="emailQuery">
+            <div>
+                Need to know who you're buying a gift for?
+                <input type="email" id="emailQuery" placeholder="Enter your email to search">
+            </div>
+            <button type="submit" class="button" onclick="getName(this)" id="emailQueryBtn">Search it!</button>
+            <button class="button" onclick="hideQuery()">Dismiss</button>
+        </div>
         <table class="table hidden" id="emailTable">
             <thead>
                 <tr>

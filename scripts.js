@@ -361,19 +361,19 @@ function showEmailTable() {
   }
 }
 
-function confirmEmails(e){
+function confirmEmails(e) {
   e.preventDefault;
-  document.getElementById('btnRow').innerHTML = `
+  document.getElementById("btnRow").innerHTML = `
     <td style="color:#b31e20">Please verify that all email addresses entered are correct.</td>
     <td><button type="submit" class="button" id="submitEmails" onclick="submitEmails(this)">All emails are correct!</button></td>
-  `
-} 
+  `;
+}
 
 function submitEmails(e) {
   e.preventDefault;
   const btn = document.getElementById("submitEmails");
-  btn.innerHTML="Loading...";
-  btn.style.color = "#808080"
+  btn.innerHTML = "Loading...";
+  btn.style.color = "#808080";
   const emailInputs = Array.from(document.getElementsByClassName("emailInput"));
   // create an array of objects with names, emails, and which index in the givers array
   const emails = emailInputs.map((input) => {
@@ -397,8 +397,8 @@ function submitEmails(e) {
 
 function batchEmails() {
   const btn = document.getElementById("sendEmails");
-  btn.innerHTML="Loading...";
-  btn.style.color = "#808080"
+  btn.innerHTML = "Loading...";
+  btn.style.color = "#808080";
 
   let i = 0;
   let count = 0;
@@ -410,7 +410,7 @@ function batchEmails() {
       body: JSON.stringify({
         name: giver.name,
         recipient: giver.recipient,
-        email: giver.email
+        email: giver.email,
       }),
     }).then((response) => {
       console.log(response.status === 200);
@@ -420,31 +420,17 @@ function batchEmails() {
     });
   });
   Promise.all(promises).then(() => {
-    const sendEmails= document.getElementById('sendEmails');
-      sendEmails.classList.add("hide");
-      setTimeout(() => {
-        sendEmails.classList.replace("show", "hidden");
-        sendEmails.classList.remove("hide");
-      }, 500);
+    const sendEmails = document.getElementById("sendEmails");
+    sendEmails.classList.add("hide");
+    setTimeout(() => {
+      sendEmails.classList.replace("show", "hidden");
+      sendEmails.classList.remove("hide");
+    }, 500);
     showSnackbar(
       `Sent ${count} of ${givers.length} emails successfully!`,
       "success"
     );
   });
-}
-
-async function getName() {
-  let email = document.getElementById("email-input").value;
-
-  const options = {
-    method: "POST", // *GET, POST, PUT, DELETE, etc.
-    mode: "cors",
-    body: email, // GET requests can't have a body
-  };
-
-  let results = await fetch("/.netlify/functions/get_name", options).then(
-    (response) => response.json()
-  );
 }
 
 async function postToDb() {
@@ -464,9 +450,9 @@ async function postToDb() {
           <button class="button" id="sendEmails" onclick="batchEmails()">Send Emails</button>
         `;
         sendDiv.classList.replace("hidden", "show");
-        
+
         // hide the emails table
-        const table= document.getElementById('emailTable');
+        const table = document.getElementById("emailTable");
         table.classList.add("hide");
         setTimeout(() => {
           table.classList.replace("show", "hidden");
@@ -477,4 +463,38 @@ async function postToDb() {
       }
     }
   );
+}
+
+function hideQuery() {
+  document.getElementById("query").classList.add("hideQuery");
+  if (document.getElementById("query").classList.contains("show")) {
+    document.getElementById("query").classList.remove("show");
+  }
+}
+
+async function getName(e) {
+  e.preventDefault;
+  let email = document.getElementById("emailQuery").value;
+  const btn = document.getElementById("emailQueryBtn");
+  btn.innerHTML = "Loading...";
+  btn.style.color = "#808080";
+
+  const options = {
+    method: "POST", // *GET, POST, PUT, DELETE, etc.
+    mode: "cors",
+    body: email, // GET requests can't have a body
+  };
+
+  let results = await fetch("/.netlify/functions/get_name", options).then(
+    (response) => response.json()
+  );
+  let timestamp = Date.parse(results.date);
+  let date = new Date(timestamp);
+  console.log(date.toDateString(), results.recipient);
+  document.getElementById("query").innerHTML = `
+    <div>
+        As of ${date.toDateString()}, you're buying a gift for <span>${results.recipient}!</span>
+    </div>
+    <button class="button" onclick="hideQuery()">Hide</button>
+  `;
 }
