@@ -165,7 +165,7 @@ h1 {
 }
 
 .name-container {
-    padding-bottom: 25px; /* Keep space to enable drag and drop */
+    padding-bottom: 35px; /* Keep space to enable drag and drop */
 }
 
 .button, .btn-bottom {
@@ -295,18 +295,16 @@ h1 {
     transform: translateX(-50%);
     margin: 0;
     table-layout: fixed;
+    z-index: 10;
     th{
         background-color: #69292a;
         width: 100%;
     }
-    tr:nth-child(odd){
-        background-color: #acacac;
-    }
-    tr:nth-child(even){
-        background-color: #bebebe;
-    }
     tr{
+        color: black;
+        background-color: white;
         display: flex;
+        border: 1px solid #69292a;
     }
     td{
         height: auto;
@@ -327,12 +325,6 @@ h1 {
     padding: 20px;
     border: 2px solid #198c0a;
     text-align: center;
-    /* button {
-        background-color: #69292ac9;
-        color: white;
-        border-style: outset;
-        border-color: #69292ac9;
-    } */
 
 
 }
@@ -373,6 +365,10 @@ h1 {
         font-size: 1.2rem;
     }
 }
+#queryBtnDiv{
+    /* width: 250px; */
+    flex-direction: row;
+}
 
 .hideQuery{
     animation: email-fadeout 0.5s forwards;
@@ -398,19 +394,65 @@ h1 {
   }
 
 
+  /* -------------SECRET SANTA MODE------------------------ */
+
+#left-container.secret{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    #name-list, .household{
+        max-width: 333px;
+        margin: 10px;
+    }
+    .name-container{
+        min-height: calc(100% - 110px);
+    }
+    .household{
+        position: relative;
+    }
+    .household select{
+        position: absolute;
+        bottom: 5px;
+        width: 90%;
+    }
+    #name-list{
+        padding:0.5rem
+    }
+}
+
+
 /* ---------------- MEDIA QUERIES-------------------------- */
 /* media queries */
-@media screen and (max-width: 819px) {
+
+
+@media screen and (max-width: 979px) {
     #btn-div{
         max-width: 600px;
     }
+    #btn-div.secret{
+        max-width: 700px;
+    }
+    .btn-bottom{
+        padding-top: 5px;
+        padding-bottom: 5px;
+    }
     #container{
-        height: 81vh;
+        height: 79vh;
+    }
+
+}
+@media screen and (max-width: 819px) {
+    #btn-div{
+        max-width: 600px;
     }
 
 }
 
 @media screen and (max-width: 740px){
+    #container{
+        overflow-x: hidden;
+    }
     #intro {
         padding-bottom: 2rem;
     }
@@ -429,6 +471,20 @@ h1 {
     }
 }
 
+@media screen and (max-width:659px){
+    #btn-div.secret{
+        /* max-width: 338px; */
+        .btn-bottom{
+            width: 90px;
+         }
+        #instructions{
+             width: 100px;
+        }
+        .shortcut{
+            display: none;
+        }
+    }
+}
 
 @media screen and (max-width: 630px) {
    #flex-div {
@@ -460,21 +516,42 @@ h1 {
     }
 }
 @media screen and (max-width: 499px) {
+    #name-list.secret{
+        padding-bottom:50px;
+    }
     #container{
-        height: 74vh;
+        height: 75vh;
+    }
+    #btn-div{
+        max-width: 338px;
+    }
+    .btn-bottom{
+     width: 90px;
+    }
+    #instructions{
+     width: 100px;
+    }
+    .shortcut{
+     display: none;
+    }
+}
+
+@media screen and (max-width: 507px){
+    #queryBtnDiv{
+        flex-direction: column;
+    }
+}
+@media screen and (max-width: 429px){
+    #btn-div.secret{
+        max-width: 290px;
+    }
+    #emailTable{
+        min-width: 95%;
+        margin: 0px 5px;
     }
 }
 
 @media screen and (max-width: 339px) {
-   .button, .btn-bottom{
-    width: 90px;
-   }
-   #instructions{
-    width: 100px;
-   }
-   .shortcut{
-    display: none;
-   }
    #container{
     padding-left: 0;
     padding-right: 5px;

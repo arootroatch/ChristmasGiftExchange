@@ -7,6 +7,7 @@ let availRecipients = []; // for deleting names from the recipient pool
 let duplicate;
 let generated = false;
 let introIndex=0;
+let secretSanta=false;
 
 if (
   /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
@@ -34,7 +35,11 @@ function enterAddHouse(evt) {
 function enterGenerate(evt) {
   if (evt.ctrlKey && evt.keyCode === 13) {
     evt.preventDefault;
-    document.getElementById("generate").click();
+    if(!secretSanta){
+      document.getElementById("generate").click();
+    } else {
+      document.getElementById("secretGenerate").click();
+    }
   }
 }
 document.getElementById("input0").addEventListener("keyup", enterClick);
@@ -535,9 +540,25 @@ let introArr = [
 
  `<span style="font-weight:bold">Step 1 / 4:</span> Enter the names of everyone participating in the gift exchange. Make sure all names are unique. If two people have the same name, please add a last initial or alternate spelling of their name.`,
 
- `<span style="font-weight:bold">Step 2 / 4</span> (optional): To stop some people from getting each others' names, add households to group them together. You can drag and drop to move people around or select their name from the drop down in each box. Names in the top box will be matched to anyone.`,
+ `<span style="font-weight:bold">Step 2 / 4</span> (optional): To stop some people from getting each others' names, add households to group them together. You can drag and drop to move people around or select their name from the drop down in each box. Names in the first box will be matched to anyone.`,
 
  `<span style="font-weight:bold">Step 3 / 4:</span> Click "Generate List" and watch it go!`,
 
  `<span style="font-weight:bold">Step 4 / 4:</span> Click "Enter Email Addresses" to email everyone their recipient's name.`
 ]
+
+function secretSantaMode(){
+  document.getElementById("generate").style.display = "none";
+  document.getElementById("secretGenerate").style.display = "block";
+  document.getElementById("enterEmails").style.display="none";
+  document.getElementById("results-table").style.display="none";
+  document.getElementById("secretSantaBtn").style.display="none";
+  document.getElementById('left-container').classList.add("secret");
+  document.getElementById('btn-div').classList.add("secret");
+  document.getElementById('name-list').style.paddingBottom="30px";
+}
+
+function secretSantaStart(){
+  start();
+  showEmailTable();
+}

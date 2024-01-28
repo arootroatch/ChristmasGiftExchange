@@ -15,8 +15,10 @@
                 Need to know who you're buying a gift for?
                 <input type="email" id="emailQuery" placeholder="Enter your email to search">
             </div>
-            <button type="submit" class="button" onclick="getName(this)" id="emailQueryBtn">Search it!</button>
-            <button class="button" onclick="hideQuery()">Dismiss</button>
+            <div id="queryBtnDiv">
+                <button type="submit" class="button queryBtn" onclick="getName(this)" id="emailQueryBtn">Search it!</button>
+                <button class="button queryBtn" onclick="hideQuery()">Dismiss</button>
+            </div>
         </div>
         <table class="table hidden" id="emailTable">
             <thead>
@@ -37,8 +39,10 @@
                 <button class="btn-bottom" id="deleteHouse" onclick="deleteHouse()">Delete Last<br>Household</button>
                 <button class="btn-bottom" id="addHouse" onclick="addHouse()">Add Household<br><span class="shortcut">(Shift+Enter)</span></button>
                 <button class="btn-bottom" id="generate" onclick="start()">Generate List<br><span class="shortcut">(Ctrl+Enter)</span></button>
+                <button class="btn-bottom" id="secretGenerate" onclick="secretSantaStart()" style="display: none;">Generate List<br><span class="shortcut">(Ctrl+Enter)</span></button>
                 <button class="btn-bottom" id="instructions" onclick="toggleInstructions()">Hide Instructions</button>
-                <button class="btn-bottom" onclick="showEmailTable()">Enter Email Addresses</button>
+                <button class="btn-bottom" onclick="showEmailTable()" id="enterEmails">Enter Email Addresses</button>
+                <button class="btn-bottom" onclick="secretSantaMode()" id="secretSantaBtn">Secret Santa Mode</button>
             </div>
         </div>
         <div id="container">
@@ -57,7 +61,7 @@
                         <button class="button" type="submit" id="b0" onclick="addName(this)">Add Name (Enter)</button>
                     </div>
                 </div>
-                <table class="table">
+                <table class="table" id="results-table">
                     <thead>
                         <tr>
                             <th>Giver</th>
