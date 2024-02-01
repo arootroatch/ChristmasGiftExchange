@@ -1,0 +1,8 @@
+# Local Netlify folder
+.netlify
+
+# environmental variables
+.env
+.env.local
+
+node_modules

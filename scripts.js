@@ -1,327 +1,564 @@
-let houses = [[]];
-let copyOfHouses;
-let houseID = 1;
-let recipients = [];
-let counter;
+let givers = [];
+let houses = [];
+let houseID = 0;
 let isMobile;
-let empty;
+let nameNumber = 1;
+let availRecipients = []; // for deleting names from the recipient pool
 let duplicate;
-let nameNumber=1;
+let generated = false;
+let introIndex=0;
+let secretSanta=false;
 
-if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
-    isMobile = true;
+if (
+  /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+    navigator.userAgent
+  )
+) {
+  isMobile = true;
 } else {
-    isMobile=false;
+  isMobile = false;
 }
 
 // event listener for enter key
-function enterClick(evt){
-    if ( evt.keyCode === 13){
-        evt.preventDefault();
-        document.getElementById("b0").click();
-    }
+function enterClick(evt) {
+  if (evt.keyCode === 13) {
+    evt.preventDefault();
+    document.getElementById("b0").click();
+  }
 }
-function enterAddHouse(evt){
-    if (evt.shiftKey && evt.keyCode === 13){
-        evt.preventDefault;
-        document.getElementById("addHouse").click();
-    }
+function enterAddHouse(evt) {
+  if (evt.shiftKey && evt.keyCode === 13) {
+    evt.preventDefault;
+    document.getElementById("addHouse").click();
+  }
 }
-function enterGenerate(evt){
-    if (evt.ctrlKey && evt.keyCode === 13){
-        evt.preventDefault;
-        document.getElementById('generate').click();
+function enterGenerate(evt) {
+  if (evt.ctrlKey && evt.keyCode === 13) {
+    evt.preventDefault;
+    if(!secretSanta){
+      document.getElementById("generate").click();
+    } else {
+      document.getElementById("secretGenerate").click();
     }
+  }
 }
-document.getElementById("input0").addEventListener('keyup', enterClick);
-if (isMobile===false){
-    window.addEventListener('keyup', enterAddHouse);
-    window.addEventListener('keyup', enterGenerate);
+document.getElementById("input0").addEventListener("keyup", enterClick);
+if (isMobile === false) {
+  window.addEventListener("keyup", enterAddHouse);
+  window.addEventListener("keyup", enterGenerate);
 }
 
+// object constructor function
+function Giver(name, recipient, email) {
+  this.name = name;
+  this.email = email;
+  this.recipient = recipient;
+  this.date = String(new Date());
+}
 
 function addName(e) {
-    let parentDiv = e.parentNode.id;
-    let nameInput = e.previousElementSibling.value;
-    let inputID = e.previousElementSibling.id;
-    if (nameInput !== ''){
-        let capitalized = nameInput.charAt(0).toUpperCase() + nameInput.slice(1);
-        nameInput = capitalized;
-        document.getElementById(inputID).insertAdjacentHTML("beforebegin", `<button onclick="deleteName(this)" class="delete-name">X</button>
+  let nameInput = e.previousElementSibling.value;
+  if (nameInput !== "") {
+    let capitalized = nameInput.charAt(0).toUpperCase() + nameInput.slice(1);
+    nameInput = capitalized;
+    document.getElementById("participants").insertAdjacentHTML(
+      "beforeend",
+      `<div class="name-wrapper" id="wrapper-${nameInput}" draggable="true" ondragstart="drag(event)">
+        <button onclick="deleteName(this)" class="delete-name">X</button>
         <p class="name-entered" id="${nameInput}${nameNumber}">${nameInput}</p>
-        <br id="br${nameInput}${nameNumber}">`);
-        houses[parentDiv].push(nameInput);
-        nameNumber++;
+        <br id="br${nameInput}${nameNumber}">
+      </div>`
+    );
+    givers.push(new Giver(nameInput, "", ""));
+    console.log(givers);
+    nameNumber++;
+  }
+  document.getElementById("input0").value = "";
+}
+
+function deleteName(e) {
+  let nameWrapper = e.parentNode.id;
+  let name = e.nextElementSibling.innerHTML;
+  for (let i = 0; i < givers.length; i++) {
+    if (givers[i].name === name) {
+      givers.splice(i, 1);
     }
-    document.getElementById(inputID).value='';    
+  }
+
+  document.getElementById(nameWrapper).remove();
 }
 
-function deleteName(e){
-    let parentDiv = e.parentNode.id;
-    let name = e.nextElementSibling.id;
-    let index = houses[parentDiv].indexOf(e.nextElementSibling.innerHTML);
-    console.log(name);
-    console.log(index);
-    houses[parentDiv].splice(index, 1);
-    document.getElementById(name).remove();
-    document.getElementById(`br${name}`).remove();
-    e.remove();
-    console.log(houses);
+function addHouse() {
+  let houseTemplate = `<div class="household" id="${houseID}">
+      <h2 contenteditable="true">Household ${
+        houseID + 1
+      } <span class="edit-span">(Click here to edit)</span></h2>
+      <div class="name-container" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
+      <select class="name-select" name="${houseID}-select" id="${houseID}-select" onchange="insertName(event)">
+        <option disabled selected value="option${houseID}">-- Select a name --</option>
+        ${givers.map((x) => `<option value="${x.name}">${x.name}</option>`)}
+      </select>
+    </div>`;
+  document
+    .getElementById("left-container")
+    .insertAdjacentHTML("beforeend", houseTemplate);
+  houseID += 1;
 }
 
-function addHouse(e) {
-    let houseTemplate = `<div class="household" id="${houseID}">
-    <h2 contenteditable="true">Household ${houseID+1}</h2>
-    <input type="text" class="name-input" id="input${houseID}">
-    <button type="submit" class="button" onclick="addName(this)" id="b${houseID}">Add Name (Enter)</button>
-    </div>`
-    e.parentNode.insertAdjacentHTML("beforebegin", houseTemplate);
-    
-    let btn = document.getElementById(`b${houseID}`);
-    document.getElementById(`input${houseID}`).addEventListener('keyup', evt => {
-        if (evt.keyCode == 13){
-            evt.preventDefault();
-            btn.click();
+function toggleInstructions() {
+  let intro = document.getElementById("intro");
+  if (intro.style.display === "none") {
+    intro.style.display = "block";
+    document.getElementById("instructions").innerHTML = "Hide Instructions";
+  } else {
+    intro.style.display = "none";
+    document.getElementById("instructions").innerHTML = "Show Instructions";
+  }
+}
+
+// insert name into div from select and remove from participant list
+function insertName(e) {
+  let firstName = e.target.value;
+  let nameDiv = document.getElementById(`wrapper-${firstName}`);
+  e.target.previousElementSibling.appendChild(nameDiv);
+
+  // set select back to saying "select a name"
+  label = e.target.firstElementChild.value;
+  e.target.value = label;
+}
+
+function deleteHouse() {
+  // find last household
+  let container = document.getElementById("left-container");
+  let houseDiv = container.lastChild;
+  let name;
+
+  houseDiv.childNodes.forEach((x) => {
+    // search inside last household for name container
+    if (x.className === "name-container") {
+      // grab name from each name wrapper div
+      x.childNodes.forEach((y) => {
+        name = y.id.slice(8);
+        // search the givers array for an object with that same name and delete it
+        for (let i = 0; i < givers.length; i++) {
+          if (givers[i].name === name) {
+            givers.splice(i, 1);
+          }
         }
+      });
+      // delete entire div from DOM
+      houseDiv.remove();
+    }
+  });
+}
+
+function deepCopy(arr) {
+  arr.forEach((x) => {
+    availRecipients.push([]);
+  });
+  for (i = 0; i < arr.length; i++) {
+    for (j = 0; j < arr[i].length; j++) {
+      availRecipients[i].push(arr[i][j]);
+    }
+  }
+}
+
+function clearTable() {
+  //clear table but keep header row
+  let parentNode = document.getElementById("table-body");
+  while (parentNode.firstChild) {
+    parentNode.removeChild(parentNode.firstChild);
+  }
+}
+
+function findDuplicate() {
+  let searchNames = houses.flat();
+  function hasDuplicates(arr) {
+    return new Set(arr).size !== arr.length;
+  }
+  if (hasDuplicates(searchNames)) {
+    duplicate = true;
+  } else {
+    duplicate = false;
+  }
+}
+
+function fillHouses() {
+  houses = [];
+
+  // get names from all houses
+  houseClass = document.getElementsByClassName("household");
+  for (let i = 0; i < houseClass.length; i++) {
+    let tempArr = [];
+    houseClass[i].childNodes.forEach((x) => {
+      if (x.className === "name-container") {
+        x.childNodes.forEach((y) => {
+          if (y.tagName === "DIV") {
+            tempArr.push(y.id.slice(8));
+          }
+        });
+      }
     });
-    document.getElementById(`input${houseID}`).focus();
-    houseID++;
-    houses.push([]);
-    // copyOfHouses.push([]);
-
-}
-
-function deleteHouse(e){
-    let btnDiv = e.parentNode;
-    let houseDiv = btnDiv.previousElementSibling.id;
-    if (houseDiv !== "0"){
-        houses.splice(houseDiv, 1);
-        document.getElementById(houseDiv).remove();
-        document.getElementById(`input${houseDiv-1}`).focus();
-        houseID--;
+    // don't push empty array
+    if (tempArr.length > 0) {
+      houses.push(tempArr);
     }
+  }
 
-}
-
-function deepCopy(arr){
-    for (x=0; x<arr.length-1; x++){
-        copyOfHouses.push([]);
-    }
-    for (i=0; i<arr.length; i++){
-        for (j=0; j<arr[i].length; j++){
-            copyOfHouses[i].push(arr[i][j]);
+  // get names from participants list if any
+  let nameList = document.getElementById("name-list").childNodes;
+  nameList.forEach((x) => {
+    if (x.className === "name-container") {
+      x.childNodes.forEach((y) => {
+        if (y.tagName === "DIV") {
+          // add them to their own array so they can be matched with anybody
+          houses.push([y.id.slice(8)]);
         }
+      });
     }
-}
-function clearTable(){
-    //clear table but keep header row
-    let parentNode = document.getElementById('table-body');
-    while (parentNode.firstChild){
-        parentNode.removeChild(parentNode.firstChild);
-    }
-}
-function findEmpty(){
-    for (let i=0; i<houses.length; i++){
-        if (houses[i].length<1){
-            empty = true;
-            break;
-        } else {
-            empty =false;
-        }
-    }
+  });
 }
 
-function findDuplicate(){
-    let searchNames = houses.flat();
-    function hasDuplicates(arr) {
-        return new Set(arr).size !== arr.length;
-    }
-    console.log(hasDuplicates(searchNames));
-    if (hasDuplicates(searchNames)){
-        duplicate = true;
-    } else {
-        duplicate=false;
-    }
-}
+function start() {
+  let counter = 0;
+  generateList();
 
-function initCounter(){
-    counter = 0;
-    findEmpty();
+  function generateList() {
+    let recipient;
+    let y;
+    let x;
+    let broken = false;
+    fillHouses();
+    deepCopy(houses);
+    let numberOfHouses = houses.length;
     findDuplicate();
-    if (empty===false){
-        if (duplicate===false){
-            generateList();
-        } else {
-            alert('Please check that all names are unique and try again. Consider adding last initials, last names, or nicknames.')
-        }
+    if (houses.length < 1) {
+      showSnackbar("Please enter participants' names.", "error");
+    } else if (duplicate) {
+      showSnackbar(
+        "Duplicate name detected! Please delete the duplicate and re-enter it with a last initial, nickname, or alternate spelling.",
+        "error"
+      );
+    } else if (counter >= 25) {
+      showSnackbar(
+        "No possible combinations! Please try a different configuration/number of names.",
+        "error"
+      );
+      document.getElementById("table-body").insertAdjacentHTML(
+        "beforeend",
+        `<tr>
+              <td></td>
+              <td></td>
+          </tr>
+          <tr>
+              <td></td>
+              <td></td>
+          </tr>
+          <tr>
+              <td></td>
+              <td></td>
+          </tr>
+          <tr>
+              <td></td>
+              <td></td>
+          </tr>`
+      );
     } else {
-        alert('Please delete the empty household and try again');
-    }
-    function generateList() {
-        let numberOfHouses = houses.length;
-        let names = houses.flat();
-        let recipientArr;
-        let recipient;
-        let y;
-        let x;
-        let broken = false;
-        copyOfHouses = [[]];
-        
-        deepCopy(houses);
-        if(counter>=25){
-            alert("No possible combinations! Please try a different configuraion/number of names.")
-            document.getElementById('table-body').insertAdjacentHTML("beforeend", `<tr>
-                    <td></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                </tr>`);
-        }else{
-            clearTable();
-            for (let i=0; i<names.length; i++){ 
-                //randomly choose giver name and which subArray for recipients
-                let giverName = names[i];
-                x = Math.floor(numberOfHouses * Math.random()); 
-                //find chosen subArray in original Array
-                let originalArray;
-                function findOriginal(){
-                    let searchElem = copyOfHouses[x][0];
-                    let searched;
-                    for (originalArray = 0; originalArray<houses.length; originalArray++){
-                        searched=houses[originalArray].indexOf(searchElem);
-                        if (searched>-1){
-                            break;
-                        }
-                    }
-                }
-                findOriginal();
-
-                if (houses[originalArray].includes(giverName) && numberOfHouses<=1){
-                    broken = true;
-                    counter++;
-                    break;
-                }
-
-                while (houses[originalArray].includes(giverName)){
-                    x = Math.floor(numberOfHouses * Math.random());
-                    findOriginal();
-                }
-                
-                //randomly choose name inside of recipient subArray and test if it has already been used (exists in recipients array)
-                recipientArr = copyOfHouses[x];
-                y = Math.floor(recipientArr.length * Math.random());
-                recipient = recipientArr[y];
-                
-                recipientArr.splice(y, 1); //remove name from possible options
-                
-                if (recipientArr.length === 0){
-                    copyOfHouses.splice(x, 1); //check if that leaves an empty array and remove if so
-                    numberOfHouses--; //decrement number of houses to prevent undefined 
-                }
-                document.getElementById('table-body').insertAdjacentHTML("beforeend", `<tr>
-                    <td>${giverName}</td>
-                    <td>${recipient}</td>
-                </tr>`);
+      clearTable();
+      // for (let i = 0; i < givers.length; i++)
+      givers.forEach((a) => {
+        //sequentially choose giver name and randomly choose which subArray for recipient
+        let giverName = a.name;
+        x = Math.floor(numberOfHouses * Math.random());
+        // randomly choose name inside
+        y = Math.floor(availRecipients[x].length * Math.random());
+        recipient = availRecipients[x][y];
+        // check if name is in giver's household
+        let prevX = x;
+        for (let j = 0; j < houses.length; j++) {
+          if (houses[j].includes(recipient)) {
+            if (houses[j].includes(giverName)) {
+              // uh-oh are we out of options?
+              if (numberOfHouses <= 1) {
+                broken = true;
+                counter++;
+                break;
+              }
+              // find new array and make sure it's not the same one as before
+              while (x === prevX) {
+                x = Math.floor(numberOfHouses * Math.random());
+              }
+              // choose new recipient from new array
+              y = Math.floor(availRecipients[x].length * Math.random());
+              recipient = availRecipients[x][y];
             }
-            if (broken===true){
-                generateList();
-            }
+          }
         }
+        // assign recipient in giver's object
+        a.recipient = recipient;
+
+        availRecipients[x].splice(y, 1); //remove name from possible options
+
+        if (availRecipients[x].length === 0) {
+          availRecipients.splice(x, 1); //check if that leaves an empty array and remove if so
+          numberOfHouses - 1 > -1 ? numberOfHouses-- : (numberOfHouses = 0); //decrement number of houses to prevent undefined when randomly selecting next array. don't let it fall under zero
+        }
+        generated = true;
+        document.getElementById("table-body").insertAdjacentHTML(
+          "beforeend",
+          `<tr>
+              <td>${giverName}</td>
+              <td>${a.recipient}</td>
+          </tr>`
+        );
+      });
+
+      if (broken === true) {
+        generated = false;
+        generateList();
+      }
     }
+  }
 }
 
-function anyToAny(){
-    counter = 0;
-    findEmpty();
-    findDuplicate();
-    if (empty===false){
-        if (duplicate===false){
-            generateListAny();
-        } else {
-            alert('Please check that all names are unique and try again. Consider adding last initials, last names, or nicknames.')
-        }
-    } else {
-        alert('Please delete the empty household and try again');
+// snackbar
+function showSnackbar(message, status) {
+  const bar = document.getElementById("snackbar");
+  if (status === "error") {
+    bar.style.color = "#b31e20";
+    bar.style.border = "3px solid #b31e20";
+  } else if (status === "success") {
+    bar.style.color = "#198c0a";
+    bar.style.border = "2px solid #198c0a";
+  }
+  bar.innerHTML = message;
+  bar.classList.replace("hidden", "show");
+  setTimeout(() => {
+    bar.classList.add("hide");
+  }, 8000);
+  // give the keyframes animation time to run before changing classes
+  setTimeout(() => {
+    bar.classList.replace("show", "hidden");
+    bar.classList.remove("hide");
+  }, 8500);
+}
+
+// collect emails
+function showEmailTable() {
+  if (!generated) {
+    showSnackbar(
+      `Please click "Generate List" before entering emails.`,
+      "error"
+    );
+  } else {
+    const table = document.getElementById("emailTable");
+    const body = document.getElementById("emailTableBody");
+    // use a for loop instead of forEach to get access to the index -- this will be used later for adding the emails to the giver objects
+    for (let i = 0; i < givers.length; i++) {
+      body.insertAdjacentHTML(
+        "afterbegin",
+        `<tr>
+            <td>${givers[i].name}</td>
+            <td><input type="email" required class="emailInput" name=${givers[i].name} id=${i}></td>
+        </tr>`
+      );
     }
-    function generateListAny(){
-        let names = houses.flat();
-        let possibleRecipients = houses.flat();
-        let recipient;
-        let recipients=[];
-        let x;
-        let broken = false;
-        let numberOfNames = possibleRecipients.length;
-        console.log(possibleRecipients);
-        console.log(counter);
-        
-        if(counter>=25){
-            alert("No possible combinations! Please try a different configuraion/number of names.")
-            document.getElementById('table-body').insertAdjacentHTML("beforeend", `<tr>
-                    <td></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                </tr>`);
-        }else{
-            clearTable();
-            for (let i=0; i<names.length; i++){ 
-                //randomly choose giver name and which subArray for recipients
-                let giverName = names[i];
-                x = Math.floor(numberOfNames * Math.random()); 
-                recipient = possibleRecipients[x];
-                console.log('giver', giverName);
-                console.log('recipient', recipient);
-                
-                while (possibleRecipients[x]===giverName){
-                    x = Math.floor(numberOfNames* Math.random());
-                    recipient = possibleRecipients[x];
-                    if(possibleRecipients[x]===giverName && numberOfNames<=1){
-                        broken = true;
-                        counter++;
-                        break;
-                    }
-                }                
-                while (recipients.includes(recipient)){
-                    x = Math.floor(numberOfNames* Math.random());
-                    recipient = possibleRecipients[x];
-                    if (recipients.includes(recipient) && numberOfNames<=1){
-                        broken=true;
-                        counter++;
-                        break;
-                    }
-                }
-                recipients.push(recipient);
-                possibleRecipients.splice(x, 1); //remove name from possible options
-                numberOfNames--;
-                console.log(possibleRecipients);
-                document.getElementById('table-body').insertAdjacentHTML("beforeend", `<tr>
-                    <td>${giverName}</td>
-                    <td>${recipient}</td>
-                </tr>`);
-            }
-            if (broken===true){
-                generateListAny();
-            }
-        }
+    table.classList.replace("hidden", "show");
+  }
+}
+
+function confirmEmails(e) {
+  e.preventDefault;
+  document.getElementById("btnRow").innerHTML = `
+    <td style="color:#b31e20">Please verify that all email addresses entered are correct.</td>
+    <td><button type="submit" class="button" id="submitEmails" onclick="submitEmails(this)">All emails are correct!</button></td>
+  `;
+}
+
+function submitEmails(e) {
+  e.preventDefault;
+  const btn = document.getElementById("submitEmails");
+  btn.innerHTML = "Loading...";
+  btn.style.color = "#808080";
+  const emailInputs = Array.from(document.getElementsByClassName("emailInput"));
+  // create an array of objects with names, emails, and which index in the givers array
+  const emails = emailInputs.map((input) => {
+    return {
+      name: input.name,
+      email: input.value.trim(),
+      index: input.id,
+    };
+  });
+
+  // update each giver array with the matching email
+  emails.forEach((obj) => {
+    let i = parseInt(obj.index);
+    givers[i].email = obj.email;
+  });
+
+  postToDb();
+}
+
+// send emails
+
+function batchEmails() {
+  const btn = document.getElementById("sendEmails");
+  btn.innerHTML = "Loading...";
+  btn.style.color = "#808080";
+
+  let i = 0;
+  let count = 0;
+  let promises = givers.map(async (giver) => {
+    i++;
+    await fetch("/.netlify/functions/dispatchEmail", {
+      method: "POST",
+      mode: "cors",
+      body: JSON.stringify({
+        name: giver.name,
+        recipient: giver.recipient,
+        email: giver.email,
+      }),
+    }).then((response) => {
+      console.log(response.status === 200);
+      if (response.status === 200) {
+        count++;
+      }
+    });
+  });
+  Promise.all(promises).then(() => {
+    const sendEmails = document.getElementById("sendEmails");
+    sendEmails.classList.add("hide");
+    setTimeout(() => {
+      sendEmails.classList.replace("show", "hidden");
+      sendEmails.classList.remove("hide");
+    }, 500);
+    showSnackbar(
+      `Sent ${count} of ${givers.length} emails successfully!`,
+      "success"
+    );
+  });
+}
+
+async function postToDb() {
+  const options = {
+    method: "POST", // *GET, POST, PUT, DELETE, etc.
+    mode: "cors",
+    body: JSON.stringify(givers), // GET requests can't have a body
+  };
+
+  let results = await fetch("/.netlify/functions/postToDb", options).then(
+    (response) => {
+      if (response.status === 200) {
+        const sendDiv = document.getElementById("sendEmails");
+        sendDiv.innerHTML = `
+          <p>${givers.length} email addresses added successfully!</p>
+          <p>Now let's send out those emails:</p>
+          <button class="button" id="sendEmails" onclick="batchEmails()">Send Emails</button>
+        `;
+        sendDiv.classList.replace("hidden", "show");
+
+        // hide the emails table
+        const table = document.getElementById("emailTable");
+        table.classList.add("hide");
+        setTimeout(() => {
+          table.classList.replace("show", "hidden");
+          table.classList.remove("hide");
+        }, 500);
+      } else {
+        console.log(response.body);
+      }
     }
+  );
+}
+
+function hideQuery() {
+  document.getElementById("query").classList.add("hideQuery");
+  if (document.getElementById("query").classList.contains("show")) {
+    document.getElementById("query").classList.remove("show");
+  }
+}
+
+async function getName(e) {
+  e.preventDefault;
+  let email = document.getElementById("emailQuery").value;
+  const btn = document.getElementById("emailQueryBtn");
+  btn.innerHTML = "Loading...";
+  btn.style.color = "#808080";
+
+  const options = {
+    method: "POST", // *GET, POST, PUT, DELETE, etc.
+    mode: "cors",
+    body: email, // GET requests can't have a body
+  };
+  let errorMsg=""
+  let results = await fetch("/.netlify/functions/get_name", options).then(
+    (response) => response.json()
+  ).catch((error)=>errorMsg=error);
+  if (errorMsg !== ""){
+    document.getElementById("query").innerHTML=`
+    <div style="color:#b31e20">
+        Email address not found!
+    </div>
+    <button class="button" onclick="hideQuery()">Dismiss</button>
+    `
+    setTimeout(()=>{
+      document.getElementById("query").innerHTML=`
+      <div>
+          Need to know who you're buying a gift for?
+          <input type="email" id="emailQuery" placeholder="Enter your email to search">
+      </div>
+      <button type="submit" class="button" onclick="getName(this)" id="emailQueryBtn">Search it!</button>
+      <button class="button" onclick="hideQuery()">Dismiss</button>
+    `
+    },2000)
+  } else {
+    let timestamp = Date.parse(results.date);
+    let date = new Date(timestamp);
+    console.log(date.toDateString(), results.recipient);
+    document.getElementById("query").innerHTML = `
+      <div>
+          As of ${date.toDateString()}, you're buying a gift for <span>${results.recipient}!</span>
+      </div>
+      <button class="button" onclick="hideQuery()">Dismiss</button>
+    `;
+  }
+}
+
+function introNext(){
+  introIndex+1===introArr.length ? introIndex=0 : introIndex++;
+  const introDiv = document.getElementById('introPara');
+  introDiv.innerHTML=`<p>${introArr[introIndex]}</p>`;
+}
+function introPrev(){
+  introIndex-1<0 ? introIndex=introArr.length-1 : introIndex--;
+  const introDiv = document.getElementById('introPara');
+  introDiv.innerHTML=`<p>${introArr[introIndex]}</p>`;
+}
+
+let introArr = [
+ `For families who draw names for their holiday gift exchange, here's a web app to make it easier! For the Secret Santa experience, click "Secret Santa Mode" at the bottom of the screen.`,
+
+ `<span style="font-weight:bold">Step 1 / 4:</span> Enter the names of everyone participating in the gift exchange. Make sure all names are unique. If two people have the same name, please add a last initial or alternate spelling of their name.`,
+
+ `<span style="font-weight:bold">Step 2 / 4</span> (optional): To stop some people from getting each others' names, add households to group them together. You can drag and drop to move people around or select their name from the drop down in each box. Names in the first box will be matched to anyone.`,
+
+ `<span style="font-weight:bold">Step 3 / 4:</span> Click "Generate List" and watch it go!`,
+
+ `<span style="font-weight:bold">Step 4 / 4:</span> Click "Enter Email Addresses" to email everyone their recipient's name.`
+]
+
+function secretSantaMode(){
+  document.getElementById("generate").style.display = "none";
+  document.getElementById("secretGenerate").style.display = "block";
+  document.getElementById("enterEmails").style.display="none";
+  document.getElementById("results-table").style.display="none";
+  document.getElementById("secretSantaBtn").style.display="none";
+  document.getElementById('left-container').classList.add("secret");
+  document.getElementById('btn-div').classList.add("secret");
+  document.getElementById('name-list').style.paddingBottom="30px";
+}
+
+function secretSantaStart(){
+  start();
+  showEmailTable();
 }
