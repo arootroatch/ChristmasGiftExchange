@@ -235,7 +235,7 @@ h1 {
     border: 3px solid #198c0a;
     padding: 16px; /* Padding */
     position: fixed; /* Sit on top of the screen */
-    z-index: 1; /* Add a z-index if needed */
+    z-index: 10; /* Add a z-index if needed */
     left: 50%; /* Center the snackbar */
     transform: translateX(-50%);
     top: 20px; /* 30px from the bottom */
@@ -325,6 +325,7 @@ h1 {
     padding: 20px;
     border: 2px solid #198c0a;
     text-align: center;
+    z-index: 10;
 
 
 }
@@ -343,7 +344,8 @@ h1 {
     padding: 5px;
     border: 3px solid #69292a;
     transform: translateX(100%);
-    animation: email-fadein 0.5s 2s forwards;
+    -webkit-animation: email-fadein 0.5s 2s forwards;
+            animation: email-fadein 0.5s 2s forwards;
     transition: all 0.5s;
     z-index: 10;
     button {
@@ -372,7 +374,8 @@ h1 {
 }
 
 .hideQuery{
-    animation: email-fadeout 0.5s forwards;
+    -webkit-animation: email-fadeout 0.5s forwards;
+            animation: email-fadeout 0.5s forwards;
   }
   /* Animations for emailQuery */
   @-webkit-keyframes email-fadein {
