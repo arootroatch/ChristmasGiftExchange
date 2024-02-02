@@ -479,7 +479,7 @@ function hideQuery() {
 }
 
 async function getName(e) {
-  e.preventDefault;
+  // e.preventDefault;
   let email = document.getElementById("emailQuery").value;
   const btn = document.getElementById("emailQueryBtn");
   btn.innerHTML = "Loading...";
@@ -502,14 +502,16 @@ async function getName(e) {
     <button class="button" onclick="hideQuery()">Dismiss</button>
     `
     setTimeout(()=>{
-      document.getElementById("query").innerHTML=`
+      document.getElementById("query").innerHTML = `
       <div>
           Need to know who you're buying a gift for?
           <input type="email" id="emailQuery" placeholder="Enter your email to search">
       </div>
-      <button type="submit" class="button" onclick="getName(this)" id="emailQueryBtn">Search it!</button>
-      <button class="button" onclick="hideQuery()">Dismiss</button>
-    `
+      <div id="queryBtnDiv">
+          <button type="submit" class="button queryBtn" onclick="getName(this)" id="emailQueryBtn">Search it!</button>
+          <button class="button queryBtn" onclick="hideQuery()">Dismiss</button>
+      </div>
+    `;
     },2000)
   } else {
     let timestamp = Date.parse(results.date);
