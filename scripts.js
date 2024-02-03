@@ -144,15 +144,11 @@ function deleteHouse() {
   houseDiv.childNodes.forEach((x) => {
     // search inside last household for name container
     if (x.className === "name-container") {
-      // grab name from each name wrapper div
-      x.childNodes.forEach((y) => {
-        name = y.id.slice(8);
-        // search the givers array for an object with that same name and delete it
-        for (let i = 0; i < givers.length; i++) {
-          if (givers[i].name === name) {
-            givers.splice(i, 1);
-          }
-        }
+      console.log(x.childNodes);
+      // grab name from each name wrapper div and put it back in the participants list
+      Array.from(x.childNodes).forEach((y) => {
+        document.getElementById('participants').appendChild(y);
+  
       });
       // delete entire div from DOM
       houseDiv.remove();
