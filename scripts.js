@@ -6,8 +6,8 @@ let nameNumber = 1;
 let availRecipients = []; // for deleting names from the recipient pool
 let duplicate;
 let generated = false;
-let introIndex=0;
-let secretSanta=false;
+let introIndex = 0;
+let secretSanta = false;
 
 if (
   /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
@@ -35,7 +35,7 @@ function enterAddHouse(evt) {
 function enterGenerate(evt) {
   if (evt.ctrlKey && evt.keyCode === 13) {
     evt.preventDefault;
-    if(!secretSanta){
+    if (!secretSanta) {
       document.getElementById("generate").click();
     } else {
       document.getElementById("secretGenerate").click();
@@ -70,8 +70,16 @@ function addName(e) {
       </div>`
     );
     givers.push(new Giver(nameInput, "", ""));
-    console.log(givers);
     nameNumber++;
+    if (houseID > 0) {
+      let selects = Array.from(document.getElementsByClassName("name-select"));
+      selects.map((select) => {
+        select.innerHTML = `
+          <option disabled selected value="option${houseID}">-- Select a name --</option>
+          ${givers.map((x) => `<option value="${x.name}">${x.name}</option>`)}
+        `;
+      });
+    }
   }
   document.getElementById("input0").value = "";
 }
@@ -490,18 +498,18 @@ async function getName(e) {
     mode: "cors",
     body: email, // GET requests can't have a body
   };
-  let errorMsg=""
-  let results = await fetch("/.netlify/functions/get_name", options).then(
-    (response) => response.json()
-  ).catch((error)=>errorMsg=error);
-  if (errorMsg !== ""){
-    document.getElementById("query").innerHTML=`
+  let errorMsg = "";
+  let results = await fetch("/.netlify/functions/get_name", options)
+    .then((response) => response.json())
+    .catch((error) => (errorMsg = error));
+  if (errorMsg !== "") {
+    document.getElementById("query").innerHTML = `
     <div style="color:#b31e20">
         Email address not found!
     </div>
     <button class="button" onclick="hideQuery()">Dismiss</button>
-    `
-    setTimeout(()=>{
+    `;
+    setTimeout(() => {
       document.getElementById("query").innerHTML = `
       <div>
           Need to know who you're buying a gift for?
@@ -512,55 +520,57 @@ async function getName(e) {
           <button class="button queryBtn" onclick="hideQuery()">Dismiss</button>
       </div>
     `;
-    },2000)
+    }, 2000);
   } else {
     let timestamp = Date.parse(results.date);
     let date = new Date(timestamp);
     console.log(date.toDateString(), results.recipient);
     document.getElementById("query").innerHTML = `
       <div>
-          As of ${date.toDateString()}, you're buying a gift for <span>${results.recipient}!</span>
+          As of ${date.toDateString()}, you're buying a gift for <span>${
+      results.recipient
+    }!</span>
       </div>
       <button class="button" onclick="hideQuery()">Dismiss</button>
     `;
   }
 }
 
-function introNext(){
-  introIndex+1===introArr.length ? introIndex=0 : introIndex++;
-  const introDiv = document.getElementById('introPara');
-  introDiv.innerHTML=`<p>${introArr[introIndex]}</p>`;
+function introNext() {
+  introIndex + 1 === introArr.length ? (introIndex = 0) : introIndex++;
+  const introDiv = document.getElementById("introPara");
+  introDiv.innerHTML = `<p>${introArr[introIndex]}</p>`;
 }
-function introPrev(){
-  introIndex-1<0 ? introIndex=introArr.length-1 : introIndex--;
-  const introDiv = document.getElementById('introPara');
-  introDiv.innerHTML=`<p>${introArr[introIndex]}</p>`;
+function introPrev() {
+  introIndex - 1 < 0 ? (introIndex = introArr.length - 1) : introIndex--;
+  const introDiv = document.getElementById("introPara");
+  introDiv.innerHTML = `<p>${introArr[introIndex]}</p>`;
 }
 
 let introArr = [
- `For families who draw names for their holiday gift exchange, here's a web app to make it easier! For the Secret Santa experience, click "Secret Santa Mode" at the bottom of the screen.`,
+  `For families who draw names for their holiday gift exchange, here's a web app to make it easier! For the Secret Santa experience, click "Secret Santa Mode" at the bottom of the screen.`,
 
- `<span style="font-weight:bold">Step 1 / 4:</span> Enter the names of everyone participating in the gift exchange. Make sure all names are unique. If two people have the same name, please add a last initial or alternate spelling of their name.`,
+  `<span style="font-weight:bold">Step 1 / 4:</span> Enter the names of everyone participating in the gift exchange. Make sure all names are unique. If two people have the same name, please add a last initial or alternate spelling of their name.`,
 
- `<span style="font-weight:bold">Step 2 / 4</span> (optional): To stop some people from getting each others' names, add households to group them together. You can drag and drop to move people around or select their name from the drop down in each box. Names in the first box will be matched to anyone.`,
+  `<span style="font-weight:bold">Step 2 / 4</span> (optional): To stop some people from getting each others' names, add households to group them together. You can drag and drop to move people around or select their name from the drop down in each box. Names in the first box will be matched to anyone.`,
 
- `<span style="font-weight:bold">Step 3 / 4:</span> Click "Generate List" and watch it go!`,
+  `<span style="font-weight:bold">Step 3 / 4:</span> Click "Generate List" and watch it go!`,
 
- `<span style="font-weight:bold">Step 4 / 4:</span> Click "Enter Email Addresses" to email everyone their recipient's name.`
-]
+  `<span style="font-weight:bold">Step 4 / 4:</span> Click "Enter Email Addresses" to email everyone their recipient's name.`,
+];
 
-function secretSantaMode(){
+function secretSantaMode() {
   document.getElementById("generate").style.display = "none";
   document.getElementById("secretGenerate").style.display = "block";
-  document.getElementById("enterEmails").style.display="none";
-  document.getElementById("results-table").style.display="none";
-  document.getElementById("secretSantaBtn").style.display="none";
-  document.getElementById('left-container').classList.add("secret");
-  document.getElementById('btn-div').classList.add("secret");
-  document.getElementById('name-list').style.paddingBottom="30px";
+  document.getElementById("enterEmails").style.display = "none";
+  document.getElementById("results-table").style.display = "none";
+  document.getElementById("secretSantaBtn").style.display = "none";
+  document.getElementById("left-container").classList.add("secret");
+  document.getElementById("btn-div").classList.add("secret");
+  document.getElementById("name-list").style.paddingBottom = "30px";
 }
 
-function secretSantaStart(){
+function secretSantaStart() {
   start();
   showEmailTable();
 }
