@@ -9,17 +9,24 @@ body {
     color: rgb(255, 255, 255);
     margin-right: 0;
     max-width: 100%;
-    overflow: hidden;
+    padding-bottom: 100px;
+    /* overflow: hidden; */
     
 }
 
+h1{
+    margin-top: 60px;
+}
+/* 
 #container{
     max-width: 100%;
-    padding: 60px 20px 0 20px;
-    height: 80vh;
-    overflow-y: scroll;
-}
+    padding: 60px 20px 200px 20px;
+    /* height: 100vh; */
+    /* overflow-y: scroll; */ 
 
+#left-container:last-child{
+    margin-bottom: 50px;
+}
 
 #background{
     width: 100%;
@@ -431,25 +438,25 @@ h1 {
 
 
 @media screen and (max-width: 979px) {
-    #btn-div{
+    /* #btn-div{
         max-width: 600px;
     }
     #btn-div.secret{
         max-width: 700px;
-    }
-    .btn-bottom{
+    } */
+    /* .btn-bottom{
         padding-top: 5px;
         padding-bottom: 5px;
-    }
+    } */
     #container{
-        height: 76vh;
+        /* height: 76vh; */
     }
 
 }
 @media screen and (max-width: 819px) {
-    #btn-div{
+    /* #btn-div{
         max-width: 600px;
-    }
+    } */
 
 }
 
@@ -475,10 +482,10 @@ h1 {
     }
 }
 
-@media screen and (max-width:659px){
-    #btn-div.secret{
+/* @media screen and (max-width:659px){ */
+    /* #btn-div.secret{
         /* max-width: 338px; */
-        .btn-bottom{
+        /* .btn-bottom{
             width: 90px;
          }
         #instructions{
@@ -487,8 +494,7 @@ h1 {
         .shortcut{
             display: none;
         }
-    }
-}
+    } */
 
 @media screen and (max-width: 630px) {
    #flex-div {
@@ -529,26 +535,27 @@ h1 {
         padding-bottom:50px;
     }
     #container{
-        height: 73vh;
+        /* height: 85vh; */
+        padding-bottom: 20rem;
     }
-    #btn-div{
+    /* #btn-div{
         max-width: 338px;
-    }
-    .btn-bottom{
+    } */
+    /* .btn-bottom{
      width: 90px;
-    }
-    #instructions{
+    } */
+    /* #instructions{
      width: 100px;
-    }
+    } */
     .shortcut{
      display: none;
     }
 }
 
 @media screen and (max-width: 429px){
-    #btn-div.secret{
+    /* #btn-div.secret{
         max-width: 290px;
-    }
+    } */
     #emailTable{
         min-width: 95%;
         margin: 0px 5px;
@@ -564,16 +571,19 @@ h1 {
 
 @media screen and (max-width:499px) and (max-height: 818px){
     #container{
-        height: 70vh;
-    }
+        /* height: 70vh;*/
+    }  
 }
 @media screen and (max-width:499px)and (max-height: 732px){
     #container{
-        height: 68vh;
+        /* height: 68vh; */
     }
 }
 @media screen and (max-width:499px) and (max-height: 689px){
     #container{
-        height: 66vh;
+        /* height: 72.5vh; */
     }
 }
+
+/* #left-container
+} */

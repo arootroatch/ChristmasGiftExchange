@@ -147,11 +147,11 @@ function deleteHouse() {
       console.log(x.childNodes);
       // grab name from each name wrapper div and put it back in the participants list
       Array.from(x.childNodes).forEach((y) => {
-        document.getElementById('participants').appendChild(y);
-  
+        document.getElementById("participants").appendChild(y);
       });
       // delete entire div from DOM
       houseDiv.remove();
+      console.log(givers);
     }
   });
 }
@@ -532,19 +532,77 @@ async function getName(e) {
   }
 }
 
+function conditionalRender() {
+  console.log(introIndex);
+  let leftArrow = document.getElementById("left-arrow");
+  let deleteHouse = document.getElementById("deleteHouse");
+  let addHouse = document.getElementById("addHouse");
+  let generate = document.getElementById("generate");
+  let secretGenerate = document.getElementById("secretGenerate");
+  let enterEmails = document.getElementById("enterEmails");
+
+  switch (introIndex) {
+    case 0:
+      leftArrow.style.display = "none";
+      // because we can go round trip
+
+      deleteHouse.style.display = "none";
+      addHouse.style.display = "none";
+      enterEmails.style.display = "none";
+      generate.style.display = "none";
+      secretGenerate.style.display="none";
+      break;
+    case 1:
+      leftArrow.style.display = "block";
+      if (
+        deleteHouse.style.display === "block" &&
+        addHouse.style.display === "block"
+      ) {
+        deleteHouse.style.display = "none";
+        addHouse.style.display = "none";
+      }
+      break;
+    case 2:
+      deleteHouse.style.display = "block";
+      addHouse.style.display = "block";
+      secretGenerate.style.display="none";
+      generate.style.display = "none";
+      break;
+    case 3:
+      deleteHouse.style.display = "none";
+      addHouse.style.display = "none";
+
+      if(secretSanta){
+        secretGenerate.style.display = "block"
+        generate.style.display = "none";
+      } else {
+        generate.style.display = "block";
+      }
+      enterEmails.style.display = "none";
+      break;
+    case 4:
+      generate.style.display="none";
+      secretGenerate.style.display="none";
+      enterEmails.style.display = "block";
+      break;
+  }
+}
+
 function introNext() {
   introIndex + 1 === introArr.length ? (introIndex = 0) : introIndex++;
   const introDiv = document.getElementById("introPara");
   introDiv.innerHTML = `<p>${introArr[introIndex]}</p>`;
+  conditionalRender();
 }
 function introPrev() {
-  introIndex - 1 < 0 ? (introIndex = introArr.length - 1) : introIndex--;
+  introIndex - 1 < 0 ? 0 : introIndex--;
   const introDiv = document.getElementById("introPara");
   introDiv.innerHTML = `<p>${introArr[introIndex]}</p>`;
+  conditionalRender();
 }
 
 let introArr = [
-  `For families who draw names for their holiday gift exchange, here's a web app to make it easier! For the Secret Santa experience, click "Secret Santa Mode" at the bottom of the screen.`,
+  `For families who draw names for their holiday gift exchange, here's a web app to make it easier! For the Secret Santa experience, click "Secret Santa Mode" at the bottom of the screen. Click the right arrow to progress to step one.`,
 
   `<span style="font-weight:bold">Step 1 / 4:</span> Enter the names of everyone participating in the gift exchange. Make sure all names are unique. If two people have the same name, please add a last initial or alternate spelling of their name.`,
 
@@ -556,14 +614,16 @@ let introArr = [
 ];
 
 function secretSantaMode() {
-  document.getElementById("generate").style.display = "none";
-  document.getElementById("secretGenerate").style.display = "block";
-  document.getElementById("enterEmails").style.display = "none";
+  secretSanta = true;
+  // document.getElementById("generate").style.display = "none";
+  // document.getElementById("secretGenerate").style.display = "block";
+  // document.getElementById("enterEmails").style.display = "none";
   document.getElementById("results-table").style.display = "none";
   document.getElementById("secretSantaBtn").style.display = "none";
   document.getElementById("left-container").classList.add("secret");
-  document.getElementById("btn-div").classList.add("secret");
+  // document.getElementById("btn-div").classList.add("secret");
   document.getElementById("name-list").style.paddingBottom = "30px";
+  conditionalRender();
 }
 
 function secretSantaStart() {
