@@ -87,14 +87,14 @@
         >
           Generate List<br /><span class="shortcut">(Ctrl+Enter)</span>
         </button>
-        <button
+        <!-- <button
           class="btn-bottom"
           id="deleteHouse"
           style="display: none"
           onclick="deleteHouse()"
         >
           Delete Last<br />Household
-        </button>
+        </button> -->
         <button
           class="btn-bottom"
           id="addHouse"
@@ -118,6 +118,14 @@
         >
           Secret Santa Mode
         </button>
+        <button
+          class="btn-bottom"
+          onclick="introNext()"
+          id="nextStep"
+          style="display: none;"
+        >
+          Next Step
+        </button>
       </div>
     </div>
     <div id="container">
@@ -125,11 +133,20 @@
       <div id="intro" class="closed">
         <p id="introPara">
           For families who draw names for their holiday gift exchange, here's a
-          web app to make it easier! For the Secret Santa experience, click
-          "Secret Santa Mode" at the bottom of the screen.<br><br> Click the right arrow
-          to progress to step one.
+          web app to make it easier! <br>
+          Simply: 
+          <ol>
+            <li>Add all participant names</li>
+            <li>Sort people into exclusion groups (optional)</li>
+            <li>Generate the list</li>
+            <li>Send everyone an email with the name of their recipient (optional)</li>
+          </ol>
+          For the Secret Santa experience, click
+          "Secret Santa Mode" at the bottom of the screen.<br><br> Ready to get started?
+          <br>
+          <button class="button" onclick="stepOne()" style="margin-bottom: 0;">Let's go!</button>
         </p>
-        <i
+        <!-- <i
           style="display: none"
           class="fa-solid fa-arrow-left"
           id="left-arrow"
@@ -139,11 +156,11 @@
           class="fa-solid fa-arrow-right"
           id="right-arrow"
           onclick="introNext()"
-        ></i>
+        ></i> -->
       </div>
       <div id="flex-div">
         <div id="left-container">
-          <div id="name-list">
+          <div id="name-list" style="display: none;">
             <h2 id="house1-header">Participant Names</h2>
             <div
               class="name-container"
@@ -163,7 +180,7 @@
             </button>
           </div>
         </div>
-        <table class="table" id="results-table">
+        <table class="table" id="results-table" style="display: none;">
           <thead>
             <tr>
               <th>Giver</th>

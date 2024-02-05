@@ -543,33 +543,33 @@ function conditionalRender() {
 
   switch (introIndex) {
     case 0:
-      leftArrow.style.display = "none";
+      // leftArrow.style.display = "none";
       // because we can go round trip
 
-      deleteHouse.style.display = "none";
+      // deleteHouse.style.display = "none";
       addHouse.style.display = "none";
       enterEmails.style.display = "none";
       generate.style.display = "none";
       secretGenerate.style.display="none";
       break;
     case 1:
-      leftArrow.style.display = "block";
+      // leftArrow.style.display = "block";
       if (
-        deleteHouse.style.display === "block" &&
+        // deleteHouse.style.display === "block" &&
         addHouse.style.display === "block"
       ) {
-        deleteHouse.style.display = "none";
+        // deleteHouse.style.display = "none";
         addHouse.style.display = "none";
       }
       break;
     case 2:
-      deleteHouse.style.display = "block";
+      // deleteHouse.style.display = "block";
       addHouse.style.display = "block";
       secretGenerate.style.display="none";
       generate.style.display = "none";
       break;
     case 3:
-      deleteHouse.style.display = "none";
+      // deleteHouse.style.display = "none";
       addHouse.style.display = "none";
 
       if(secretSanta){
@@ -588,29 +588,48 @@ function conditionalRender() {
   }
 }
 
+function stepOne(){
+  document.getElementById('name-list').style.display="block";
+  document.getElementById('results-table').style.display="table";
+  document.getElementById('nextStep').style.display="block";
+  introNext();
+
+}
+
 function introNext() {
+  if(givers.length<1&&introIndex===1){
+    showSnackbar("Please add participant names", "error");
+    return;
+  }
+  if(introIndex===3&&!generated){
+    showSnackbar(`Please click "Generate List"`, "error");
+    return;
+  }
+  if(introIndex===3&&generated){
+    showEmailTable();
+    document.getElementById('nextStep').style.display="none";
+    return;
+  }
   introIndex + 1 === introArr.length ? (introIndex = 0) : introIndex++;
-  const introDiv = document.getElementById("introPara");
+  const introDiv = document.getElementById("intro");
   introDiv.innerHTML = `<p>${introArr[introIndex]}</p>`;
   conditionalRender();
 }
-function introPrev() {
-  introIndex - 1 < 0 ? 0 : introIndex--;
-  const introDiv = document.getElementById("introPara");
-  introDiv.innerHTML = `<p>${introArr[introIndex]}</p>`;
-  conditionalRender();
-}
+// function introPrev() {
+//   introIndex - 1 < 0 ? 0 : introIndex--;
+//   const introDiv = document.getElementById("introPara");
+//   introDiv.innerHTML = `<p>${introArr[introIndex]}</p>`;
+//   conditionalRender();
+// }
 
 let introArr = [
   `For families who draw names for their holiday gift exchange, here's a web app to make it easier! For the Secret Santa experience, click "Secret Santa Mode" at the bottom of the screen. <br><br> Click the right arrow to progress to step one.`,
 
-  `<span style="font-weight:bold">Step 1 / 4:</span> Enter the names of everyone participating in the gift exchange. Make sure all names are unique. If two people have the same name, please add a last initial or alternate spelling of their name.`,
+  `<span style="font-weight:bold">Step 1 / 4:</span> Enter the names of everyone participating in the gift exchange. Make sure all names are unique. If two people have the same name, please add a last initial or nickname.`,
 
-  `<span style="font-weight:bold">Step 2 / 4</span> (optional): To stop some people from getting each others' names, add households to group them together. You can drag and drop to move people around or select their name from the drop down in each box. Names in the first box will be matched to anyone.`,
+  `<span style="font-weight:bold">Step 2 / 4</span> (optional): Who should NOT get who? <br>For example, a couple may not want to be able get each others' names at the family gift exchange because they will already be getting each other gifts outside of the exchange. <br> In that case, you can put them in an exclusion group together. <br> You can drag and drop to move people around or select their name from the drop down in each box.`,
 
-  `<span style="font-weight:bold">Step 3 / 4:</span> Click "Generate List" and watch it go!`,
-
-  `<span style="font-weight:bold">Step 4 / 4:</span> Click "Enter Email Addresses" to email everyone their recipient's name.`,
+  `<span style="font-weight:bold">Step 3 / 4:</span> Click "Generate List" and watch it go!`
 ];
 
 function secretSantaMode() {
