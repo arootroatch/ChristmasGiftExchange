@@ -98,9 +98,9 @@ function deleteName(e) {
 
 function addHouse() {
   let houseTemplate = `<div class="household" id="${houseID}">
-      <h2 contenteditable="true">Household ${
+      <h2 contenteditable="true">Group ${
         houseID + 1
-      } <span class="edit-span">(Click here to edit)</span></h2>
+      } <span class="edit-span">(Click here to rename)</span></h2>
       <div class="name-container" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
       <select class="name-select" name="${houseID}-select" id="${houseID}-select" onchange="insertName(event)">
         <option disabled selected value="option${houseID}">-- Select a name --</option>
@@ -111,6 +111,15 @@ function addHouse() {
   document
     .getElementById("left-container")
     .insertAdjacentHTML("beforeend", houseTemplate);
+  if(houseID<1){
+    document.getElementById("name-list").insertAdjacentHTML(
+      "beforeend",
+      `<select class="name-select" name="${houseID}-select" id="${houseID}-select" onchange="insertName(event)">
+          <option disabled selected value="option${houseID}">-- Select a name --</option>
+          ${givers.map((x) => `<option value="${x.name}">${x.name}</option>`)}
+        </select>`
+    );
+  }
   houseID += 1;
 }
 
@@ -129,7 +138,11 @@ function toggleInstructions() {
 function insertName(e) {
   let firstName = e.target.value;
   let nameDiv = document.getElementById(`wrapper-${firstName}`);
-  e.target.previousElementSibling.appendChild(nameDiv);
+  if(e.target.parentNode.id==='name-list'){
+    document.getElementById('participants').appendChild(nameDiv);
+  } else {
+    e.target.previousElementSibling.appendChild(nameDiv);
+  }
 
   // set select back to saying "select a name"
   label = e.target.firstElementChild.value;
@@ -305,7 +318,7 @@ function start() {
           numberOfHouses - 1 > -1 ? numberOfHouses-- : (numberOfHouses = 0); //decrement number of houses to prevent undefined when randomly selecting next array. don't let it fall under zero
         }
         generated = true;
-        if(!secretSanta){
+        if (!secretSanta) {
           document.getElementById("table-body").insertAdjacentHTML(
             "beforeend",
             `<tr>
@@ -367,17 +380,17 @@ function showEmailTable() {
       );
     }
     table.classList.replace("hidden", "show");
-    if(!secretSanta){
-      document.getElementById('hideEmails').style.display="block";
+    if (!secretSanta) {
+      document.getElementById("hideEmails").style.display = "block";
     }
   }
 }
 
-function hideEmailTable(){
+function hideEmailTable() {
   const table = document.getElementById("emailTable");
-  document.getElementById('hideEmails').style.display="none";
-  document.getElementById('confirmEmails').style.display="none";
-  table.classList.replace('show', 'hide');
+  document.getElementById("hideEmails").style.display = "none";
+  document.getElementById("confirmEmails").style.display = "none";
+  table.classList.replace("show", "hide");
   setTimeout(() => {
     table.classList.replace("hide", "hidden");
   }, 500);
@@ -564,7 +577,7 @@ async function getName(e) {
 
 function conditionalRender() {
   console.log(introIndex);
-  let next = document.getElementById('nextStep');
+  let next = document.getElementById("nextStep");
   let addHouse = document.getElementById("addHouse");
   let generate = document.getElementById("generate");
   let secretGenerate = document.getElementById("secretGenerate");
@@ -623,7 +636,7 @@ function introNext() {
   }
   introIndex + 1 > introArr.length ? (introIndex = 0) : introIndex++;
   const introDiv = document.getElementById("intro");
-  if(introIndex<introArr.length){
+  if (introIndex < introArr.length) {
     introDiv.innerHTML = `<p>${introArr[introIndex]}</p>`;
   }
   conditionalRender();

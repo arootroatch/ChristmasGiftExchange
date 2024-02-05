@@ -118,7 +118,7 @@ h1 {
     padding: 1rem;
     border-radius: 0.5rem;
     background-color: #9e9e9e8b;
-    /* color: black; */
+    max-width: 347px;
 }
 #name-list{
     margin-top: 0;
