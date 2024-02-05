@@ -106,7 +106,7 @@ function addHouse() {
         <option disabled selected value="option${houseID}">-- Select a name --</option>
         ${givers.map((x) => `<option value="${x.name}">${x.name}</option>`)}
       </select>
-      <button class="button deleteHouse" onclick="deleteHouse(this)">Delete</button>
+      <button class="button deleteHouse" onclick="deleteHouse(this)">Delete Group</button>
     </div>`;
   document
     .getElementById("left-container")
@@ -655,7 +655,7 @@ let introArr = [
 function secretSantaMode() {
   secretSanta = true;
   document.getElementById("left-container").classList.add("secret");
-  document.getElementById("name-list").style.paddingBottom = "30px";
+  // document.getElementById("name-list").style.paddingBottom = "30px";
   stepOne();
 }
 

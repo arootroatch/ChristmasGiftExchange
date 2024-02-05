@@ -381,7 +381,7 @@ h1 {
     justify-content: center;
     flex-wrap: wrap;
     #name-list, .household{
-        max-width: 333px;
+        width: 333px;
         margin: 10px;
     }
     .name-container{
@@ -389,6 +389,11 @@ h1 {
     }
     .household{
         position: relative;
+        padding-bottom: 20px;
+    }
+    .deleteHouse{
+        position: relative;
+        top: -17px;
     }
     .household select{
         position: absolute;
@@ -396,9 +401,21 @@ h1 {
         width: 90%;
     }
     #name-list{
-        padding:0.5rem
+        select {
+            position: relative;
+            top: -25px;
+        }
+        #b0{
+            position: relative;
+            top: -17px;
+        }
+        #input0{
+            position: relative;
+            top: -15px;
+        }
+
+        
     }
-}
 
 
 /* ---------------- MEDIA QUERIES-------------------------- */
@@ -444,6 +461,14 @@ h1 {
    }
    .household h2, #name-list h2 {
        text-align: center;
+   }
+   #left-container.secret{
+        #name-list{
+            padding-bottom: 65px;
+            select{
+                margin-top: 20px;
+            }
+        }
    }
 
 
@@ -506,3 +531,4 @@ h1 {
     }    
 
 }
+}}
