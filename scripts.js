@@ -602,7 +602,7 @@ function introPrev() {
 }
 
 let introArr = [
-  `For families who draw names for their holiday gift exchange, here's a web app to make it easier! For the Secret Santa experience, click "Secret Santa Mode" at the bottom of the screen. Click the right arrow to progress to step one.`,
+  `For families who draw names for their holiday gift exchange, here's a web app to make it easier! For the Secret Santa experience, click "Secret Santa Mode" at the bottom of the screen. <br><br> Click the right arrow to progress to step one.`,
 
   `<span style="font-weight:bold">Step 1 / 4:</span> Enter the names of everyone participating in the gift exchange. Make sure all names are unique. If two people have the same name, please add a last initial or alternate spelling of their name.`,
 
