@@ -25,7 +25,17 @@
       </thead>
       <tbody id="emailTableBody">
         <tr id="btnRow">
-          <td></td>
+          <td>
+              <button
+                class="button"
+                id="hideEmails"
+                onclick="hideEmailTable(this)"
+                style="display: none;"
+              >
+                Dismiss
+              </button>
+
+          </td>
           <td>
             <button
               type="submit"
@@ -42,14 +52,6 @@
     <div id="background"></div>
     <div id="control-strip">
       <div id="btn-div">
-        <button
-          class="btn-bottom"
-          onclick="showEmailTable()"
-          style="display: none"
-          id="enterEmails"
-        >
-          Enter Email Addresses
-        </button>
         <button
           class="btn-bottom"
           id="generate"
