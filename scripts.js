@@ -605,7 +605,9 @@ function conditionalRender() {
 
 function stepOne() {
   document.getElementById("name-list").style.display = "block";
-  document.getElementById("results-table").style.display = "table";
+  if(!secretSanta){
+    document.getElementById("results-table").style.display = "table";
+  }
   document.getElementById("nextStep").style.display = "block";
   introNext();
 }
@@ -642,15 +644,9 @@ let introArr = [
 
 function secretSantaMode() {
   secretSanta = true;
-  // document.getElementById("generate").style.display = "none";
-  // document.getElementById("secretGenerate").style.display = "block";
-  // document.getElementById("enterEmails").style.display = "none";
-  document.getElementById("results-table").style.display = "none";
-  document.getElementById("secretSantaBtn").style.display = "none";
   document.getElementById("left-container").classList.add("secret");
-  // document.getElementById("btn-div").classList.add("secret");
   document.getElementById("name-list").style.paddingBottom = "30px";
-  conditionalRender();
+  stepOne();
 }
 
 function secretSantaStart() {

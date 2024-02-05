@@ -186,9 +186,6 @@ h1 {
     margin: 5px auto 0 auto;
 }
 
-#secretSantaBtn{
-    padding: 10px 10px;
-}
 
 
 #control-strip{
@@ -201,6 +198,7 @@ h1 {
     background-color: #69292ac9;
     display: flex;
     justify-content: center;
+    z-index: 10;
 }
 
 #btn-div{
@@ -378,6 +376,11 @@ h1 {
     width: fit-content;
 }
 
+#secretSantaBtn{
+    display: block;
+    margin-top: 10px;
+}
+
 
 
   /* -------------SECRET SANTA MODE------------------------ */
@@ -472,6 +475,9 @@ h1 {
 
     .shortcut{
      display: none;
+    }
+    #nextStep{
+        padding: 10px;
     }
 }
 
