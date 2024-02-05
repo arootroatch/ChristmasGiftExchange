@@ -106,7 +106,7 @@ function addHouse() {
         <option disabled selected value="option${houseID}">-- Select a name --</option>
         ${givers.map((x) => `<option value="${x.name}">${x.name}</option>`)}
       </select>
-      <button class="button deleteHouse" onclick="deleteHouse()">Delete</button>
+      <button class="button deleteHouse" onclick="deleteHouse(this)">Delete</button>
     </div>`;
   document
     .getElementById("left-container")
@@ -136,25 +136,21 @@ function insertName(e) {
   e.target.value = label;
 }
 
-function deleteHouse() {
+function deleteHouse(e) {
   // find last household
-  let container = document.getElementById("left-container");
-  let houseDiv = container.lastChild;
-  let name;
+  let houseDiv = e.parentNode;
 
   houseDiv.childNodes.forEach((x) => {
     // search inside last household for name container
     if (x.className === "name-container") {
-      console.log(x.childNodes);
       // grab name from each name wrapper div and put it back in the participants list
       Array.from(x.childNodes).forEach((y) => {
         document.getElementById("participants").appendChild(y);
       });
-      // delete entire div from DOM
-      houseDiv.remove();
-      console.log(givers);
     }
   });
+  // delete entire div from DOM
+  houseDiv.remove();
 }
 
 function deepCopy(arr) {
@@ -633,15 +629,9 @@ function introNext() {
   introDiv.innerHTML = `<p>${introArr[introIndex]}</p>`;
   conditionalRender();
 }
-// function introPrev() {
-//   introIndex - 1 < 0 ? 0 : introIndex--;
-//   const introDiv = document.getElementById("introPara");
-//   introDiv.innerHTML = `<p>${introArr[introIndex]}</p>`;
-//   conditionalRender();
-// }
 
 let introArr = [
-  `For families who draw names for their holiday gift exchange, here's a web app to make it easier! For the Secret Santa experience, click "Secret Santa Mode" at the bottom of the screen. <br><br> Click the right arrow to progress to step one.`,
+  ``,
 
   `<span style="font-weight:bold">Step 1 / 4:</span> Enter the names of everyone participating in the gift exchange. Make sure all names are unique. If two people have the same name, please add a last initial or nickname.`,
 

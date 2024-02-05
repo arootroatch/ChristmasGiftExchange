@@ -17,9 +17,6 @@ body {
     margin-right: 8px;
 }
 
-h1{
-    margin-top: 60px;
-}
 
 #background{
     width: 100%;
@@ -184,6 +181,11 @@ h1 {
     max-height: 65px;
 }
 
+.deleteHouse{
+    width: 100%;
+    margin: 5px auto 0 auto;
+}
+
 #secretSantaBtn{
     padding: 10px 10px;
 }
@@ -234,7 +236,7 @@ h1 {
     text-align: center; /* Centered text */
     border-radius: 10px; /* Rounded borders */
     border: 3px solid #198c0a;
-    padding: 16px; /* Padding */
+    padding: 16px; 
     position: fixed; /* Sit on top of the screen */
     z-index: 10; /* Add a z-index if needed */
     left: 50%; /* Center the snackbar */
@@ -419,19 +421,6 @@ h1 {
     #intro {
         padding-bottom: 2rem;
     }
-    .fa-solid{
-        position: absolute;
-    }
-    #left-arrow{
-        top: auto;
-        bottom: 10px;
-        left: 41%;
-    }
-    #right-arrow{
-        top: auto;
-        bottom: 10px;
-        left: 52%;
-    }
 }
 
 
@@ -475,16 +464,8 @@ h1 {
         margin-top: 10px;
     }
 }
-@media screen and (max-width: 507px){
-    #queryBtnDiv{
-        flex-direction: column;
-    }
-    h1 {
-        margin-top: 75px;
-    }
-}
-@media screen and (max-width: 499px) {
 
+@media screen and (max-width: 499px) {
     body {
         padding-bottom: 150px;
     }
@@ -495,7 +476,6 @@ h1 {
 }
 
 @media screen and (max-width: 429px){
-
     #emailTable{
         min-width: 95%;
         margin: 0px 5px;
@@ -519,4 +499,17 @@ h1 {
    }
 }
 
+@media screen and (max-width: 337px){
+    #query{
+        div{
+            /* display: flex; */
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+    }  
+    #emailQueryBtn{
+        margin-top: 5px;
+    }    
 
+}
