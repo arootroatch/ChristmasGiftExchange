@@ -334,21 +334,18 @@ h1 {
 /* -----------  QUERY------------------ */
 
 .emailQuery {
-    display: flex;
     align-items: center;
-    background-color: white;
-    position: fixed;
-    top: 0;
-    right: 0;
+    justify-content: space-around;
+    background-color: rgba(255, 255, 255, 0.409);
     border-radius: 10px;
     color: black;
-    padding: 5px;
+    padding: 7px 15px;
     border: 3px solid #69292a;
-    transform: translateX(100%);
-    -webkit-animation: email-fadein 0.5s 2s forwards;
-            animation: email-fadein 0.5s 2s forwards;
-    transition: all 0.5s;
-    z-index: 10;
+    width: -webkit-fit-content;
+    width: -moz-fit-content;
+    width: fit-content;
+    margin: 30px auto 5px auto;
+
     button {
         width: 80px;
         padding: 5px;
@@ -356,47 +353,29 @@ h1 {
     }
     div {
         display: flex;
-        flex-direction: column;
-        margin-right: 5px;
+        justify-content: space-between;
         text-align: center;
+        
     }
     input {
         margin-top: 5px;
+        width: 70%;
     }
     span {
         color: #198c0a;
         font-weight: bold;
         font-size: 1.2rem;
+        margin-left: 7px;
     }
 }
-#queryBtnDiv{
-    /* width: 250px; */
-    flex-direction: row;
+
+#get-started{
+    margin: 0 auto;
+    width: -webkit-fit-content;
+    width: -moz-fit-content;
+    width: fit-content;
 }
 
-.hideQuery{
-    -webkit-animation: email-fadeout 0.5s forwards;
-            animation: email-fadeout 0.5s forwards;
-  }
-  /* Animations for emailQuery */
-  @-webkit-keyframes email-fadein {
-    from {opacity: 0; transform: translateX(100%);}
-    to {opacity: 1; transform: translateX(0);}
-  }
-  
-  @keyframes email-fadein {
-    from {opacity: 0; transform: translateX(100%);}
-    to {opacity: 1; transform: translateX(0);}
-  }
-  @-webkit-keyframes email-fadeout {
-    from {opacity: 1; transform: translateX(0);}
-    to {opacity: 0; transform: translateX(100%);}
-  }
-  
-  @keyframes email-fadeout {
-    from {opacity: 1; transform: translateX(0);}
-    to {opacity: 0; transform: translateX(100%);}
-  }
 
 
   /* -------------SECRET SANTA MODE------------------------ */

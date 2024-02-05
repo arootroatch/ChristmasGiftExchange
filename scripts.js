@@ -106,6 +106,7 @@ function addHouse() {
         <option disabled selected value="option${houseID}">-- Select a name --</option>
         ${givers.map((x) => `<option value="${x.name}">${x.name}</option>`)}
       </select>
+      <button class="button deleteHouse" onclick="deleteHouse()">Delete</button>
     </div>`;
   document
     .getElementById("left-container")
@@ -475,15 +476,8 @@ async function postToDb() {
   );
 }
 
-function hideQuery() {
-  document.getElementById("query").classList.add("hideQuery");
-  if (document.getElementById("query").classList.contains("show")) {
-    document.getElementById("query").classList.remove("show");
-  }
-}
-
 async function getName(e) {
-  // e.preventDefault;
+  e.preventDefault;
   let email = document.getElementById("emailQuery").value;
   const btn = document.getElementById("emailQueryBtn");
   btn.innerHTML = "Loading...";
@@ -503,19 +497,29 @@ async function getName(e) {
     <div style="color:#b31e20">
         Email address not found!
     </div>
-    <button class="button" onclick="hideQuery()">Dismiss</button>
     `;
     setTimeout(() => {
       document.getElementById("query").innerHTML = `
-      <div>
-          Need to know who you're buying a gift for?
-          <input type="email" id="emailQuery" placeholder="Enter your email to search">
-      </div>
-      <div id="queryBtnDiv">
-          <button type="submit" class="button queryBtn" onclick="getName(this)" id="emailQueryBtn">Search it!</button>
-          <button class="button queryBtn" onclick="hideQuery()">Dismiss</button>
-      </div>
-    `;
+        <label for="emailQuery">
+            Need to know who you're buying a gift for?
+        </label>
+        <div>
+            <input
+                type="email"
+                maxlength="100"
+                id="emailQuery"
+                placeholder="Enter your email to search"
+            />
+            <button
+                type="submit"
+                class="button queryBtn"
+                onclick="getName(this)"
+                id="emailQueryBtn"
+            >
+            Search it!
+            </button>
+        </div>
+      `;
     }, 2000);
   } else {
     let timestamp = Date.parse(results.date);
@@ -523,11 +527,26 @@ async function getName(e) {
     console.log(date.toDateString(), results.recipient);
     document.getElementById("query").innerHTML = `
       <div>
-          As of ${date.toDateString()}, you're buying a gift for <span>${
+          As of ${date.toDateString()}, you're buying a gift for  <span>${
       results.recipient
     }!</span>
-      </div>
-      <button class="button" onclick="hideQuery()">Dismiss</button>
+    </div>
+    <div>
+            <input
+                type="email"
+                maxlength="100"
+                id="emailQuery"
+                placeholder="Enter your email to search"
+            />
+            <button
+                type="submit"
+                class="button queryBtn"
+                onclick="getName(this)"
+                id="emailQueryBtn"
+            >
+            Search it!
+            </button>
+        </div>
     `;
   }
 }
@@ -550,7 +569,7 @@ function conditionalRender() {
       addHouse.style.display = "none";
       enterEmails.style.display = "none";
       generate.style.display = "none";
-      secretGenerate.style.display="none";
+      secretGenerate.style.display = "none";
       break;
     case 1:
       // leftArrow.style.display = "block";
@@ -565,15 +584,15 @@ function conditionalRender() {
     case 2:
       // deleteHouse.style.display = "block";
       addHouse.style.display = "block";
-      secretGenerate.style.display="none";
+      secretGenerate.style.display = "none";
       generate.style.display = "none";
       break;
     case 3:
       // deleteHouse.style.display = "none";
       addHouse.style.display = "none";
 
-      if(secretSanta){
-        secretGenerate.style.display = "block"
+      if (secretSanta) {
+        secretGenerate.style.display = "block";
         generate.style.display = "none";
       } else {
         generate.style.display = "block";
@@ -581,33 +600,32 @@ function conditionalRender() {
       enterEmails.style.display = "none";
       break;
     case 4:
-      generate.style.display="none";
-      secretGenerate.style.display="none";
+      generate.style.display = "none";
+      secretGenerate.style.display = "none";
       enterEmails.style.display = "block";
       break;
   }
 }
 
-function stepOne(){
-  document.getElementById('name-list').style.display="block";
-  document.getElementById('results-table').style.display="table";
-  document.getElementById('nextStep').style.display="block";
+function stepOne() {
+  document.getElementById("name-list").style.display = "block";
+  document.getElementById("results-table").style.display = "table";
+  document.getElementById("nextStep").style.display = "block";
   introNext();
-
 }
 
 function introNext() {
-  if(givers.length<1&&introIndex===1){
+  if (givers.length < 1 && introIndex === 1) {
     showSnackbar("Please add participant names", "error");
     return;
   }
-  if(introIndex===3&&!generated){
+  if (introIndex === 3 && !generated) {
     showSnackbar(`Please click "Generate List"`, "error");
     return;
   }
-  if(introIndex===3&&generated){
+  if (introIndex === 3 && generated) {
     showEmailTable();
-    document.getElementById('nextStep').style.display="none";
+    document.getElementById("nextStep").style.display = "none";
     return;
   }
   introIndex + 1 === introArr.length ? (introIndex = 0) : introIndex++;
@@ -629,7 +647,7 @@ let introArr = [
 
   `<span style="font-weight:bold">Step 2 / 4</span> (optional): Who should NOT get who? <br>For example, a couple may not want to be able get each others' names at the family gift exchange because they will already be getting each other gifts outside of the exchange. <br> In that case, you can put them in an exclusion group together. <br> You can drag and drop to move people around or select their name from the drop down in each box.`,
 
-  `<span style="font-weight:bold">Step 3 / 4:</span> Click "Generate List" and watch it go!`
+  `<span style="font-weight:bold">Step 3 / 4:</span> Click "Generate List" and watch it go!`,
 ];
 
 function secretSantaMode() {

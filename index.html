@@ -10,34 +10,13 @@
     <title>Gift Exchange Generator</title>
     <meta
       name="description"
-      content="Easily generate a randomized list to know who each person in your family gets to buy a present for."
+      content="Easily generate a randomized list for a gift exchange or Secret Santa and email the results."
     />
   </head>
   <body>
     <div id="snackbar" class="hidden"></div>
     <div id="sendEmails" class="sendEmails hidden"></div>
-    <div id="query" class="emailQuery">
-      <div>
-        Need to know who you're buying a gift for?
-        <input
-          type="email"
-          maxlength="100"
-          id="emailQuery"
-          placeholder="Enter your email to search"
-        />
-      </div>
-      <div id="queryBtnDiv">
-        <button
-          type="submit"
-          class="button queryBtn"
-          onclick="getName(this)"
-          id="emailQueryBtn"
-        >
-          Search it!
-        </button>
-        <button class="button queryBtn" onclick="hideQuery()">Dismiss</button>
-      </div>
-    </div>
+    
     <table class="table hidden" id="emailTable">
       <thead>
         <tr>
@@ -132,20 +111,46 @@
       <h1>Gift Exchange Generator</h1>
       <div id="intro" class="closed">
         <p id="introPara">
-          For families who draw names for their holiday gift exchange, here's a
-          web app to make it easier! <br>
-          Simply: 
-          <ol>
+          Drawing names for a gift exchange or Secret Santa? Here's a
+          web app to make it easier! <br><br>
+          Simply:
+        </p>
+        <ol>
             <li>Add all participant names</li>
             <li>Sort people into exclusion groups (optional)</li>
             <li>Generate the list</li>
             <li>Send everyone an email with the name of their recipient (optional)</li>
-          </ol>
-          For the Secret Santa experience, click
-          "Secret Santa Mode" at the bottom of the screen.<br><br> Ready to get started?
-          <br>
-          <button class="button" onclick="stepOne()" style="margin-bottom: 0;">Let's go!</button>
+        </ol>
+        <p>
+            For the Secret Santa experience, click
+            "Secret Santa Mode" at the bottom of the screen.
         </p>
+        <div id="get-started">
+            <p>Ready to get started?</p>
+            <button class="button" onclick="stepOne()" style="margin-bottom: 0;">Let's go!</button>
+        </div>
+        </p>
+        <div id="query" class="emailQuery">
+            <label for="emailQuery">
+                Need to know who you're buying a gift for?
+            </label>
+            <div>
+                <input
+                    type="email"
+                    maxlength="100"
+                    id="emailQuery"
+                    placeholder="Enter your email to search"
+                />
+                <button
+                    type="submit"
+                    class="button queryBtn"
+                    onclick="getName(this)"
+                    id="emailQueryBtn"
+                >
+                Search it!
+                </button>
+            </div>
+        </div>
         <!-- <i
           style="display: none"
           class="fa-solid fa-arrow-left"
