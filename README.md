@@ -9,9 +9,17 @@ Drawing names for the digital age!
 
 You can even use your email to look up who your recipient is!
 
+![](/gifs/Demo.gif)
+
 ## But what's wrong with using a hat?
 
-For Christmas, the adults in my family draw names for our gift exchange. Before I made this, my sister would put everyone's names in a hat and draw names on our behalf, then send us a text message with the results. Not only did that spoil the surprise (because we all knew who got paired with whom), but one year, I got paired with my wife! That didn't make sense to me, because she and I were already buying each other gifts regardless of the family gift exchange. I knew there had to be an easier way, one that would let us keep Secret Santa secret AND stop people from getting matched to their significant others.
+Because hats don't work if you're scattered across the country!
+
+Not only that, having one person draw names on behalf of every one participating ruins the surprise of Secret Santa. 
+
+What if you get paired with your significant other? You're buying gifts for each other outside of the gift exchange; you shouldn't be able to get each other's names!
+
+This keeps Secret Santa secret and allows you to group people together so they won't draw each other's names! 
 
 ## Quick Start
 
