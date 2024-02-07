@@ -9,7 +9,7 @@ Drawing names for the digital age!
 
 You can even use your email to look up who your recipient is!
 
-![](/gifs/Demo.gif)
+![](https://github.com/arootroatch/ChristmasGiftExchange/tree/main/gifs)
 
 ## But what's wrong with using a hat?
 
