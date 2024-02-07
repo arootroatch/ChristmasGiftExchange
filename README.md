@@ -27,6 +27,10 @@ Navigate to https://giftexchangegenerator.netlify.app/ to do your own gift excha
 
 ## Noteworthy Features
 
+### Framework Free
+
+This app was built entirely using 
+
 ## Contributing
 
 ### Clone the repo
