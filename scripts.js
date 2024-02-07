@@ -167,6 +167,7 @@ function deleteHouse(e) {
 }
 
 function deepCopy(arr) {
+  availRecipients=[];
   arr.forEach((x) => {
     availRecipients.push([]);
   });
@@ -254,31 +255,32 @@ function start() {
         "error"
       );
     } else if (counter >= 25) {
-      showSnackbar(
-        "No possible combinations! Please try a different configuration/number of names.",
-        "error"
-      );
+      clearTable();
       document.getElementById("table-body").insertAdjacentHTML(
         "beforeend",
         `<tr>
-              <td></td>
-              <td></td>
-          </tr>
-          <tr>
-              <td></td>
-              <td></td>
-          </tr>
-          <tr>
-              <td></td>
-              <td></td>
-          </tr>
-          <tr>
-              <td></td>
-              <td></td>
-          </tr>`
-      );
-    } else {
-      clearTable();
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+        </tr>`
+        );
+        showSnackbar(
+          "No possible combinations! Please try a different configuration/number of names.",
+          "error"
+        );
+      } else {
+        clearTable();
       // for (let i = 0; i < givers.length; i++)
       givers.forEach((a) => {
         //sequentially choose giver name and randomly choose which subArray for recipient
@@ -312,7 +314,8 @@ function start() {
         a.recipient = recipient;
 
         availRecipients[x].splice(y, 1); //remove name from possible options
-
+        console.log(giverName, a.recipient);
+        console.log(availRecipients);
         if (availRecipients[x].length === 0) {
           availRecipients.splice(x, 1); //check if that leaves an empty array and remove if so
           numberOfHouses - 1 > -1 ? numberOfHouses-- : (numberOfHouses = 0); //decrement number of houses to prevent undefined when randomly selecting next array. don't let it fall under zero
