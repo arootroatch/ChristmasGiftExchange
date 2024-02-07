@@ -339,12 +339,12 @@ function showSnackbar(message, status) {
   bar.classList.replace("hidden", "show");
   setTimeout(() => {
     bar.classList.add("hide");
-  }, 8000);
+  }, 5000);
   // give the keyframes animation time to run before changing classes
   setTimeout(() => {
     bar.classList.replace("show", "hidden");
     bar.classList.remove("hide");
-  }, 8500);
+  }, 5500);
 }
 
 // collect emails
