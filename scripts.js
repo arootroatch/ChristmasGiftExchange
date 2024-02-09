@@ -98,18 +98,28 @@ function deleteName(e) {
 
 function addHouse() {
   let houseTemplate = `<div class="household" id="${houseID}">
-      <h2 contenteditable="true">Household ${
+      <h2 contenteditable="true">Group ${
         houseID + 1
-      } <span class="edit-span">(Click here to edit)</span></h2>
+      } <span class="edit-span">(Click here to rename)</span></h2>
       <div class="name-container" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
       <select class="name-select" name="${houseID}-select" id="${houseID}-select" onchange="insertName(event)">
         <option disabled selected value="option${houseID}">-- Select a name --</option>
         ${givers.map((x) => `<option value="${x.name}">${x.name}</option>`)}
       </select>
+      <button class="button deleteHouse" onclick="deleteHouse(this)">Delete Group</button>
     </div>`;
   document
     .getElementById("left-container")
     .insertAdjacentHTML("beforeend", houseTemplate);
+  if(houseID<1){
+    document.getElementById("name-list").insertAdjacentHTML(
+      "beforeend",
+      `<select class="name-select" name="${houseID}-select" id="${houseID}-select" onchange="insertName(event)">
+          <option disabled selected value="option${houseID}">-- Select a name --</option>
+          ${givers.map((x) => `<option value="${x.name}">${x.name}</option>`)}
+        </select>`
+    );
+  }
   houseID += 1;
 }
 
@@ -128,35 +138,36 @@ function toggleInstructions() {
 function insertName(e) {
   let firstName = e.target.value;
   let nameDiv = document.getElementById(`wrapper-${firstName}`);
-  e.target.previousElementSibling.appendChild(nameDiv);
+  if(e.target.parentNode.id==='name-list'){
+    document.getElementById('participants').appendChild(nameDiv);
+  } else {
+    e.target.previousElementSibling.appendChild(nameDiv);
+  }
 
   // set select back to saying "select a name"
   label = e.target.firstElementChild.value;
   e.target.value = label;
 }
 
-function deleteHouse() {
+function deleteHouse(e) {
   // find last household
-  let container = document.getElementById("left-container");
-  let houseDiv = container.lastChild;
-  let name;
+  let houseDiv = e.parentNode;
 
   houseDiv.childNodes.forEach((x) => {
     // search inside last household for name container
     if (x.className === "name-container") {
-      console.log(x.childNodes);
       // grab name from each name wrapper div and put it back in the participants list
       Array.from(x.childNodes).forEach((y) => {
-        document.getElementById('participants').appendChild(y);
-  
+        document.getElementById("participants").appendChild(y);
       });
-      // delete entire div from DOM
-      houseDiv.remove();
     }
   });
+  // delete entire div from DOM
+  houseDiv.remove();
 }
 
 function deepCopy(arr) {
+  availRecipients=[];
   arr.forEach((x) => {
     availRecipients.push([]);
   });
@@ -240,35 +251,36 @@ function start() {
       showSnackbar("Please enter participants' names.", "error");
     } else if (duplicate) {
       showSnackbar(
-        "Duplicate name detected! Please delete the duplicate and re-enter it with a last initial, nickname, or alternate spelling.",
+        "Duplicate name detected! Please delete the duplicate and re-enter it with a last initial or nickname.",
         "error"
       );
     } else if (counter >= 25) {
-      showSnackbar(
-        "No possible combinations! Please try a different configuration/number of names.",
-        "error"
-      );
+      clearTable();
       document.getElementById("table-body").insertAdjacentHTML(
         "beforeend",
         `<tr>
-              <td></td>
-              <td></td>
-          </tr>
-          <tr>
-              <td></td>
-              <td></td>
-          </tr>
-          <tr>
-              <td></td>
-              <td></td>
-          </tr>
-          <tr>
-              <td></td>
-              <td></td>
-          </tr>`
-      );
-    } else {
-      clearTable();
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+        </tr>`
+        );
+        showSnackbar(
+          "No possible combinations! Please try a different configuration/number of names.",
+          "error"
+        );
+      } else {
+        clearTable();
       // for (let i = 0; i < givers.length; i++)
       givers.forEach((a) => {
         //sequentially choose giver name and randomly choose which subArray for recipient
@@ -302,19 +314,22 @@ function start() {
         a.recipient = recipient;
 
         availRecipients[x].splice(y, 1); //remove name from possible options
-
+        console.log(giverName, a.recipient);
+        console.log(availRecipients);
         if (availRecipients[x].length === 0) {
           availRecipients.splice(x, 1); //check if that leaves an empty array and remove if so
           numberOfHouses - 1 > -1 ? numberOfHouses-- : (numberOfHouses = 0); //decrement number of houses to prevent undefined when randomly selecting next array. don't let it fall under zero
         }
         generated = true;
-        document.getElementById("table-body").insertAdjacentHTML(
-          "beforeend",
-          `<tr>
-              <td>${giverName}</td>
-              <td>${a.recipient}</td>
-          </tr>`
-        );
+        if (!secretSanta) {
+          document.getElementById("table-body").insertAdjacentHTML(
+            "beforeend",
+            `<tr>
+                <td>${giverName}</td>
+                <td>${a.recipient}</td>
+            </tr>`
+          );
+        }
       });
 
       if (broken === true) {
@@ -368,7 +383,20 @@ function showEmailTable() {
       );
     }
     table.classList.replace("hidden", "show");
+    if (!secretSanta) {
+      document.getElementById("hideEmails").style.display = "block";
+    }
   }
+}
+
+function hideEmailTable() {
+  const table = document.getElementById("emailTable");
+  document.getElementById("hideEmails").style.display = "none";
+  document.getElementById("confirmEmails").style.display = "none";
+  table.classList.replace("show", "hide");
+  setTimeout(() => {
+    table.classList.replace("hide", "hidden");
+  }, 500);
 }
 
 function confirmEmails(e) {
@@ -475,15 +503,8 @@ async function postToDb() {
   );
 }
 
-function hideQuery() {
-  document.getElementById("query").classList.add("hideQuery");
-  if (document.getElementById("query").classList.contains("show")) {
-    document.getElementById("query").classList.remove("show");
-  }
-}
-
 async function getName(e) {
-  // e.preventDefault;
+  e.preventDefault;
   let email = document.getElementById("emailQuery").value;
   const btn = document.getElementById("emailQueryBtn");
   btn.innerHTML = "Loading...";
@@ -503,19 +524,29 @@ async function getName(e) {
     <div style="color:#b31e20">
         Email address not found!
     </div>
-    <button class="button" onclick="hideQuery()">Dismiss</button>
     `;
     setTimeout(() => {
       document.getElementById("query").innerHTML = `
-      <div>
-          Need to know who you're buying a gift for?
-          <input type="email" id="emailQuery" placeholder="Enter your email to search">
-      </div>
-      <div id="queryBtnDiv">
-          <button type="submit" class="button queryBtn" onclick="getName(this)" id="emailQueryBtn">Search it!</button>
-          <button class="button queryBtn" onclick="hideQuery()">Dismiss</button>
-      </div>
-    `;
+        <label for="emailQuery">
+            Need to know who you're buying a gift for?
+        </label>
+        <div>
+            <input
+                type="email"
+                maxlength="100"
+                id="emailQuery"
+                placeholder="Enter your email to search"
+            />
+            <button
+                type="submit"
+                class="button queryBtn"
+                onclick="getName(this)"
+                id="emailQueryBtn"
+            >
+            Search it!
+            </button>
+        </div>
+      `;
     }, 2000);
   } else {
     let timestamp = Date.parse(results.date);
@@ -523,50 +554,117 @@ async function getName(e) {
     console.log(date.toDateString(), results.recipient);
     document.getElementById("query").innerHTML = `
       <div>
-          As of ${date.toDateString()}, you're buying a gift for <span>${
+          As of ${date.toDateString()}, you're buying a gift for  <span>${
       results.recipient
     }!</span>
-      </div>
-      <button class="button" onclick="hideQuery()">Dismiss</button>
+    </div>
+    <div>
+            <input
+                type="email"
+                maxlength="100"
+                id="emailQuery"
+                placeholder="Enter your email to search"
+            />
+            <button
+                type="submit"
+                class="button queryBtn"
+                onclick="getName(this)"
+                id="emailQueryBtn"
+            >
+            Search it!
+            </button>
+        </div>
     `;
   }
 }
 
-function introNext() {
-  introIndex + 1 === introArr.length ? (introIndex = 0) : introIndex++;
-  const introDiv = document.getElementById("introPara");
-  introDiv.innerHTML = `<p>${introArr[introIndex]}</p>`;
+function conditionalRender() {
+  console.log(introIndex);
+  let next = document.getElementById("nextStep");
+  let addHouse = document.getElementById("addHouse");
+  let generate = document.getElementById("generate");
+  let secretGenerate = document.getElementById("secretGenerate");
+  let enterEmails = document.getElementById("enterEmails");
+
+  switch (introIndex) {
+    case 0:
+      break;
+    case 1:
+      addHouse.style.display = "none";
+      break;
+    case 2:
+      addHouse.style.display = "block";
+      secretGenerate.style.display = "none";
+      generate.style.display = "none";
+      break;
+    case 3:
+      addHouse.style.display = "none";
+
+      if (secretSanta) {
+        secretGenerate.style.display = "block";
+        generate.style.display = "none";
+        next.style.display = "none";
+      } else {
+        generate.style.display = "block";
+      }
+      break;
+    case 4:
+      generate.style.display = "none";
+      secretGenerate.style.display = "none";
+      break;
+  }
 }
-function introPrev() {
-  introIndex - 1 < 0 ? (introIndex = introArr.length - 1) : introIndex--;
-  const introDiv = document.getElementById("introPara");
-  introDiv.innerHTML = `<p>${introArr[introIndex]}</p>`;
+
+function stepOne() {
+  document.getElementById("name-list").style.display = "block";
+  if (!secretSanta) {
+    document.getElementById("results-table").style.display = "table";
+  }
+  document.getElementById("nextStep").style.display = "block";
+  introNext();
+}
+
+function introNext() {
+  if (givers.length < 1 && introIndex === 1) {
+    showSnackbar("Please add participant names", "error");
+    return;
+  }
+  if (introIndex === 3 && !generated) {
+    showSnackbar(`Please click "Generate List"`, "error");
+    return;
+  }
+  if (introIndex === 3 && generated) {
+    showEmailTable();
+    document.getElementById("nextStep").style.display = "none";
+  }
+  introIndex + 1 > introArr.length ? (introIndex = 0) : introIndex++;
+  const introDiv = document.getElementById("intro");
+  if (introIndex < introArr.length) {
+    introDiv.innerHTML = `<p>${introArr[introIndex]}</p>`;
+  }
+  conditionalRender();
 }
 
 let introArr = [
-  `For families who draw names for their holiday gift exchange, here's a web app to make it easier! For the Secret Santa experience, click "Secret Santa Mode" at the bottom of the screen.`,
+  ``,
 
-  `<span style="font-weight:bold">Step 1 / 4:</span> Enter the names of everyone participating in the gift exchange. Make sure all names are unique. If two people have the same name, please add a last initial or alternate spelling of their name.`,
+  `<span style="font-weight:bold">Step 1 / 4:</span> Enter the names of everyone participating in the gift exchange. Make sure all names are unique. If two people have the same name, please add a last initial or nickname.`,
 
-  `<span style="font-weight:bold">Step 2 / 4</span> (optional): To stop some people from getting each others' names, add households to group them together. You can drag and drop to move people around or select their name from the drop down in each box. Names in the first box will be matched to anyone.`,
+  `<span style="font-weight:bold">Step 2 / 4</span> (optional): Who should NOT get who? <br><br>For example, a couple may not want to be able get each others' names at the family gift exchange because they will already be getting each other gifts outside of the exchange. <br><br> In that case, you can put them in an exclusion group together. Names in the same group will not get each other as recipients.<br><br> Click "Add Group." Then,  you can drag and drop to move people around or select their name from the drop down in each box.`,
 
-  `<span style="font-weight:bold">Step 3 / 4:</span> Click "Generate List" and watch it go!`,
-
-  `<span style="font-weight:bold">Step 4 / 4:</span> Click "Enter Email Addresses" to email everyone their recipient's name.`,
+  `<span style="font-weight:bold">Step 3 / 4:</span> Click "Generate List!"`,
 ];
 
 function secretSantaMode() {
-  document.getElementById("generate").style.display = "none";
-  document.getElementById("secretGenerate").style.display = "block";
-  document.getElementById("enterEmails").style.display = "none";
-  document.getElementById("results-table").style.display = "none";
-  document.getElementById("secretSantaBtn").style.display = "none";
+  secretSanta = true;
   document.getElementById("left-container").classList.add("secret");
-  document.getElementById("btn-div").classList.add("secret");
-  document.getElementById("name-list").style.paddingBottom = "30px";
+  // document.getElementById("name-list").style.paddingBottom = "30px";
+  stepOne();
 }
 
 function secretSantaStart() {
   start();
   showEmailTable();
+  document.getElementById("secretGenerate").style.display = "none";
+  document.getElementById("nextStep").style.display = "none";
 }
