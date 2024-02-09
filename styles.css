@@ -30,7 +30,7 @@ body {
     z-index: -1;
     background-image: 
         linear-gradient(rgba(43, 43, 43, 0.39) 80%, rgba(0, 0, 0, 0.818)), 
-        url(Gift-Giving-Banner.jpeg);
+        url(/assets/Gift-Giving-Banner.jpeg);
     background-size: cover;
 }
 
