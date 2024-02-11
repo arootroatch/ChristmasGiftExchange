@@ -378,7 +378,7 @@ function showEmailTable() {
         "afterbegin",
         `<tr>
             <td>${givers[i].name}</td>
-            <td><input type="email" required class="emailInput" name=${givers[i].name} id=${i}></td>
+            <td><input type="email" class="emailInput" maxlength="100" placeholder=${givers[i].name}@example.com name=${givers[i].name} id=${i}></td>
         </tr>`
       );
     }
