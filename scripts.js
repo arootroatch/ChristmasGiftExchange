@@ -53,7 +53,7 @@ function Giver(name, recipient, email) {
   this.name = name;
   this.email = email;
   this.recipient = recipient;
-  this.date = String(new Date());
+  this.date = (new Date()).toISOString();
 }
 
 function addName(e) {
@@ -123,16 +123,16 @@ function addHouse() {
   houseID += 1;
 }
 
-function toggleInstructions() {
-  let intro = document.getElementById("intro");
-  if (intro.style.display === "none") {
-    intro.style.display = "block";
-    document.getElementById("instructions").innerHTML = "Hide Instructions";
-  } else {
-    intro.style.display = "none";
-    document.getElementById("instructions").innerHTML = "Show Instructions";
-  }
-}
+// function toggleInstructions() {
+//   let intro = document.getElementById("intro");
+//   if (intro.style.display === "none") {
+//     intro.style.display = "block";
+//     document.getElementById("instructions").innerHTML = "Hide Instructions";
+//   } else {
+//     intro.style.display = "none";
+//     document.getElementById("instructions").innerHTML = "Show Instructions";
+//   }
+// }
 
 // insert name into div from select and remove from participant list
 function insertName(e) {
