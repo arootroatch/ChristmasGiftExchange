@@ -53,7 +53,8 @@ function Giver(name, recipient, email) {
   this.name = name;
   this.email = email;
   this.recipient = recipient;
-  this.date = (new Date()).toISOString();
+  this.date = "";
+  this.id = "";
 }
 
 function addName(e) {
@@ -417,10 +418,14 @@ function submitEmails(event) {
     };
   });
 
-  // update each giver array with the matching email
+  // update each giver object with the matching email
+  let random = Math.random().toString(20);
+  let date = new Date().toISOString();
   emails.forEach((obj) => {
     let i = parseInt(obj.index);
     givers[i].email = obj.email;
+    givers[i].id = `${givers.length}_${random}_${date}`
+    givers[i].date = date;
   });
 
   postToDb();
