@@ -315,8 +315,7 @@ function start() {
         a.recipient = recipient;
 
         availRecipients[x].splice(y, 1); //remove name from possible options
-        console.log(giverName, a.recipient);
-        console.log(availRecipients);
+
         if (availRecipients[x].length === 0) {
           availRecipients.splice(x, 1); //check if that leaves an empty array and remove if so
           numberOfHouses - 1 > -1 ? numberOfHouses-- : (numberOfHouses = 0); //decrement number of houses to prevent undefined when randomly selecting next array. don't let it fall under zero
@@ -456,7 +455,7 @@ function batchEmails() {
         email: giver.email,
       }),
     }).then((response) => {
-      console.log(response.status === 200);
+
       if (response.status === 200) {
         count++;
       }
