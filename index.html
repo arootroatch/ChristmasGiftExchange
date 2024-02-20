@@ -18,7 +18,32 @@
     <div id="snackbar" class="hidden"></div>
     <div id="sendEmails" class="sendEmails hidden"></div>
     
-    <table class="table hidden" id="emailTable">
+    <div id="emailTable" class="hidden">
+      <h3>Please enter each participant's email address</h3>
+      <form id="emailTableBody">
+        
+        <div id="emailBtnDiv">
+          <button
+            class="button"
+            id="hideEmails"
+            onclick="hideEmailTable(this)"
+            style="display: none;"
+          >
+            Dismiss
+          </button>
+    
+          <button
+            type="submit"
+            class="button"
+            id="submitEmails"
+          >
+            Submit Emails
+          </button>
+        </div>
+      </form>
+
+    </div>
+    <!-- <table class="table" id="emailTable">
       <thead>
         <tr>
           <th>Please enter each participant's email address</th>
@@ -26,30 +51,10 @@
       </thead>
       <tbody id="emailTableBody">
         <tr id="btnRow">
-          <td>
-              <button
-                class="button"
-                id="hideEmails"
-                onclick="hideEmailTable(this)"
-                style="display: none;"
-              >
-                Dismiss
-              </button>
-
-          </td>
-          <td>
-            <button
-              type="submit"
-              class="button"
-              id="confirmEmails"
-              onclick="confirmEmails(this)"
-            >
-              Submit Emails
-            </button>
           </td>
         </tr>
       </tbody>
-    </table>
+    </table> -->
     <div id="background"></div>
     <div id="control-strip">
       <div id="btn-div">

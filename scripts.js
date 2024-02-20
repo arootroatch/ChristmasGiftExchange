@@ -8,6 +8,7 @@ let duplicate;
 let generated = false;
 let introIndex = 0;
 let secretSanta = false;
+let verifaliaCount = 0;
 
 if (
   /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
@@ -111,7 +112,7 @@ function addHouse() {
   document
     .getElementById("left-container")
     .insertAdjacentHTML("beforeend", houseTemplate);
-  if(houseID<1){
+  if (houseID < 1) {
     document.getElementById("name-list").insertAdjacentHTML(
       "beforeend",
       `<select class="name-select" name="${houseID}-select" id="${houseID}-select" onchange="insertName(event)">
@@ -138,8 +139,8 @@ function toggleInstructions() {
 function insertName(e) {
   let firstName = e.target.value;
   let nameDiv = document.getElementById(`wrapper-${firstName}`);
-  if(e.target.parentNode.id==='name-list'){
-    document.getElementById('participants').appendChild(nameDiv);
+  if (e.target.parentNode.id === "name-list") {
+    document.getElementById("participants").appendChild(nameDiv);
   } else {
     e.target.previousElementSibling.appendChild(nameDiv);
   }
@@ -167,7 +168,7 @@ function deleteHouse(e) {
 }
 
 function deepCopy(arr) {
-  availRecipients=[];
+  availRecipients = [];
   arr.forEach((x) => {
     availRecipients.push([]);
   });
@@ -274,13 +275,13 @@ function start() {
           <td></td>
           <td></td>
         </tr>`
-        );
-        showSnackbar(
-          "No possible combinations! Please try a different configuration/number of names.",
-          "error"
-        );
-      } else {
-        clearTable();
+      );
+      showSnackbar(
+        "No possible combinations! Please try a different configuration/number of names.",
+        "error"
+      );
+    } else {
+      clearTable();
       // for (let i = 0; i < givers.length; i++)
       givers.forEach((a) => {
         //sequentially choose giver name and randomly choose which subArray for recipient
@@ -376,10 +377,11 @@ function showEmailTable() {
     for (let i = 0; i < givers.length; i++) {
       body.insertAdjacentHTML(
         "afterbegin",
-        `<tr>
-            <td>${givers[i].name}</td>
-            <td><input type="email" class="emailInput" maxlength="100" placeholder=${givers[i].name}@example.com name=${givers[i].name} id=${i}></td>
-        </tr>`
+        `<div class="emailDiv">
+          <label for=${i}>${givers[i].name}</label>
+          <input type="email" class="emailInput" maxlength="100" placeholder="${givers[i].name}@example.com" name=${givers[i].name} id=${i}/>
+        </div>
+        `
       );
     }
     table.classList.replace("hidden", "show");
@@ -399,38 +401,54 @@ function hideEmailTable() {
   }, 500);
 }
 
-function confirmEmails(e) {
-  e.preventDefault;
-  document.getElementById("btnRow").innerHTML = `
-    <td style="color:#b31e20">Please verify that all email addresses entered are correct.</td>
-    <td><button type="submit" class="button" id="submitEmails" onclick="submitEmails(this)">All emails are correct!</button></td>
-  `;
+// function confirmEmails(e) {
+//   e.preventDefault();
+//   document.getElementById("btnRow").innerHTML = `
+//     <td style="color:#b31e20">Please verify that all email addresses entered are correct.</td>
+//     <td><button type="submit" class="button" id="submitEmails" onclick="submitEmails(this)">All emails are correct!</button></td>
+//   `;
+// }
+document.addEventListener(
+  "verifalia-widget:field-validation-completed",
+  function () {
+    verifaliaCount += 1;
+  }
+);
+
+function submitEmails(event) {
+  event.preventDefault();
+  if (verifaliaCount !== givers.length) {
+    showSnackbar("Please verify all email addresses are correct", "error");
+  } else {
+    const btn = document.getElementById("submitEmails");
+    btn.innerHTML = "Loading...";
+    btn.style.color = "#808080";
+    const emailInputs = Array.from(
+      document.getElementsByClassName("emailInput")
+    );
+    // create an array of objects with names, emails, and which index in the givers array
+    const emails = emailInputs.map((input) => {
+      return {
+        name: input.name,
+        email: input.value.trim(),
+        index: input.id,
+      };
+    });
+
+    // update each giver array with the matching email
+    emails.forEach((obj) => {
+      let i = parseInt(obj.index);
+      givers[i].email = obj.email;
+    });
+
+    postToDb();
+  }
+  return false;
 }
 
-function submitEmails(e) {
-  e.preventDefault;
-  const btn = document.getElementById("submitEmails");
-  btn.innerHTML = "Loading...";
-  btn.style.color = "#808080";
-  const emailInputs = Array.from(document.getElementsByClassName("emailInput"));
-  // create an array of objects with names, emails, and which index in the givers array
-  const emails = emailInputs.map((input) => {
-    return {
-      name: input.name,
-      email: input.value.trim(),
-      index: input.id,
-    };
-  });
-
-  // update each giver array with the matching email
-  emails.forEach((obj) => {
-    let i = parseInt(obj.index);
-    givers[i].email = obj.email;
-  });
-
-  postToDb();
-}
-
+document
+  .getElementById("emailTableBody")
+  .addEventListener("submit", (event) => submitEmails(event));
 // send emails
 
 function batchEmails() {
