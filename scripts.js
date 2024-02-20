@@ -8,7 +8,6 @@ let duplicate;
 let generated = false;
 let introIndex = 0;
 let secretSanta = false;
-let verifaliaCount = 0;
 
 if (
   /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
@@ -379,7 +378,7 @@ function showEmailTable() {
         "afterbegin",
         `<div class="emailDiv">
           <label for=${i}>${givers[i].name}</label>
-          <input type="email" class="emailInput" maxlength="100" placeholder="${givers[i].name}@example.com" name=${givers[i].name} id=${i}/>
+          <input type="email" class="emailInput" maxlength="100" placeholder="${givers[i].name}@example.com" name=${givers[i].name} id=${i} required/>
         </div>
         `
       );
@@ -401,48 +400,31 @@ function hideEmailTable() {
   }, 500);
 }
 
-// function confirmEmails(e) {
-//   e.preventDefault();
-//   document.getElementById("btnRow").innerHTML = `
-//     <td style="color:#b31e20">Please verify that all email addresses entered are correct.</td>
-//     <td><button type="submit" class="button" id="submitEmails" onclick="submitEmails(this)">All emails are correct!</button></td>
-//   `;
-// }
-document.addEventListener(
-  "verifalia-widget:field-validation-completed",
-  function () {
-    verifaliaCount += 1;
-  }
-);
 
 function submitEmails(event) {
   event.preventDefault();
-  if (verifaliaCount !== givers.length) {
-    showSnackbar("Please verify all email addresses are correct", "error");
-  } else {
-    const btn = document.getElementById("submitEmails");
-    btn.innerHTML = "Loading...";
-    btn.style.color = "#808080";
-    const emailInputs = Array.from(
-      document.getElementsByClassName("emailInput")
-    );
-    // create an array of objects with names, emails, and which index in the givers array
-    const emails = emailInputs.map((input) => {
-      return {
-        name: input.name,
-        email: input.value.trim(),
-        index: input.id,
-      };
-    });
 
-    // update each giver array with the matching email
-    emails.forEach((obj) => {
-      let i = parseInt(obj.index);
-      givers[i].email = obj.email;
-    });
+  const btn = document.getElementById("submitEmails");
+  btn.innerHTML = "Loading...";
+  btn.style.color = "#808080";
+  const emailInputs = Array.from(document.getElementsByClassName("emailInput"));
+  // create an array of objects with names, emails, and which index in the givers array
+  const emails = emailInputs.map((input) => {
+    return {
+      name: input.name,
+      email: input.value.trim(),
+      index: input.id,
+    };
+  });
 
-    postToDb();
-  }
+  // update each giver array with the matching email
+  emails.forEach((obj) => {
+    let i = parseInt(obj.index);
+    givers[i].email = obj.email;
+  });
+
+  postToDb();
+
   return false;
 }
 
