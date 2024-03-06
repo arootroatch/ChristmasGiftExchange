@@ -149,7 +149,6 @@ function showEmailTable() {
 function hideEmailTable() {
   const table = document.getElementById("emailTable");
   document.getElementById("hideEmails").style.display = "none";
-  document.getElementById("confirmEmails").style.display = "none";
   table.classList.replace("show", "hide");
   setTimeout(() => {
     table.classList.replace("hide", "hidden");
