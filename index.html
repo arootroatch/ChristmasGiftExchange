@@ -31,7 +31,6 @@
           <button
             class="button"
             id="hideEmails"
-            onclick="hideEmailTable(this)"
             style="display: none;"
           >
             Dismiss
@@ -55,14 +54,12 @@
           class="btn-bottom"
           id="generate"
           style="display: none"
-          onclick="start()"
         >
           Generate List<br /><span class="shortcut">(Ctrl+Enter)</span>
         </button>
         <button
           class="btn-bottom"
           id="secretGenerate"
-          onclick="secretSantaStart()"
           style="display: none"
         >
           Generate List<br /><span class="shortcut">(Ctrl+Enter)</span>
@@ -71,13 +68,11 @@
           class="btn-bottom"
           id="addHouse"
           style="display: none"
-          onclick="addHouse()"
         >
           Add Group<br /><span class="shortcut">(Shift+Enter)</span>
         </button>
         <button
           class="btn-bottom"
-          onclick="introNext()"
           id="nextStep"
           style="display: none;"
         >
@@ -105,10 +100,9 @@
         </p>
         <div id="get-started">
             <p>Ready to get started?</p>
-            <button class="button" onclick="stepOne()" style="margin-bottom: 0;">Let's go!</button>
+            <button class="button" id="letsGo" style="margin-bottom: 0;">Let's go!</button>
             <button
                 class="btn-bottom"
-                onclick="secretSantaMode()"
                 id="secretSantaBtn"
                 >
                 Secret Santa Mode
@@ -129,7 +123,6 @@
                 <button
                     type="submit"
                     class="button queryBtn"
-                    onclick="getName(this)"
                     id="emailQueryBtn"
                 >
                 Search it!
@@ -153,7 +146,6 @@
               class="button"
               type="submit"
               id="b0"
-              onclick="addName(this)"
             >
               Add Name (Enter)
             </button>
@@ -194,8 +186,12 @@
       integrity="sha512-Byn2sawjqjYOq9vwcSZdb8ncm3h3B4EmeyQ5hM035sShmwzv58/LdwACNmzJnkmILKvEvavSvdI6HaHy8FJWvg=="
       crossorigin="anonymous"></script>
   </body>
-  <script type="text/javascript" src="scripts.js"></script>
-  <script type="text/javascript" src="dragDrop.js"></script>
+  <script type="module" src="/js/scripts.js"></script>
+  <script type="text/javascript" src="/js/dragDrop.js"></script>
+  <script type="module" src="/js/generate.js"></script>
+  <script type="text/javascript" src="/js/keybindings.js"></script>
+  <script type="module" src="/js/layout.js"></script>
+  <script type="module" src="/js/serverless.js"></script>
   <script
     src="https://kit.fontawesome.com/554d629fb0.js"
     crossorigin="anonymous"
