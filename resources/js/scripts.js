@@ -10,12 +10,14 @@ document.getElementById("addHouse").addEventListener("click", addHouse);
 document.getElementById("hideEmails").addEventListener("click", hideEmailTable);
 
 // object constructor function
-function Giver(name, recipient, email) {
-  this.name = name;
-  this.email = email;
-  this.recipient = recipient;
-  this.date = "";
-  this.id = "";
+class Giver {
+  constructor(name, recipient, email) {
+    this.name = name;
+    this.email = email;
+    this.recipient = recipient;
+    this.date = "";
+    this.id = "";
+  }
 }
 
 function addName() {
@@ -43,8 +45,8 @@ function addName() {
     }
   }
   document
-  .getElementById(`delete-${nameInput}${nameNumber}`)
-  .addEventListener("click", deleteName);
+    .getElementById(`delete-${nameInput}${nameNumber}`)
+    .addEventListener("click", deleteName);
   document.getElementById("input0").value = "";
   nameNumber++;
 }
@@ -95,7 +97,6 @@ function insertName() {
   } else {
     this.previousElementSibling.appendChild(nameDiv);
   }
-
   // set select back to saying "select a name"
   let label = this.firstElementChild.value;
   this.value = label;
