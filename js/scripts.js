@@ -97,7 +97,7 @@ function insertName() {
   }
 
   // set select back to saying "select a name"
-  const label = this.firstElementChild.value;
+  let label = this.firstElementChild.value;
   this.value = label;
 }
 
