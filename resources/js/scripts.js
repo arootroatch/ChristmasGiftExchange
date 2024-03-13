@@ -1,9 +1,4 @@
-import { generated } from "./generate.js";
-import { secretSanta } from "./layout.js";
-
-let givers = [];
-let houseID = 0;
-let nameNumber = 1;
+import {givers, houseID, nameNumber, secretSanta, generated} from "./state.js";
 
 document.getElementById("b0").addEventListener("click", addName);
 document.getElementById("addHouse").addEventListener("click", addHouse);
@@ -178,4 +173,4 @@ function showSnackbar(message, status) {
   }, 5500);
 }
 
-export { givers, showEmailTable, showSnackbar };
+export { showEmailTable, showSnackbar };

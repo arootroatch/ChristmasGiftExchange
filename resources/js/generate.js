@@ -1,10 +1,5 @@
-import { showEmailTable, showSnackbar, givers } from "./scripts.js";
-import { secretSanta } from "./layout.js";
-
-let generated = false;
-let houses = [];
-let duplicate;
-let availRecipients = []; // for deleting names from the recipient pool
+import { showEmailTable, showSnackbar } from "./scripts.js";
+import {houses, generated, duplicate, availRecipients, givers, secretSanta} from "./state.js";
 
 document.getElementById("generate").addEventListener("click", start);
 document
@@ -127,9 +122,9 @@ function start() {
     } else {
       clearTable();
       // for (let i = 0; i < givers.length; i++)
-      givers.forEach((a) => {
+      givers.forEach((giver) => {
         //sequentially choose giver name and randomly choose which subArray for recipient
-        let giverName = a.name;
+        let giverName = giver.name;
         x = Math.floor(numberOfHouses * Math.random());
         // randomly choose name inside
         y = Math.floor(availRecipients[x].length * Math.random());
@@ -156,7 +151,7 @@ function start() {
           }
         }
         // assign recipient in giver's object
-        a.recipient = recipient;
+        giver.recipient = recipient;
 
         availRecipients[x].splice(y, 1); //remove name from possible options
 
@@ -170,7 +165,7 @@ function start() {
             "beforeend",
             `<tr>
                 <td>${giverName}</td>
-                <td>${a.recipient}</td>
+                <td>${giver.recipient}</td>
             </tr>`
           );
         }
@@ -191,4 +186,3 @@ function secretSantaStart() {
   document.getElementById("nextStep").style.display = "none";
 }
 
-export { generated };

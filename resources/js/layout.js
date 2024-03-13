@@ -1,7 +1,6 @@
-import { givers, showSnackbar, showEmailTable } from "./scripts.js";
-import { generated } from "./generate.js";
-let introIndex = 0;
-let secretSanta = false;
+import { showSnackbar, showEmailTable } from "./scripts.js";
+import {introIndex, secretSanta, givers, generated} from "./state.js";
+
 
 document.getElementById('nextStep').addEventListener('click', introNext);
 document.getElementById('letsGo').addEventListener('click', stepOne);
@@ -90,4 +89,4 @@ function secretSantaMode() {
   stepOne();
 }
 
-export {stepOne, secretSanta}
+export {stepOne}

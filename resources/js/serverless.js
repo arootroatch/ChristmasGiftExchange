@@ -1,4 +1,5 @@
-import { showSnackbar, givers } from "./scripts.js";
+import { showSnackbar } from "./scripts.js";
+import { givers } from "./state.js";
 
 document.getElementById("emailQueryBtn").addEventListener("click", getName);
 
