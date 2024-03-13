@@ -1,4 +1,4 @@
-// const giversArr = require("givers");
+
 import fetch from "node-fetch";
 
 const handler = async (event)=>{
