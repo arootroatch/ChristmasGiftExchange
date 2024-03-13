@@ -8,10 +8,10 @@ document.getElementById('secretSantaBtn').addEventListener('click', secretSantaM
 
 
 function conditionalRender() {
-  let next = document.getElementById("nextStep");
-  let addHouse = document.getElementById("addHouse");
-  let generate = document.getElementById("generate");
-  let secretGenerate = document.getElementById("secretGenerate");
+  const next = document.getElementById("nextStep");
+  const addHouse = document.getElementById("addHouse");
+  const generate = document.getElementById("generate");
+  const secretGenerate = document.getElementById("secretGenerate");
 
   switch (introIndex) {
     case 0:
@@ -72,7 +72,7 @@ function introNext() {
   conditionalRender();
 }
 
-let introArr = [
+const introArr = [
   ``,
 
   `<span style="font-weight:bold">Step 1 / 4:</span> Enter the names of everyone participating in the gift exchange. Make sure all names are unique. If two people have the same name, please add a last initial or nickname.`,
