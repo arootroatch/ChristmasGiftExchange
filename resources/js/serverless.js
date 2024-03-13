@@ -1,5 +1,6 @@
 import { showSnackbar } from "./scripts.js";
-import { givers } from "./state.js";
+import state from "./state.js";
+
 
 document.getElementById("emailQueryBtn").addEventListener("click", getName);
 
@@ -24,9 +25,9 @@ function submitEmails(event) {
   let date = new Date().toISOString();
   emails.forEach((obj) => {
     let i = parseInt(obj.index);
-    givers[i].email = obj.email;
-    givers[i].id = `${givers.length}_${random}_${date}`;
-    givers[i].date = date;
+    state.givers[i].email = obj.email;
+    state.givers[i].id = `${state.givers.length}_${random}_${date}`;
+    state.givers[i].date = date;
   });
 
   postToServer();
@@ -42,7 +43,7 @@ async function postToServer() {
   const options = {
     method: "POST", // *GET, POST, PUT, DELETE, etc.
     mode: "cors",
-    body: JSON.stringify(givers), // GET requests can't have a body
+    body: JSON.stringify(state.givers), // GET requests can't have a body
   };
 
   let results = await fetch("/.netlify/functions/postToDb", options).then(
@@ -50,7 +51,7 @@ async function postToServer() {
       if (response.status === 200) {
         const sendDiv = document.getElementById("sendEmails");
         sendDiv.innerHTML = `
-          <p>${givers.length} email addresses added successfully!</p>
+          <p>${state.givers.length} email addresses added successfully!</p>
           <p>Now let's send out those emails:</p>
           <button class="button" id="sendEmailsBtn">Send Emails</button>
         `;
@@ -80,7 +81,7 @@ function batchEmails() {
 
   let i = 0;
   let count = 0;
-  let promises = givers.map(async (giver) => {
+  let promises = state.givers.map(async (giver) => {
     i++;
     await fetch("/.netlify/functions/dispatchEmail", {
       method: "POST",
@@ -104,7 +105,7 @@ function batchEmails() {
       sendEmails.classList.remove("hide");
     }, 500);
     showSnackbar(
-      `Sent ${count} of ${givers.length} emails successfully!`,
+      `Sent ${count} of ${state.givers.length} emails successfully!`,
       "success"
     );
   });

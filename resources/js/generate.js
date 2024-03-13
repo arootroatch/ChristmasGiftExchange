@@ -1,5 +1,5 @@
 import { showEmailTable, showSnackbar } from "./scripts.js";
-import {houses, generated, duplicate, availRecipients, givers, secretSanta} from "./state.js";
+import state from "./state.js";
 
 document.getElementById("generate").addEventListener("click", start);
 document
@@ -15,19 +15,19 @@ function clearTable() {
 }
 
 function findDuplicate() {
-  let searchNames = houses.flat();
+  let searchNames = state.houses.flat();
   function hasDuplicates(arr) {
     return new Set(arr).size !== arr.length;
   }
   if (hasDuplicates(searchNames)) {
-    duplicate = true;
+    state.duplicate = true;
   } else {
-    duplicate = false;
+    state.duplicate = false;
   }
 }
 
 function fillHouses() {
-  houses = [];
+  state.houses = [];
 
   // get names from all houses
   const houseClass = document.getElementsByClassName("household");
@@ -44,7 +44,7 @@ function fillHouses() {
     });
     // don't push empty array
     if (tempArr.length > 0) {
-      houses.push(tempArr);
+      state.houses.push(tempArr);
     }
   }
 
@@ -55,7 +55,7 @@ function fillHouses() {
       x.childNodes.forEach((y) => {
         if (y.tagName === "DIV") {
           // add them to their own array so they can be matched with anybody
-          houses.push([y.id.slice(8)]);
+          state.houses.push([y.id.slice(8)]);
         }
       });
     }
@@ -63,13 +63,13 @@ function fillHouses() {
 }
 
 function deepCopy(arr) {
-  availRecipients = [];
+  state.availRecipients = [];
   arr.forEach((x) => {
-    availRecipients.push([]);
+    state.availRecipients.push([]);
   });
   for (let i = 0; i < arr.length; i++) {
     for (let j = 0; j < arr[i].length; j++) {
-      availRecipients[i].push(arr[i][j]);
+      state.availRecipients[i].push(arr[i][j]);
     }
   }
 }
@@ -84,12 +84,12 @@ function start() {
     let x;
     let broken = false;
     fillHouses();
-    deepCopy(houses);
-    let numberOfHouses = houses.length;
+    deepCopy(state.houses);
+    let numberOfHouses = state.houses.length;
     findDuplicate();
-    if (houses.length < 1) {
+    if (state.houses.length < 1) {
       showSnackbar("Please enter participants' names.", "error");
-    } else if (duplicate) {
+    } else if (state.duplicate) {
       showSnackbar(
         "Duplicate name detected! Please delete the duplicate and re-enter it with a last initial or nickname.",
         "error"
@@ -122,18 +122,18 @@ function start() {
     } else {
       clearTable();
       // for (let i = 0; i < givers.length; i++)
-      givers.forEach((giver) => {
+      state.givers.forEach((giver) => {
         //sequentially choose giver name and randomly choose which subArray for recipient
         let giverName = giver.name;
         x = Math.floor(numberOfHouses * Math.random());
         // randomly choose name inside
-        y = Math.floor(availRecipients[x].length * Math.random());
-        recipient = availRecipients[x][y];
+        y = Math.floor(state.availRecipients[x].length * Math.random());
+        recipient = state.availRecipients[x][y];
         // check if name is in giver's household
         let prevX = x;
-        for (let j = 0; j < houses.length; j++) {
-          if (houses[j].includes(recipient)) {
-            if (houses[j].includes(giverName)) {
+        for (let j = 0; j < state.houses.length; j++) {
+          if (state.houses[j].includes(recipient)) {
+            if (state.houses[j].includes(giverName)) {
               // uh-oh are we out of options?
               if (numberOfHouses <= 1) {
                 broken = true;
@@ -145,22 +145,22 @@ function start() {
                 x = Math.floor(numberOfHouses * Math.random());
               }
               // choose new recipient from new array
-              y = Math.floor(availRecipients[x].length * Math.random());
-              recipient = availRecipients[x][y];
+              y = Math.floor(state.availRecipients[x].length * Math.random());
+              recipient = state.availRecipients[x][y];
             }
           }
         }
         // assign recipient in giver's object
         giver.recipient = recipient;
 
-        availRecipients[x].splice(y, 1); //remove name from possible options
+        state.availRecipients[x].splice(y, 1); //remove name from possible options
 
-        if (availRecipients[x].length === 0) {
-          availRecipients.splice(x, 1); //check if that leaves an empty array and remove if so
+        if (state.availRecipients[x].length === 0) {
+          state.availRecipients.splice(x, 1); //check if that leaves an empty array and remove if so
           numberOfHouses - 1 > -1 ? numberOfHouses-- : (numberOfHouses = 0); //decrement number of houses to prevent undefined when randomly selecting next array. don't let it fall under zero
         }
-        generated = true;
-        if (!secretSanta) {
+        state.generated = true;
+        if (!state.secretSanta) {
           document.getElementById("table-body").insertAdjacentHTML(
             "beforeend",
             `<tr>
@@ -172,7 +172,7 @@ function start() {
       });
 
       if (broken === true) {
-        generated = false;
+        state.generated = false;
         generateList();
       }
     }

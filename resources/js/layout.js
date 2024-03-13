@@ -1,6 +1,5 @@
 import { showSnackbar, showEmailTable } from "./scripts.js";
-import {introIndex, secretSanta, givers, generated} from "./state.js";
-
+import state from "./state.js";
 
 document.getElementById('nextStep').addEventListener('click', introNext);
 document.getElementById('letsGo').addEventListener('click', stepOne);
@@ -13,7 +12,7 @@ function conditionalRender() {
   const generate = document.getElementById("generate");
   const secretGenerate = document.getElementById("secretGenerate");
 
-  switch (introIndex) {
+  switch (state.introIndex) {
     case 0:
       break;
     case 1:
@@ -27,7 +26,7 @@ function conditionalRender() {
     case 3:
       addHouse.style.display = "none";
 
-      if (secretSanta) {
+      if (state.secretSanta) {
         secretGenerate.style.display = "block";
         generate.style.display = "none";
         next.style.display = "none";
@@ -44,7 +43,7 @@ function conditionalRender() {
 
 function stepOne() {
   document.getElementById("name-list").style.display = "block";
-  if (!secretSanta) {
+  if (!state.secretSanta) {
     document.getElementById("results-table").style.display = "table";
   }
   document.getElementById("nextStep").style.display = "block";
@@ -52,22 +51,23 @@ function stepOne() {
 }
 
 function introNext() {
-  if (givers.length < 1 && introIndex === 1) {
+  console.log(state.introIndex, state.generated)
+  if (state.givers.length < 1 && state.introIndex === 1) {
     showSnackbar("Please add participant names", "error");
     return;
   }
-  if (introIndex === 3 && !generated) {
+  if (state.introIndex === 3 && !state.generated) {
     showSnackbar(`Please click "Generate List"`, "error");
     return;
   }
-  if (introIndex === 3 && generated) {
+  if (state.introIndex === 3 && state.generated) {
     showEmailTable();
     document.getElementById("nextStep").style.display = "none";
   }
-  introIndex + 1 > introArr.length ? (introIndex = 0) : introIndex++;
+  state.introIndex + 1 > introArr.length ? (state.introIndex = 0) : state.introIndex++;
   const introDiv = document.getElementById("intro");
-  if (introIndex < introArr.length) {
-    introDiv.innerHTML = `<p>${introArr[introIndex]}</p>`;
+  if (state.introIndex < introArr.length) {
+    introDiv.innerHTML = `<p>${introArr[state.introIndex]}</p>`;
   }
   conditionalRender();
 }
@@ -83,7 +83,7 @@ const introArr = [
 ];
 
 function secretSantaMode() {
-  secretSanta = true;
+  state.secretSanta = true;
   document.getElementById("left-container").classList.add("secret");
   stepOne();
 }

@@ -1,4 +1,4 @@
-import {givers, houseID, nameNumber, secretSanta, generated} from "./state.js";
+import state from "./state.js";
 
 document.getElementById("b0").addEventListener("click", addName);
 document.getElementById("addHouse").addEventListener("click", addHouse);
@@ -23,35 +23,35 @@ function addName() {
     document.getElementById("participants").insertAdjacentHTML(
       "beforeend",
       `<div class="name-wrapper" id="wrapper-${nameInput}" draggable="true" ondragstart="drag(event)">
-        <button id="delete-${nameInput}${nameNumber}" class="delete-name">X</button>
-        <p class="name-entered" id="${nameInput}${nameNumber}">${nameInput}</p>
-        <br id="br${nameInput}${nameNumber}">
+        <button id="delete-${nameInput}${state.nameNumber}" class="delete-name">X</button>
+        <p class="name-entered" id="${nameInput}${state.nameNumber}">${nameInput}</p>
+        <br id="br${nameInput}${state.nameNumber}">
       </div>`
     );
-    givers.push(new Giver(nameInput, "", ""));
-    if (houseID > 0) {
+    state.givers.push(new Giver(nameInput, "", ""));
+    if (state.houseID > 0) {
       let selects = Array.from(document.getElementsByClassName("name-select"));
       selects.map((select) => {
         select.innerHTML = `
-        <option disabled selected value="option${houseID}">-- Select a name --</option>
-        ${givers.map((x) => `<option value="${x.name}">${x.name}</option>`)}
+        <option disabled selected value="option${state.houseID}">-- Select a name --</option>
+        ${state.givers.map((x) => `<option value="${x.name}">${x.name}</option>`)}
         `;
       });
     }
   }
   document
-    .getElementById(`delete-${nameInput}${nameNumber}`)
+    .getElementById(`delete-${nameInput}${state.nameNumber}`)
     .addEventListener("click", deleteName);
   document.getElementById("input0").value = "";
-  nameNumber++;
+  state.nameNumber++;
 }
 
 function deleteName() {
   let nameWrapper = this.parentNode.id;
   let name = this.nextElementSibling.innerHTML;
-  for (let i = 0; i < givers.length; i++) {
-    if (givers[i].name === name) {
-      givers.splice(i, 1);
+  for (let i = 0; i < state.givers.length; i++) {
+    if (state.givers[i].name === name) {
+      state.givers.splice(i, 1);
     }
   }
 
@@ -59,27 +59,27 @@ function deleteName() {
 }
 
 function addHouse() {
-  let houseTemplate = `<div class="household" id="${houseID}">
+  let houseTemplate = `<div class="household" id="${state.houseID}">
       <h2 contenteditable="true">Group ${
-        houseID + 1
+        state.houseID + 1
       } <span class="edit-span">(Click here to rename)</span></h2>
       <div class="name-container" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
-      <select class="name-select" name="${houseID}-select" id="${houseID}-select">
-        <option disabled selected value="option${houseID}">-- Select a name --</option>
-        ${givers.map((x) => `<option value="${x.name}">${x.name}</option>`)}
+      <select class="name-select" name="${state.houseID}-select" id="${state.houseID}-select">
+        <option disabled selected value="option${state.houseID}">-- Select a name --</option>
+        ${state.givers.map((x) => `<option value="${x.name}">${x.name}</option>`)}
       </select>
-      <button class="button deleteHouse" id="delete-${houseID}">Delete Group</button>
+      <button class="button deleteHouse" id="delete-${state.houseID}">Delete Group</button>
     </div>`;
   document
     .getElementById("left-container")
     .insertAdjacentHTML("beforeend", houseTemplate);
   document
-    .getElementById(`delete-${houseID}`)
+    .getElementById(`delete-${state.houseID}`)
     .addEventListener("click", deleteHouse);
   document
-    .getElementById(`${houseID}-select`)
+    .getElementById(`${state.houseID}-select`)
     .addEventListener("change", insertName);
-  houseID += 1;
+  state.houseID += 1;
 }
 
 // insert name into div from select and remove from participant list
@@ -116,7 +116,7 @@ function deleteHouse() {
 
 // collect emails
 function showEmailTable() {
-  if (!generated) {
+  if (!state.generated) {
     showSnackbar(
       `Please click "Generate List" before entering emails.`,
       "error"
@@ -125,18 +125,18 @@ function showEmailTable() {
     const table = document.getElementById("emailTable");
     const body = document.getElementById("emailTableBody");
     // use a for loop instead of forEach to get access to the index -- this will be used later for adding the emails to the giver objects
-    for (let i = 0; i < givers.length; i++) {
+    for (let i = 0; i < state.givers.length; i++) {
       body.insertAdjacentHTML(
         "afterbegin",
         `<div class="emailDiv">
-          <label for=${i}>${givers[i].name}</label>
-          <input type="email" class="emailInput" maxlength="100" placeholder="${givers[i].name}@example.com" name=${givers[i].name} id=${i} required/>
+          <label for=${i}>${state.givers[i].name}</label>
+          <input type="email" class="emailInput" maxlength="100" placeholder="${state.givers[i].name}@example.com" name=${state.givers[i].name} id=${i} required/>
         </div>
         `
       );
     }
     table.classList.replace("hidden", "show");
-    if (!secretSanta) {
+    if (!state.secretSanta) {
       document.getElementById("hideEmails").style.display = "block";
     }
   }

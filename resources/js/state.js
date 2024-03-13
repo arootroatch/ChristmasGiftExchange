@@ -1,4 +1,4 @@
-export default state = {
+let state = {
   houses: [],
   generated: false,
   duplicate: null,
@@ -9,3 +9,5 @@ export default state = {
   houseID: 0,
   nameNumber: 1
 }
+
+export default state;
