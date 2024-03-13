@@ -85,7 +85,6 @@ const introArr = [
 function secretSantaMode() {
   secretSanta = true;
   document.getElementById("left-container").classList.add("secret");
-  // document.getElementById("name-list").style.paddingBottom = "30px";
   stepOne();
 }
 
