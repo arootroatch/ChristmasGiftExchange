@@ -24,10 +24,10 @@ body {
   left: 0;
   z-index: -1;
   background-image: linear-gradient(
-      rgba(43, 43, 43, 0.39) 80%,
-      rgba(0, 0, 0, 0.818)
+      rgba(43, 43, 43, 0.60) 80%,
+      rgba(0, 0, 0, 0.90)
     ),
-    url(/assets/Gift-Giving-Banner.jpeg);
+    url(/assets/Gift-Giving-Banner.jpg);
   background-size: cover;
 }
 
