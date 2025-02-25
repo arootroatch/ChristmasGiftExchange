@@ -18,8 +18,7 @@ class Giver {
 function addName() {
   let nameInput = this.previousElementSibling.value;
   if (nameInput !== "") {
-    let capitalized = nameInput.charAt(0).toUpperCase() + nameInput.slice(1);
-    nameInput = capitalized;
+    nameInput = nameInput.charAt(0).toUpperCase() + nameInput.slice(1);
     document.getElementById("participants").insertAdjacentHTML(
       "beforeend",
       `<div class="name-wrapper" id="wrapper-${nameInput}" draggable="true" ondragstart="drag(event)">

@@ -4,7 +4,7 @@ import state from "./state.js";
 
 document.getElementById("emailQueryBtn").addEventListener("click", getName);
 
-function submitEmails(event) {
+export function submitEmails(event) {
   event.preventDefault();
 
   const btn = document.getElementById("submitEmails");
@@ -39,7 +39,7 @@ document
   .getElementById("emailTableBody")
   .addEventListener("submit", (event) => submitEmails(event));
 
-async function postToServer() {
+export async function postToServer() {
   const options = {
     method: "POST", // *GET, POST, PUT, DELETE, etc.
     mode: "cors",
