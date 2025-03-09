@@ -1,7 +1,9 @@
 // @vitest-environment jsdom
 
 import {beforeEach, describe, expect, it, vi} from 'vitest'
-import {getEmails, submitEmails} from '/resources/js/serverless.js'
+import {displaySendEmails, getEmails, submitEmails} from '/resources/js/serverless.js'
+import {installGivers} from "./specHelper";
+import {alex, hunter, megan, whitney} from "./testData";
 import state from "../resources/js/state";
 
 function renderEmailTable(givers) {
@@ -18,7 +20,7 @@ function renderEmailTable(givers) {
     }
 }
 
-function installGivers(giverNames) {
+function installGiverNames(giverNames) {
     giverNames.forEach((name) => {
         state.givers.push({name: name, recipient: "", email: "", date: "", id: ""});
     })
@@ -38,15 +40,16 @@ describe('serverless', () => {
             postToServer: vi.fn(actual.postToServer),
         }
     })
-    renderEmailTable([
-        {name: "Alex", email: "arootroatch@gmail.com"},
-        {name: "Whitney", email: "whitney@gmail.com"},
-        {name: "Hunter", email: "hunter@gmail.com"},
-        {name: "Megan", email: "megan@gmail.com"}]);
-    installGivers(["Alex", "Whitney", "Hunter", "Megan"]);
 
     describe("submitEmails", () => {
+        renderEmailTable([
+            {name: "Alex", email: "arootroatch@gmail.com"},
+            {name: "Whitney", email: "whitney@gmail.com"},
+            {name: "Hunter", email: "hunter@gmail.com"},
+            {name: "Megan", email: "megan@gmail.com"}]);
+        installGiverNames(["Alex", "Whitney", "Hunter", "Megan"]);
         const submitEmailsButton = document.getElementById("submitEmails");
+
         beforeEach(() => {
             const emailTableBody = document.getElementById("emailTableBody");
             const submitEvent = new Event("submit", {bubbles: true, cancelable: true});
@@ -111,6 +114,100 @@ describe('serverless', () => {
                 expect(table.classList).toContain("hidden");
             })
         })
+
+    })
+
+    describe("batchEmails", () => {
+        let sendEmailsButton;
+        beforeEach(() => {
+            alex.recipient = "Whitney";
+            whitney.recipient = "Hunter";
+            hunter.recipient = "Megan";
+            megan.recipient = "Alex";
+            installGivers([alex, whitney, hunter, megan]);
+            displaySendEmails();
+            sendEmailsButton = document.getElementById("sendEmailsBtn");
+            sendEmailsButton.dispatchEvent(new Event("click", {bubbles: true, cancelable: true}));
+        })
+
+        it("sets button text to Loading...", () => {
+            expect(sendEmailsButton.innerHTML).toContain('Loading...');
+            expect(sendEmailsButton.style.color).toBe("rgb(128, 128, 128)");
+        });
+
+        it("sends emails for each giver", () => {
+            state.givers.forEach((giver) => {
+                expect(global.fetch).toHaveBeenCalledWith("/.netlify/functions/dispatchEmail", {
+                    "body": JSON.stringify({
+                        name: giver.name,
+                        recipient: giver.recipient,
+                        email: giver.email
+                    }),
+                    "method": "POST",
+                    "mode": "cors"
+                });
+            })
+        })
+
+        it("hides sendEmails popup", () => {
+            const sendEmails = document.getElementById("sendEmails");
+            expect(sendEmails.classList).toContain("hide");
+            setTimeout(() => {
+                expect(sendEmails.classList).not.toContain("hide");
+                expect(sendEmails.classList).not.toContain("show");
+                expect(sendEmails.classList).toContain("hidden");
+            }, 500);
+        })
+
+        it("displays success snackbar with number of emails sent", () => {
+            const snackbar = document.getElementById("snackbar");
+            expect(snackbar.innerHTML).toContain("Sent 4 of 4 emails successfully!");
+            expect(snackbar.style.color).toBe("rgb(25, 140, 10)");
+            expect(snackbar.style.border).toBe("2px solid #198c0a");
+        });
+    })
+
+    describe("getName", () => {
+        let emailQueryBtn;
+        const query = document.getElementById("query");
+        global.fetch = vi.fn(() => Promise.resolve({
+            ok: true,
+            status: 200,
+            json: () => Promise.resolve({
+                recipient: "Whitney",
+                date: "2023-01-01T00:00:00.000Z"
+            })
+        }));
+        beforeEach(() => {
+            emailQueryBtn = document.getElementById("emailQueryBtn");
+            emailQueryBtn.dispatchEvent(new Event("click", {bubbles: true, cancelable: true}));
+        })
+
+        it("sets button text to Loading...", () => {
+            expect(emailQueryBtn.innerHTML).toContain('Loading...');
+            expect(emailQueryBtn.style.color).toBe("rgb(128, 128, 128)");
+        })
+
+        it("displays recipient and date", () => {
+            expect(query.innerHTML).toContain("As of Sat Dec 31 2022, you're buying a gift for");
+            expect(query.innerHTML).toContain("Whitney!");})
+
+        // describe("errors", () => {
+        //     global.fetch = vi.fn(() => Promise.reject({
+        //         status: 500,
+        //         message: "Internal Server Error"
+        //     }));
+        //     beforeEach(() => {
+        //         emailQueryBtn = document.getElementById("emailQueryBtn");
+        //         emailQueryBtn.dispatchEvent(new Event("click", {bubbles: true, cancelable: true}));
+        //     })
+        //
+        //     it("displays error message if email not found", () => {
+        //         expect(query.innerHTML).toContain("Email address not found!");
+        //
+        //     })
+        // })
+
 
     })
 

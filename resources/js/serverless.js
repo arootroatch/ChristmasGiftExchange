@@ -1,5 +1,6 @@
 import {showSnackbar} from "./scripts.js";
 import state from "./state.js";
+import {emailQueryInit, emailQueryError, emailQueryInput, emailQueryLabel, emailQueryResult} from "./htmlComponents";
 
 function setLoadingState(thing) {
     const btn = document.getElementById(thing);
@@ -18,7 +19,7 @@ export function getEmails() {
     });
 }
 
-function displaySendEmails() {
+export function displaySendEmails() {
     const sendDiv = document.getElementById("sendEmails");
     sendDiv.innerHTML = `
           <p>${state.givers.length} email addresses added successfully!</p>
@@ -31,8 +32,8 @@ function displaySendEmails() {
         .addEventListener("click", batchEmails);
 }
 
-function hideEmailTable() {
-    const table = document.getElementById("emailTable");
+function hideEmailTable(thing) {
+    const table = document.getElementById(thing);
     table.classList.add("hide");
     setTimeout(() => {
         table.classList.replace("show", "hidden");
@@ -61,7 +62,7 @@ export function submitEmails(event) {
         (response) => {
             if (response.status === 200) {
                 displaySendEmails();
-                hideEmailTable();
+                hideEmailTable("emailTable");
             } else {
                 console.log(response.body);
             }
@@ -85,7 +86,7 @@ export async function postToServer() {
 }
 
 function batchEmails() {
-    setLoadingState("sendEmails");
+    setLoadingState("sendEmailsBtn");
 
     let i = 0;
     let count = 0;
@@ -106,12 +107,7 @@ function batchEmails() {
         });
     });
     Promise.all(promises).then(() => {
-        const sendEmails = document.getElementById("sendEmails");
-        sendEmails.classList.add("hide");
-        setTimeout(() => {
-            sendEmails.classList.replace("show", "hidden");
-            sendEmails.classList.remove("hide");
-        }, 500);
+        hideEmailTable("sendEmails");
         showSnackbar(
             `Sent ${count} of ${state.givers.length} emails successfully!`,
             "success"
@@ -122,12 +118,12 @@ function batchEmails() {
 
 document.getElementById("emailQueryBtn").addEventListener("click", getName);
 
+
 async function getName(e) {
     e.preventDefault;
-    let email = document.getElementById("emailQuery").value;
-    const btn = document.getElementById("emailQueryBtn");
-    btn.innerHTML = "Loading...";
-    btn.style.color = "#808080";
+    const email = document.getElementById("emailQuery").value;
+    const queryDiv = document.getElementById("query");
+    setLoadingState("emailQueryBtn");
 
     const options = {
         method: "POST", // *GET, POST, PUT, DELETE, etc.
@@ -139,59 +135,14 @@ async function getName(e) {
         .then((response) => response.json())
         .catch((error) => (errorMsg = error));
     if (errorMsg !== "") {
-        document.getElementById("query").innerHTML = `
-    <div style="color:#b31e20">
-        Email address not found!
-    </div>
-    `;
+        queryDiv.innerHTML = emailQueryError();
+
         setTimeout(() => {
-            document.getElementById("query").innerHTML = `
-        <label for="emailQuery">
-            Need to know who you're buying a gift for?
-        </label>
-        <div>
-            <input
-                type="email"
-                maxlength="100"
-                id="emailQuery"
-                placeholder="Enter your email to search"
-            />
-            <button
-                type="submit"
-                class="button queryBtn"
-                onclick="getName(this)"
-                id="emailQueryBtn"
-            >
-            Search it!
-            </button>
-        </div>
-      `;
+            queryDiv.innerHTML = emailQueryInit();
         }, 2000);
     } else {
         let timestamp = Date.parse(results.date);
         let date = new Date(timestamp);
-        document.getElementById("query").innerHTML = `
-      <div>
-          As of ${date.toDateString()}, you're buying a gift for  <span>${
-            results.recipient
-        }!</span>
-    </div>
-    <div>
-            <input
-                type="email"
-                maxlength="100"
-                id="emailQuery"
-                placeholder="Enter your email to search"
-            />
-            <button
-                type="submit"
-                class="button queryBtn"
-                onclick="getName(this)"
-                id="emailQueryBtn"
-            >
-            Search it!
-            </button>
-        </div>
-    `;
+        queryDiv.innerHTML = emailQueryResult(date, results.recipient);
     }
 }
