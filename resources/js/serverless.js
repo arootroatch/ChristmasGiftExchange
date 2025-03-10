@@ -136,7 +136,6 @@ async function getName(e) {
         .catch((error) => (errorMsg = error));
     if (errorMsg !== "") {
         queryDiv.innerHTML = emailQueryError();
-
         setTimeout(() => {
             queryDiv.innerHTML = emailQueryInit();
         }, 2000);
@@ -144,5 +143,6 @@ async function getName(e) {
         let timestamp = Date.parse(results.date);
         let date = new Date(timestamp);
         queryDiv.innerHTML = emailQueryResult(date, results.recipient);
+        document.getElementById("emailQueryBtn").addEventListener("click", getName);
     }
 }

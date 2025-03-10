@@ -2,9 +2,10 @@
 
 import {beforeEach, describe, expect, it, vi} from 'vitest'
 import {displaySendEmails, getEmails, submitEmails} from '/resources/js/serverless.js'
-import {installGivers} from "./specHelper";
+import {installGiverNames, installGivers, stubFetch, stubFetchError} from "./specHelper";
 import {alex, hunter, megan, whitney} from "./testData";
 import state from "../resources/js/state";
+import {waitFor} from '@testing-library/dom';
 
 function renderEmailTable(givers) {
     const body = document.getElementById("emailTableBody");
@@ -20,15 +21,8 @@ function renderEmailTable(givers) {
     }
 }
 
-function installGiverNames(giverNames) {
-    giverNames.forEach((name) => {
-        state.givers.push({name: name, recipient: "", email: "", date: "", id: ""});
-    })
-}
-
-
 describe('serverless', () => {
-    global.fetch = vi.fn(() => Promise.resolve({status: 200}));
+    stubFetch(true, 200, {});
     Math.random = vi.fn(() => 123456789);
     vi.useFakeTimers();
     vi.setSystemTime(new Date(2023, 0, 1));
@@ -170,14 +164,8 @@ describe('serverless', () => {
     describe("getName", () => {
         let emailQueryBtn;
         const query = document.getElementById("query");
-        global.fetch = vi.fn(() => Promise.resolve({
-            ok: true,
-            status: 200,
-            json: () => Promise.resolve({
-                recipient: "Whitney",
-                date: "2023-01-01T00:00:00.000Z"
-            })
-        }));
+        stubFetch(true, 200, {recipient: "Whitney", date: "2023-01-01T00:00:00.000Z"});
+
         beforeEach(() => {
             emailQueryBtn = document.getElementById("emailQueryBtn");
             emailQueryBtn.dispatchEvent(new Event("click", {bubbles: true, cancelable: true}));
@@ -190,27 +178,29 @@ describe('serverless', () => {
 
         it("displays recipient and date", () => {
             expect(query.innerHTML).toContain("As of Sat Dec 31 2022, you're buying a gift for");
-            expect(query.innerHTML).toContain("Whitney!");})
+            expect(query.innerHTML).toContain("Whitney!");
+        })
 
-        // describe("errors", () => {
-        //     global.fetch = vi.fn(() => Promise.reject({
-        //         status: 500,
-        //         message: "Internal Server Error"
-        //     }));
-        //     beforeEach(() => {
-        //         emailQueryBtn = document.getElementById("emailQueryBtn");
-        //         emailQueryBtn.dispatchEvent(new Event("click", {bubbles: true, cancelable: true}));
-        //     })
-        //
-        //     it("displays error message if email not found", () => {
-        //         expect(query.innerHTML).toContain("Email address not found!");
-        //
-        //     })
-        // })
+        it("allows multiple searches", async () => {
+            expect(query.innerHTML).toContain("As of Sat Dec 31 2022, you're buying a gift for");
+            expect(query.innerHTML).toContain("Whitney!");
+            stubFetch(true, 200, {recipient: "Hunter", date: "2023-01-01T00:00:00.000Z"});
+            emailQueryBtn.dispatchEvent(new Event("click", {bubbles: true, cancelable: true}));
+            await waitFor(() => expect(query.innerHTML).toContain("Hunter!"));
+        });
 
+        it("displays error message for 2 secs if email not found", async () => {
+            stubFetchError("Internal Server Error");
+            emailQueryBtn.dispatchEvent(new Event("click", {bubbles: true, cancelable: true}));
+            await waitFor(() => expect(query.innerHTML).toContain("Email address not found!"));
+            setTimeout(() => {
+                expect(query.innerHTML).not.toContain("Email address not found!");
+                expect(query.innerHTML).toContain("Need to know who you're buying a gift for?");
+                expect(emailQueryBtn.innerHTML).toContain("Search it!");
+            }, 2000);
+        });
 
     })
-
 })
 
 
