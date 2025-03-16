@@ -4,7 +4,6 @@ document.getElementById("b0").addEventListener("click", addName);
 document.getElementById("addHouse").addEventListener("click", addHouse);
 document.getElementById("hideEmails").addEventListener("click", hideEmailTable);
 
-// object constructor function
 class Giver {
   constructor(name, recipient, email) {
     this.name = name;
