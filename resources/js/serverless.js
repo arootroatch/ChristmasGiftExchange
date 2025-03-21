@@ -1,6 +1,6 @@
 import {showSnackbar} from "./scripts.js";
 import state from "./state.js";
-import {emailQueryInit, emailQueryError, emailQueryInput, emailQueryLabel, emailQueryResult} from "./htmlComponents";
+import {emailQueryError, emailQueryInit, emailQueryResult} from "./htmlComponents";
 
 function setLoadingState(thing) {
     const btn = document.getElementById(thing);
@@ -135,9 +135,9 @@ async function getName(e) {
         .then((response) => response.json())
         .catch((error) => (errorMsg = error));
     if (errorMsg !== "") {
-        queryDiv.innerHTML = emailQueryError();
+        queryDiv.innerHTML = emailQueryError;
         setTimeout(() => {
-            queryDiv.innerHTML = emailQueryInit();
+            queryDiv.innerHTML = emailQueryInit;
         }, 2000);
     } else {
         let timestamp = Date.parse(results.date);
