@@ -55,3 +55,16 @@ export function nameSelectContent() {
     ${state.givers.map((giver) => `<option value="${giver.name}">${giver.name}</option>`)}
     `;
 }
+
+export function houseTemplate(){
+    return `
+    <div class="household" id="${state.houseID}">
+      <h2 contenteditable="true">Group ${state.houseID + 1} <span class="edit-span">(Click here to rename)</span></h2>
+      <div class="name-container" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
+      <select class="name-select" name="${state.houseID}-select" id="${state.houseID}-select">
+        <option disabled selected value="option${state.houseID}">-- Select a name --</option>
+        ${state.givers.map((giver) => `<option value="${giver.name}">${giver.name}</option>`)}
+      </select>
+      <button class="button deleteHouse" id="delete-${state.houseID}">Delete Group</button>
+    </div>`
+}

@@ -38,6 +38,21 @@ export function shouldBeDraggable(thing){
     expect(document.getElementById(thing).draggable).toBe(true);
 }
 
+export function stubProperty(thing, event, func) {
+    const element = document.getElementById(thing);
+    Object.defineProperty(element, event, {
+        configurable: true,
+        value: func,
+    });
+}
+
+export const clickEvent = new Event('click', {bubbles: true, cancelable: true});
+
+export function click(thing){
+    const element = document.getElementById(thing);
+    element.dispatchEvent(clickEvent);
+}
+
 export function resetState() {
     state = {
         houses: [],
@@ -51,3 +66,4 @@ export function resetState() {
         nameNumber: 1
     }
 }
+

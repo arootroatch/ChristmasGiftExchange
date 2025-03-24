@@ -1,9 +1,7 @@
 import state from "./state.js";
-import {nameDiv, nameSelectContent} from "./htmlComponents";
+import {houseTemplate, nameDiv, nameSelectContent} from "./htmlComponents";
 import {pushHTMl, addEventListener, removeEventListener} from "./utils";
 
-addEventListener("b0", "click", addName);
-addEventListener("addHouse", "click", addHouse);
 addEventListener("hideEmails", "click", hideEmailTable);
 
 export class Giver {
@@ -15,6 +13,8 @@ export class Giver {
         this.id = "";
     }
 }
+
+addEventListener("b0", "click", addName);
 
 function maybeRefreshNameSelects() {
     if (state.houseID > 0) {
@@ -47,26 +47,17 @@ function deleteName() {
     removeEventListener(this.id, "click", deleteName);
 }
 
+addEventListener("addHouse", "click", addHouse);
+
 export function addHouse() {
-    let houseTemplate = `<div class="household" id="${state.houseID}">
-      <h2 contenteditable="true">Group ${
-        state.houseID + 1
-    } <span class="edit-span">(Click here to rename)</span></h2>
-      <div class="name-container" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
-      <select class="name-select" name="${state.houseID}-select" id="${state.houseID}-select">
-        <option disabled selected value="option${state.houseID}">-- Select a name --</option>
-        ${state.givers.map((x) => `<option value="${x.name}">${x.name}</option>`)}
-      </select>
-      <button class="button deleteHouse" id="delete-${state.houseID}">Delete Group</button>
-    </div>`;
-    pushHTMl("left-container", houseTemplate);
+    pushHTMl("left-container", houseTemplate());
     addEventListener(`delete-${state.houseID}`, "click", deleteHouse);
     addEventListener(`${state.houseID}-select`, "change", insertName);
     state.houseID += 1;
 }
 
 // insert name into div from select and remove from participant list
-function insertName() {
+export function insertName() {
     let firstName = this.value;
     console.log(firstName);
     let nameDiv = document.getElementById(`wrapper-${firstName}`);
@@ -79,9 +70,10 @@ function insertName() {
     this.value = this.firstElementChild.value;
 }
 
-function deleteHouse() {
+export function deleteHouse() {
     // find last household
     let houseDiv = this.parentNode;
+    console.log("houseDiv: ", houseDiv)
 
     houseDiv.childNodes.forEach((node) => {
         // search inside last household for name container

@@ -1,10 +1,10 @@
 // @vitest-environment jsdom
 
 import {beforeEach, describe, expect, it, vi} from 'vitest'
-import {addHouse, Giver} from '/resources/js/scripts.js'
-import {resetState, shouldBeDraggable, shouldNotSelect, shouldSelect} from "./specHelper";
+import {addHouse, deleteHouse, Giver, insertName} from '/resources/js/scripts.js'
+import {click, resetState, shouldBeDraggable, shouldSelect, stubProperty} from "./specHelper";
 import state from "../resources/js/state";
-import {waitFor, waitForElementToBeRemoved} from '@testing-library/dom';
+import {addEventListener} from "../resources/js/utils";
 
 
 describe('scripts', () => {
@@ -18,11 +18,11 @@ describe('scripts', () => {
     });
 
     describe('addName', () => {
-        const addNameBtn = document.getElementById("b0");
+        const input = document.getElementById("input0");
         beforeEach(() => {
             resetState();
-            document.getElementById("input0").value = "alex";
-            addNameBtn.dispatchEvent(new Event("click", {bubbles: true, cancelable: true}));
+            input.value = "alex";
+            click("b0");
         })
 
         it('should add name to DOM', () => {
@@ -40,45 +40,75 @@ describe('scripts', () => {
         });
 
         it('should clear input field', () => {
-            expect(document.getElementById("input0").value).toBe("");
+            expect(input.value).toBe("");
         })
 
         it("clicking delete x removes name from state", () => {
             expect(state.givers[0].name).toEqual("Alex");
             state.givers.push(new Giver("Whitney", "", ""));
             expect(state.givers.length).toBe(2);
-            document.getElementById("delete-Alex1")
-                .dispatchEvent(new Event("click", {bubbles: true, cancelable: true}));
+            click("delete-Alex1");
             expect(state.givers.length).toBe(1);
             expect(state.givers[0].name).toEqual("Whitney");
         })
 
         it("clicking delete x removes name from DOM", () => {
-            const wrapper = document.getElementById("wrapper-Alex");
             const removeSpy = vi.fn();
-            Object.defineProperty(wrapper, "remove", {
-                configurable: true,
-                value: removeSpy,
-            });
+            const removeEventListenerSpy = vi.fn();
+            stubProperty("wrapper-Alex", "remove", removeSpy);
+            stubProperty("delete-Alex1", "removeEventListener", removeEventListenerSpy);
 
             expect(state.givers[0].name).toEqual("Alex");
-            document.getElementById("delete-Alex1")
-                .dispatchEvent(new Event("click", {bubbles: true, cancelable: true}));
+            click("delete-Alex1");
             expect(removeSpy).toHaveBeenCalledTimes(1);
+            expect(removeEventListenerSpy).toHaveBeenCalledTimes(1);
+            expect(state.givers).toEqual([]);
         });
 
         it("adds names to dropdown when more than one house", () => {
             addHouse();
             addHouse();
-            expect(document.getElementsByClassName("name-select").length).toBe(2);
-            document.getElementById("input0").value = "whitney";
-            addNameBtn.dispatchEvent(new Event("click", {bubbles: true, cancelable: true}));
-            expect(document.getElementsByClassName("name-select")[0].innerHTML).toContain("Alex");
-            expect(document.getElementsByClassName("name-select")[0].innerHTML).toContain("Whitney");
-            expect(document.getElementsByClassName("name-select")[1].innerHTML).toContain("Alex");
-            expect(document.getElementsByClassName("name-select")[1].innerHTML).toContain("Whitney");
+            const nameSelects = document.getElementsByClassName("name-select");
+            expect(nameSelects.length).toBe(2);
+            input.value = "whitney";
+            click("b0");
+            expect(nameSelects[0].innerHTML).toContain("Alex");
+            expect(nameSelects[0].innerHTML).toContain("Whitney");
+            expect(nameSelects[1].innerHTML).toContain("Alex");
+            expect(nameSelects[1].innerHTML).toContain("Whitney");
+        })
+    });
+
+    describe('addHouse', () => {
+        vi.mock(import("/resources/js/utils.js"), async (importOriginal) => {
+            const original = await importOriginal();
+            return {
+                ...original,
+                addEventListener: vi.fn(original.addEventListener),
+            };
+        });
+
+        beforeEach(() => {
+            resetState();
+            click("b0");
         })
 
+        it('should add house to DOM', () => {
+            shouldSelect("0-select");
+            shouldSelect("0");
+            shouldSelect("delete-0");
+        });
 
+        it('adds click event listener to delete house button', () => {
+            expect(addEventListener).toHaveBeenCalledWith("delete-0", "click", deleteHouse);
+        });
+
+        it('adds change event listener to name select', () => {
+            expect(addEventListener).toHaveBeenCalledWith("0-select", "change", insertName);
+        });
     });
+
+    // describe('insertName', () => {
+    //
+    // });
 });
