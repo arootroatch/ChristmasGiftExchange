@@ -1,6 +1,6 @@
 import state from "./state.js";
-import {houseTemplate, nameDiv, nameSelectContent} from "./htmlComponents";
-import {pushHTMl, addEventListener, removeEventListener} from "./utils";
+import {emailInput, houseTemplate, nameDiv, nameSelectContent} from "./htmlComponents";
+import {addEventListener, pushHTMl, removeEventListener, unshiftHTMl} from "./utils";
 
 addEventListener("hideEmails", "click", hideEmailTable);
 
@@ -16,23 +16,21 @@ export class Giver {
 
 addEventListener("b0", "click", addName);
 
-function maybeRefreshNameSelects() {
-    if (state.houseID > 0) {
-        let selects = Array.from(document.getElementsByClassName("name-select"));
-        selects.map((select) => {
-            select.innerHTML = nameSelectContent();
-        });
-    }
+export function refreshNameSelects() {
+    let selects = Array.from(document.getElementsByClassName("name-select"));
+    selects.map((select) => {
+        select.innerHTML = nameSelectContent();
+    });
 }
 
-function addName() {
+export function addName() {
     const nameInput = this.previousElementSibling;
     let name = nameInput.value;
     if (name !== "") {
         name = name.charAt(0).toUpperCase() + name.slice(1);
         pushHTMl("participants", nameDiv(name));
         state.givers.push(new Giver(name, "", ""));
-        maybeRefreshNameSelects();
+        refreshNameSelects();
         addEventListener(`delete-${name}${state.nameNumber}`, "click", deleteName);
         nameInput.value = "";
         state.nameNumber++;
@@ -43,8 +41,9 @@ function deleteName() {
     let nameWrapper = this.parentNode.id;
     let name = this.nextElementSibling.innerHTML;
     state.givers = state.givers.filter(giver => giver.name !== name);
-    document.getElementById(nameWrapper).remove();
     removeEventListener(this.id, "click", deleteName);
+    document.getElementById(nameWrapper).remove();
+    refreshNameSelects();
 }
 
 addEventListener("addHouse", "click", addHouse);
@@ -52,39 +51,33 @@ addEventListener("addHouse", "click", addHouse);
 export function addHouse() {
     pushHTMl("left-container", houseTemplate());
     addEventListener(`delete-${state.houseID}`, "click", deleteHouse);
-    addEventListener(`${state.houseID}-select`, "change", insertName);
+    addEventListener(`select-${state.houseID}`, "change", insertNameFromSelect);
     state.houseID += 1;
 }
 
-// insert name into div from select and remove from participant list
-export function insertName() {
+addEventListener(`name-list-select`, "change", insertNameFromSelect);
+
+export function insertNameFromSelect() {
     let firstName = this.value;
-    console.log(firstName);
     let nameDiv = document.getElementById(`wrapper-${firstName}`);
     if (this.parentNode.id === "name-list") {
         document.getElementById("participants").appendChild(nameDiv);
     } else {
         this.previousElementSibling.appendChild(nameDiv);
     }
-    // set select back to saying "select a name"
-    this.value = this.firstElementChild.value;
+    this.value = "default";
 }
 
 export function deleteHouse() {
-    // find last household
     let houseDiv = this.parentNode;
-    console.log("houseDiv: ", houseDiv)
 
     houseDiv.childNodes.forEach((node) => {
-        // search inside last household for name container
         if (node.className === "name-container") {
-            // grab name from each name wrapper div and put it back in the participants list
             Array.from(node.childNodes).forEach((name) => {
                 document.getElementById("participants").appendChild(name);
             });
         }
     });
-    // delete entire div from DOM
     houseDiv.remove();
 }
 
@@ -98,16 +91,10 @@ function showEmailTable() {
     } else {
         const table = document.getElementById("emailTable");
         const body = document.getElementById("emailTableBody");
-        // use a for loop instead of forEach to get access to the index -- this will be used later for adding the emails to the giver objects
+        // use a for loop instead of forEach to get access to the index --
+        // this will be used later for adding the emails to the giver objects
         for (let i = 0; i < state.givers.length; i++) {
-            body.insertAdjacentHTML(
-                "afterbegin",
-                `<div class="emailDiv">
-          <label for=${i}>${state.givers[i].name}</label>
-          <input type="email" class="emailInput" maxlength="100" placeholder="${state.givers[i].name}@example.com" name=${state.givers[i].name} id=${i} required/>
-        </div>
-        `
-            );
+            unshiftHTMl("emailTableBody", emailInput(i))
         }
         table.classList.replace("hidden", "show");
         if (!state.secretSanta) {

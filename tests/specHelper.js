@@ -26,19 +26,19 @@ export function installGiverNames(giverNames) {
     })
 }
 
-export function shouldSelect(thing){
+export function shouldSelect(thing) {
     expect(document.getElementById(thing)).not.toBeNull();
 }
 
-export function shouldNotSelect(thing){
+export function shouldNotSelect(thing) {
     expect(document.getElementById(thing)).toBeNull();
 }
 
-export function shouldBeDraggable(thing){
+export function shouldBeDraggable(thing) {
     expect(document.getElementById(thing).draggable).toBe(true);
 }
 
-export function stubProperty(thing, event, func) {
+export function stubPropertyByID(thing, event, func) {
     const element = document.getElementById(thing);
     Object.defineProperty(element, event, {
         configurable: true,
@@ -46,11 +46,25 @@ export function stubProperty(thing, event, func) {
     });
 }
 
+export function stubProperty(thing, event, func) {
+    Object.defineProperty(thing, event, {
+        configurable: true,
+        value: func,
+    });
+}
+
 export const clickEvent = new Event('click', {bubbles: true, cancelable: true});
 
-export function click(thing){
+export function click(thing) {
     const element = document.getElementById(thing);
     element.dispatchEvent(clickEvent);
+}
+
+export function clearNameSelects() {
+    let selects = Array.from(document.getElementsByClassName("name-select"));
+    selects.map((select) => {
+        select.innerHTML = `<option disabled selected value="default">-- Select a name --</option>`;
+    });
 }
 
 export function resetState() {

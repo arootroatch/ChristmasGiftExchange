@@ -9,3 +9,7 @@ export function removeEventListener(thing, event, func) {
 export function pushHTMl(thing, html) {
     document.getElementById(thing).insertAdjacentHTML("beforeend", html);
 }
+
+export function unshiftHTMl(thing, html) {
+    document.getElementById(thing).insertAdjacentHTML("afterbegin", html);
+}
