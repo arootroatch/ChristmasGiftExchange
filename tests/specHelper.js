@@ -1,5 +1,6 @@
 import state from "../resources/js/state";
 import {expect, vi} from "vitest";
+import {indexHtml} from "../setupTests";
 
 export function installGivers(givers) {
     state.givers = givers;
@@ -27,15 +28,15 @@ export function installGiverNames(giverNames) {
 }
 
 export function shouldSelect(thing) {
-    expect(document.getElementById(thing)).not.toBeNull();
+    expect(document.querySelector(thing)).not.toBeNull();
 }
 
 export function shouldNotSelect(thing) {
-    expect(document.getElementById(thing)).toBeNull();
+    expect(document.querySelector(thing)).toBeNull();
 }
 
 export function shouldBeDraggable(thing) {
-    expect(document.getElementById(thing).draggable).toBe(true);
+    expect(document.querySelector(thing).draggable).toBe(true);
 }
 
 export function stubPropertyByID(thing, event, func) {
@@ -53,11 +54,21 @@ export function stubProperty(thing, event, func) {
     });
 }
 
-export const clickEvent = new Event('click', {bubbles: true, cancelable: true});
-
 export function click(thing) {
-    const element = document.getElementById(thing);
+    const clickEvent = new Event('click', {bubbles: true, cancelable: true});
+    const element = document.querySelector(thing);
     element.dispatchEvent(clickEvent);
+}
+
+export function change(selector, value){
+    const changeEvent = new Event('change', {bubbles: true, cancelable: true});
+    const element = document.querySelector(selector);
+    Object.defineProperty(changeEvent, 'target', {
+        writable: false,
+        value: element
+    });
+    element.value = value;
+    element.dispatchEvent(changeEvent);
 }
 
 export function clearNameSelects() {
@@ -81,3 +92,13 @@ export function resetState() {
     }
 }
 
+export function resetDOM(){
+    document.open();
+    document.write(indexHtml);
+    document.close();
+}
+
+export function removeAllNames(){
+    const names = document.querySelectorAll(".name-wrapper");
+    names.forEach((name) => {name.remove();});
+}

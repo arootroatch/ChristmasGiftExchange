@@ -121,7 +121,7 @@ describe('serverless', () => {
             installGivers([alex, whitney, hunter, megan]);
             displaySendEmails();
             sendEmailsButton = document.getElementById("sendEmailsBtn");
-            click("sendEmailsBtn");
+            click("#sendEmailsBtn");
         })
 
         it("sets button text to Loading...", () => {
@@ -168,7 +168,7 @@ describe('serverless', () => {
 
         beforeEach(() => {
             emailQueryBtn = document.getElementById("emailQueryBtn");
-            click("emailQueryBtn");
+            click("#emailQueryBtn");
         })
 
         it("sets button text to Loading...", () => {
@@ -185,13 +185,13 @@ describe('serverless', () => {
             expect(query.innerHTML).toContain("As of Sat Dec 31 2022, you're buying a gift for");
             expect(query.innerHTML).toContain("Whitney!");
             stubFetch(true, 200, {recipient: "Hunter", date: "2023-01-01T00:00:00.000Z"});
-            click("emailQueryBtn");
+            click("#emailQueryBtn");
             await waitFor(() => expect(query.innerHTML).toContain("Hunter!"));
         });
 
         it("displays error message for 2 secs if email not found", async () => {
             stubFetchError("Internal Server Error");
-            click("emailQueryBtn");
+            click("#emailQueryBtn");
             await waitFor(() => expect(query.innerHTML).toContain("Email address not found!"));
             setTimeout(() => {
                 expect(query.innerHTML).not.toContain("Email address not found!");

@@ -1,85 +1,9 @@
 import state from "./state.js";
-import {emailInput, houseTemplate, nameDiv, nameSelectContent} from "./htmlComponents";
-import {addEventListener, pushHTMl, removeEventListener, unshiftHTMl} from "./utils";
+import {emailInput} from "./htmlComponents";
+import {addEventListener, unshiftHTMl} from "./utils";
 
 addEventListener("hideEmails", "click", hideEmailTable);
 
-export class Giver {
-    constructor(name, recipient, email) {
-        this.name = name;
-        this.email = email;
-        this.recipient = recipient;
-        this.date = "";
-        this.id = "";
-    }
-}
-
-addEventListener("b0", "click", addName);
-
-export function refreshNameSelects() {
-    let selects = Array.from(document.getElementsByClassName("name-select"));
-    selects.map((select) => {
-        select.innerHTML = nameSelectContent();
-    });
-}
-
-export function addName() {
-    const nameInput = this.previousElementSibling;
-    let name = nameInput.value;
-    if (name !== "") {
-        name = name.charAt(0).toUpperCase() + name.slice(1);
-        pushHTMl("participants", nameDiv(name));
-        state.givers.push(new Giver(name, "", ""));
-        refreshNameSelects();
-        addEventListener(`delete-${name}${state.nameNumber}`, "click", deleteName);
-        nameInput.value = "";
-        state.nameNumber++;
-    }
-}
-
-function deleteName() {
-    let nameWrapper = this.parentNode.id;
-    let name = this.nextElementSibling.innerHTML;
-    state.givers = state.givers.filter(giver => giver.name !== name);
-    removeEventListener(this.id, "click", deleteName);
-    document.getElementById(nameWrapper).remove();
-    refreshNameSelects();
-}
-
-addEventListener("addHouse", "click", addHouse);
-
-export function addHouse() {
-    pushHTMl("left-container", houseTemplate());
-    addEventListener(`delete-${state.houseID}`, "click", deleteHouse);
-    addEventListener(`select-${state.houseID}`, "change", insertNameFromSelect);
-    state.houseID += 1;
-}
-
-addEventListener(`name-list-select`, "change", insertNameFromSelect);
-
-export function insertNameFromSelect() {
-    let firstName = this.value;
-    let nameDiv = document.getElementById(`wrapper-${firstName}`);
-    if (this.parentNode.id === "name-list") {
-        document.getElementById("participants").appendChild(nameDiv);
-    } else {
-        this.previousElementSibling.appendChild(nameDiv);
-    }
-    this.value = "default";
-}
-
-export function deleteHouse() {
-    let houseDiv = this.parentNode;
-
-    houseDiv.childNodes.forEach((node) => {
-        if (node.className === "name-container") {
-            Array.from(node.childNodes).forEach((name) => {
-                document.getElementById("participants").appendChild(name);
-            });
-        }
-    });
-    houseDiv.remove();
-}
 
 // collect emails
 function showEmailTable() {

@@ -40,33 +40,6 @@ export function emailQueryResult(date, recipient) {
 
 // END REGION - EMAIL LOOKUP
 
-export function nameDiv(nameInput) {
-    return `
-    <div class="name-wrapper" id="wrapper-${nameInput}" draggable="true" ondragstart="drag(event)">
-        <button id="delete-${nameInput}${state.nameNumber}" class="delete-name">X</button>
-        <p class="name-entered" id="${nameInput}${state.nameNumber}">${nameInput}</p>
-        <br id="br${nameInput}${state.nameNumber}">
-    </div>`;
-}
-
-export function nameSelectContent() {
-    return `
-    <option disabled selected value="default">-- Select a name --</option>
-    ${state.givers.map((giver) => `<option value="${giver.name}">${giver.name}</option>`)}
-    `;
-}
-
-export function houseTemplate(){
-    return `
-    <div class="household" id="house-${state.houseID}">
-      <h2 contenteditable="true">Group ${state.houseID + 1} <span class="edit-span">(Click here to rename)</span></h2>
-      <div class="name-container" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
-      <select class="name-select" name="select-${state.houseID}" id="select-${state.houseID}">
-        ${nameSelectContent()}
-      </select>
-      <button class="button deleteHouse" id="delete-${state.houseID}">Delete Group</button>
-    </div>`
-}
 
 export function emailInput(i){
     return `
