@@ -4,7 +4,7 @@ import {nameSelectContent} from "./house";
 
 export function nameDiv(nameInput) {
     return `
-    <div class="name-wrapper" id="wrapper-${nameInput}" draggable="true" ondragstart="drag(event)">
+    <div class="name-wrapper" id="wrapper-${nameInput}" draggable="true" ondragstart="drag(e)">
         <button id="delete-${nameInput}${state.nameNumber}" class="delete-name">X</button>
         <p class="name-entered" id="${nameInput}${state.nameNumber}">${nameInput}</p>
         <br id="br${nameInput}${state.nameNumber}">

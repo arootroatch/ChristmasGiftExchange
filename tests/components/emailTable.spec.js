@@ -1,11 +1,9 @@
-// @vitest-environment jsdom
-
-import {beforeEach, describe, expect, it, vi} from 'vitest'
-import {displaySendEmails, getEmails, submitEmails} from '/resources/js/serverless.js'
-import {click, installGiverNames, installGivers, stubFetch, stubFetchError} from "./specHelper";
-import {alex, hunter, megan, whitney} from "./testData";
-import state from "../resources/js/state";
-import {waitFor} from '@testing-library/dom';
+import {beforeEach, describe, expect, it, vi} from "vitest";
+import {click, installGiverNames, installGivers, stubFetch} from "../specHelper";
+import "../../resources/js/components/name";
+import state from "../../resources/js/state";
+import {alex, hunter, megan, whitney} from "../testData";
+import {displaySendEmails, getEmails} from "../../resources/js/components/emailTable";
 
 function renderEmailTable(givers) {
     const body = document.getElementById("emailTableBody");
@@ -21,12 +19,12 @@ function renderEmailTable(givers) {
     }
 }
 
-describe('serverless', () => {
+describe('emailTable', () => {
     stubFetch(true, 200, {});
     Math.random = vi.fn(() => 123456789);
     vi.useFakeTimers();
     vi.setSystemTime(new Date(2023, 0, 1));
-    vi.mock(import("/resources/js/serverless.js"), async (importOriginal) => {
+    vi.mock(import("/resources/js/components/emailTable"), async (importOriginal) => {
         const actual = await importOriginal()
         return {
             ...actual,
@@ -160,47 +158,4 @@ describe('serverless', () => {
             expect(snackbar.style.border).toBe("2px solid #198c0a");
         });
     })
-
-    describe("getName", () => {
-        let emailQueryBtn;
-        const query = document.getElementById("query");
-        stubFetch(true, 200, {recipient: "Whitney", date: "2023-01-01T00:00:00.000Z"});
-
-        beforeEach(() => {
-            emailQueryBtn = document.getElementById("emailQueryBtn");
-            click("#emailQueryBtn");
-        })
-
-        it("sets button text to Loading...", () => {
-            expect(emailQueryBtn.innerHTML).toContain('Loading...');
-            expect(emailQueryBtn.style.color).toBe("rgb(128, 128, 128)");
-        })
-
-        it("displays recipient and date", () => {
-            expect(query.innerHTML).toContain("As of Sat Dec 31 2022, you're buying a gift for");
-            expect(query.innerHTML).toContain("Whitney!");
-        })
-
-        it("allows multiple searches", async () => {
-            expect(query.innerHTML).toContain("As of Sat Dec 31 2022, you're buying a gift for");
-            expect(query.innerHTML).toContain("Whitney!");
-            stubFetch(true, 200, {recipient: "Hunter", date: "2023-01-01T00:00:00.000Z"});
-            click("#emailQueryBtn");
-            await waitFor(() => expect(query.innerHTML).toContain("Hunter!"));
-        });
-
-        it("displays error message for 2 secs if email not found", async () => {
-            stubFetchError("Internal Server Error");
-            click("#emailQueryBtn");
-            await waitFor(() => expect(query.innerHTML).toContain("Email address not found!"));
-            setTimeout(() => {
-                expect(query.innerHTML).not.toContain("Email address not found!");
-                expect(query.innerHTML).toContain("Need to know who you're buying a gift for?");
-                expect(emailQueryBtn.innerHTML).toContain("Search it!");
-            }, 2000);
-        });
-
-    })
 })
-
-

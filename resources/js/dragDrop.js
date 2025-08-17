@@ -1,28 +1,28 @@
-function allowDrop(ev) {
-  // prevent dropping inside of another name div
-  if (ev.target.className === 'name-container'){
-    ev.preventDefault();
-    ev.target.style.backgroundColor = "#ffffff9e";
+function allowDrop(e) {
+  // prevent dropping inside another name div
+  if (e.target.className === 'name-container'){
+    e.preventDefault();
+    e.target.style.backgroundColor = "#ffffff9e";
   }
 }
 
-function drag(ev) {
-  ev.dataTransfer.setData("text", ev.target.id);
+function drag(e) {
+  e.dataTransfer.setData("text", e.target.id);
 }
 
-function drop(ev) {
-  // prevent dropping inside of another name
-  if (ev.target.className === 'name-container'){
-    ev.preventDefault();
-    var data = ev.dataTransfer.getData("text");
-    ev.target.appendChild(document.getElementById(data));
-    ev.target.style.backgroundColor="transparent";
+function drop(e) {
+  // prevent dropping inside another name
+  if (e.target.className === 'name-container'){
+    e.preventDefault();
+    const data = e.dataTransfer.getData("text");
+    e.target.appendChild(document.getElementById(data));
+    e.target.style.backgroundColor="transparent";
 
   }
 }
 
-function dragLeave(ev){
-  ev.target.style.backgroundColor="transparent";
+function dragLeave(e){
+  e.target.style.backgroundColor="transparent";
 }
 
 

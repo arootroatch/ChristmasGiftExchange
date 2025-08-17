@@ -10,7 +10,6 @@ import {
     stubPropertyByID
 } from "../specHelper";
 import {addEventListener} from "../../resources/js/utils";
-import "../../resources/js/scripts";
 import "../../resources/js/components/name";
 import {addHouse, deleteHouse, insertNameFromSelect} from "../../resources/js/components/house";
 

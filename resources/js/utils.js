@@ -13,3 +13,9 @@ export function pushHTMl(thing, html) {
 export function unshiftHTMl(thing, html) {
     document.getElementById(thing).insertAdjacentHTML("afterbegin", html);
 }
+
+export function setLoadingState(thing) {
+    const btn = document.getElementById(thing);
+    btn.innerHTML = "Loading...";
+    btn.style.color = "#808080";
+}
