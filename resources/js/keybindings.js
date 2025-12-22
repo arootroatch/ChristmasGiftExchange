@@ -1,22 +1,25 @@
 import state from "./state";
 
-let isMobile;
-isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-    navigator.userAgent
-);
+// Check if device is mobile
+export function isMobileDevice(userAgent = navigator.userAgent) {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+}
 
+// Event handler functions
 function enterClick(evt) {
   if (evt.keyCode === 13) {
     evt.preventDefault();
     document.getElementById("b0").click();
   }
 }
+
 function enterAddHouse(evt) {
   if (evt.shiftKey && evt.keyCode === 13) {
     evt.preventDefault();
     document.getElementById("addHouse").click();
   }
 }
+
 function enterGenerate(evt) {
   if (evt.ctrlKey && evt.keyCode === 13) {
     evt.preventDefault();
@@ -28,8 +31,44 @@ function enterGenerate(evt) {
   }
 }
 
-document.getElementById("input0").addEventListener("keyup", enterClick);
-if (isMobile === false) {
-  window.addEventListener("keyup", enterAddHouse);
-  window.addEventListener("keyup", enterGenerate);
+// Store references to event handlers for cleanup
+let isInitialized = false;
+
+// Initialize keyboard bindings
+export function initKeybindings(userAgent = navigator.userAgent) {
+  // Clean up existing listeners first
+  cleanupKeybindings();
+
+  const input0 = document.getElementById("input0");
+  if (input0) {
+    input0.addEventListener("keyup", enterClick);
+  }
+
+  // Only add window shortcuts on desktop
+  if (!isMobileDevice(userAgent)) {
+    window.addEventListener("keyup", enterAddHouse);
+    window.addEventListener("keyup", enterGenerate);
+  }
+
+  isInitialized = true;
+}
+
+// Remove all keyboard bindings
+export function cleanupKeybindings() {
+  if (!isInitialized) return;
+
+  const input0 = document.getElementById("input0");
+  if (input0) {
+    input0.removeEventListener("keyup", enterClick);
+  }
+
+  window.removeEventListener("keyup", enterAddHouse);
+  window.removeEventListener("keyup", enterGenerate);
+
+  isInitialized = false;
+}
+
+// Auto-initialize in browser environment (not during tests)
+if (typeof document !== 'undefined' && typeof process === 'undefined') {
+  initKeybindings();
 }

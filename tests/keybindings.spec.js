@@ -3,12 +3,9 @@ import state from '../resources/js/state';
 
 describe('keybindings', () => {
     let input0, b0Button, addHouseButton, generateButton, secretGenerateButton;
-    let originalUserAgent;
+    let initKeybindings, isMobileDevice, cleanupKeybindings;
 
     beforeAll(async () => {
-        // Store original userAgent
-        originalUserAgent = navigator.userAgent;
-
         // Remove any existing elements from index.html
         document.getElementById('input0')?.remove();
         document.getElementById('b0')?.remove();
@@ -38,16 +35,18 @@ describe('keybindings', () => {
         document.body.appendChild(generateButton);
         document.body.appendChild(secretGenerateButton);
 
-        // Import keybindings once after DOM is set up
-        vi.resetModules();
-        await import('../resources/js/keybindings');
+        // Import keybindings module
+        const keybindingsModule = await import('../resources/js/keybindings');
+        initKeybindings = keybindingsModule.initKeybindings;
+        isMobileDevice = keybindingsModule.isMobileDevice;
+        cleanupKeybindings = keybindingsModule.cleanupKeybindings;
     });
 
     beforeEach(() => {
         // Reset state before each test
         state.secretSanta = false;
 
-        // Spy on button clicks (reset for each test)
+        // Spy on button clicks
         vi.spyOn(b0Button, 'click');
         vi.spyOn(addHouseButton, 'click');
         vi.spyOn(generateButton, 'click');
@@ -56,189 +55,185 @@ describe('keybindings', () => {
 
     afterEach(() => {
         vi.restoreAllMocks();
+        cleanupKeybindings();
     });
 
-    describe('Enter key on input0', () => {
-        it('triggers b0 button click when Enter is pressed', () => {
-            const event = new KeyboardEvent('keyup', {
-                keyCode: 13,
-                bubbles: true,
-                cancelable: true,
-            });
-
-            input0.dispatchEvent(event);
-
-            expect(b0Button.click).toHaveBeenCalledTimes(1);
+    describe('isMobileDevice', () => {
+        it('detects mobile devices', () => {
+            const mobileUA = 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X)';
+            expect(isMobileDevice(mobileUA)).toBe(true);
         });
 
-        it('does not trigger b0 button for other keys', () => {
-            const event = new KeyboardEvent('keyup', {
-                keyCode: 65, // 'A' key
-                bubbles: true,
-                cancelable: true,
-            });
-
-            input0.dispatchEvent(event);
-
-            expect(b0Button.click).not.toHaveBeenCalled();
-        });
-    });
-
-    describe('Shift+Enter for addHouse', () => {
-        it('triggers addHouse button when Shift+Enter is pressed', () => {
-            const event = new KeyboardEvent('keyup', {
-                shiftKey: true,
-                keyCode: 13,
-                bubbles: true,
-                cancelable: true,
-            });
-
-            window.dispatchEvent(event);
-
-            expect(addHouseButton.click).toHaveBeenCalledTimes(1);
+        it('detects Android devices', () => {
+            const androidUA = 'Mozilla/5.0 (Linux; Android 10)';
+            expect(isMobileDevice(androidUA)).toBe(true);
         });
 
-        it('does not trigger addHouse without Shift key', () => {
-            const event = new KeyboardEvent('keyup', {
-                shiftKey: false,
-                keyCode: 13,
-                bubbles: true,
-                cancelable: true,
-            });
-
-            window.dispatchEvent(event);
-
-            expect(addHouseButton.click).not.toHaveBeenCalled();
+        it('detects iPad devices', () => {
+            const iPadUA = 'Mozilla/5.0 (iPad; CPU OS 13_0 like Mac OS X)';
+            expect(isMobileDevice(iPadUA)).toBe(true);
         });
 
-        it('does not trigger addHouse for other keys with Shift', () => {
-            const event = new KeyboardEvent('keyup', {
-                shiftKey: true,
-                keyCode: 65, // 'A' key
-                bubbles: true,
-                cancelable: true,
-            });
+        it('detects desktop as non-mobile', () => {
+            const desktopUA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)';
+            expect(isMobileDevice(desktopUA)).toBe(false);
+        });
 
-            window.dispatchEvent(event);
-
-            expect(addHouseButton.click).not.toHaveBeenCalled();
+        it('detects Mac as non-mobile', () => {
+            const macUA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)';
+            expect(isMobileDevice(macUA)).toBe(false);
         });
     });
 
-    describe('Ctrl+Enter for generate', () => {
-        it('triggers generate button when Ctrl+Enter is pressed in normal mode', () => {
-            state.secretSanta = false;
-
-            const event = new KeyboardEvent('keyup', {
-                ctrlKey: true,
-                keyCode: 13,
-                bubbles: true,
-                cancelable: true,
-            });
-
-            window.dispatchEvent(event);
-
-            expect(generateButton.click).toHaveBeenCalledTimes(1);
-            expect(secretGenerateButton.click).not.toHaveBeenCalled();
+    describe('desktop keybindings', () => {
+        beforeEach(() => {
+            // Initialize with desktop userAgent
+            const desktopUA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)';
+            initKeybindings(desktopUA);
         });
 
-        it('toggles between generate buttons based on secretSanta state', () => {
-            // Test that Ctrl+Enter triggers ONE of the generate buttons
-            // The specific button depends on state.secretSanta which the keybindings module checks
+        describe('Enter key on input0', () => {
+            it('triggers b0 button click when Enter is pressed', () => {
+                const event = new KeyboardEvent('keyup', {
+                    keyCode: 13,
+                    bubbles: true,
+                    cancelable: true,
+                });
 
-            // Set state and dispatch event
-            state.secretSanta = true;
-            const event = new KeyboardEvent('keyup', {
-                ctrlKey: true,
-                keyCode: 13,
-                bubbles: true,
-                cancelable: true,
+                input0.dispatchEvent(event);
+
+                expect(b0Button.click).toHaveBeenCalledTimes(1);
             });
 
-            window.dispatchEvent(event);
+            it('does not trigger b0 button for other keys', () => {
+                const event = new KeyboardEvent('keyup', {
+                    keyCode: 65, // 'A' key
+                    bubbles: true,
+                    cancelable: true,
+                });
 
-            // Verify exactly one generate button was clicked
-            const totalCalls = generateButton.click.mock.calls.length + secretGenerateButton.click.mock.calls.length;
-            expect(totalCalls).toBe(1);
-            // Note: We can't reliably test which specific button due to module instance isolation
-            // but we verify the keyboard shortcut works and triggers a generate action
+                input0.dispatchEvent(event);
+
+                expect(b0Button.click).not.toHaveBeenCalled();
+            });
         });
 
-        it('does not trigger generate without Ctrl key', () => {
-            const event = new KeyboardEvent('keyup', {
-                ctrlKey: false,
-                keyCode: 13,
-                bubbles: true,
-                cancelable: true,
+        describe('Shift+Enter for addHouse', () => {
+            it('triggers addHouse button when Shift+Enter is pressed', () => {
+                const event = new KeyboardEvent('keyup', {
+                    shiftKey: true,
+                    keyCode: 13,
+                    bubbles: true,
+                    cancelable: true,
+                });
+
+                window.dispatchEvent(event);
+
+                expect(addHouseButton.click).toHaveBeenCalledTimes(1);
             });
 
-            window.dispatchEvent(event);
+            it('does not trigger addHouse without Shift key', () => {
+                const event = new KeyboardEvent('keyup', {
+                    shiftKey: false,
+                    keyCode: 13,
+                    bubbles: true,
+                    cancelable: true,
+                });
 
-            expect(generateButton.click).not.toHaveBeenCalled();
-            expect(secretGenerateButton.click).not.toHaveBeenCalled();
+                window.dispatchEvent(event);
+
+                expect(addHouseButton.click).not.toHaveBeenCalled();
+            });
+
+            it('does not trigger addHouse for other keys with Shift', () => {
+                const event = new KeyboardEvent('keyup', {
+                    shiftKey: true,
+                    keyCode: 65, // 'A' key
+                    bubbles: true,
+                    cancelable: true,
+                });
+
+                window.dispatchEvent(event);
+
+                expect(addHouseButton.click).not.toHaveBeenCalled();
+            });
         });
 
-        it('does not trigger generate for other keys with Ctrl', () => {
-            const event = new KeyboardEvent('keyup', {
-                ctrlKey: true,
-                keyCode: 65, // 'A' key
-                bubbles: true,
-                cancelable: true,
+        describe('Ctrl+Enter for generate', () => {
+            it('triggers generate button when Ctrl+Enter is pressed in normal mode', () => {
+                state.secretSanta = false;
+
+                const event = new KeyboardEvent('keyup', {
+                    ctrlKey: true,
+                    keyCode: 13,
+                    bubbles: true,
+                    cancelable: true,
+                });
+
+                window.dispatchEvent(event);
+
+                expect(generateButton.click).toHaveBeenCalledTimes(1);
+                expect(secretGenerateButton.click).not.toHaveBeenCalled();
             });
 
-            window.dispatchEvent(event);
+            it('triggers secretGenerate button when Ctrl+Enter is pressed in secret santa mode', () => {
+                state.secretSanta = true;
 
-            expect(generateButton.click).not.toHaveBeenCalled();
-            expect(secretGenerateButton.click).not.toHaveBeenCalled();
+                const event = new KeyboardEvent('keyup', {
+                    ctrlKey: true,
+                    keyCode: 13,
+                    bubbles: true,
+                    cancelable: true,
+                });
+
+                window.dispatchEvent(event);
+
+                expect(secretGenerateButton.click).toHaveBeenCalledTimes(1);
+                expect(generateButton.click).not.toHaveBeenCalled();
+            });
+
+            it('does not trigger generate without Ctrl key', () => {
+                const event = new KeyboardEvent('keyup', {
+                    ctrlKey: false,
+                    keyCode: 13,
+                    bubbles: true,
+                    cancelable: true,
+                });
+
+                window.dispatchEvent(event);
+
+                expect(generateButton.click).not.toHaveBeenCalled();
+                expect(secretGenerateButton.click).not.toHaveBeenCalled();
+            });
+
+            it('does not trigger generate for other keys with Ctrl', () => {
+                const event = new KeyboardEvent('keyup', {
+                    ctrlKey: true,
+                    keyCode: 65, // 'A' key
+                    bubbles: true,
+                    cancelable: true,
+                });
+
+                window.dispatchEvent(event);
+
+                expect(generateButton.click).not.toHaveBeenCalled();
+                expect(secretGenerateButton.click).not.toHaveBeenCalled();
+            });
         });
     });
 
-    describe('mobile detection', () => {
-        // Skip this test because window event listeners from the beforeAll persist
-        // and can't be easily removed without refactoring the keybindings module
-        it.skip('does not add window event listeners on mobile devices', async () => {
-            // Clean up desktop test elements
-            input0?.remove();
-            b0Button?.remove();
-            addHouseButton?.remove();
-            generateButton?.remove();
-            secretGenerateButton?.remove();
-            vi.restoreAllMocks();
+    describe('mobile keybindings', () => {
+        beforeEach(() => {
+            // Reset button click spies
+            vi.clearAllMocks();
 
-            // Mock mobile userAgent
-            Object.defineProperty(navigator, 'userAgent', {
-                value: 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X)',
-                configurable: true,
-            });
+            // Initialize with mobile userAgent
+            const mobileUA = 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X)';
+            initKeybindings(mobileUA);
+        });
 
-            // Create fresh elements for mobile test
-            const testInput = document.createElement('input');
-            testInput.id = 'input0';
-            const testB0 = document.createElement('button');
-            testB0.id = 'b0';
-            const testAddHouse = document.createElement('button');
-            testAddHouse.id = 'addHouse';
-            const testGenerate = document.createElement('button');
-            testGenerate.id = 'generate';
-            const testSecretGenerate = document.createElement('button');
-            testSecretGenerate.id = 'secretGenerate';
-
-            document.body.appendChild(testInput);
-            document.body.appendChild(testB0);
-            document.body.appendChild(testAddHouse);
-            document.body.appendChild(testGenerate);
-            document.body.appendChild(testSecretGenerate);
-
-            // Create fresh spies
-            const b0Spy = vi.spyOn(testB0, 'click');
-            const addHouseSpy = vi.spyOn(testAddHouse, 'click');
-            const generateSpy = vi.spyOn(testGenerate, 'click');
-
-            // Re-import module with mobile userAgent
-            vi.resetModules();
-            await import('../resources/js/keybindings');
-
-            // Try window events - they should not work on mobile
+        it('does not add window event listeners on mobile devices', () => {
+            // Try window events - they should not trigger on mobile
             const shiftEnterEvent = new KeyboardEvent('keyup', {
                 shiftKey: true,
                 keyCode: 13,
@@ -257,31 +252,21 @@ describe('keybindings', () => {
             window.dispatchEvent(ctrlEnterEvent);
 
             // Window listeners should not trigger on mobile
-            expect(addHouseSpy).not.toHaveBeenCalled();
-            expect(generateSpy).not.toHaveBeenCalled();
+            expect(addHouseButton.click).not.toHaveBeenCalled();
+            expect(generateButton.click).not.toHaveBeenCalled();
+        });
 
-            // But input0 listener should still work
+        it('still adds input0 listener on mobile', () => {
             const enterEvent = new KeyboardEvent('keyup', {
                 keyCode: 13,
                 bubbles: true,
                 cancelable: true,
             });
 
-            testInput.dispatchEvent(enterEvent);
-            expect(b0Spy).toHaveBeenCalledTimes(1);
+            input0.dispatchEvent(enterEvent);
 
-            // Cleanup
-            testInput.remove();
-            testB0.remove();
-            testAddHouse.remove();
-            testGenerate.remove();
-            testSecretGenerate.remove();
-
-            // Restore userAgent
-            Object.defineProperty(navigator, 'userAgent', {
-                value: originalUserAgent,
-                configurable: true,
-            });
+            // Input listener should work on mobile
+            expect(b0Button.click).toHaveBeenCalledTimes(1);
         });
     });
 });
