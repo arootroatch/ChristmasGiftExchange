@@ -1,0 +1,199 @@
+import {afterAll, afterEach, beforeAll, describe, expect, it} from 'vitest';
+import {MongoClient} from 'mongodb';
+import {MongoMemoryServer} from 'mongodb-memory-server';
+
+describe('postToDb', () => {
+    let mongoServer;
+    let client;
+    let handler;
+    let originalEnv;
+
+    beforeAll(async () => {
+        // Store original environment
+        originalEnv = {...process.env};
+
+        // Start in-memory MongoDB server
+        mongoServer = await MongoMemoryServer.create();
+        const uri = mongoServer.getUri();
+
+        // Set test environment variables
+        process.env.MONGO_DB_URI = uri;
+        process.env.MONGODB_COLLECTION = 'test-collection';
+
+        // Create MongoDB client
+        client = new MongoClient(uri);
+        await client.connect();
+
+        // Import handler after environment is set up
+        const module = await import('../../netlify/functions/postToDb.js');
+        handler = module.handler;
+    });
+
+    afterEach(async () => {
+        // Clean up database between tests
+        const db = client.db('gift-exchange');
+        await db.collection(process.env.MONGODB_COLLECTION).deleteMany({});
+    });
+
+    afterAll(async () => {
+        // Restore environment
+        process.env = originalEnv;
+
+        // Close client and stop server
+        await client.close();
+        await mongoServer.stop();
+    });
+
+    describe('handler', () => {
+        it('successfully inserts documents and returns 200', async () => {
+            const docs = [
+                {name: 'Alice', recipient: 'Bob', email: 'alice@test.com'},
+                {name: 'Bob', recipient: 'Charlie', email: 'bob@test.com'},
+            ];
+
+            const event = {
+                body: JSON.stringify(docs),
+            };
+
+            const response = await handler(event);
+
+            expect(response.statusCode).toBe(200);
+            expect(response.result.acknowledged).toBe(true);
+            expect(response.result.insertedCount).toBe(2);
+
+            // Verify documents were actually inserted
+            const db = client.db('gift-exchange');
+            const collection = db.collection(process.env.MONGODB_COLLECTION);
+            const insertedDocs = await collection.find({}).toArray();
+
+            expect(insertedDocs).toHaveLength(2);
+            expect(insertedDocs[0].name).toBe('Alice');
+            expect(insertedDocs[1].name).toBe('Bob');
+        });
+
+        it('parses JSON body correctly', async () => {
+            const docs = [
+                {name: 'Alice', recipient: 'Bob'},
+                {name: 'Charlie', recipient: 'Alice'},
+            ];
+
+            const event = {
+                body: JSON.stringify(docs),
+            };
+
+            await handler(event);
+
+            const db = client.db('gift-exchange');
+            const collection = db.collection(process.env.MONGODB_COLLECTION);
+            const insertedDocs = await collection.find({}).toArray();
+
+            expect(insertedDocs).toHaveLength(2);
+            expect(insertedDocs[0].name).toBe('Alice');
+            expect(insertedDocs[0].recipient).toBe('Bob');
+            expect(insertedDocs[1].name).toBe('Charlie');
+            expect(insertedDocs[1].recipient).toBe('Alice');
+        });
+
+        it('rejects with error for empty array of documents', async () => {
+            const event = {
+                body: JSON.stringify([]),
+            };
+
+            // MongoDB's insertMany throws error on empty array
+            // The handler's promise chain doesn't catch this, so it rejects
+            await expect(handler(event)).rejects.toThrow('Batch cannot be empty');
+        });
+
+        it('handles single document', async () => {
+            const docs = [{name: 'Alice', recipient: 'Bob', email: 'alice@test.com'}];
+            const event = {
+                body: JSON.stringify(docs),
+            };
+
+            const response = await handler(event);
+
+            expect(response.statusCode).toBe(200);
+            expect(response.result.insertedCount).toBe(1);
+
+            const db = client.db('gift-exchange');
+            const collection = db.collection(process.env.MONGODB_COLLECTION);
+            const insertedDocs = await collection.find({}).toArray();
+
+            expect(insertedDocs).toHaveLength(1);
+            expect(insertedDocs[0].name).toBe('Alice');
+        });
+
+        it('handles multiple documents', async () => {
+            const docs = [
+                {name: 'Alice', recipient: 'Bob'},
+                {name: 'Bob', recipient: 'Charlie'},
+                {name: 'Charlie', recipient: 'David'},
+                {name: 'David', recipient: 'Eve'},
+                {name: 'Eve', recipient: 'Alice'},
+            ];
+
+            const event = {
+                body: JSON.stringify(docs),
+            };
+
+            const response = await handler(event);
+
+            expect(response.statusCode).toBe(200);
+            expect(response.result.insertedCount).toBe(5);
+
+            const db = client.db('gift-exchange');
+            const collection = db.collection(process.env.MONGODB_COLLECTION);
+            const insertedDocs = await collection.find({}).toArray();
+
+            expect(insertedDocs).toHaveLength(5);
+        });
+
+        it('stores documents with all fields intact', async () => {
+            const docs = [{
+                name: 'Test User',
+                recipient: 'Another User',
+                email: 'test@example.com',
+                date: new Date('2024-12-01'),
+            }];
+
+            const event = {
+                body: JSON.stringify(docs),
+            };
+
+            await handler(event);
+
+            const db = client.db('gift-exchange');
+            const collection = db.collection(process.env.MONGODB_COLLECTION);
+            const insertedDocs = await collection.find({}).toArray();
+
+            expect(insertedDocs[0].name).toBe('Test User');
+            expect(insertedDocs[0].recipient).toBe('Another User');
+            expect(insertedDocs[0].email).toBe('test@example.com');
+            // Dates are serialized to strings when passed through JSON.stringify
+            expect(insertedDocs[0].date).toBe('2024-12-01T00:00:00.000Z');
+        });
+
+        it('handles special characters in names', async () => {
+            const docs = [{
+                name: "O'Brien",
+                recipient: 'José García',
+                email: 'obrien@test.com',
+            }];
+
+            const event = {
+                body: JSON.stringify(docs),
+            };
+
+            const response = await handler(event);
+
+            expect(response.statusCode).toBe(200);
+
+            const db = client.db('gift-exchange');
+            const collection = db.collection(process.env.MONGODB_COLLECTION);
+            const insertedDocs = await collection.find({}).toArray();
+
+            expect(insertedDocs[0].name).toBe("O'Brien");
+            expect(insertedDocs[0].recipient).toBe('José García');
+        });
+    });
+});

@@ -11,7 +11,7 @@ node_modules
 
 .vscode
 .idea
-temp.js
+.temp.js
 
 # Playwright
 /test-results/
