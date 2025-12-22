@@ -3,7 +3,7 @@ import {click, installGiverNames, installGivers, stubFetch} from "../specHelper"
 import "../../resources/js/components/name";
 import state from "../../resources/js/state";
 import {alex, hunter, megan, whitney} from "../testData";
-import {displaySendEmails, getEmails} from "../../resources/js/components/emailTable";
+import {displaySendEmails, emailInput, getEmails, handleEmailSubmitError, hideElement, showEmailTable} from "../../resources/js/components/emailTable";
 
 function renderEmailTable(givers) {
     const body = document.getElementById("emailTableBody");
@@ -100,11 +100,12 @@ describe('emailTable', () => {
         it("hides email table after saving emails", async () => {
             const table = document.getElementById("emailTable");
             expect(table.classList).toContain("hide");
-            setTimeout(() => {
-                expect(table.classList).not.toContain("hide");
-                expect(table.classList).not.toContain("show");
-                expect(table.classList).toContain("hidden");
-            })
+
+            vi.advanceTimersByTime(500);
+
+            expect(table.classList).not.toContain("hide");
+            expect(table.classList).not.toContain("show");
+            expect(table.classList).toContain("hidden");
         })
 
     })
@@ -158,4 +159,136 @@ describe('emailTable', () => {
             expect(snackbar.style.border).toBe("2px solid #198c0a");
         });
     })
+
+    it("handleEmailSubmitError logs response body", () => {
+        const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+        const response = { status: 500, body: "Server error message" };
+
+        handleEmailSubmitError(response);
+
+        expect(consoleSpy).toHaveBeenCalledWith("Server error message");
+        consoleSpy.mockRestore();
+    });
+
+    describe("submitEmails error handling", () => {
+        beforeEach(() => {
+            renderEmailTable([
+                {name: "Alex", email: "alex@test.com"},
+                {name: "Whitney", email: "whitney@test.com"}
+            ]);
+            installGiverNames(["Alex", "Whitney"]);
+        });
+
+        it("logs error when postToServer returns non-200 status", async () => {
+            const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+            global.fetch = vi.fn(() => Promise.resolve({
+                status: 500,
+                body: "Database connection failed"
+            }));
+
+            const emailTableBody = document.getElementById("emailTableBody");
+            const submitEvent = new Event("submit", {bubbles: true, cancelable: true});
+            emailTableBody.dispatchEvent(submitEvent);
+
+            await vi.waitFor(() => {
+                expect(consoleSpy).toHaveBeenCalledWith("Database connection failed");
+            });
+
+            consoleSpy.mockRestore();
+        });
+    });
+
+    it("hideElement replaces classes after timeout", () => {
+        const table = document.getElementById("emailTable");
+        table.classList.remove("hidden");
+        table.classList.add("show");
+
+        hideElement("emailTable");
+
+        expect(table.classList).toContain("hide");
+
+        vi.advanceTimersByTime(500);
+
+        expect(table.classList).toContain("hidden");
+        expect(table.classList).not.toContain("show");
+        expect(table.classList).not.toContain("hide");
+    });
+
+    it("emailInput returns correct HTML template", () => {
+        state.givers = [{name: "Alex"}, {name: "Whitney"}];
+        const result = emailInput(0);
+
+        expect(result).toContain('<div class="emailDiv">');
+        expect(result).toContain('<label for=0>Alex</label>');
+        expect(result).toContain('type="email"');
+        expect(result).toContain('class="emailInput"');
+        expect(result).toContain('maxlength="100"');
+        expect(result).toContain('placeholder="Alex@example.com"');
+        expect(result).toContain('name=Alex');
+        expect(result).toContain('id=0');
+        expect(result).toContain('required');
+    });
+
+    describe("showEmailTable", () => {
+        it("shows error snackbar when state.generated is false", () => {
+            state.generated = false;
+            showEmailTable();
+
+            const snackbar = document.getElementById("snackbar");
+            expect(snackbar.innerHTML).toContain('Please click "Generate List" before entering emails.');
+            expect(snackbar.style.color).toBe("rgb(179, 30, 32)");
+        });
+
+        it("renders email inputs and shows table when state.generated is true", () => {
+            state.generated = true;
+            state.secretSanta = true;
+            state.givers = [{name: "TestUser1"}, {name: "TestUser2"}];
+            const table = document.getElementById("emailTable");
+            const body = document.getElementById("emailTableBody");
+            table.classList.remove("show");
+            table.classList.add("hidden");
+
+            showEmailTable();
+
+            expect(table.classList).toContain("show");
+            expect(table.classList).not.toContain("hidden");
+            expect(body.innerHTML).toContain('class="emailDiv"');
+            expect(body.innerHTML).toContain('<label for="0">TestUser1</label>');
+            expect(body.innerHTML).toContain('<label for="1">TestUser2</label>');
+        });
+
+        it("displays hideEmails button when state.secretSanta is false", () => {
+            state.generated = true;
+            state.secretSanta = false;
+            state.givers = [{name: "TestUser"}];
+            const hideButton = document.getElementById("hideEmails");
+            const table = document.getElementById("emailTable");
+            table.classList.remove("show");
+            table.classList.add("hidden");
+            hideButton.style.display = "none";
+
+            showEmailTable();
+
+            expect(hideButton.style.display).toBe("block");
+        });
+    });
+
+    it("hideEmailTable hides the table and button", () => {
+        const table = document.getElementById("emailTable");
+        const hideButton = document.getElementById("hideEmails");
+        table.classList.remove("hidden");
+        table.classList.add("show");
+        hideButton.style.display = "block";
+
+        click("#hideEmails");
+
+        expect(hideButton.style.display).toBe("none");
+        expect(table.classList).toContain("hide");
+        expect(table.classList).not.toContain("show");
+
+        vi.advanceTimersByTime(500);
+
+        expect(table.classList).toContain("hidden");
+        expect(table.classList).not.toContain("hide");
+    });
 })

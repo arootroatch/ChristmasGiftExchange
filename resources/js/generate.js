@@ -3,12 +3,20 @@ import {showEmailTable} from "./components/emailTable"
 import state from "./state.js";
 import {pushHTMl} from "./utils";
 
-document.getElementById("generate").addEventListener("click", start);
-document
-    .getElementById("secretGenerate")
-    .addEventListener("click", secretSantaStart);
+// Event listeners only in browser environment
+if (typeof document !== 'undefined') {
+    const generateBtn = document.getElementById("generate");
+    const secretGenerateBtn = document.getElementById("secretGenerate");
 
-function clearTable() {
+    if (generateBtn) {
+        generateBtn.addEventListener("click", start);
+    }
+    if (secretGenerateBtn) {
+        secretGenerateBtn.addEventListener("click", secretSantaStart);
+    }
+}
+
+export function clearTable() {
     //clear table but keep header row
     let parentNode = document.getElementById("table-body");
     while (parentNode.firstChild) {
@@ -16,7 +24,7 @@ function clearTable() {
     }
 }
 
-function emptyTable() {
+export function emptyTable() {
     return `
     <tr>
         <td></td>
@@ -36,7 +44,7 @@ function emptyTable() {
     </tr>`
 }
 
-function findDuplicate() {
+export function findDuplicate() {
     let searchNames = state.houses.flat();
 
     function hasDuplicates(arr) {
@@ -46,7 +54,7 @@ function findDuplicate() {
     state.duplicate = hasDuplicates(searchNames);
 }
 
-function fillHouses() {
+export function fillHouses() {
     state.houses = [];
 
     // get names from all houses
@@ -82,7 +90,7 @@ function fillHouses() {
     });
 }
 
-function deepCopy(arr) {
+export function deepCopy(arr) {
     state.availRecipients = [];
     arr.forEach(() => {
         state.availRecipients.push([]);
@@ -94,7 +102,7 @@ function deepCopy(arr) {
     }
 }
 
-function start() {
+export function start(maxAttempts = 25) {
     let counter = 0;
     generateList();
 
@@ -114,7 +122,7 @@ function start() {
                 "Duplicate name detected! Please delete the duplicate and re-enter it with a last initial or nickname.",
                 "error"
             );
-        } else if (counter >= 25) {
+        } else if (counter >= maxAttempts) {
             clearTable();
             pushHTMl("table-body", emptyTable());
             showSnackbar(
@@ -181,7 +189,7 @@ function start() {
     }
 }
 
-function secretSantaStart() {
+export function secretSantaStart() {
     start();
     showEmailTable();
     document.getElementById("secretGenerate").style.display = "none";

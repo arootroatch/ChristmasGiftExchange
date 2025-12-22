@@ -1,4 +1,4 @@
-function allowDrop(e) {
+export function allowDrop(e) {
   // prevent dropping inside another name div
   if (e.target.className === 'name-container'){
     e.preventDefault();
@@ -6,11 +6,11 @@ function allowDrop(e) {
   }
 }
 
-function drag(e) {
+export function drag(e) {
   e.dataTransfer.setData("text", e.target.id);
 }
 
-function drop(e) {
+export function drop(e) {
   // prevent dropping inside another name
   if (e.target.className === 'name-container'){
     e.preventDefault();
@@ -21,8 +21,16 @@ function drop(e) {
   }
 }
 
-function dragLeave(e){
+export function dragLeave(e){
   e.target.style.backgroundColor="transparent";
+}
+
+// Expose functions to global scope for inline HTML event handlers
+if (typeof window !== 'undefined') {
+  window.allowDrop = allowDrop;
+  window.drag = drag;
+  window.drop = drop;
+  window.dragLeave = dragLeave;
 }
 
 

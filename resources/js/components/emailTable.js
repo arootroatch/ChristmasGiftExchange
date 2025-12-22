@@ -50,13 +50,17 @@ function hideEmailTable() {
 }
 
 
-function hideElement(thing) {
+export function hideElement(thing) {
     const table = document.getElementById(thing);
     table.classList.add("hide");
     setTimeout(() => {
         table.classList.replace("show", "hidden");
         table.classList.remove("hide");
     }, 500);
+}
+
+export function handleEmailSubmitError(response) {
+    console.log(response.body);
 }
 
 function updateStateWithEmails(emails) {
@@ -74,6 +78,7 @@ export function submitEmails(event) {
     event.preventDefault();
     setLoadingState("submitEmails");
     const emails = getEmails();
+    // console.log(emails);
     updateStateWithEmails(emails);
 
     postToServer().then(
@@ -82,7 +87,7 @@ export function submitEmails(event) {
                 displaySendEmails();
                 hideElement("emailTable");
             } else {
-                console.log(response.body);
+                handleEmailSubmitError(response);
             }
         }
     );
