@@ -1,6 +1,6 @@
 import { showEmailTable } from "./components/emailTable"
 import showSnackbar from "./components/snackbar"
-import state from "./state.js";
+import state, {updateState} from "./state.js";
 
 const introArr = [
   ``,
@@ -69,7 +69,8 @@ export function introNext() {
     showEmailTable();
     document.getElementById("nextStep").style.display = "none";
   }
-  state.introIndex + 1 > introArr.length ? (state.introIndex = 0) : state.introIndex++;
+  const newIntroIndex = state.introIndex + 1 > introArr.length ? 0 : state.introIndex + 1;
+  updateState({ introIndex: newIntroIndex });
   const introDiv = document.getElementById("intro");
   if (state.introIndex < introArr.length) {
     introDiv.innerHTML = `<p>${introArr[state.introIndex]}</p>`;
@@ -78,7 +79,7 @@ export function introNext() {
 }
 
 export function secretSantaMode() {
-  state.secretSanta = true;
+  updateState({ secretSanta: true });
   document.getElementById("left-container").classList.add("secret");
   stepOne();
 }

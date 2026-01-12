@@ -1,6 +1,6 @@
 import showSnackbar from "./components/snackbar"
 import {showEmailTable} from "./components/emailTable"
-import state from "./state.js";
+import state, {updateState} from "./state.js";
 import {pushHTMl} from "./utils";
 
 // Event listeners only in browser environment
@@ -51,11 +51,11 @@ export function findDuplicate() {
         return new Set(arr).size !== arr.length;
     }
 
-    state.duplicate = hasDuplicates(searchNames);
+    updateState({ duplicate: hasDuplicates(searchNames) });
 }
 
 export function fillHouses() {
-    state.houses = [];
+    const newHouses = [];
 
     // get names from all houses
     const houseClass = document.getElementsByClassName("household");
@@ -72,7 +72,7 @@ export function fillHouses() {
         });
         // don't push empty array
         if (tempArr.length > 0) {
-            state.houses.push(tempArr);
+            newHouses.push(tempArr);
         }
     }
 
@@ -83,23 +83,18 @@ export function fillHouses() {
             x.childNodes.forEach((y) => {
                 if (y.tagName === "DIV") {
                     // add them to their own array so they can be matched with anybody
-                    state.houses.push([y.id.slice(8)]);
+                    newHouses.push([y.id.slice(8)]);
                 }
             });
         }
     });
+
+    updateState({ houses: newHouses });
 }
 
 export function deepCopy(arr) {
-    state.availRecipients = [];
-    arr.forEach(() => {
-        state.availRecipients.push([]);
-    });
-    for (let i = 0; i < arr.length; i++) {
-        for (let j = 0; j < arr[i].length; j++) {
-            state.availRecipients[i].push(arr[i][j]);
-        }
-    }
+    const newAvailRecipients = arr.map(subArr => [...subArr]);
+    updateState({ availRecipients: newAvailRecipients });
 }
 
 export function start(maxAttempts = 25) {
@@ -169,7 +164,6 @@ export function start(maxAttempts = 25) {
                     state.availRecipients.splice(x, 1); //check if that leaves an empty array and remove if so
                     numberOfHouses - 1 > -1 ? numberOfHouses-- : (numberOfHouses = 0); //decrement number of houses to prevent undefined when randomly selecting next array. don't let it fall under zero
                 }
-                state.generated = true;
                 if (!state.secretSanta) {
                     document.getElementById("table-body").insertAdjacentHTML(
                         "beforeend",
@@ -182,8 +176,10 @@ export function start(maxAttempts = 25) {
             });
 
             if (broken === true) {
-                state.generated = false;
+                updateState({ generated: false });
                 generateList();
+            } else {
+                updateState({ generated: true });
             }
         }
     }

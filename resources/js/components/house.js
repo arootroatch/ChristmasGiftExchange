@@ -1,4 +1,4 @@
-import state from "../state";
+import state, {updateState} from "../state";
 import {addEventListener, pushHTMl} from "../utils";
 
 
@@ -24,10 +24,11 @@ export function nameSelectContent() {
 addEventListener("addHouse", "click", addHouse);
 
 export function addHouse() {
+    const currentHouseID = state.houseID;
     pushHTMl("left-container", houseTemplate());
-    addEventListener(`delete-${state.houseID}`, "click", deleteHouse);
-    addEventListener(`select-${state.houseID}`, "change", insertNameFromSelect);
-    state.houseID += 1;
+    addEventListener(`delete-${currentHouseID}`, "click", deleteHouse);
+    addEventListener(`select-${currentHouseID}`, "change", insertNameFromSelect);
+    updateState({ houseID: currentHouseID + 1 });
 }
 
 addEventListener(`name-list-select`, "change", insertNameFromSelect);

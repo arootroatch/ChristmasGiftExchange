@@ -1,4 +1,4 @@
-import state from "../state";
+import state, {updateState} from "../state";
 import {addEventListener, setLoadingState, unshiftHTMl, fetchWithErrorHandling} from "../utils";
 import showSnackbar from "./snackbar";
 
@@ -66,12 +66,21 @@ export function handleEmailSubmitError(response) {
 function updateStateWithEmails(emails) {
     let random = Math.random().toString(20);
     let date = new Date().toISOString();
-    emails.forEach((obj) => {
-        let i = parseInt(obj.index);
-        state.givers[i].email = obj.email;
-        state.givers[i].id = `${state.givers.length}_${random}_${date}`;
-        state.givers[i].date = date;
+
+    const updatedGivers = state.givers.map((giver, index) => {
+        const emailData = emails.find(obj => parseInt(obj.index) === index);
+        if (emailData) {
+            return {
+                ...giver,
+                email: emailData.email,
+                id: `${state.givers.length}_${random}_${date}`,
+                date: date
+            };
+        }
+        return giver;
     });
+
+    updateState({ givers: updatedGivers });
 }
 
 export async function submitEmails(event) {
