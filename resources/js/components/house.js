@@ -6,7 +6,7 @@ export function houseTemplate(){
     return `
     <div class="household" id="house-${state.houseID}">
       <h2 contenteditable="true">Group ${state.houseID + 1} <span class="edit-span">(Click here to rename)</span></h2>
-      <div class="name-container" ondrop="drop(e)" ondragover="allowDrop(e)" ondragleave="dragLeave(e)"></div>
+      <div class="name-container"></div>
       <select class="name-select" name="select-${state.houseID}" id="select-${state.houseID}">
         ${nameSelectContent()}
       </select>

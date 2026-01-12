@@ -1,5 +1,5 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
-import {allowDrop, drag, dragLeave, drop} from '../resources/js/dragDrop';
+import {allowDrop, drag, dragLeave, drop, initDragDrop} from '../resources/js/dragDrop';
 
 describe('dragDrop', () => {
     describe('allowDrop', () => {
@@ -144,12 +144,22 @@ describe('dragDrop', () => {
         });
     });
 
-    describe('global window exposure', () => {
-        it('exposes functions to window object', () => {
-            expect(window.allowDrop).toBe(allowDrop);
-            expect(window.drag).toBe(drag);
-            expect(window.drop).toBe(drop);
-            expect(window.dragLeave).toBe(dragLeave);
+    describe('initDragDrop', () => {
+        it('initializes without error when left-container exists', () => {
+            const container = document.createElement('div');
+            container.id = 'left-container';
+            document.body.appendChild(container);
+
+            expect(() => initDragDrop()).not.toThrow();
+
+            container.remove();
+        });
+
+        it('handles missing container gracefully', () => {
+            const container = document.getElementById('left-container');
+            if (container) container.remove();
+
+            expect(() => initDragDrop()).not.toThrow();
         });
     });
 });

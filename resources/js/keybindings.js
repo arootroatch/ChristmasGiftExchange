@@ -33,6 +33,7 @@ function enterGenerate(evt) {
 
 // Store references to event handlers for cleanup
 let isInitialized = false;
+let hasWindowListeners = false;
 
 // Initialize keyboard bindings
 export function initKeybindings(userAgent = navigator.userAgent) {
@@ -48,6 +49,7 @@ export function initKeybindings(userAgent = navigator.userAgent) {
   if (!isMobileDevice(userAgent)) {
     window.addEventListener("keyup", enterAddHouse);
     window.addEventListener("keyup", enterGenerate);
+    hasWindowListeners = true;
   }
 
   isInitialized = true;
@@ -55,15 +57,17 @@ export function initKeybindings(userAgent = navigator.userAgent) {
 
 // Remove all keyboard bindings
 export function cleanupKeybindings() {
-  if (!isInitialized) return;
-
   const input0 = document.getElementById("input0");
   if (input0) {
     input0.removeEventListener("keyup", enterClick);
   }
 
-  window.removeEventListener("keyup", enterAddHouse);
-  window.removeEventListener("keyup", enterGenerate);
+  // Only remove window listeners if they were added
+  if (hasWindowListeners) {
+    window.removeEventListener("keyup", enterAddHouse);
+    window.removeEventListener("keyup", enterGenerate);
+    hasWindowListeners = false;
+  }
 
   isInitialized = false;
 }

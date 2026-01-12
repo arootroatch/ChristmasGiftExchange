@@ -25,12 +25,49 @@ export function dragLeave(e){
   e.target.style.backgroundColor="transparent";
 }
 
-// Expose functions to global scope for inline HTML event handlers
-if (typeof window !== 'undefined') {
-  window.allowDrop = allowDrop;
-  window.drag = drag;
-  window.drop = drop;
-  window.dragLeave = dragLeave;
+// Initialize drag-and-drop with event delegation
+export function initDragDrop() {
+  // Use event delegation on the container to handle all drag events
+  const container = document.getElementById('left-container');
+  if (!container) return;
+
+  // Handle dragstart on name-wrappers
+  container.addEventListener('dragstart', (e) => {
+    if (e.target.classList.contains('name-wrapper')) {
+      drag(e);
+    }
+  });
+
+  // Handle dragover on name-containers
+  container.addEventListener('dragover', (e) => {
+    if (e.target.classList.contains('name-container')) {
+      allowDrop(e);
+    }
+  });
+
+  // Handle drop on name-containers
+  container.addEventListener('drop', (e) => {
+    if (e.target.classList.contains('name-container')) {
+      drop(e);
+    }
+  });
+
+  // Handle dragleave on name-containers
+  container.addEventListener('dragleave', (e) => {
+    if (e.target.classList.contains('name-container')) {
+      dragLeave(e);
+    }
+  });
+}
+
+// Auto-initialize in browser environment (not during tests)
+if (typeof document !== 'undefined') {
+  // Wait for DOM to be ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initDragDrop);
+  } else {
+    initDragDrop();
+  }
 }
 
 

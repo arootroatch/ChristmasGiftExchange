@@ -1,4 +1,4 @@
-import {setLoadingState} from "../utils";
+import {setLoadingState, fetchWithErrorHandling} from "../utils";
 
 export const emailQueryInput =
     `<div>
@@ -52,19 +52,20 @@ async function getName(e) {
         mode: "cors",
         body: email, // GET requests can't have a body
     };
-    let errorMsg = "";
-    let results = await fetch("/.netlify/functions/get_name", options)
-        .then((response) => response.json())
-        .catch((error) => (errorMsg = error));
-    if (errorMsg !== "") {
-        queryDiv.innerHTML = emailQueryError;
-        setTimeout(() => {
-            queryDiv.innerHTML = emailQueryInit;
-        }, 2000);
-    } else {
+
+    try {
+        const response = await fetchWithErrorHandling("/.netlify/functions/get_name", options);
+        const results = await response.json();
+
         let timestamp = Date.parse(results.date);
         let date = new Date(timestamp);
         queryDiv.innerHTML = emailQueryResult(date, results.recipient);
         document.getElementById("emailQueryBtn").addEventListener("click", getName);
+    } catch (error) {
+        console.error('Error fetching name:', error);
+        queryDiv.innerHTML = emailQueryError;
+        setTimeout(() => {
+            queryDiv.innerHTML = emailQueryInit;
+        }, 2000);
     }
 }

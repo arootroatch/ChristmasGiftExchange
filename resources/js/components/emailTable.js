@@ -1,5 +1,5 @@
 import state from "../state";
-import {addEventListener, setLoadingState, unshiftHTMl} from "../utils";
+import {addEventListener, setLoadingState, unshiftHTMl, fetchWithErrorHandling} from "../utils";
 import showSnackbar from "./snackbar";
 
 export function emailInput(i) {
@@ -74,23 +74,25 @@ function updateStateWithEmails(emails) {
     });
 }
 
-export function submitEmails(event) {
+export async function submitEmails(event) {
     event.preventDefault();
     setLoadingState("submitEmails");
     const emails = getEmails();
     // console.log(emails);
     updateStateWithEmails(emails);
 
-    postToServer().then(
-        (response) => {
-            if (response.status === 200) {
-                displaySendEmails();
-                hideElement("emailTable");
-            } else {
-                handleEmailSubmitError(response);
-            }
+    try {
+        const response = await postToServer();
+        if (response.status === 200) {
+            displaySendEmails();
+            hideElement("emailTable");
+        } else {
+            handleEmailSubmitError(response);
         }
-    );
+    } catch (error) {
+        console.error('Error submitting emails:', error);
+        showSnackbar('Failed to submit emails. Please try again.', 'error');
+    }
 
     return false;
 }
@@ -99,34 +101,37 @@ document
     .getElementById("emailTableBody")
     .addEventListener("submit", (event) => submitEmails(event));
 
-function batchEmails() {
+async function batchEmails() {
     setLoadingState("sendEmailsBtn");
 
     let i = 0;
     let count = 0;
     let promises = state.givers.map(async (giver) => {
         i++;
-        await fetch("/.netlify/functions/dispatchEmail", {
-            method: "POST",
-            mode: "cors",
-            body: JSON.stringify({
-                name: giver.name,
-                recipient: giver.recipient,
-                email: giver.email,
-            }),
-        }).then((response) => {
+        try {
+            const response = await fetchWithErrorHandling("/.netlify/functions/dispatchEmail", {
+                method: "POST",
+                mode: "cors",
+                body: JSON.stringify({
+                    name: giver.name,
+                    recipient: giver.recipient,
+                    email: giver.email,
+                }),
+            });
             if (response.status === 200) {
                 count++;
             }
-        });
+        } catch (error) {
+            console.error(`Failed to send email to ${giver.email}:`, error);
+        }
     });
-    Promise.all(promises).then(() => {
-        hideElement("sendEmails");
-        showSnackbar(
-            `Sent ${count} of ${state.givers.length} emails successfully!`,
-            "success"
-        );
-    });
+
+    await Promise.all(promises);
+    hideElement("sendEmails");
+    showSnackbar(
+        `Sent ${count} of ${state.givers.length} emails successfully!`,
+        "success"
+    );
 }
 
 export function displaySendEmails() {
@@ -159,5 +164,5 @@ export async function postToServer() {
         mode: "cors",
         body: JSON.stringify(state.givers), // GET requests can't have a body
     };
-    return await fetch("/.netlify/functions/postToDb", options)
+    return await fetchWithErrorHandling("/.netlify/functions/postToDb", options);
 }

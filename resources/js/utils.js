@@ -19,3 +19,13 @@ export function setLoadingState(thing) {
     btn.innerHTML = "Loading...";
     btn.style.color = "#808080";
 }
+
+export async function fetchWithErrorHandling(url, options = {}) {
+    try {
+        const response = await fetch(url, options);
+        return response;
+    } catch (error) {
+        console.error('Fetch error:', error);
+        throw error;
+    }
+}
