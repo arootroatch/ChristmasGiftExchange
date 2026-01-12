@@ -1,4 +1,4 @@
-import {afterAll, afterEach, beforeAll, beforeEach, describe, expect, it} from 'vitest';
+import {afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi} from 'vitest';
 import {MongoClient} from 'mongodb';
 import {MongoMemoryServer} from 'mongodb-memory-server';
 
@@ -8,8 +8,14 @@ describe('get_name', () => {
     let handler;
     let collection;
     let originalEnv;
+    let consoleLogSpy;
+    let consoleErrorSpy;
 
     beforeAll(async () => {
+        // Mock console to suppress output during tests
+        consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+        consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
         // Store original environment
         originalEnv = {...process.env};
 
@@ -45,6 +51,10 @@ describe('get_name', () => {
     });
 
     afterAll(async () => {
+        // Restore console
+        consoleLogSpy.mockRestore();
+        consoleErrorSpy.mockRestore();
+
         // Restore environment
         process.env = originalEnv;
 

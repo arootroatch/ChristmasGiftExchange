@@ -1,4 +1,4 @@
-import {beforeEach, describe, expect, it} from "vitest";
+import {beforeEach, describe, expect, it, vi, afterAll, beforeAll} from "vitest";
 import {click, stubFetch, stubFetchError} from "../specHelper";
 import "../../resources/js/components/emailQuery";
 import {waitFor} from "@testing-library/dom";
@@ -7,6 +7,21 @@ import {waitFor} from "@testing-library/dom";
 describe("getName", () => {
     let emailQueryBtn;
     const query = document.getElementById("query");
+    let consoleLogSpy;
+    let consoleErrorSpy;
+
+    beforeAll(() => {
+        // Mock console to suppress output during tests
+        consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+        consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    });
+
+    afterAll(() => {
+        // Restore console
+        consoleLogSpy.mockRestore();
+        consoleErrorSpy.mockRestore();
+    });
+
     stubFetch(true, 200, {recipient: "Whitney", date: "2023-01-01T00:00:00.000Z"});
 
     beforeEach(() => {

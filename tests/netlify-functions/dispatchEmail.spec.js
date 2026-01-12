@@ -4,8 +4,14 @@ describe('dispatchEmail', () => {
     let handler;
     let mockFetch;
     let originalEnv;
+    let consoleLogSpy;
+    let consoleErrorSpy;
 
     beforeEach(async () => {
+        // Mock console to suppress output during tests
+        consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+        consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
         // Store original environment
         originalEnv = {...process.env};
 
@@ -28,6 +34,10 @@ describe('dispatchEmail', () => {
     });
 
     afterEach(() => {
+        // Restore console
+        consoleLogSpy.mockRestore();
+        consoleErrorSpy.mockRestore();
+
         // Restore environment
         process.env = originalEnv;
         vi.restoreAllMocks();
