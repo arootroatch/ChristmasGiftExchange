@@ -9,15 +9,14 @@ if (typeof document !== 'undefined') {
     const secretGenerateBtn = document.getElementById("secretGenerate");
 
     if (generateBtn) {
-        generateBtn.addEventListener("click", start);
+        generateBtn.addEventListener("click", generateList);
     }
     if (secretGenerateBtn) {
         secretGenerateBtn.addEventListener("click", secretSantaStart);
     }
 }
 
-export function clearTable() {
-    //clear table but keep header row
+export function clearGeneratedListTable() {
     let parentNode = document.getElementById("table-body");
     while (parentNode.firstChild) {
         parentNode.removeChild(parentNode.firstChild);
@@ -44,15 +43,6 @@ export function emptyTable() {
     </tr>`
 }
 
-export function findDuplicate() {
-    let searchNames = state.houses.flat();
-
-    function hasDuplicates(arr) {
-        return new Set(arr).size !== arr.length;
-    }
-
-    state.duplicate = hasDuplicates(searchNames);
-}
 
 export function fillHouses() {
     state.houses = [];
@@ -90,7 +80,7 @@ export function fillHouses() {
     });
 }
 
-export function deepCopy(arr) {
+export function populateAvailRecipients(arr) {
     state.availRecipients = [];
     arr.forEach(() => {
         state.availRecipients.push([]);
@@ -102,95 +92,102 @@ export function deepCopy(arr) {
     }
 }
 
-export function start(maxAttempts = 25) {
-    let counter = 0;
-    generateList();
+export function hasDuplicates(arr) {
+    let flattened = arr.flat();
+    return new Set(flattened).size !== flattened.length;
+}
 
-    function generateList() {
-        let recipient;
-        let y;
-        let x;
-        let broken = false;
-        fillHouses();
-        deepCopy(state.houses);
-        let numberOfHouses = state.houses.length;
-        findDuplicate();
-        if (state.houses.length < 1) {
-            showSnackbar("Please enter participants' names.", "error");
-        } else if (state.duplicate) {
-            showSnackbar(
-                "Duplicate name detected! Please delete the duplicate and re-enter it with a last initial or nickname.",
-                "error"
-            );
-        } else if (counter >= maxAttempts) {
-            clearTable();
-            pushHTMl("table-body", emptyTable());
-            showSnackbar(
-                "No possible combinations! Please try a different configuration/number of names.",
-                "error"
-            );
-        } else {
-            clearTable();
-            // for (let i = 0; i < givers.length; i++)
-            state.givers.forEach((giver) => {
-                //sequentially choose giver name and randomly choose which subArray for recipient
-                let giverName = giver.name;
-                x = Math.floor(numberOfHouses * Math.random());
-                // randomly choose name inside
-                y = Math.floor(state.availRecipients[x].length * Math.random());
-                recipient = state.availRecipients[x][y];
-                // check if name is in giver's household
-                let prevX = x;
-                for (let j = 0; j < state.houses.length; j++) {
-                    if (state.houses[j].includes(recipient)) {
-                        if (state.houses[j].includes(giverName)) {
-                            // uh-oh! are we out of options?
-                            if (numberOfHouses <= 1) {
-                                broken = true;
-                                counter++;
-                                break;
-                            }
-                            // find new array and make sure it's not the same one as before
-                            while (x === prevX) {
-                                x = Math.floor(numberOfHouses * Math.random());
-                            }
-                            // choose new recipient from new array
-                            y = Math.floor(state.availRecipients[x].length * Math.random());
-                            recipient = state.availRecipients[x][y];
-                        }
-                    }
-                }
-                // assign recipient in giver's object
-                giver.recipient = recipient;
-
-                state.availRecipients[x].splice(y, 1); //remove name from possible options
-
-                if (state.availRecipients[x].length === 0) {
-                    state.availRecipients.splice(x, 1); //check if that leaves an empty array and remove if so
-                    numberOfHouses - 1 > -1 ? numberOfHouses-- : (numberOfHouses = 0); //decrement number of houses to prevent undefined when randomly selecting next array. don't let it fall under zero
-                }
-                state.generated = true;
-                if (!state.secretSanta) {
-                    document.getElementById("table-body").insertAdjacentHTML(
-                        "beforeend",
-                        `<tr>
-                <td>${giverName}</td>
-                <td>${giver.recipient}</td>
-            </tr>`
-                    );
-                }
-            });
-
-            if (broken === true) {
-                state.generated = false;
-                generateList();
+function selectValidHouse(numberOfHouses, giver) {
+    let randomHouse = Math.floor(numberOfHouses * Math.random());
+    if (state.houses[randomHouse].includes(giver.name)) {
+        if (numberOfHouses > 1) {
+            let prevRandomHouse = randomHouse;
+            while (randomHouse === prevRandomHouse) {
+                randomHouse = Math.floor(numberOfHouses * Math.random());
             }
+            return randomHouse;
         }
     }
 }
 
+function generate(counter, maxAttempts) {
+    let recipient;
+    let randomRecipientIndex;
+    let randomHouseIndex;
+    let broken = false;
+    fillHouses();
+    populateAvailRecipients(state.houses);
+    let numberOfHouses = state.houses.length;
+    if (state.houses.length < 1) {
+        showSnackbar("Please enter participants' names.", "error");
+        return;
+    }
+
+    if (hasDuplicates(state.houses)) {
+        showSnackbar(
+            "Duplicate name detected! Please delete the duplicate and re-enter it with a last initial or nickname.",
+            "error"
+        );
+        return;
+    }
+
+    if (counter >= maxAttempts) {
+        clearGeneratedListTable();
+        pushHTMl("table-body", emptyTable());
+        showSnackbar(
+            "No possible combinations! Please try a different configuration/number of names.",
+            "error"
+        );
+        return;
+    }
+
+    clearGeneratedListTable();
+    for (const giver of state.givers) {
+        randomHouseIndex = selectValidHouse(numberOfHouses, giver);
+
+        if (!randomHouseIndex) {
+            broken = true;
+            counter++;
+            break;
+        }
+
+        randomRecipientIndex = Math.floor(state.availRecipients[randomHouseIndex].length * Math.random());
+        recipient = state.availRecipients[randomHouseIndex][randomRecipientIndex];
+        giver.recipient = recipient;
+
+        state.availRecipients[randomHouseIndex].splice(randomRecipientIndex, 1); //remove name from possible options
+
+        if (state.availRecipients[randomHouseIndex].length === 0) {
+            state.availRecipients.splice(randomHouseIndex, 1); //check if that leaves an empty array and remove if so
+            numberOfHouses - 1 > -1 ? numberOfHouses-- : (numberOfHouses = 0); //decrement number of houses to prevent undefined when randomly selecting next array. don't let it fall under zero
+        }
+    }
+
+    if (broken === true) {
+        state.generated = false;
+        generate(counter, maxAttempts);
+    }
+
+    state.generated = true;
+    if (!state.secretSanta) {
+        document.getElementById("table-body").insertAdjacentHTML(
+            "beforeend",
+            `<tr>
+                <td>${giver.name}</td>
+                <td>${giver.recipient}</td>
+            </tr>`
+        );
+    }
+}
+
+export function generateList(maxAttempts = 25) {
+    let counter = 0;
+    generate(counter, maxAttempts);
+
+}
+
 export function secretSantaStart() {
-    start();
+    generateList();
     showEmailTable();
     document.getElementById("secretGenerate").style.display = "none";
     document.getElementById("nextStep").style.display = "none";

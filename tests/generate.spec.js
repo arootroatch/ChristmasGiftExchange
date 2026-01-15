@@ -1,11 +1,11 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {
-    clearTable,
-    deepCopy,
+    clearGeneratedListTable,
+    populateAvailRecipients,
     emptyTable,
     fillHouses,
     findDuplicate,
-    secretSantaStart
+    secretSantaStart, hasDuplicates
 } from '../resources/js/generate';
 import state from '../resources/js/state';
 
@@ -53,43 +53,32 @@ describe('generate', () => {
             const tableBody = document.getElementById('table-body');
             expect(tableBody.children.length).toBe(2);
 
-            clearTable();
+            clearGeneratedListTable();
 
             expect(tableBody.children.length).toBe(0);
         });
     });
 
-    describe('findDuplicate', () => {
-        it('sets state.duplicate to false when no duplicates exist', () => {
-            state.houses = [['Alice', 'Bob'], ['Charlie'], ['David', 'Eve']];
+    describe('hasDuplicates', () => {
 
-            findDuplicate();
-
-            expect(state.duplicate).toBe(false);
-        });
-
-        it('sets state.duplicate to true when duplicates exist', () => {
-            state.houses = [['Alice', 'Bob'], ['Charlie'], ['Alice', 'Eve']];
-
-            findDuplicate();
-
-            expect(state.duplicate).toBe(true);
-        });
-
-        it('handles empty houses array', () => {
-            state.houses = [];
-
-            findDuplicate();
-
-            expect(state.duplicate).toBe(false);
+        it('handles empty array', () => {
+            expect(hasDuplicates([])).toBe(false);
         });
 
         it('handles single house with no duplicates', () => {
-            state.houses = [['Alice', 'Bob', 'Charlie']];
+            expect(hasDuplicates([['Alice', 'Bob', 'Charlie']])).toBe(false);
+        });
 
-            findDuplicate();
+        it('handles single house with duplicates', () => {
+            expect(hasDuplicates([['Alice', 'Alice', 'Charlie']])).toBe(true);
+        });
 
-            expect(state.duplicate).toBe(false);
+        it('handles multiple houses with no duplicates', () => {
+            expect(hasDuplicates([['Alice', 'Bob', 'Charlie'], ['Joe', "Alex"]])).toBe(false);
+        });
+
+        it('handles multiple houses with duplicates', () => {
+            expect(hasDuplicates([['Alice', 'Bob', 'Charlie'], ['Alice', "Alex"]])).toBe(true);
         });
     });
 
@@ -177,11 +166,11 @@ describe('generate', () => {
         });
     });
 
-    describe('deepCopy', () => {
+    describe('populateAvailRecipients', () => {
         it('creates deep copy of array into state.availRecipients', () => {
             const original = [['Alice', 'Bob'], ['Charlie'], ['David', 'Eve']];
 
-            deepCopy(original);
+            populateAvailRecipients(original);
 
             expect(state.availRecipients).toEqual(original);
             expect(state.availRecipients).not.toBe(original);
@@ -189,14 +178,14 @@ describe('generate', () => {
         });
 
         it('handles empty array', () => {
-            deepCopy([]);
+            populateAvailRecipients([]);
 
             expect(state.availRecipients).toEqual([]);
         });
 
         it('modifications to copy do not affect original', () => {
             const original = [['Alice', 'Bob']];
-            deepCopy(original);
+            populateAvailRecipients(original);
 
             state.availRecipients[0].push('Charlie');
 
