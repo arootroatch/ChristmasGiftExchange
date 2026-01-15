@@ -1,4 +1,4 @@
-import state, {updateState} from "../resources/js/state";
+import state from "../resources/js/state";
 import {expect, vi} from "vitest";
 import {indexHtml} from "../setupTests";
 
@@ -22,14 +22,9 @@ export function stubFetchError(message) {
 }
 
 export function installGiverNames(giverNames) {
-    const newGivers = giverNames.map((name) => ({
-        name: name,
-        recipient: "",
-        email: "",
-        date: "",
-        id: ""
-    }));
-    updateState({ givers: [...state.givers, ...newGivers] });
+    giverNames.forEach((name) => {
+        state.givers.push({name: name, recipient: "", email: "", date: "", id: ""});
+    })
 }
 
 export function shouldSelect(thing) {
@@ -84,7 +79,7 @@ export function clearNameSelects() {
 }
 
 export function resetState() {
-    updateState({
+    state = {
         houses: [],
         generated: false,
         duplicate: null,
@@ -94,7 +89,7 @@ export function resetState() {
         givers: [],
         houseID: 0,
         nameNumber: 1
-    });
+    }
 }
 
 export function resetDOM(){
