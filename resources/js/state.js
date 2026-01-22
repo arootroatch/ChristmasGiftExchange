@@ -1,8 +1,6 @@
 let state = {
   houses: [],
-  generated: false,
-  duplicate: null,
-  availRecipients: [],
+  isGenerated: false,
   introIndex: 0,
   secretSanta: false,
   givers: [],

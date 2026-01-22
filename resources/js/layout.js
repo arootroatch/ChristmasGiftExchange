@@ -61,11 +61,11 @@ export function introNext() {
     showSnackbar("Please add participant names", "error");
     return;
   }
-  if (state.introIndex === 3 && !state.generated) {
+  if (state.introIndex === 3 && !state.isGenerated) {
     showSnackbar(`Please click "Generate List"`, "error");
     return;
   }
-  if (state.introIndex === 3 && state.generated) {
+  if (state.introIndex === 3 && state.isGenerated) {
     showEmailTable();
     document.getElementById("nextStep").style.display = "none";
   }

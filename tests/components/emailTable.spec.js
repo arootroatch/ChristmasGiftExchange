@@ -231,7 +231,7 @@ describe('emailTable', () => {
 
     describe("showEmailTable", () => {
         it("shows error snackbar when state.generated is false", () => {
-            state.generated = false;
+            state.isGenerated = false;
             showEmailTable();
 
             const snackbar = document.getElementById("snackbar");
@@ -240,7 +240,7 @@ describe('emailTable', () => {
         });
 
         it("renders email inputs and shows table when state.generated is true", () => {
-            state.generated = true;
+            state.isGenerated = true;
             state.secretSanta = true;
             state.givers = [{name: "TestUser1"}, {name: "TestUser2"}];
             const table = document.getElementById("emailTable");
@@ -258,7 +258,7 @@ describe('emailTable', () => {
         });
 
         it("displays hideEmails button when state.secretSanta is false", () => {
-            state.generated = true;
+            state.isGenerated = true;
             state.secretSanta = false;
             state.givers = [{name: "TestUser"}];
             const hideButton = document.getElementById("hideEmails");

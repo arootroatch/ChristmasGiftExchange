@@ -1,7 +1,6 @@
 import showSnackbar from "./components/snackbar"
 import {showEmailTable} from "./components/emailTable"
 import state from "./state.js";
-import {pushHTMl} from "./utils";
 
 // Event listeners only in browser environment
 if (typeof document !== 'undefined') {
@@ -65,7 +64,7 @@ function getHouse(house) {
   return tempArr;
 }
 
-function getHouses(){
+function getHouses() {
   const houseElements = document.getElementsByClassName("household");
   const houseElementsArray = [...houseElements];
   return houseElementsArray.map(getHouse).filter((house) => house.length > 0);
@@ -92,16 +91,17 @@ export function fillHouses() {
   state.houses = getHouses().concat(getIndividualParticipantNames());
 }
 
-export function populateAvailRecipients(arr) {
-  state.availRecipients = [];
+export function deepCopy(arr) {
+  let copy = [];
   arr.forEach(() => {
-    state.availRecipients.push([]);
+    copy.push([]);
   });
   for (let i = 0; i < arr.length; i++) {
     for (let j = 0; j < arr[i].length; j++) {
-      state.availRecipients[i].push(arr[i][j]);
+      copy[i].push(arr[i][j]);
     }
   }
+  return copy;
 }
 
 export function hasDuplicates(arr) {
@@ -120,88 +120,100 @@ function selectValidHouse(numberOfHouses, giver) {
       return randomHouse;
     }
   }
+  return randomHouse;
 }
 
-function generate(counter, maxAttempts) {
-  let recipient;
-  let randomRecipientIndex;
-  let randomHouseIndex;
-  let broken = false;
-  fillHouses();
-  populateAvailRecipients(state.houses);
-  let numberOfHouses = state.houses.length;
-  if (state.houses.length < 1) {
-    showSnackbar("Please enter participants' names.", "error");
-    return;
-  }
+function removeName(availableRecipients, houseIndex, recipientIndex) {
+  availableRecipients[houseIndex].splice(recipientIndex, 1);
+}
 
-  if (hasDuplicates(state.houses)) {
-    showSnackbar(
-      "Duplicate name detected! Please delete the duplicate and re-enter it with a last initial or nickname.",
-      "error"
-    );
-    return;
+function maybeRemoveHouse(availableRecipients, index) {
+  if (availableRecipients[index].length === 0) {
+    availableRecipients.splice(index, 1);
   }
+}
 
-  if (counter >= maxAttempts) {
-    clearGeneratedListTable();
-    pushHTMl("table-body", emptyTable());
-    showSnackbar(
-      "No possible combinations! Please try a different configuration/number of names.",
-      "error"
-    );
-    return;
+function checkForImpossible(counter, maxAttempts) {
+  if (state.houses.length < 1) return {error: "Please enter participants' names."};
+
+  if (hasDuplicates(state.houses))
+    return {
+      error: "Duplicate name detected! Please delete the duplicate and re-enter it with a last initial or nickname."
+    };
+
+  if (counter >= maxAttempts)
+    return {error: "No possible combinations! Please try a different configuration/number of names."};
+}
+
+function selectRecipient(availableRecipients, randomHouseIndex) {
+  const randomRecipientIndex = Math.floor(availableRecipients[randomHouseIndex].length * Math.random());
+  return {
+    recipient: availableRecipients[randomHouseIndex][randomRecipientIndex],
+    randomRecipientIndex: randomRecipientIndex
   }
+}
 
-  clearGeneratedListTable();
+function attemptToDrawNames(counter) {
+  let availableRecipients = deepCopy(state.houses);
+
   for (const giver of state.givers) {
-    randomHouseIndex = selectValidHouse(numberOfHouses, giver);
+    const randomHouseIndex = selectValidHouse(availableRecipients.length, giver);
 
-    if (!randomHouseIndex) {
-      broken = true;
+    if (randomHouseIndex === undefined) {
+      state.isGenerated = false;
       counter++;
       break;
     }
 
-    randomRecipientIndex = Math.floor(state.availRecipients[randomHouseIndex].length * Math.random());
-    recipient = state.availRecipients[randomHouseIndex][randomRecipientIndex];
+    const {recipient, randomRecipientIndex} = selectRecipient(availableRecipients, randomHouseIndex);
     giver.recipient = recipient;
+    removeName(availableRecipients, randomHouseIndex, randomRecipientIndex);
+    maybeRemoveHouse(availableRecipients, randomHouseIndex);
+    state.isGenerated = true;
+  }
+}
 
-    state.availRecipients[randomHouseIndex].splice(randomRecipientIndex, 1); //remove name from possible options
+function generate(counter, maxAttempts) {
+  const error = checkForImpossible(counter, maxAttempts);
+  if (error) return error;
+  attemptToDrawNames(counter);
 
-    if (state.availRecipients[randomHouseIndex].length === 0) {
-      state.availRecipients.splice(randomHouseIndex, 1); //check if that leaves an empty array and remove if so
-      numberOfHouses - 1 > -1 ? numberOfHouses-- : (numberOfHouses = 0); //decrement number of houses to prevent undefined when randomly selecting next array. don't let it fall under zero
-    }
+  if (state.isGenerated) {
+    return {results: state.givers, error: null}
+  } else {
+    return generate(counter, maxAttempts);
+  }
+}
 
-    state.generated = true;
-    if (!state.secretSanta) {
-      document.getElementById("table-body").insertAdjacentHTML(
-        "beforeend",
-        `<tr>
+function renderResultsToTable(results) {
+  clearGeneratedListTable();
+
+  let html = '';
+  for (const giver of results) {
+    html += `<tr>
                 <td>${giver.name}</td>
                 <td>${giver.recipient}</td>
-            </tr>`
-      );
-    }
+            </tr>`;
   }
-
-  if (broken === true) {
-    state.generated = false;
-    generate(counter, maxAttempts);
-  }
-
-
+  document.getElementById("table-body").insertAdjacentHTML(
+    "beforeend",
+    html
+  );
 }
 
 export function generateList(maxAttempts = 25) {
+  fillHouses();
   let counter = 0;
-  generate(counter, maxAttempts);
-
+  const {error, results} = generate(counter, maxAttempts);
+  (error && showSnackbar(error, "error"));
+  renderResultsToTable(results);
 }
 
-export function secretSantaStart() {
-  generateList();
+export function secretSantaStart(maxAttempts = 25) {
+  fillHouses();
+  let counter = 0;
+  const {error} = generate(counter, maxAttempts);
+  (error && showSnackbar(error, "error"));
   showEmailTable();
   document.getElementById("secretGenerate").style.display = "none";
   document.getElementById("nextStep").style.display = "none";

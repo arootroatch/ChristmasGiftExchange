@@ -1,10 +1,9 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {
     clearGeneratedListTable,
-    populateAvailRecipients,
+    deepCopy,
     emptyTable,
     fillHouses,
-    findDuplicate,
     secretSantaStart, hasDuplicates
 } from '../resources/js/generate';
 import state from '../resources/js/state';
@@ -15,8 +14,7 @@ describe('generate', () => {
         state.houses = [];
         state.givers = [];
         state.availRecipients = [];
-        state.duplicate = null;
-        state.generated = false;
+        state.isGenerated = false;
         state.secretSanta = false;
     });
 
@@ -82,7 +80,7 @@ describe('generate', () => {
         });
     });
 
-    describe.only('fillHouses', () => {
+    describe('fillHouses', () => {
         it('extracts names from households into state.houses', () => {
             // Remove existing name-list from index.html
             document.getElementById('name-list')?.remove();
@@ -166,31 +164,30 @@ describe('generate', () => {
         });
     });
 
-    describe('populateAvailRecipients', () => {
-        it('creates deep copy of array into state.availRecipients', () => {
+    describe('deepCopy', () => {
+        it('creates deep copy of array', () => {
             const original = [['Alice', 'Bob'], ['Charlie'], ['David', 'Eve']];
+            const result = deepCopy(original);
 
-            populateAvailRecipients(original);
-
-            expect(state.availRecipients).toEqual(original);
-            expect(state.availRecipients).not.toBe(original);
-            expect(state.availRecipients[0]).not.toBe(original[0]);
+            expect(result).toEqual(original);
+            expect(result).not.toBe(original);
+            expect(result[0]).not.toBe(original[0]);
         });
 
         it('handles empty array', () => {
-            populateAvailRecipients([]);
+            const result = deepCopy([]);
 
-            expect(state.availRecipients).toEqual([]);
+            expect(result).toEqual([]);
         });
 
         it('modifications to copy do not affect original', () => {
             const original = [['Alice', 'Bob']];
-            populateAvailRecipients(original);
+            const result = deepCopy(original);
 
-            state.availRecipients[0].push('Charlie');
+            result[0].push('Charlie');
 
             expect(original[0]).toEqual(['Alice', 'Bob']);
-            expect(state.availRecipients[0]).toEqual(['Alice', 'Bob', 'Charlie']);
+            expect(result[0]).toEqual(['Alice', 'Bob', 'Charlie']);
         });
     });
 
@@ -285,7 +282,7 @@ describe('generate', () => {
 
             secretSantaStart();
 
-            expect(state.generated).toBe(true);
+            expect(state.isGenerated).toBe(true);
         });
     });
 });

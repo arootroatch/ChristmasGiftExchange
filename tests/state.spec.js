@@ -3,9 +3,7 @@ import state from '/resources/js/state.js'
 
 test('initial state', () => {
     expect(state.houses).toEqual([]);
-    expect(state.generated).toEqual(false);
-    expect(state.duplicate).toEqual(null);
-    expect(state.availRecipients).toEqual([]);
+    expect(state.isGenerated).toEqual(false);
     expect(state.introIndex).toEqual(0);
     expect(state.secretSanta).toEqual(false);
     expect(state.givers).toEqual([]);

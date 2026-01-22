@@ -95,7 +95,7 @@ describe('layout', () => {
         // Reset state before each test
         state.introIndex = 0;
         state.givers = [];
-        state.generated = false;
+        state.isGenerated = false;
         state.secretSanta = false;
 
         // Reset element styles
@@ -175,7 +175,7 @@ describe('layout', () => {
         it('does not advance from step 3 without generation', () => {
             state.introIndex = 3;
             state.givers = [{name: 'Alice', recipient: ''}];
-            state.generated = false;
+            state.isGenerated = false;
 
             introNext();
 
@@ -185,7 +185,7 @@ describe('layout', () => {
         it('advances from step 3 with generated list', () => {
             state.introIndex = 3;
             state.givers = [{name: 'Alice', recipient: ''}];
-            state.generated = true;
+            state.isGenerated = true;
 
             introNext();
 

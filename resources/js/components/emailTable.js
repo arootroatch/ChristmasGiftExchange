@@ -21,7 +21,7 @@ addEventListener("hideEmails", "click", hideEmailTable);
 
 // collect emails
 export function showEmailTable() {
-    if (!state.generated) {
+    if (!state.isGenerated) {
         showSnackbar(
             `Please click "Generate List" before entering emails.`,
             "error"
