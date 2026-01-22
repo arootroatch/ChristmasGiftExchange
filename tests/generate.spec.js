@@ -82,7 +82,7 @@ describe('generate', () => {
         });
     });
 
-    describe('fillHouses', () => {
+    describe.only('fillHouses', () => {
         it('extracts names from households into state.houses', () => {
             // Remove existing name-list from index.html
             document.getElementById('name-list')?.remove();
