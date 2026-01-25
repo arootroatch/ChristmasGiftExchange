@@ -12,7 +12,7 @@ export function nameDiv(nameInput) {
 }
 
 export class Giver {
-    constructor(name, recipient, email) {
+    constructor(name, recipient = "", email = "") {
         this.name = name;
         this.email = email;
         this.recipient = recipient;
@@ -36,7 +36,7 @@ export function addName() {
     if (name !== "") {
         name = name.charAt(0).toUpperCase() + name.slice(1);
         pushHTMl("participants", nameDiv(name));
-        state.givers.push(new Giver(name, "", ""));
+        state.givers.push(new Giver(name));
         refreshNameSelects();
         addEventListener(`delete-${name}${state.nameNumber}`, "click", deleteName);
         nameInput.value = "";

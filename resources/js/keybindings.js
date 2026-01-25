@@ -23,11 +23,7 @@ function enterAddHouse(evt) {
 function enterGenerate(evt) {
   if (evt.ctrlKey && evt.keyCode === 13) {
     evt.preventDefault();
-    if (!state.secretSanta) {
-      document.getElementById("generate").click();
-    } else {
-      document.getElementById("secretGenerate").click();
-    }
+    document.getElementById("generate").click();
   }
 }
 

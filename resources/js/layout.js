@@ -1,4 +1,4 @@
-import { showEmailTable } from "./components/emailTable"
+import {showEmailTable} from "./components/emailTable"
 import showSnackbar from "./components/snackbar"
 import state from "./state.js";
 
@@ -16,7 +16,6 @@ export function conditionalRender() {
   const next = document.getElementById("nextStep");
   const addHouse = document.getElementById("addHouse");
   const generate = document.getElementById("generate");
-  const secretGenerate = document.getElementById("secretGenerate");
 
   switch (state.introIndex) {
     case 0:
@@ -26,30 +25,22 @@ export function conditionalRender() {
       break;
     case 2:
       addHouse.style.display = "block";
-      secretGenerate.style.display = "none";
       generate.style.display = "none";
       break;
     case 3:
       addHouse.style.display = "none";
-
-      if (state.secretSanta) {
-        secretGenerate.style.display = "block";
-        generate.style.display = "none";
-        next.style.display = "none";
-      } else {
-        generate.style.display = "block";
-      }
+      generate.style.display = "block";
+      if (state.isSecretSanta) next.style.display = "none";
       break;
     case 4:
       generate.style.display = "none";
-      secretGenerate.style.display = "none";
       break;
   }
 }
 
 export function stepOne() {
   document.getElementById("name-list").style.display = "block";
-  if (!state.secretSanta) {
+  if (!state.isSecretSanta) {
     document.getElementById("results-table").style.display = "table";
   }
   document.getElementById("nextStep").style.display = "block";
@@ -78,7 +69,7 @@ export function introNext() {
 }
 
 export function secretSantaMode() {
-  state.secretSanta = true;
+  state.isSecretSanta = true;
   document.getElementById("left-container").classList.add("secret");
   stepOne();
 }

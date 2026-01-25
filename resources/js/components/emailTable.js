@@ -34,7 +34,7 @@ export function showEmailTable() {
             unshiftHTMl("emailTableBody", emailInput(i))
         }
         table.classList.replace("hidden", "show");
-        if (!state.secretSanta) {
+        if (!state.isSecretSanta) {
             document.getElementById("hideEmails").style.display = "block";
         }
     }

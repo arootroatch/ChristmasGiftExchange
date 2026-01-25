@@ -1,56 +1,26 @@
 import {afterEach, beforeAll, beforeEach, describe, expect, it, vi} from 'vitest';
 import state from '../resources/js/state';
+import {removeAllHouses, removeAllNames, resetState} from "./specHelper";
+import {initKeybindings, isMobileDevice, cleanupKeybindings} from "../resources/js/keybindings";
 
 describe('keybindings', () => {
-    let input0, b0Button, addHouseButton, generateButton, secretGenerateButton;
-    let initKeybindings, isMobileDevice, cleanupKeybindings;
+    let input0, b0Button, addHouseButton, generateButton;
 
-    beforeAll(async () => {
-        // Remove any existing elements from index.html
-        document.getElementById('input0')?.remove();
-        document.getElementById('b0')?.remove();
-        document.getElementById('addHouse')?.remove();
-        document.getElementById('generate')?.remove();
-        document.getElementById('secretGenerate')?.remove();
-
-        // Create required DOM elements
-        input0 = document.createElement('input');
-        input0.id = 'input0';
-
-        b0Button = document.createElement('button');
-        b0Button.id = 'b0';
-
-        addHouseButton = document.createElement('button');
-        addHouseButton.id = 'addHouse';
-
-        generateButton = document.createElement('button');
-        generateButton.id = 'generate';
-
-        secretGenerateButton = document.createElement('button');
-        secretGenerateButton.id = 'secretGenerate';
-
-        document.body.appendChild(input0);
-        document.body.appendChild(b0Button);
-        document.body.appendChild(addHouseButton);
-        document.body.appendChild(generateButton);
-        document.body.appendChild(secretGenerateButton);
-
-        // Import keybindings module
-        const keybindingsModule = await import('../resources/js/keybindings');
-        initKeybindings = keybindingsModule.initKeybindings;
-        isMobileDevice = keybindingsModule.isMobileDevice;
-        cleanupKeybindings = keybindingsModule.cleanupKeybindings;
+    beforeAll( () => {
+        b0Button = document.getElementById( "b0" );
+        input0 = document.getElementById( "input0" );
+        addHouseButton = document.getElementById( "addHouse" );
+        generateButton = document.getElementById( "generate" );
     });
 
     beforeEach(() => {
-        // Reset state before each test
-        state.secretSanta = false;
+        resetState();
+        removeAllHouses();
+        removeAllNames();
 
-        // Spy on button clicks
-        vi.spyOn(b0Button, 'click');
+        vi.spyOn(b0Button, "click");
         vi.spyOn(addHouseButton, 'click');
         vi.spyOn(generateButton, 'click');
-        vi.spyOn(secretGenerateButton, 'click');
     });
 
     afterEach(() => {
@@ -160,8 +130,8 @@ describe('keybindings', () => {
         });
 
         describe('Ctrl+Enter for generate', () => {
-            it('triggers generate button when Ctrl+Enter is pressed in normal mode', () => {
-                state.secretSanta = false;
+            it('triggers generate button when Ctrl+Enter is pressed', () => {
+                state.isSecretSanta = false;
 
                 const event = new KeyboardEvent('keyup', {
                     ctrlKey: true,
@@ -173,23 +143,6 @@ describe('keybindings', () => {
                 window.dispatchEvent(event);
 
                 expect(generateButton.click).toHaveBeenCalledTimes(1);
-                expect(secretGenerateButton.click).not.toHaveBeenCalled();
-            });
-
-            it('triggers secretGenerate button when Ctrl+Enter is pressed in secret santa mode', () => {
-                state.secretSanta = true;
-
-                const event = new KeyboardEvent('keyup', {
-                    ctrlKey: true,
-                    keyCode: 13,
-                    bubbles: true,
-                    cancelable: true,
-                });
-
-                window.dispatchEvent(event);
-
-                expect(secretGenerateButton.click).toHaveBeenCalledTimes(1);
-                expect(generateButton.click).not.toHaveBeenCalled();
             });
 
             it('does not trigger generate without Ctrl key', () => {
@@ -203,7 +156,6 @@ describe('keybindings', () => {
                 window.dispatchEvent(event);
 
                 expect(generateButton.click).not.toHaveBeenCalled();
-                expect(secretGenerateButton.click).not.toHaveBeenCalled();
             });
 
             it('does not trigger generate for other keys with Ctrl', () => {
@@ -217,7 +169,6 @@ describe('keybindings', () => {
                 window.dispatchEvent(event);
 
                 expect(generateButton.click).not.toHaveBeenCalled();
-                expect(secretGenerateButton.click).not.toHaveBeenCalled();
             });
         });
     });

@@ -2,7 +2,7 @@ let state = {
   houses: [],
   isGenerated: false,
   introIndex: 0,
-  secretSanta: false,
+  isSecretSanta: false,
   givers: [],
   houseID: 0,
   nameNumber: 1
