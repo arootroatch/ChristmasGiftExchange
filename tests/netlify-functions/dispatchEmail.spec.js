@@ -1,5 +1,26 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
+async function refreshEnv(handler, mockFetch){
+    vi.resetModules();
+    vi.doMock('node-fetch', () => ({
+        default: mockFetch,
+    }));
+    const module = await import('../../netlify/functions/dispatchEmail.mjs');
+    handler = module.handler;
+
+    const giver = {
+        name: 'Alice',
+        recipient: 'Bob',
+        email: 'alice@test.com',
+    };
+
+    const event = {
+        body: JSON.stringify(giver),
+    };
+
+    await handler(event);
+}
+
 describe('dispatchEmail', () => {
     let handler;
     let mockFetch;
@@ -172,26 +193,7 @@ describe('dispatchEmail', () => {
         it('uses correct URL from environment', async () => {
             mockFetch.mockResolvedValue({ok: true});
             process.env.URL = 'https://custom.domain.com';
-
-            // Re-import with new env
-            vi.resetModules();
-            vi.doMock('node-fetch', () => ({
-                default: mockFetch,
-            }));
-            const module = await import('../../netlify/functions/dispatchEmail.mjs');
-            handler = module.handler;
-
-            const giver = {
-                name: 'Alice',
-                recipient: 'Bob',
-                email: 'alice@test.com',
-            };
-
-            const event = {
-                body: JSON.stringify(giver),
-            };
-
-            await handler(event);
+            await refreshEnv(handler, mockFetch);
 
             expect(mockFetch).toHaveBeenCalledWith(
                 'https://custom.domain.com/.netlify/functions/emails/secret-santa',
@@ -202,26 +204,7 @@ describe('dispatchEmail', () => {
         it('uses correct secret from environment', async () => {
             mockFetch.mockResolvedValue({ok: true});
             process.env.NETLIFY_EMAILS_SECRET = 'super-secret-key';
-
-            // Re-import with new env
-            vi.resetModules();
-            vi.doMock('node-fetch', () => ({
-                default: mockFetch,
-            }));
-            const module = await import('../../netlify/functions/dispatchEmail.mjs');
-            handler = module.handler;
-
-            const giver = {
-                name: 'Alice',
-                recipient: 'Bob',
-                email: 'alice@test.com',
-            };
-
-            const event = {
-                body: JSON.stringify(giver),
-            };
-
-            await handler(event);
+            await refreshEnv(handler, mockFetch);
 
             const fetchCall = mockFetch.mock.calls[0];
             expect(fetchCall[1].headers['netlify-emails-secret']).toBe('super-secret-key');
