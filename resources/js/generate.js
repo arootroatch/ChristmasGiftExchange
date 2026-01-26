@@ -143,7 +143,7 @@ function attemptToDrawNames() {
       break;
     }
 
-    const {recipient, randomRecipientIndex} = selectRecipient(availableRecipients, randomHouseIndex);
+    const {recipient, randomRecipientIndex} = selectRecipient(availableRecipients[randomHouseIndex]);
     giver.recipient = recipient;
     removeName(availableRecipients, randomHouseIndex, randomRecipientIndex);
     maybeRemoveHouse(availableRecipients, randomHouseIndex);
@@ -153,7 +153,7 @@ function attemptToDrawNames() {
 
 function selectValidHouse(availableRecipients, giver) {
   let randomHouseIndex = Math.floor(availableRecipients.length * Math.random());
-  if (doesNotIncludeGiver(availableRecipients[randomHouseIndex], giver)) {
+  if (isNotGiversHouse(availableRecipients[randomHouseIndex], giver)) {
     return randomHouseIndex;
   } else {
     if (availableRecipients > 1) {
@@ -166,10 +166,10 @@ function selectValidHouse(availableRecipients, giver) {
   }
 }
 
-function selectRecipient(availableRecipients, randomHouseIndex) {
-  const randomRecipientIndex = Math.floor(availableRecipients[randomHouseIndex].length * Math.random());
+function selectRecipient(house) {
+  const randomRecipientIndex = Math.floor(house.length * Math.random());
   return {
-    recipient: availableRecipients[randomHouseIndex][randomRecipientIndex],
+    recipient: house[randomRecipientIndex],
     randomRecipientIndex: randomRecipientIndex
   }
 }
@@ -201,7 +201,7 @@ function isNameWrapper(element) {
   return element.id?.includes("wrapper");
 }
 
-function doesNotIncludeGiver(house, giver) {
+function isNotGiversHouse(house, giver) {
   const originalHouse = state.houses.find((h) => h.includes(house[0]));
   return !originalHouse.includes(giver.name)
 }
