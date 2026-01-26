@@ -21,7 +21,7 @@ export function stubFetchError(message) {
   }));
 }
 
-export function installGiverNames(giverNames) {
+export function installGiverNames(...giverNames) {
   giverNames.forEach((name) => {
     state.givers.push({name: name, recipient: "", email: "", date: "", id: ""});
   })
@@ -150,4 +150,8 @@ export function shouldDisplayEmailTable(...names) {
   for (let i = 0; i > names.length; i++) {
     expect(body.innerHTML).toContain(`<label for="${i}">${names[i]}</label>`);
   }
+}
+
+export function giverByName(name){
+  return state.givers.filter((giver) => giver.name === name)[0];
 }

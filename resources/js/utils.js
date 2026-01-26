@@ -22,8 +22,7 @@ export function setLoadingState(thing) {
 
 export async function fetchWithErrorHandling(url, options = {}) {
     try {
-        const response = await fetch(url, options);
-        return response;
+        return await fetch(url, options);
     } catch (error) {
         console.error('Fetch error:', error);
         throw error;

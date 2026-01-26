@@ -5,6 +5,7 @@ import {
   deepCopy,
   emptyTable,
   fillHouses,
+  generate,
   generateList,
   hasDuplicates
 } from '../resources/js/generate';
@@ -12,11 +13,15 @@ import state from '../resources/js/state';
 import {
   addHouseToDOM,
   enterName,
+  giverByName,
+  installGiverNames,
   moveNameToHouse,
   removeAllHouses,
   removeAllNames,
-  resetState, shouldDisplayEmailTable,
-  shouldDisplayErrorSnackbar, shouldNotDisplay, shouldNotSelect
+  resetState,
+  shouldDisplayEmailTable,
+  shouldDisplayErrorSnackbar,
+  shouldNotDisplay
 } from "./specHelper";
 import '../resources/js/components/name';
 
@@ -39,14 +44,13 @@ describe('generate', () => {
       document.getElementById('table-body').innerHTML = `<tr></tr><tr></tr>`
     });
 
-    it('replaces table content with empty table', () => {
+    it('clears table content', () => {
       const tableBody = document.getElementById('table-body');
       expect(tableBody.children.length).toBe(2);
 
       clearGeneratedListTable();
 
-      expect(tableBody.children.length).toBe(4);
-      expect(tableBody.innerHTML).toEqual(emptyTable());
+      expect(tableBody.children.length).toBe(0);
     });
   });
 
@@ -108,6 +112,15 @@ describe('generate', () => {
   describe('deepCopy', () => {
     it('creates deep copy of array', () => {
       const original = [['Alice', 'Bob'], ['Charlie'], ['David', 'Eve']];
+      const result = deepCopy(original);
+
+      expect(result).toEqual(original);
+      expect(result).not.toBe(original);
+      expect(result[0]).not.toBe(original[0]);
+    });
+
+    it('two arrays with one name each', () => {
+      const original = [['Alice'], ['Charlie']];
       const result = deepCopy(original);
 
       expect(result).toEqual(original);
@@ -190,6 +203,25 @@ describe('generate', () => {
       expect(table.innerHTML).toContain(tableHTML);
     });
 
+    it('one name in house another in participant list', () => {
+      enterName("Alex");
+      enterName("Whitney");
+      addHouseToDOM();
+      moveNameToHouse("#select-0", "Alex");
+
+      generateList();
+      let tableHTML = '';
+      for (const giver of state.givers) {
+        tableHTML += `<tr>
+                <td>${giver.name}</td>
+                <td>${giver.recipient}</td>
+            </tr>`;
+      }
+      const table = document.getElementById("table-body");
+
+      expect(table.innerHTML).toContain(tableHTML);
+    });
+
     it('should display email table instead of results table if secret santa mode', () => {
       state.isSecretSanta = true;
       enterName("Alex");
@@ -210,6 +242,40 @@ describe('generate', () => {
     });
 
   });
+
+  describe('generate', () => {
+    beforeEach(() => {
+      resetState();
+    });
+
+    it('should return error if no names', () => {
+      expect(generate(0, 25)).toStrictEqual({error: "Please enter participants' names."});
+    });
+
+    it('should return error if duplicate names', () => {
+      installGiverNames("Alex", "Whitney");
+      state.houses = [["Alex"], ["Alex"]]
+      expect(generate(0, 25)).toStrictEqual({error: "Duplicate name detected! Please delete the duplicate and re-enter it with a last initial or nickname."});
+    });
+
+    it('should return error if no possible combinations', () => {
+      installGiverNames("Alex", "Whitney");
+      state.houses = [["Alex", "Whitney"]]
+      expect(generate(0, 25)).toStrictEqual({error: "No possible combinations! Please try a different configuration/number of names."});
+    });
+
+    it('two names in separate houses', () => {
+      installGiverNames("Alex", "Whitney");
+      state.houses = [["Alex"], ["Whitney"]]
+      const results = generate(0, 25);
+      expect(giverByName("Alex").recipient).toEqual("Whitney");
+      expect(giverByName("Whitney").recipient).toEqual("Alex");
+      expect(results).toStrictEqual({
+        error: null,
+        results: state.givers
+      });
+    })
+  })
 
 
 });

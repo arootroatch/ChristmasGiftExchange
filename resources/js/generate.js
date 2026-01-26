@@ -30,12 +30,16 @@ export function emptyTable() {
     </tr>`
 }
 
+function displayEmptyTable() {
+  let parentNode = document.getElementById("table-body");
+  parentNode?.insertAdjacentHTML("beforeend", emptyTable());
+}
+
 export function clearGeneratedListTable() {
   let parentNode = document.getElementById("table-body");
   while (parentNode?.firstChild) {
     parentNode.removeChild(parentNode.firstChild);
   }
-  parentNode?.insertAdjacentHTML("beforeend", emptyTable());
 }
 
 export function hasDuplicates(arr) {
@@ -132,7 +136,7 @@ function attemptToDrawNames() {
   let availableRecipients = deepCopy(state.houses);
 
   for (const giver of state.givers) {
-    const randomHouseIndex = selectValidHouse(availableRecipients.length, giver);
+    const randomHouseIndex = selectValidHouse(availableRecipients, giver);
 
     if (randomHouseIndex === undefined) {
       state.isGenerated = false;
@@ -147,15 +151,15 @@ function attemptToDrawNames() {
   }
 }
 
-function selectValidHouse(numberOfHouses, giver) {
-  let randomHouseIndex = Math.floor(numberOfHouses * Math.random());
-  if (doesNotIncludeGiver(randomHouseIndex, giver)) {
+function selectValidHouse(availableRecipients, giver) {
+  let randomHouseIndex = Math.floor(availableRecipients.length * Math.random());
+  if (doesNotIncludeGiver(availableRecipients[randomHouseIndex], giver)) {
     return randomHouseIndex;
   } else {
-    if (numberOfHouses > 1) {
-      const prevRandomHouse = randomHouseIndex;
-      while (randomHouseIndex === prevRandomHouse) {
-        randomHouseIndex = Math.floor(numberOfHouses * Math.random());
+    if (availableRecipients > 1) {
+      const prevIndex = randomHouseIndex;
+      while (randomHouseIndex === prevIndex) {
+        randomHouseIndex = Math.floor(availableRecipients * Math.random());
       }
       return randomHouseIndex;
     }
@@ -197,8 +201,9 @@ function isNameWrapper(element) {
   return element.id?.includes("wrapper");
 }
 
-function doesNotIncludeGiver(houseIndex, giver) {
-  return !state.houses[houseIndex].includes(giver.name)
+function doesNotIncludeGiver(house, giver) {
+  const originalHouse = state.houses.find((h) => h.includes(house[0]));
+  return !originalHouse.includes(giver.name)
 }
 
 function maybeRemoveHouse(availableRecipients, index) {

@@ -53,7 +53,7 @@ describe('emailTable', () => {
       {name: "Whitney", email: "whitney@gmail.com"},
       {name: "Hunter", email: "hunter@gmail.com"},
       {name: "Megan", email: "megan@gmail.com"}]);
-    installGiverNames(["Alex", "Whitney", "Hunter", "Megan"]);
+    installGiverNames("Alex", "Whitney", "Hunter", "Megan");
     const submitEmailsButton = document.getElementById("submitEmails");
 
     beforeEach(() => {
@@ -188,7 +188,7 @@ describe('emailTable', () => {
         {name: "Alex", email: "alex@test.com"},
         {name: "Whitney", email: "whitney@test.com"}
       ]);
-      installGiverNames(["Alex", "Whitney"]);
+      installGiverNames("Alex", "Whitney");
     });
 
     it("logs error when postToServer returns non-200 status", async () => {
