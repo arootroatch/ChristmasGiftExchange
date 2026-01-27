@@ -1,4 +1,4 @@
-import {beforeEach, describe, expect, it, vi} from "vitest";
+import {beforeEach, beforeAll, describe, expect, it, vi} from "vitest";
 import {
   addHouseToDOM,
   change,
@@ -12,8 +12,8 @@ import {
   stubPropertyByID
 } from "../specHelper";
 import {addEventListener} from "../../resources/js/utils";
-import "../../resources/js/components/name";
-import {addHouse, deleteHouse, insertNameFromSelect} from "../../resources/js/components/house";
+import * as name from "../../resources/js/components/name";
+import {addHouse, deleteHouse, initEventListeners, insertNameFromSelect} from "../../resources/js/components/house";
 
 describe('addHouse', () => {
   vi.mock(import("/resources/js/utils.js"), async (importOriginal) => {
@@ -23,6 +23,8 @@ describe('addHouse', () => {
       addEventListener: vi.fn(original.addEventListener),
     };
   });
+
+  beforeAll(initEventListeners);
 
   beforeEach(() => {
     resetState();
@@ -45,6 +47,8 @@ describe('addHouse', () => {
 });
 
 describe("deleteHouse", () => {
+
+  beforeAll(name.initEventListeners);
   beforeEach(() => {
     resetState();
     removeAllNames();

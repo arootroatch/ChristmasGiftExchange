@@ -1,4 +1,4 @@
-import {beforeEach, describe, expect, it, vi} from "vitest";
+import {beforeEach, beforeAll, describe, expect, it, vi} from "vitest";
 import {
   click,
   installGiverNames,
@@ -16,7 +16,7 @@ import {
   emailInput,
   getEmails,
   handleEmailSubmitError,
-  hideElement,
+  hideElement, initEventListeners,
   showEmailTable
 } from "../../resources/js/components/emailTable";
 
@@ -47,6 +47,8 @@ describe('emailTable', () => {
       postToServer: vi.fn(actual.postToServer),
     }
   })
+
+  beforeAll(initEventListeners)
 
   describe("submitEmails", () => {
     renderEmailTable([

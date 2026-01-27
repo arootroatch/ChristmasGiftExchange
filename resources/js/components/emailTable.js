@@ -75,7 +75,6 @@ export async function submitEmails(event) {
     event.preventDefault();
     setLoadingState("submitEmails");
     const emails = getEmails();
-    // console.log(emails);
     updateStateWithEmails(emails);
 
     try {
@@ -93,10 +92,6 @@ export async function submitEmails(event) {
 
     return false;
 }
-
-document
-    .getElementById("emailTableBody")
-    .addEventListener("submit", (event) => submitEmails(event));
 
 async function batchEmails() {
     setLoadingState("sendEmailsBtn");
@@ -159,4 +154,8 @@ export async function postToServer() {
         body: JSON.stringify(state.givers), // GET requests can't have a body
     };
     return await fetchWithErrorHandling("/.netlify/functions/postToDb", options);
+}
+
+export function initEventListeners() {
+    addEventListener("emailTableBody", "submit", submitEmails);
 }

@@ -1,10 +1,12 @@
-import {beforeEach, describe, expect, it, vi} from "vitest";
+import {beforeEach, beforeAll, describe, expect, it, vi} from "vitest";
 import {clearNameSelects, click, resetState, shouldBeDraggable, shouldSelect, stubPropertyByID} from "../specHelper";
-import {Giver} from "../../resources/js/components/name";
+import {Giver, initEventListeners} from "../../resources/js/components/name";
 import state from "../../resources/js/state";
 
 describe('addName', () => {
     const input = document.getElementById("input0");
+
+    beforeAll(initEventListeners);
     beforeEach(() => {
         resetState();
         clearNameSelects();

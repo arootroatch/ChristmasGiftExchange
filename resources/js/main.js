@@ -1,11 +1,18 @@
-import "../js/generate";
+import * as generate from "../js/generate";
+import {initDragDrop} from "./dragDrop";
+import * as house from "../js/components/house";
 import "../js/layout";
 import "../js/keybindings"
-import "../js/dragDrop";
-import "../js/components/house";
-import "../js/components/name";
-import "../js/components/emailTable";
+import * as name from "../js/components/name";
+import * as emailTable from "../js/components/emailTable";
 import "../js/components/snackbar";
 import "../js/components/emailQuery";
-import state from "./state";
-import * as Snackbar from "./components/snackbar";
+
+export default function main() {
+  house.initEventListeners();
+  generate.initEventListeners();
+  name.initEventListeners();
+  emailTable.initEventListeners();
+  initDragDrop();
+}
+

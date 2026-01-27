@@ -1,4 +1,4 @@
-import {beforeEach, describe, expect, it, vi} from 'vitest';
+import {beforeAll, beforeEach, describe, expect, it, vi} from 'vitest';
 import * as generateModule from '../resources/js/generate';
 import {
   clearGeneratedListTable,
@@ -24,10 +24,15 @@ import {
   shouldDisplayErrorSnackbar,
   shouldNotDisplay
 } from "./specHelper";
-import '../resources/js/components/name';
+import * as name from '../resources/js/components/name';
+import * as house from "../resources/js/components/house";
 
 describe('generate', () => {
 
+  beforeAll(()=> {
+    house.initEventListeners();
+    name.initEventListeners();
+  });
   beforeEach(resetState);
 
   describe('emptyTable', () => {

@@ -3,12 +3,10 @@ import state from "./state.js";
 import * as self from "./generate.js";
 import {showError} from "./components/snackbar";
 
-(function addListenersIfBrowser() {
-  if (typeof document !== 'undefined') {
-    const generateBtn = document.getElementById("generate");
-    if (generateBtn) generateBtn.addEventListener("click", generateList);
-  }
-})();
+export function initEventListeners() {
+  const generateBtn = document.getElementById("generate");
+  if (generateBtn) generateBtn.addEventListener("click", generateList);
+}
 
 export function emptyTable() {
   return `
@@ -166,7 +164,8 @@ export function selectValidHouse(availableRecipients, giver) {
       }
       return {randomHouseIndex: randomHouseIndex, randomHouse: randomHouse};
     } else {
-      return {randomHouseIndex: null, randomHouse: null}}
+      return {randomHouseIndex: null, randomHouse: null}
+    }
   }
 }
 
