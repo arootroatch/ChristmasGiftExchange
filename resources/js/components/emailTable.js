@@ -1,6 +1,6 @@
 import state from "../state";
 import {addEventListener, setLoadingState, unshiftHTMl, fetchWithErrorHandling} from "../utils";
-import showSnackbar from "./snackbar";
+import {showError, showSuccess} from "./snackbar";
 
 export function emailInput(i) {
     return `
@@ -22,10 +22,7 @@ addEventListener("hideEmails", "click", hideEmailTable);
 // collect emails
 export function showEmailTable() {
     if (!state.isGenerated) {
-        showSnackbar(
-            `Please click "Generate List" before entering emails.`,
-            "error"
-        );
+        showError(`Please click "Generate List" before entering emails.`);
     } else {
         const table = document.getElementById("emailTable");
         // use a for loop instead of forEach to get access to the index --
@@ -91,7 +88,7 @@ export async function submitEmails(event) {
         }
     } catch (error) {
         console.error('Error submitting emails:', error);
-        showSnackbar('Failed to submit emails. Please try again.', 'error');
+        showError('Failed to submit emails. Please try again.');
     }
 
     return false;
@@ -128,10 +125,7 @@ async function batchEmails() {
 
     await Promise.all(promises);
     hideElement("sendEmails");
-    showSnackbar(
-        `Sent ${count} of ${state.givers.length} emails successfully!`,
-        "success"
-    );
+    showSuccess(`Sent ${count} of ${state.givers.length} emails successfully!`);
 }
 
 export function displaySendEmails() {

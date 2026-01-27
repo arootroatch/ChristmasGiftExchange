@@ -21,7 +21,7 @@ const handler = async (event) => {
       };
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return { statusCode: 500, body: String(error) };
   }
 };

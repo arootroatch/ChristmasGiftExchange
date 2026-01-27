@@ -1,6 +1,6 @@
 import {afterEach, beforeAll, beforeEach, describe, expect, it, vi} from 'vitest';
 import state from '../resources/js/state';
-import {removeAllHouses, removeAllNames, resetState, shouldSelect} from "./specHelper";
+import {removeAllHouses, removeAllNames, resetState} from "./specHelper";
 import {conditionalRender, introNext, secretSantaMode, stepOne} from "../resources/js/layout";
 
 describe('layout', () => {

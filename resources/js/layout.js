@@ -1,6 +1,6 @@
 import {showEmailTable} from "./components/emailTable"
-import showSnackbar from "./components/snackbar"
 import state from "./state.js";
+import {showError} from "./components/snackbar";
 
 const introArr = [
   ``,
@@ -49,11 +49,11 @@ export function stepOne() {
 
 export function introNext() {
   if (state.givers.length < 1 && state.introIndex === 1) {
-    showSnackbar("Please add participant names", "error");
+    showError("Please add participant names");
     return;
   }
   if (state.introIndex === 3 && !state.isGenerated) {
-    showSnackbar(`Please click "Generate List"`, "error");
+    showError(`Please click "Generate List"`);
     return;
   }
   if (state.introIndex === 3 && state.isGenerated) {

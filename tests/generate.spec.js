@@ -7,7 +7,8 @@ import {
   fillHouses,
   generate,
   generateList,
-  hasDuplicates
+  hasDuplicates,
+  selectValidHouse
 } from '../resources/js/generate';
 import state from '../resources/js/state';
 import {
@@ -26,6 +27,7 @@ import {
 import '../resources/js/components/name';
 
 describe('generate', () => {
+
   beforeEach(resetState);
 
   describe('emptyTable', () => {
@@ -275,6 +277,38 @@ describe('generate', () => {
         results: state.givers
       });
     })
+  })
+
+  describe('selectValidHouse', () => {
+    it('should only return n house that does not contain giver', () => {
+      state.houses = [["Alex", "Whitney"], ["Charlie", "Emily"], ["Megan", "Hunter"]];
+      const result = selectValidHouse(
+        [["Alex", "Whitney"], ["Charlie", "Emily"], ["Megan", "Hunter"]],
+        {name: "Alex"});
+
+      expect(result.randomHouseIndex).not.toBe(0);
+      expect(result.randomHouse).not.toStrictEqual(["Alex", "Whitney"]);
+    });
+
+    it('giver is not an available recipient', () => {
+      state.houses = [["Alex", "Whitney"], ["Charlie", "Emily"], ["Megan", "Hunter"]];
+      const result = selectValidHouse(
+        [["Whitney"], ["Charlie", "Emily"], ["Megan", "Hunter"]],
+        {name: "Alex"});
+
+      expect(result.randomHouseIndex).not.toEqual(0);
+      expect(result.randomHouse).not.toStrictEqual(["Whitney"]);
+    });
+
+    it('givers house is the only available', () => {
+      state.houses = [["Alex", "Whitney"], ["Charlie", "Emily"], ["Megan", "Hunter"]];
+      const result = selectValidHouse(
+        [["Whitney"]],
+        {name: "Alex"});
+
+      expect(result.randomHouseIndex).toEqual(null);
+      expect(result.randomHouse).toEqual(null);
+    });
   })
 
 

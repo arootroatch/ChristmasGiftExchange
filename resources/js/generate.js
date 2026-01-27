@@ -1,7 +1,7 @@
-import showSnackbar from "./components/snackbar"
 import {showEmailTable} from "./components/emailTable"
 import state from "./state.js";
 import * as self from "./generate.js";
+import {showError} from "./components/snackbar";
 
 (function addListenersIfBrowser() {
   if (typeof document !== 'undefined') {
@@ -108,7 +108,7 @@ export function generateList(maxAttempts = 25) {
   let counter = 0;
   const {error, results} = self.generate(counter, maxAttempts);
   if (error) {
-    showSnackbar(error, "error");
+    showError(error);
     return;
   }
   if (state.isSecretSanta) {
@@ -136,14 +136,14 @@ function attemptToDrawNames() {
   let availableRecipients = deepCopy(state.houses);
 
   for (const giver of state.givers) {
-    const randomHouseIndex = selectValidHouse(availableRecipients, giver);
+    const {randomHouseIndex, randomHouse} = selectValidHouse(availableRecipients, giver);
 
-    if (randomHouseIndex === undefined) {
+    if (randomHouseIndex == null || randomHouse == null) {
       state.isGenerated = false;
       break;
     }
 
-    const {recipient, randomRecipientIndex} = selectRecipient(availableRecipients[randomHouseIndex]);
+    const {recipient, randomRecipientIndex} = selectRecipient(randomHouse);
     giver.recipient = recipient;
     removeName(availableRecipients, randomHouseIndex, randomRecipientIndex);
     maybeRemoveHouse(availableRecipients, randomHouseIndex);
@@ -151,18 +151,22 @@ function attemptToDrawNames() {
   }
 }
 
-function selectValidHouse(availableRecipients, giver) {
+export function selectValidHouse(availableRecipients, giver) {
   let randomHouseIndex = Math.floor(availableRecipients.length * Math.random());
-  if (isNotGiversHouse(availableRecipients[randomHouseIndex], giver)) {
-    return randomHouseIndex;
+  let randomHouse = availableRecipients[randomHouseIndex];
+
+  if (isNotGiversHouse(randomHouse, giver)) {
+    return {randomHouseIndex: randomHouseIndex, randomHouse: randomHouse}
   } else {
-    if (availableRecipients > 1) {
+    if (availableRecipients.length > 1) {
       const prevIndex = randomHouseIndex;
       while (randomHouseIndex === prevIndex) {
         randomHouseIndex = Math.floor(availableRecipients * Math.random());
+        randomHouse = availableRecipients[randomHouseIndex];
       }
-      return randomHouseIndex;
-    }
+      return {randomHouseIndex: randomHouseIndex, randomHouse: randomHouse};
+    } else {
+      return {randomHouseIndex: null, randomHouse: null}}
   }
 }
 

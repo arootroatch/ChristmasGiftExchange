@@ -5,7 +5,7 @@ let state = {
   isSecretSanta: false,
   givers: [],
   houseID: 0,
-  nameNumber: 1
+  nameNumber: 1,
 }
 
 export default state;

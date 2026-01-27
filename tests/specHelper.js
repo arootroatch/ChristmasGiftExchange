@@ -1,6 +1,7 @@
 import state from "../resources/js/state";
 import {expect, vi} from "vitest";
 import {indexHtml} from "../setupTests";
+import * as snackbar from "../resources/js/components/snackbar";
 
 export function installGivers(givers) {
   state.givers = givers;
@@ -90,7 +91,7 @@ export function resetState() {
     isSecretSanta: false,
     givers: [],
     houseID: 0,
-    nameNumber: 1
+    nameNumber: 1,
   }
 }
 
@@ -155,3 +156,4 @@ export function shouldDisplayEmailTable(...names) {
 export function giverByName(name){
   return state.givers.filter((giver) => giver.name === name)[0];
 }
+

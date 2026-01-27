@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">96.64% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>145/145</span>
+                <span class='fraction'>144/149</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">92% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>26/26</span>
+                <span class='fraction'>23/25</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">96.64% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>145/145</span>
+                <span class='fraction'>144/149</span>
             </div>
         
             
@@ -225,7 +225,12 @@
 <a name='L160'></a><a href='#L160'>160</a>
 <a name='L161'></a><a href='#L161'>161</a>
 <a name='L162'></a><a href='#L162'>162</a>
-<a name='L163'></a><a href='#L163'>163</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<a name='L163'></a><a href='#L163'>163</a>
+<a name='L164'></a><a href='#L164'>164</a>
+<a name='L165'></a><a href='#L165'>165</a>
+<a name='L166'></a><a href='#L166'>166</a>
+<a name='L167'></a><a href='#L167'>167</a>
+<a name='L168'></a><a href='#L168'>168</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -317,7 +322,9 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-yes">9x</span>
@@ -346,8 +353,11 @@
 <span class="cline-any cline-yes">16x</span>
 <span class="cline-any cline-yes">16x</span>
 <span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">4x</span>
@@ -388,7 +398,7 @@
 <span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-yes">9x</span></td><td class="text"><pre class="prettyprint lang-js">import state from "../state";
-import {addEventListener, setLoadingState, unshiftHTMl} from "../utils";
+import {addEventListener, setLoadingState, unshiftHTMl, fetchWithErrorHandling} from "../utils";
 import showSnackbar from "./snackbar";
 &nbsp;
 export function emailInput(i) {
@@ -410,7 +420,7 @@ addEventListener("hideEmails", "click", hideEmailTable);
 &nbsp;
 // collect emails
 export function showEmailTable() {
-    if (!state.generated) {
+    if (!state.isGenerated) {
         showSnackbar(
             `Please click "Generate List" before entering emails.`,
             "error"
@@ -423,7 +433,7 @@ export function showEmailTable() {
             unshiftHTMl("emailTableBody", emailInput(i))
         }
         table.classList.replace("hidden", "show");
-        if (!state.secretSanta) {
+        if (!state.isSecretSanta) {
             document.getElementById("hideEmails").style.display = "block";
         }
     }
@@ -463,23 +473,25 @@ function updateStateWithEmails(emails) {
     });
 }
 &nbsp;
-export function submitEmails(event) {
+export async function submitEmails(event) {
     event.preventDefault();
     setLoadingState("submitEmails");
     const emails = getEmails();
     // console.log(emails);
     updateStateWithEmails(emails);
 &nbsp;
-    postToServer().then(
-        (response) =&gt; {
-            if (response.status === 200) {
-                displaySendEmails();
-                hideElement("emailTable");
-            } else {
-                handleEmailSubmitError(response);
-            }
+    try {
+        const response = await postToServer();
+        if (response.status === 200) {
+            displaySendEmails();
+            hideElement("emailTable");
+        } else {
+            handleEmailSubmitError(response);
         }
-    );
+    } <span class="branch-0 cbranch-no" title="branch not covered" >catch (error) {</span>
+<span class="cstat-no" title="statement not covered" >        console.error('Error submitting emails:', error);</span>
+<span class="cstat-no" title="statement not covered" >        showSnackbar('Failed to submit emails. Please try again.', 'error');</span>
+<span class="cstat-no" title="statement not covered" >    }</span>
 &nbsp;
     return false;
 }
@@ -488,34 +500,37 @@ document
     .getElementById("emailTableBody")
     .addEventListener("submit", (event) =&gt; submitEmails(event));
 &nbsp;
-function batchEmails() {
+async function batchEmails() {
     setLoadingState("sendEmailsBtn");
 &nbsp;
     let i = 0;
     let count = 0;
     let promises = state.givers.map(async (giver) =&gt; {
         i++;
-        await fetch("/.netlify/functions/dispatchEmail", {
-            method: "POST",
-            mode: "cors",
-            body: JSON.stringify({
-                name: giver.name,
-                recipient: giver.recipient,
-                email: giver.email,
-            }),
-        }).then((response) =&gt; {
+        try {
+            const response = await fetchWithErrorHandling("/.netlify/functions/dispatchEmail", {
+                method: "POST",
+                mode: "cors",
+                body: JSON.stringify({
+                    name: giver.name,
+                    recipient: giver.recipient,
+                    email: giver.email,
+                }),
+            });
             if (response.status === 200) {
                 count++;
             }
-        });
+        } <span class="branch-0 cbranch-no" title="branch not covered" >catch (error) {</span>
+<span class="cstat-no" title="statement not covered" >            console.error(`Failed to send email to ${giver.email}:`, error);</span>
+<span class="cstat-no" title="statement not covered" >        }</span>
     });
-    Promise.all(promises).then(() =&gt; {
-        hideElement("sendEmails");
-        showSnackbar(
-            `Sent ${count} of ${state.givers.length} emails successfully!`,
-            "success"
-        );
-    });
+&nbsp;
+    await Promise.all(promises);
+    hideElement("sendEmails");
+    showSnackbar(
+        `Sent ${count} of ${state.givers.length} emails successfully!`,
+        "success"
+    );
 }
 &nbsp;
 export function displaySendEmails() {
@@ -548,7 +563,7 @@ export async function postToServer() {
         mode: "cors",
         body: JSON.stringify(state.givers), // GET requests can't have a body
     };
-    return await fetch("/.netlify/functions/postToDb", options)
+    return await fetchWithErrorHandling("/.netlify/functions/postToDb", options);
 }</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -556,7 +571,7 @@ export async function postToServer() {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-12-22T02:49:29.492Z
+                at 2026-01-26T18:18:34.337Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

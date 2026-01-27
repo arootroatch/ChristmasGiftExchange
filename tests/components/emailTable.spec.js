@@ -4,7 +4,8 @@ import {
   installGiverNames,
   installGivers,
   shouldDisplayEmailTable,
-  shouldDisplayErrorSnackbar, shouldDisplaySuccessSnackbar,
+  shouldDisplayErrorSnackbar,
+  shouldDisplaySuccessSnackbar,
   stubFetch
 } from "../specHelper";
 import "../../resources/js/components/name";
@@ -243,6 +244,7 @@ describe('emailTable', () => {
   });
 
   describe("showEmailTable", () => {
+
     it("shows error snackbar when state.generated is false", () => {
       state.isGenerated = false;
       showEmailTable();
