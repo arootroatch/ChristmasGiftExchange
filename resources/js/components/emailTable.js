@@ -16,8 +16,6 @@ export function emailInput(i) {
     </div>`;
 }
 
-addEventListener("hideEmails", "click", hideEmailTable);
-
 
 // collect emails
 export function showEmailTable() {
@@ -158,4 +156,5 @@ export async function postToServer() {
 
 export function initEventListeners() {
     addEventListener("emailTableBody", "submit", submitEmails);
+    addEventListener("hideEmails", "click", hideEmailTable);
 }
