@@ -48,11 +48,11 @@ describe('generate', () => {
 
   describe('clearGeneratedListTable', () => {
     beforeEach(() => {
-      document.getElementById('table-body').innerHTML = `<tr></tr><tr></tr>`
+      document.querySelector('#table-body').innerHTML = `<tr></tr><tr></tr>`
     });
 
     it('clears table content', () => {
-      const tableBody = document.getElementById('table-body');
+      const tableBody = document.querySelector('#table-body');
       expect(tableBody.children.length).toBe(2);
 
       clearGeneratedListTable();
@@ -205,7 +205,7 @@ describe('generate', () => {
                 <td>${giver.recipient}</td>
             </tr>`;
       }
-      const table = document.getElementById("table-body");
+      const table = document.querySelector("#table-body");
 
       expect(table.innerHTML).toContain(tableHTML);
     });
@@ -224,7 +224,7 @@ describe('generate', () => {
                 <td>${giver.recipient}</td>
             </tr>`;
       }
-      const table = document.getElementById("table-body");
+      const table = document.querySelector("#table-body");
 
       expect(table.innerHTML).toContain(tableHTML);
     });

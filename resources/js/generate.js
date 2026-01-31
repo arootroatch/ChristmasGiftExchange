@@ -2,9 +2,15 @@ import {showEmailTable} from "./components/emailTable"
 import state from "./state.js";
 import * as self from "./generate.js";
 import {showError} from "./components/snackbar";
+import {selectElement} from "./utils";
+
+const generateId = "generate";
+const tableBodyId = "table-body";
+const nextStepId = "nextStep";
+const nameListId = "name-list";
 
 export function initEventListeners() {
-  const generateBtn = document.getElementById("generate");
+  const generateBtn = selectElement(`#${generateId}`);
   if (generateBtn) generateBtn.addEventListener("click", generateList);
 }
 
@@ -29,12 +35,12 @@ export function emptyTable() {
 }
 
 function displayEmptyTable() {
-  let parentNode = document.getElementById("table-body");
+  let parentNode = selectElement(`#${tableBodyId}`);
   parentNode?.insertAdjacentHTML("beforeend", emptyTable());
 }
 
 export function clearGeneratedListTable() {
-  let parentNode = document.getElementById("table-body");
+  let parentNode = selectElement(`#${tableBodyId}`);
   while (parentNode?.firstChild) {
     parentNode.removeChild(parentNode.firstChild);
   }
@@ -71,7 +77,7 @@ function getHouse(house) {
 
 function getIndividualParticipantNames() {
   let names = [];
-  const nameList = document.getElementById("name-list")?.childNodes;
+  const nameList = selectElement(`#${nameListId}`)?.childNodes;
   if (nameList) {
     const nameListArray = [...nameList];
     nameListArray.forEach((x) => {
@@ -111,8 +117,8 @@ export function generateList(maxAttempts = 25) {
   }
   if (state.isSecretSanta) {
     showEmailTable();
-    document.getElementById("generate").style.display = "none";
-    document.getElementById("nextStep").style.display = "none";
+    selectElement(`#${generateId}`).style.display = "none";
+    selectElement(`#${nextStepId}`).style.display = "none";
   } else {
     renderResultsToTable(results);
   }
@@ -190,7 +196,7 @@ function renderResultsToTable(results) {
                 <td>${giver.recipient}</td>
             </tr>`;
   }
-  document.getElementById("table-body").insertAdjacentHTML(
+  selectElement(`#${tableBodyId}`).insertAdjacentHTML(
     "beforeend",
     html
   );

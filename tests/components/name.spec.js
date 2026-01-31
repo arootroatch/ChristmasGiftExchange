@@ -4,7 +4,7 @@ import {Giver, initEventListeners} from "../../resources/js/components/name";
 import state from "../../resources/js/state";
 
 describe('addName', () => {
-    const input = document.getElementById("input0");
+    const input = document.querySelector("#input0");
 
     beforeAll(initEventListeners);
     beforeEach(() => {

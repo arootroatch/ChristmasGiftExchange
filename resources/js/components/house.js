@@ -1,6 +1,10 @@
 import state from "../state";
-import {addEventListener, pushHTMl} from "../utils";
+import {addEventListener, pushHTMl, selectElement} from "../utils";
 
+const participantsId = "participants";
+const leftContainerId = "left-container";
+const addHouseId = "addHouse";
+const nameListSelectId = "name-list-select";
 
 export function houseTemplate() {
   return `
@@ -24,9 +28,9 @@ export function nameSelectContent() {
 // addEventListener("addHouse", "click", addHouse);
 
 export function addHouse() {
-  pushHTMl("left-container", houseTemplate());
-  addEventListener(`delete-${state.houseID}`, "click", deleteHouse);
-  addEventListener(`select-${state.houseID}`, "change", insertNameFromSelect);
+  pushHTMl(`#${leftContainerId}`, houseTemplate());
+  addEventListener(`#delete-${state.houseID}`, "click", deleteHouse);
+  addEventListener(`#select-${state.houseID}`, "change", insertNameFromSelect);
   state.houseID += 1;
 }
 
@@ -34,9 +38,9 @@ export function addHouse() {
 
 export function insertNameFromSelect() {
   let firstName = this.value;
-  let nameDiv = document.getElementById(`wrapper-${firstName}`);
+  let nameDiv = selectElement(`#wrapper-${firstName}`);
   if (this.parentNode.id === "name-list") {
-    document.getElementById("participants").appendChild(nameDiv);
+    selectElement(`#${participantsId}`).appendChild(nameDiv);
   } else {
     this.previousElementSibling.appendChild(nameDiv);
   }
@@ -46,7 +50,7 @@ export function insertNameFromSelect() {
 export function deleteHouse() {
   const houseDiv = this.closest('.household') || this.parentNode;
   const nameContainer = houseDiv.querySelector('.name-container');
-  const participants = document.getElementById('participants');
+  const participants = selectElement(`#${participantsId}`);
 
   // Move all name wrappers back to participants
   const nameWrappers = [...nameContainer.querySelectorAll('.name-wrapper')];
@@ -59,6 +63,6 @@ export function deleteHouse() {
 }
 
 export function initEventListeners(){
-  addEventListener(`name-list-select`, "change", insertNameFromSelect);
-  addEventListener("addHouse", "click", addHouse);
+  addEventListener(`#${nameListSelectId}`, "change", insertNameFromSelect);
+  addEventListener(`#${addHouseId}`, "click", addHouse);
 }

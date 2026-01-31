@@ -1,7 +1,7 @@
 import state from "../resources/js/state";
 import {expect, vi} from "vitest";
 import {indexHtml} from "../setupTests";
-import * as snackbar from "../resources/js/components/snackbar";
+import {selectElement} from "../resources/js/utils";
 
 export function installGivers(givers) {
   state.givers = givers;
@@ -45,7 +45,7 @@ export function shouldBeDraggable(selector) {
 }
 
 export function stubPropertyByID(thing, event, func) {
-  const element = document.getElementById(thing);
+  const element = selectElement(`#${thing}`);
   Object.defineProperty(element, event, {
     configurable: true,
     value: func,
@@ -113,7 +113,7 @@ export function removeAllHouses() {
 }
 
 export function enterName(name) {
-  const nameInput = document.getElementById("input0");
+  const nameInput = selectElement("#input0");
   nameInput.value = name;
   click("#b0");
 }
@@ -135,15 +135,15 @@ export function shouldDisplayErrorSnackbar(message) {
 }
 
 export function shouldDisplaySuccessSnackbar(message) {
-  const snackbar = document.getElementById("snackbar");
+  const snackbar = selectElement("#snackbar");
   expect(snackbar.innerHTML).toContain(message);
   expect(snackbar.style.color).toBe("rgb(25, 140, 10)");
   expect(snackbar.style.border).toBe("2px solid #198c0a");
 }
 
 export function shouldDisplayEmailTable(...names) {
-  const table = document.getElementById("emailTable");
-  const body = document.getElementById("emailTableBody");
+  const table = selectElement("#emailTable");
+  const body = selectElement("#emailTableBody");
 
   expect(table.classList).toContain("show");
   expect(table.classList).not.toContain("hidden");

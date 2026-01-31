@@ -1,6 +1,9 @@
 import state from "../state";
-import {addEventListener, pushHTMl, removeEventListener} from "../utils";
+import {addEventListener, pushHTMl, removeEventListener, selectElement} from "../utils";
 import {nameSelectContent} from "./house";
+
+const participantsId = "participants";
+const b0Id = "b0";
 
 export function nameDiv(nameInput) {
   return `
@@ -33,10 +36,10 @@ export function addName() {
   let name = nameInput.value;
   if (name !== "") {
     name = name.charAt(0).toUpperCase() + name.slice(1);
-    pushHTMl("participants", nameDiv(name));
+    pushHTMl(`#${participantsId}`, nameDiv(name));
     state.givers.push(new Giver(name));
     refreshNameSelects();
-    addEventListener(`delete-${name}${state.nameNumber}`, "click", deleteName);
+    addEventListener(`#delete-${name}${state.nameNumber}`, "click", deleteName);
     nameInput.value = "";
     state.nameNumber++;
   }
@@ -46,11 +49,11 @@ function deleteName() {
   let nameWrapper = this.parentNode.id;
   let name = this.nextElementSibling.innerHTML;
   state.givers = state.givers.filter(giver => giver.name !== name);
-  removeEventListener(this.id, "click", deleteName);
-  document.getElementById(nameWrapper).remove();
+  removeEventListener("#" + this.id, "click", deleteName);
+  selectElement(`#${nameWrapper}`).remove();
   refreshNameSelects();
 }
 
 export function initEventListeners() {
-  addEventListener("b0", "click", addName);
+  addEventListener(`#${b0Id}`, "click", addName);
 }

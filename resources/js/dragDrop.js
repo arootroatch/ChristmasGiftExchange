@@ -1,3 +1,7 @@
+import {selectElement} from "./utils";
+
+const leftContainerId = "left-container";
+
 export function allowDrop(e) {
   if (e.target.className === 'name-container'){
     e.preventDefault();
@@ -13,7 +17,7 @@ export function drop(e) {
   if (e.target.className === 'name-container'){
     e.preventDefault();
     const data = e.dataTransfer.getData("text");
-    e.target.appendChild(document.getElementById(data));
+    e.target.appendChild(selectElement(`#${data}`));
     e.target.style.backgroundColor="transparent";
 
   }
@@ -24,7 +28,7 @@ export function dragLeave(e){
 }
 
 export function initDragDrop() {
-  const container = document.getElementById('left-container');
+  const container = selectElement(`#${leftContainerId}`);
   if (!container) return;
 
   container.addEventListener('dragstart', (e) => {

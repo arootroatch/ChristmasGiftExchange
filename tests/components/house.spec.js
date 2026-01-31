@@ -38,11 +38,11 @@ describe('addHouse', () => {
   });
 
   it('adds click event listener to delete house button', () => {
-    expect(addEventListener).toHaveBeenCalledWith("delete-0", "click", deleteHouse);
+    expect(addEventListener).toHaveBeenCalledWith("#delete-0", "click", deleteHouse);
   });
 
   it('adds change event listener to name select', () => {
-    expect(addEventListener).toHaveBeenCalledWith("select-0", "change", insertNameFromSelect);
+    expect(addEventListener).toHaveBeenCalledWith("#select-0", "change", insertNameFromSelect);
   });
 });
 
@@ -62,14 +62,14 @@ describe("deleteHouse", () => {
   it("puts names back in participants list", () => {
     expect(document.querySelectorAll("#house-0 .name-container .name-wrapper").length).toBe(2);
     click("#delete-0")
-    const participants = document.getElementById("participants");
+    const participants = document.querySelector("#participants");
     const participantNames = Array.from(participants.querySelectorAll(".name-wrapper"));
     expect(participantNames.length).toBe(2);
     expect(document.querySelector("#house-0 .name-container .name-wrapper")).toBeNull();
   });
 
   it("deletes houseDiv", () => {
-    const houseDiv = document.getElementById("house-0");
+    const houseDiv = document.querySelector("#house-0");
     const removeSpy = vi.fn();
     stubProperty(houseDiv, "remove", removeSpy)
     click("#delete-0");
@@ -84,7 +84,7 @@ describe('insertNameFromSelect', () => {
     clearNameSelects();
     enterName("Alex");
     addHouse();
-    select = document.getElementById("select-0");
+    select = document.querySelector("#select-0");
   })
 
   it('sets select back to default', () => {
@@ -96,7 +96,7 @@ describe('insertNameFromSelect', () => {
     const appendChildSpy = vi.fn();
     stubProperty(select.previousElementSibling, "appendChild", appendChildSpy);
     change("#select-0", "Alex");
-    const nameDiv = document.getElementById("wrapper-Alex");
+    const nameDiv = document.querySelector("#wrapper-Alex");
     expect(appendChildSpy).toHaveBeenCalledWith(nameDiv);
   })
 
@@ -104,7 +104,7 @@ describe('insertNameFromSelect', () => {
     const appendChildSpy = vi.fn();
     stubPropertyByID("participants", "appendChild", appendChildSpy);
     change("#name-list-select", "Alex");
-    const nameDiv = document.getElementById("wrapper-Alex");
+    const nameDiv = document.querySelector("#wrapper-Alex");
     expect(appendChildSpy).toHaveBeenCalledWith(nameDiv);
   })
 });

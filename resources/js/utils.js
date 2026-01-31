@@ -1,21 +1,29 @@
-export function addEventListener(thing, event, func) {
-    document.getElementById(thing).addEventListener(event, func);
+export function selectElement(selector){
+    return document.querySelector(selector);
 }
 
-export function removeEventListener(thing, event, func) {
-    document.getElementById(thing).removeEventListener(event, func);
+export function click(selector){
+    document.querySelector(selector).click();
 }
 
-export function pushHTMl(thing, html) {
-    document.getElementById(thing).insertAdjacentHTML("beforeend", html);
+export function addEventListener(selector, event, func) {
+    document.querySelector(selector).addEventListener(event, func);
 }
 
-export function unshiftHTMl(thing, html) {
-    document.getElementById(thing).insertAdjacentHTML("afterbegin", html);
+export function removeEventListener(selector, event, func) {
+    document.querySelector(selector).removeEventListener(event, func);
 }
 
-export function setLoadingState(thing) {
-    const btn = document.getElementById(thing);
+export function pushHTMl(selector, html) {
+    document.querySelector(selector).insertAdjacentHTML("beforeend", html);
+}
+
+export function unshiftHTMl(selector, html) {
+    document.querySelector(selector).insertAdjacentHTML("afterbegin", html);
+}
+
+export function setLoadingState(selector) {
+    const btn = document.querySelector(selector);
     btn.innerHTML = "Loading...";
     btn.style.color = "#808080";
 }

@@ -1,6 +1,13 @@
 import state from "../state";
-import {addEventListener, setLoadingState, unshiftHTMl, fetchWithErrorHandling} from "../utils";
+import {addEventListener, setLoadingState, unshiftHTMl, fetchWithErrorHandling, selectElement} from "../utils";
 import {showError, showSuccess} from "./snackbar";
+
+const emailTableId = "emailTable";
+const emailTableBodyId = "emailTableBody";
+const hideEmailsId = "hideEmails";
+const sendEmailsId = "sendEmails";
+const submitEmailsId = "submitEmails";
+const sendEmailsBtnId = "sendEmailsBtn";
 
 export function emailInput(i) {
     return `
@@ -22,22 +29,22 @@ export function showEmailTable() {
     if (!state.isGenerated) {
         showError(`Please click "Generate List" before entering emails.`);
     } else {
-        const table = document.getElementById("emailTable");
+        const table = selectElement(`#${emailTableId}`);
         // use a for loop instead of forEach to get access to the index --
         // this will be used later for adding the emails to the giver objects
         for (let i = 0; i < state.givers.length; i++) {
-            unshiftHTMl("emailTableBody", emailInput(i))
+            unshiftHTMl(`#${emailTableBodyId}`, emailInput(i))
         }
         table.classList.replace("hidden", "show");
         if (!state.isSecretSanta) {
-            document.getElementById("hideEmails").style.display = "block";
+            selectElement(`#${hideEmailsId}`).style.display = "block";
         }
     }
 }
 
 function hideEmailTable() {
-    const table = document.getElementById("emailTable");
-    document.getElementById("hideEmails").style.display = "none";
+    const table = selectElement(`#${emailTableId}`);
+    selectElement(`#${hideEmailsId}`).style.display = "none";
     table.classList.replace("show", "hide");
     setTimeout(() => {
         table.classList.replace("hide", "hidden");
@@ -46,7 +53,7 @@ function hideEmailTable() {
 
 
 export function hideElement(thing) {
-    const table = document.getElementById(thing);
+    const table = selectElement(`#${thing}`);
     table.classList.add("hide");
     setTimeout(() => {
         table.classList.replace("show", "hidden");
@@ -71,7 +78,7 @@ function updateStateWithEmails(emails) {
 
 export async function submitEmails(event) {
     event.preventDefault();
-    setLoadingState("submitEmails");
+    setLoadingState(`#${submitEmailsId}`);
     const emails = getEmails();
     updateStateWithEmails(emails);
 
@@ -79,7 +86,7 @@ export async function submitEmails(event) {
         const response = await postToServer();
         if (response.status === 200) {
             displaySendEmails();
-            hideElement("emailTable");
+            hideElement(emailTableId);
         } else {
             handleEmailSubmitError(response);
         }
@@ -92,7 +99,7 @@ export async function submitEmails(event) {
 }
 
 async function batchEmails() {
-    setLoadingState("sendEmailsBtn");
+    setLoadingState(`#${sendEmailsBtnId}`);
 
     let i = 0;
     let count = 0;
@@ -117,21 +124,19 @@ async function batchEmails() {
     });
 
     await Promise.all(promises);
-    hideElement("sendEmails");
+    hideElement(sendEmailsId);
     showSuccess(`Sent ${count} of ${state.givers.length} emails successfully!`);
 }
 
 export function displaySendEmails() {
-    const sendDiv = document.getElementById("sendEmails");
+    const sendDiv = selectElement(`#${sendEmailsId}`);
     sendDiv.innerHTML = `
           <p>${state.givers.length} email addresses added successfully!</p>
           <p>Now let's send out those emails:</p>
-          <button class="button" id="sendEmailsBtn">Send Emails</button>
+          <button class="button" id="${sendEmailsBtnId}">Send Emails</button>
         `;
     sendDiv.classList.replace("hidden", "show");
-    document
-        .getElementById("sendEmailsBtn")
-        .addEventListener("click", batchEmails);
+    addEventListener(`#${sendEmailsBtnId}`, "click", batchEmails);
 }
 
 export function getEmails() {
@@ -155,6 +160,6 @@ export async function postToServer() {
 }
 
 export function initEventListeners() {
-    addEventListener("emailTableBody", "submit", submitEmails);
-    addEventListener("hideEmails", "click", hideEmailTable);
+    addEventListener(`#${emailTableBodyId}`, "submit", submitEmails);
+    addEventListener(`#${hideEmailsId}`, "click", hideEmailTable);
 }

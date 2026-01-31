@@ -8,15 +8,15 @@ describe('layout', () => {
   let nameList, resultsTable, intro, leftContainer;
 
   beforeAll(async () => {
-    nameList = document.getElementById("name-list");
-    resultsTable = document.getElementById("results-table");
-    nextStepBtn = document.getElementById("nextStep");
-    letsGoBtn = document.getElementById("letsGo");
-    secretSantaBtn = document.getElementById("secretSantaBtn");
-    addHouseBtn = document.getElementById("addHouse");
-    generateBtn = document.getElementById("generate");
-    intro = document.getElementById("intro");
-    leftContainer = document.getElementById("left-container");
+    nameList = document.querySelector("#name-list");
+    resultsTable = document.querySelector("#results-table");
+    nextStepBtn = document.querySelector("#nextStep");
+    letsGoBtn = document.querySelector("#letsGo");
+    secretSantaBtn = document.querySelector("#secretSantaBtn");
+    addHouseBtn = document.querySelector("#addHouse");
+    generateBtn = document.querySelector("#generate");
+    intro = document.querySelector("#intro");
+    leftContainer = document.querySelector("#left-container");
   });
 
   beforeEach(() => {

@@ -1,12 +1,11 @@
 import {beforeEach, describe, expect, it, vi, afterAll, beforeAll} from "vitest";
 import {click, stubFetch, stubFetchError} from "../specHelper";
-import "../../resources/js/components/emailQuery";
+import {initEventListeners} from "../../resources/js/components/emailQuery";
 import {waitFor} from "@testing-library/dom";
-
 
 describe("getName", () => {
     let emailQueryBtn;
-    const query = document.getElementById("query");
+    const query = document.querySelector("#query");
     let consoleLogSpy;
     let consoleErrorSpy;
 
@@ -14,6 +13,7 @@ describe("getName", () => {
         // Mock console to suppress output during tests
         consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
         consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+        initEventListeners();
     });
 
     afterAll(() => {
@@ -22,29 +22,39 @@ describe("getName", () => {
         consoleErrorSpy.mockRestore();
     });
 
-    stubFetch(true, 200, {recipient: "Whitney", date: "2023-01-01T00:00:00.000Z"});
-
     beforeEach(() => {
-        emailQueryBtn = document.getElementById("emailQueryBtn");
-        click("#emailQueryBtn");
+        emailQueryBtn = document.querySelector("#emailQueryBtn");
     })
 
     it("sets button text to Loading...", () => {
+        stubFetch(true, 200, {recipient: "Whitney", date: "2023-01-01T00:00:00.000Z"});
+        click("#emailQueryBtn");
         expect(emailQueryBtn.innerHTML).toContain('Loading...');
         expect(emailQueryBtn.style.color).toBe("rgb(128, 128, 128)");
     })
 
     it("displays recipient and date", () => {
+        stubFetch(true, 200, {recipient: "Whitney", date: "2023-01-01T00:00:00.000Z"});
+        click("#emailQueryBtn");
         expect(query.innerHTML).toContain("As of Sat Dec 31 2022, you're buying a gift for");
         expect(query.innerHTML).toContain("Whitney!");
     })
 
     it("allows multiple searches", async () => {
-        expect(query.innerHTML).toContain("As of Sat Dec 31 2022, you're buying a gift for");
-        expect(query.innerHTML).toContain("Whitney!");
+        stubFetch(true, 200, {recipient: "Whitney", date: "2023-01-01T00:00:00.000Z"});
+        click("#emailQueryBtn");
+        await waitFor(() => {
+            expect(query.innerHTML).toContain("Whitney!");
+        });
+
+        // Wait a tick to ensure event listener is attached to new button
+        await new Promise(resolve => setTimeout(resolve, 0));
+
         stubFetch(true, 200, {recipient: "Hunter", date: "2023-01-01T00:00:00.000Z"});
         click("#emailQueryBtn");
-        await waitFor(() => expect(query.innerHTML).toContain("Hunter!"));
+        await waitFor(() => {
+            expect(query.innerHTML).toContain("Hunter!");
+        });
     });
 
     it("displays error message for 2 secs if email not found", async () => {

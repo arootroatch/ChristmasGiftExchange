@@ -21,7 +21,7 @@ import {
 } from "../../resources/js/components/emailTable";
 
 function renderEmailTable(givers) {
-  const body = document.getElementById("emailTableBody");
+  const body = document.querySelector("#emailTableBody");
   for (let i = 0; i < givers.length; i++) {
     body.insertAdjacentHTML(
       "afterbegin",
@@ -57,7 +57,7 @@ describe('emailTable', () => {
       {name: "Hunter", email: "hunter@gmail.com"},
       {name: "Megan", email: "megan@gmail.com"}]);
     installGiverNames("Alex", "Whitney", "Hunter", "Megan");
-    const submitEmailsButton = document.getElementById("submitEmails");
+    const submitEmailsButton = document.querySelector("#submitEmails");
 
     beforeEach(() => {
       const emailTableBody = document.getElementById("emailTableBody");
@@ -106,7 +106,7 @@ describe('emailTable', () => {
     })
 
     it("displays saved emails success message", async () => {
-      const sendDiv = document.getElementById("sendEmails");
+      const sendDiv = document.querySelector("#sendEmails");
       expect(sendDiv.innerHTML).toContain("4 email addresses added successfully!");
       expect(sendDiv.innerHTML).toContain("Now let's send out those emails:");
       expect(sendDiv.innerHTML).toContain(`<button class="button" id="sendEmailsBtn">Send Emails</button>`);
@@ -115,7 +115,7 @@ describe('emailTable', () => {
     })
 
     it("hides email table after saving emails", async () => {
-      const table = document.getElementById("emailTable");
+      const table = document.querySelector("#emailTable");
       expect(table.classList).toContain("hide");
 
       vi.advanceTimersByTime(500);
@@ -136,7 +136,7 @@ describe('emailTable', () => {
       megan.recipient = "Alex";
       installGivers([alex, whitney, hunter, megan]);
       displaySendEmails();
-      sendEmailsButton = document.getElementById("sendEmailsBtn");
+      sendEmailsButton = document.querySelector("#sendEmailsBtn");
       click("#sendEmailsBtn");
     })
 
@@ -160,7 +160,7 @@ describe('emailTable', () => {
     })
 
     it("hides sendEmails popup", () => {
-      const sendEmails = document.getElementById("sendEmails");
+      const sendEmails = document.querySelector("#sendEmails");
       expect(sendEmails.classList).toContain("hide");
       setTimeout(() => {
         expect(sendEmails.classList).not.toContain("hide");
@@ -215,7 +215,7 @@ describe('emailTable', () => {
   });
 
   it("hideElement replaces classes after timeout", () => {
-    const table = document.getElementById("emailTable");
+    const table = document.querySelector("#emailTable");
     table.classList.remove("hidden");
     table.classList.add("show");
 
@@ -258,8 +258,8 @@ describe('emailTable', () => {
       state.isGenerated = true;
       state.isSecretSanta = true;
       state.givers = [{name: "TestUser1"}, {name: "TestUser2"}];
-      const table = document.getElementById("emailTable");
-      const body = document.getElementById("emailTableBody");
+      const table = document.querySelector("#emailTable");
+      const body = document.querySelector("#emailTableBody");
       table.classList.remove("show");
       table.classList.add("hidden");
 
@@ -272,8 +272,8 @@ describe('emailTable', () => {
       state.isGenerated = true;
       state.isSecretSanta = false;
       state.givers = [{name: "TestUser"}];
-      const hideButton = document.getElementById("hideEmails");
-      const table = document.getElementById("emailTable");
+      const hideButton = document.querySelector("#hideEmails");
+      const table = document.querySelector("#emailTable");
       table.classList.remove("show");
       table.classList.add("hidden");
       hideButton.style.display = "none";
@@ -285,8 +285,8 @@ describe('emailTable', () => {
   });
 
   it("hideEmailTable hides the table and button", () => {
-    const table = document.getElementById("emailTable");
-    const hideButton = document.getElementById("hideEmails");
+    const table = document.querySelector("#emailTable");
+    const hideButton = document.querySelector("#hideEmails");
     table.classList.remove("hidden");
     table.classList.add("show");
     hideButton.style.display = "block";

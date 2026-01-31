@@ -1,4 +1,10 @@
 import state from "./state";
+import {click, selectElement} from "./utils";
+
+const input0Id = "input0";
+const b0Id = "b0";
+const addHouseId = "addHouse";
+const generateId = "generate";
 
 // Check if device is mobile
 export function isMobileDevice(userAgent = navigator.userAgent) {
@@ -9,21 +15,21 @@ export function isMobileDevice(userAgent = navigator.userAgent) {
 function enterClick(evt) {
   if (evt.keyCode === 13) {
     evt.preventDefault();
-    document.getElementById("b0").click();
+    click(`#${b0Id}`);
   }
 }
 
 function enterAddHouse(evt) {
   if (evt.shiftKey && evt.keyCode === 13) {
     evt.preventDefault();
-    document.getElementById("addHouse").click();
+    click(`#${addHouseId}`);
   }
 }
 
 function enterGenerate(evt) {
   if (evt.ctrlKey && evt.keyCode === 13) {
     evt.preventDefault();
-    document.getElementById("generate").click();
+    click(`#${generateId}`);
   }
 }
 
@@ -36,7 +42,7 @@ export function initKeybindings(userAgent = navigator.userAgent) {
   // Clean up existing listeners first
   cleanupKeybindings();
 
-  const input0 = document.getElementById("input0");
+  const input0 = selectElement(`#${input0Id}`);
   if (input0) {
     input0.addEventListener("keyup", enterClick);
   }
@@ -53,7 +59,7 @@ export function initKeybindings(userAgent = navigator.userAgent) {
 
 // Remove all keyboard bindings
 export function cleanupKeybindings() {
-  const input0 = document.getElementById("input0");
+  const input0 = selectElement(`#${input0Id}`);
   if (input0) {
     input0.removeEventListener("keyup", enterClick);
   }

@@ -1,6 +1,17 @@
 import {showEmailTable} from "./components/emailTable"
 import state from "./state.js";
 import {showError} from "./components/snackbar";
+import {selectElement} from "./utils";
+
+const nextStepId = "nextStep";
+const addHouseId = "addHouse";
+const generateId = "generate";
+const nameListId = "name-list";
+const resultsTableId = "results-table";
+const introId = "intro";
+const leftContainerId = "left-container";
+const letsGoId = "letsGo";
+const secretSantaBtnId = "secretSantaBtn";
 
 const introArr = [
   ``,
@@ -13,9 +24,9 @@ const introArr = [
 ];
 
 export function conditionalRender() {
-  const next = document.getElementById("nextStep");
-  const addHouse = document.getElementById("addHouse");
-  const generate = document.getElementById("generate");
+  const next = selectElement(`#${nextStepId}`);
+  const addHouse = selectElement(`#${addHouseId}`);
+  const generate = selectElement(`#${generateId}`);
 
   switch (state.introIndex) {
     case 0:
@@ -39,11 +50,11 @@ export function conditionalRender() {
 }
 
 export function stepOne() {
-  document.getElementById("name-list").style.display = "block";
+  selectElement(`#${nameListId}`).style.display = "block";
   if (!state.isSecretSanta) {
-    document.getElementById("results-table").style.display = "table";
+    selectElement(`#${resultsTableId}`).style.display = "table";
   }
-  document.getElementById("nextStep").style.display = "block";
+  selectElement(`#${nextStepId}`).style.display = "block";
   introNext();
 }
 
@@ -58,10 +69,10 @@ export function introNext() {
   }
   if (state.introIndex === 3 && state.isGenerated) {
     showEmailTable();
-    document.getElementById("nextStep").style.display = "none";
+    selectElement(`#${nextStepId}`).style.display = "none";
   }
   state.introIndex + 1 > introArr.length ? (state.introIndex = 0) : state.introIndex++;
-  const introDiv = document.getElementById("intro");
+  const introDiv = selectElement(`#${introId}`);
   if (state.introIndex < introArr.length) {
     introDiv.innerHTML = `<p>${introArr[state.introIndex]}</p>`;
   }
@@ -70,16 +81,16 @@ export function introNext() {
 
 export function secretSantaMode() {
   state.isSecretSanta = true;
-  document.getElementById("left-container").classList.add("secret");
+  selectElement(`#${leftContainerId}`).classList.add("secret");
   stepOne();
 }
 
 // Attach event listeners after function definitions
 // Only run in browser environment (not during tests unless explicitly imported)
 if (typeof document !== 'undefined') {
-  const nextStep = document.getElementById('nextStep');
-  const letsGo = document.getElementById('letsGo');
-  const secretSantaBtn = document.getElementById('secretSantaBtn');
+  const nextStep = selectElement(`#${nextStepId}`);
+  const letsGo = selectElement(`#${letsGoId}`);
+  const secretSantaBtn = selectElement(`#${secretSantaBtnId}`);
 
   if (nextStep) nextStep.addEventListener('click', introNext);
   if (letsGo) letsGo.addEventListener('click', stepOne);

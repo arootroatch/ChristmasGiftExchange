@@ -156,7 +156,7 @@ describe('dragDrop', () => {
     });
 
     it('handles missing container gracefully', () => {
-      const container = document.getElementById('left-container');
+      const container = document.querySelector('#left-container');
       if (container) container.remove();
 
       expect(() => initDragDrop()).not.toThrow();
