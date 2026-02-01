@@ -11,7 +11,7 @@ import {
   stubProperty,
   stubPropertyByID
 } from "../specHelper";
-import {addEventListener} from "../../resources/js/utils";
+import {addEventListener, removeEventListener} from "../../resources/js/utils";
 import * as name from "../../resources/js/components/name";
 import {addHouse, deleteHouse, initEventListeners, insertNameFromSelect} from "../../resources/js/components/house";
 
@@ -21,6 +21,7 @@ describe('addHouse', () => {
     return {
       ...original,
       addEventListener: vi.fn(original.addEventListener),
+      removeEventListener: vi.fn(original.removeEventListener),
     };
   });
 
@@ -74,6 +75,14 @@ describe("deleteHouse", () => {
     stubProperty(houseDiv, "remove", removeSpy)
     click("#delete-0");
     expect(removeSpy).toHaveBeenCalled();
+  })
+
+  it("removes event listeners for deleteHouse and name select", () => {
+    const houseDiv = document.querySelector("#house-0");
+    click("#delete-0");
+    expect(removeEventListener).toHaveBeenCalledWith("#delete-0", "click", deleteHouse);
+    expect(removeEventListener).toHaveBeenCalledWith("#select-0", "change", insertNameFromSelect);
+
   })
 });
 

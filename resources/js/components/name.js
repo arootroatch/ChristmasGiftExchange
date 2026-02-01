@@ -49,7 +49,7 @@ function deleteName() {
   let nameWrapper = this.parentNode.id;
   let name = this.nextElementSibling.innerHTML;
   state.givers = state.givers.filter(giver => giver.name !== name);
-  removeEventListener("#" + this.id, "click", deleteName);
+  removeEventListener(`#${this.id}`, "click", deleteName);
   selectElement(`#${nameWrapper}`).remove();
   refreshNameSelects();
 }

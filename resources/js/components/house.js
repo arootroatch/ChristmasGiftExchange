@@ -1,5 +1,5 @@
 import state from "../state";
-import {addEventListener, pushHTMl, selectElement} from "../utils";
+import {addEventListener, pushHTMl, selectElement, removeEventListener} from "../utils";
 
 const participantsId = "participants";
 const leftContainerId = "left-container";
@@ -25,16 +25,12 @@ export function nameSelectContent() {
     `;
 }
 
-// addEventListener("addHouse", "click", addHouse);
-
 export function addHouse() {
   pushHTMl(`#${leftContainerId}`, houseTemplate());
   addEventListener(`#delete-${state.houseID}`, "click", deleteHouse);
   addEventListener(`#select-${state.houseID}`, "change", insertNameFromSelect);
   state.houseID += 1;
 }
-
-// addEventListener(`name-list-select`, "change", insertNameFromSelect);
 
 export function insertNameFromSelect() {
   let firstName = this.value;
@@ -47,18 +43,26 @@ export function insertNameFromSelect() {
   this.value = "default";
 }
 
-export function deleteHouse() {
-  const houseDiv = this.closest('.household') || this.parentNode;
+function returnNamesToMainList(houseDiv){
   const nameContainer = houseDiv.querySelector('.name-container');
   const participants = selectElement(`#${participantsId}`);
-
-  // Move all name wrappers back to participants
   const nameWrappers = [...nameContainer.querySelectorAll('.name-wrapper')];
+
   nameWrappers.forEach(wrapper => {
     participants.appendChild(wrapper);
   });
+}
 
-  // Remove the house
+function getHouseIndex(houseDiv){
+  return houseDiv.id.split("-")[1];
+}
+
+export function deleteHouse() {
+  const houseDiv = this.closest('.household') || this.parentNode;
+  const houseIndex = getHouseIndex(houseDiv);
+  returnNamesToMainList(houseDiv);
+  removeEventListener(`#delete-${houseIndex}`, "click", deleteHouse);
+  removeEventListener(`#select-${houseIndex}`, "change", insertNameFromSelect);
   houseDiv.remove();
 }
 
