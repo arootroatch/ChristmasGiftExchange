@@ -9,7 +9,7 @@ import {
   hasDuplicates, initEventListeners,
   selectValidHouse
 } from '../resources/js/generate';
-import state from '../resources/js/state';
+import state, { getHousesForGeneration } from '../resources/js/state';
 import {
   addHouseToDOM, click,
   enterName,
@@ -33,8 +33,6 @@ describe('generate', () => {
 
   beforeAll(()=> {
     initReactiveSystem();
-    house.initEventListeners();
-    name.initEventListeners();
   });
   beforeEach(resetState);
 

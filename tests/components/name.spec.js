@@ -5,6 +5,7 @@ import {
     resetState,
     shouldBeDraggable,
     shouldSelect,
+    shouldNotSelect,
     stubProperty,
     stubPropertyByID,
     addHouseToDOM,
@@ -22,6 +23,7 @@ describe('addName', () => {
     beforeAll(() => {
         initReactiveSystem();
         initEventListeners();
+        house.initEventListeners();
     });
     beforeEach(() => {
         resetState();
@@ -66,31 +68,31 @@ describe('addName', () => {
     })
 
     it("clicking delete x removes name from DOM", () => {
-        const removeSpy = vi.fn();
-        const removeEventListenerSpy = vi.fn();
-        stubPropertyByID("wrapper-Alex", "remove", removeSpy);
-        stubPropertyByID("delete-Alex1", "removeEventListener", removeEventListenerSpy);
-
         expect(state.givers[0].name).toEqual("Alex");
         click("#delete-Alex1");
-        expect(removeSpy).toHaveBeenCalledTimes(1);
-        expect(removeEventListenerSpy).toHaveBeenCalledTimes(1);
+        // In reactive architecture, element is re-rendered, so check it no longer exists
+        shouldNotSelect("#wrapper-Alex");
         expect(state.givers).toEqual([]);
     });
 
     it("adds names to dropdown", () => {
-        const nameSelects = document.getElementsByClassName("name-select");
+        addHouseToDOM();  // Need at least one house to have a select dropdown
         input.value = "whitney";
         click("#b0");
+        const nameSelects = document.getElementsByClassName("name-select");
         expect(nameSelects[0].innerHTML).toContain("Alex");
         expect(nameSelects[0].innerHTML).toContain("Whitney");
     })
 
     it("clicking delete x removes name from dropdown selects", () => {
-        const nameSelects = document.getElementsByClassName("name-select");
+        addHouseToDOM();  // Need at least one house to have a select dropdown
         input.value = "whitney";
         click("#b0");
-        click("#delete-Alex1");
+        // Get the delete button ID from the DOM (it may have changed due to re-rendering)
+        const alexDeleteBtn = document.querySelector('[id^="delete-Alex"]');
+        const deleteId = alexDeleteBtn.id;
+        const nameSelects = document.getElementsByClassName("name-select");
+        click(`#${deleteId}`);
         expect(nameSelects[0].innerHTML).not.toContain("Alex");
     });
 
