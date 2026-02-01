@@ -33,6 +33,22 @@ const selectRenderer = {
     slots.forEach(slot => {
       this.renderIntoSlot(slot, state.givers);
     });
+
+    // Also update the main name-list-select dropdown
+    this.updateNameListSelect();
+  },
+
+  updateNameListSelect() {
+    const nameListSelect = document.querySelector('#name-list-select');
+    if (!nameListSelect) return;
+
+    const options = state.givers
+      .map(g => `<option value="${g.name}">${g.name}</option>`)
+      .join('');
+
+    nameListSelect.innerHTML = `
+      <option value="default" selected="selected">-- Select a name --</option>
+      ${options}`;
   },
 
   renderIntoSlot(slot, givers) {
@@ -41,7 +57,22 @@ const selectRenderer = {
     const slotId = slot.getAttribute('data-slot');
     const houseID = slotId.replace('select-', '');
 
-    slot.innerHTML = this.template(houseID, givers);
+    // Check if select already exists in the slot
+    let select = slot.querySelector(`#${houseID}-select`);
+
+    if (!select) {
+      // First render - create the select element
+      slot.innerHTML = this.template(houseID, givers);
+    } else {
+      // Update existing select - just update options to preserve event listeners
+      const options = givers
+        .map(g => `<option value="${g.name}">${g.name}</option>`)
+        .join('');
+
+      select.innerHTML = `
+        <option value="default" selected="selected">-- Select a name --</option>
+        ${options}`;
+    }
   },
 
   template(houseID, givers) {
