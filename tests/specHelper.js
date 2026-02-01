@@ -84,15 +84,12 @@ export function clearNameSelects() {
 }
 
 export function resetState() {
-  state = {
-    houses: [],
-    isGenerated: false,
-    introIndex: 0,
-    isSecretSanta: false,
-    givers: [],
-    houseID: 0,
-    nameNumber: 1,
-  }
+  state.houses = {};
+  state.isGenerated = false;
+  state.introIndex = 0;
+  state.isSecretSanta = false;
+  state.givers = [];
+  state.nameNumber = 1;
 }
 
 export function resetDOM() {

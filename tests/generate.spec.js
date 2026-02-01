@@ -84,7 +84,7 @@ describe('generate', () => {
     });
   });
 
-  describe('fillHouses', () => {
+  describe('fillHouses - deprecated but kept for validation', () => {
     beforeEach(() => {
       resetState();
       removeAllNames();
@@ -96,8 +96,8 @@ describe('generate', () => {
       enterName("Bob");
       enterName("Charlie");
       addHouseToDOM();
-      moveNameToHouse("#select-0", "Alice")
-      moveNameToHouse("#select-0", "Bob")
+      moveNameToHouse("#house-0-select", "Alice")
+      moveNameToHouse("#house-0-select", "Bob")
 
       fillHouses();
 
@@ -187,8 +187,8 @@ describe('generate', () => {
       enterName("Alex");
       enterName("Whitney");
       addHouseToDOM();
-      moveNameToHouse("#select-0", "Alex");
-      moveNameToHouse("#select-0", "Whitney");
+      moveNameToHouse("#house-0-select", "Alex");
+      moveNameToHouse("#house-0-select", "Whitney");
       generateList();
       shouldDisplayErrorSnackbar("No possible combinations! Please try a different configuration/number of names.");
     });
@@ -214,7 +214,7 @@ describe('generate', () => {
       enterName("Alex");
       enterName("Whitney");
       addHouseToDOM();
-      moveNameToHouse("#select-0", "Alex");
+      moveNameToHouse("#house-0-select", "Alex");
 
       generateList();
       let tableHTML = '';
@@ -261,19 +261,19 @@ describe('generate', () => {
 
     it('should return error if duplicate names', () => {
       installGiverNames("Alex", "Whitney");
-      state.houses = [["Alex"], ["Alex"]]
+      state.houses = {"house-0": ["Alex"], "house-1": ["Alex"]}
       expect(generate(0, 25)).toStrictEqual({error: "Duplicate name detected! Please delete the duplicate and re-enter it with a last initial or nickname."});
     });
 
     it('should return error if no possible combinations', () => {
       installGiverNames("Alex", "Whitney");
-      state.houses = [["Alex", "Whitney"]]
+      state.houses = {"house-0": ["Alex", "Whitney"]}
       expect(generate(0, 25)).toStrictEqual({error: "No possible combinations! Please try a different configuration/number of names."});
     });
 
     it('two names in separate houses', () => {
       installGiverNames("Alex", "Whitney");
-      state.houses = [["Alex"], ["Whitney"]]
+      state.houses = {"house-0": ["Alex"], "house-1": ["Whitney"]}
       const results = generate(0, 25);
       expect(giverByName("Alex").recipient).toEqual("Whitney");
       expect(giverByName("Whitney").recipient).toEqual("Alex");
@@ -286,7 +286,7 @@ describe('generate', () => {
 
   describe('selectValidHouse', () => {
     it('should only return n house that does not contain giver', () => {
-      state.houses = [["Alex", "Whitney"], ["Charlie", "Emily"], ["Megan", "Hunter"]];
+      state.houses = {"house-0": ["Alex", "Whitney"], "house-1": ["Charlie", "Emily"], "house-2": ["Megan", "Hunter"]};
       const result = selectValidHouse(
         [["Alex", "Whitney"], ["Charlie", "Emily"], ["Megan", "Hunter"]],
         {name: "Alex"});
@@ -296,7 +296,7 @@ describe('generate', () => {
     });
 
     it('giver is not an available recipient', () => {
-      state.houses = [["Alex", "Whitney"], ["Charlie", "Emily"], ["Megan", "Hunter"]];
+      state.houses = {"house-0": ["Alex", "Whitney"], "house-1": ["Charlie", "Emily"], "house-2": ["Megan", "Hunter"]};
       const result = selectValidHouse(
         [["Whitney"], ["Charlie", "Emily"], ["Megan", "Hunter"]],
         {name: "Alex"});
@@ -306,7 +306,7 @@ describe('generate', () => {
     });
 
     it('givers house is the only available', () => {
-      state.houses = [["Alex", "Whitney"], ["Charlie", "Emily"], ["Megan", "Hunter"]];
+      state.houses = {"house-0": ["Alex", "Whitney"], "house-1": ["Charlie", "Emily"], "house-2": ["Megan", "Hunter"]};
       const result = selectValidHouse(
         [["Whitney"]],
         {name: "Alex"});

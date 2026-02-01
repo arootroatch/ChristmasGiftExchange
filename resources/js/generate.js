@@ -1,5 +1,5 @@
 import {showEmailTable} from "./components/emailTable"
-import state from "./state.js";
+import state, { getHousesForGeneration } from "./state.js";
 import * as self from "./generate.js";
 import {showError} from "./components/snackbar";
 import {selectElement} from "./utils";
@@ -108,7 +108,6 @@ export function deepCopy(arr) {
 }
 
 export function generateList(maxAttempts = 25) {
-  fillHouses();
   let counter = 0;
   const {error, results} = self.generate(counter, maxAttempts);
   if (error) {
@@ -137,7 +136,7 @@ export function generate(counter, maxAttempts) {
 }
 
 function attemptToDrawNames() {
-  let availableRecipients = deepCopy(state.houses);
+  let availableRecipients = deepCopy(getHousesForGeneration());
 
   for (const giver of state.givers) {
     const {randomHouseIndex, randomHouse} = selectValidHouse(availableRecipients, giver);
@@ -211,7 +210,8 @@ function isNameWrapper(element) {
 }
 
 function isNotGiversHouse(house, giver) {
-  const originalHouse = state.houses.find((h) => h.includes(house[0]));
+  const allHouses = getHousesForGeneration();
+  const originalHouse = allHouses.find((h) => h.includes(house[0]));
   return !originalHouse.includes(giver.name)
 }
 
@@ -222,9 +222,11 @@ function maybeRemoveHouse(availableRecipients, index) {
 }
 
 function checkForImpossible(counter, maxAttempts) {
-  if (state.houses.length < 1) return {error: "Please enter participants' names."};
+  const housesArray = getHousesForGeneration();
 
-  if (hasDuplicates(state.houses))
+  if (housesArray.length < 1) return {error: "Please enter participants' names."};
+
+  if (hasDuplicates(housesArray))
     return {
       error: "Duplicate name detected! Please delete the duplicate and re-enter it with a last initial or nickname."
     };

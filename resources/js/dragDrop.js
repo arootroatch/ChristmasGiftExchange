@@ -1,4 +1,5 @@
 import {selectElement} from "./utils";
+import { addNameToHouse, removeNameFromHouse } from "./state.js";
 
 const leftContainerId = "left-container";
 
@@ -13,13 +14,34 @@ export function drag(e) {
   e.dataTransfer.setData("text", e.target.id);
 }
 
+function getSourceHouse(nameWrapper){
+  const sourceContainer = nameWrapper.parentNode;
+  const sourceHouse = sourceContainer.closest('.household');
+  return sourceHouse?.id
+}
+
+function getDestHouse(e){
+  const destContainer = e.target;
+  const destHouse = destContainer.closest('.household');
+  const isDestMainList = (destContainer.id === "participants");
+  return isDestMainList ? null : destHouse?.id;
+}
+
 export function drop(e) {
   if (e.target.className === 'name-container'){
     e.preventDefault();
-    const data = e.dataTransfer.getData("text");
-    e.target.appendChild(selectElement(`#${data}`));
-    e.target.style.backgroundColor="transparent";
 
+    const data = e.dataTransfer.getData("text");
+    const nameWrapper = selectElement(`#${data}`);
+    const name = data.replace("wrapper-", "");
+    const sourceHouseID = getSourceHouse(nameWrapper);
+    const destHouseID = getDestHouse(e);
+
+    if (sourceHouseID) removeNameFromHouse(sourceHouseID, name);
+    if (destHouseID) addNameToHouse(destHouseID, name);
+
+    e.target.appendChild(nameWrapper);
+    e.target.style.backgroundColor = "transparent";
   }
 }
 

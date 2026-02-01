@@ -1,4 +1,4 @@
-import state from "../state";
+import state, { removeNameFromHouse } from "../state";
 import {addEventListener, pushHTMl, removeEventListener, selectElement} from "../utils";
 import {nameSelectContent} from "./house";
 
@@ -48,9 +48,20 @@ export function addName() {
 function deleteName() {
   let nameWrapper = this.parentNode.id;
   let name = this.nextElementSibling.innerHTML;
+
+  const nameWrapperEl = selectElement(`#${nameWrapper}`);
+  const container = nameWrapperEl.parentNode;
+  const house = container.closest('.household');
+  const houseID = house?.id;
+
   state.givers = state.givers.filter(giver => giver.name !== name);
+
+  if (houseID) {
+    removeNameFromHouse(houseID, name);
+  }
+
   removeEventListener(`#${this.id}`, "click", deleteName);
-  selectElement(`#${nameWrapper}`).remove();
+  nameWrapperEl.remove();
   refreshNameSelects();
 }
 

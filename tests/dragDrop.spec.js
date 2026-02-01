@@ -1,5 +1,9 @@
-import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
+import {beforeAll, beforeEach, describe, expect, it, vi} from 'vitest';
 import {allowDrop, drag, dragLeave, drop, initDragDrop} from '../resources/js/dragDrop';
+import state from '../resources/js/state';
+import {addHouseToDOM, enterName, removeAllHouses, removeAllNames, resetState} from './specHelper';
+import * as house from '../resources/js/components/house';
+import * as name from '../resources/js/components/name';
 
 describe('dragDrop', () => {
   describe('allowDrop', () => {
@@ -52,47 +56,91 @@ describe('dragDrop', () => {
   });
 
   describe('drop', () => {
-    let container;
-    let draggableElement;
-
-    beforeEach(() => {
-      container = document.createElement('div');
-      container.className = 'name-container';
-      container.style.backgroundColor = '#ffffff9e';
-      document.body.appendChild(container);
-
-      draggableElement = document.createElement('div');
-      draggableElement.id = 'name-123';
-      draggableElement.textContent = 'Test Name';
-      document.body.appendChild(draggableElement);
+    beforeAll(() => {
+      house.initEventListeners();
+      name.initEventListeners();
     });
 
-    afterEach(() => {
-      container.remove();
-      draggableElement.remove();
+    beforeEach(() => {
+      resetState();
+      removeAllNames();
+      removeAllHouses();
     });
 
     it('appends element to target and resets background when target is name-container', () => {
+      enterName('Alice');
+      const participants = document.querySelector('#participants');
+      const nameWrapper = document.querySelector('#wrapper-Alice');
+
       const mockEvent = {
-        target: container,
+        target: participants,
         dataTransfer: {
-          getData: vi.fn(() => 'name-123')
+          getData: vi.fn(() => 'wrapper-Alice')
+        },
+        preventDefault: vi.fn()
+      };
+
+      participants.style.backgroundColor = '#ffffff9e';
+      drop(mockEvent);
+
+      expect(mockEvent.preventDefault).toHaveBeenCalled();
+      expect(mockEvent.dataTransfer.getData).toHaveBeenCalledWith('text');
+      expect(participants.contains(nameWrapper)).toBe(true);
+      expect(participants.style.backgroundColor).toBe('transparent');
+    });
+
+    it('updates state when dropping name into house', () => {
+      enterName('Alice');
+      addHouseToDOM();
+
+      const nameWrapper = document.querySelector('#wrapper-Alice');
+      const houseContainer = document.querySelector('#house-0 .name-container');
+
+      const mockEvent = {
+        target: houseContainer,
+        dataTransfer: {
+          getData: vi.fn(() => 'wrapper-Alice')
         },
         preventDefault: vi.fn()
       };
 
       drop(mockEvent);
 
-      expect(mockEvent.preventDefault).toHaveBeenCalled();
-      expect(mockEvent.dataTransfer.getData).toHaveBeenCalledWith('text');
-      expect(container.contains(draggableElement)).toBe(true);
-      expect(container.style.backgroundColor).toBe('transparent');
+      expect(state.houses["house-0"]).toContain('Alice');
+      expect(houseContainer.contains(nameWrapper)).toBe(true);
+    });
+
+    it('updates state when moving name between houses', () => {
+      enterName('Alice');
+      addHouseToDOM();
+      addHouseToDOM();
+
+      const nameWrapper = document.querySelector('#wrapper-Alice');
+      const house0Container = document.querySelector('#house-0 .name-container');
+      const house1Container = document.querySelector('#house-1 .name-container');
+
+      house0Container.appendChild(nameWrapper);
+      state.houses["house-0"].push("Alice");
+
+      const mockEvent = {
+        target: house1Container,
+        dataTransfer: {
+          getData: vi.fn(() => 'wrapper-Alice')
+        },
+        preventDefault: vi.fn()
+      };
+
+      drop(mockEvent);
+
+      expect(state.houses["house-0"]).not.toContain('Alice');
+      expect(state.houses["house-1"]).toContain('Alice');
+      expect(house1Container.contains(nameWrapper)).toBe(true);
     });
 
     it('does nothing when target is not name-container', () => {
-      const otherElement = document.createElement('div');
-      otherElement.className = 'other-class';
-      document.body.appendChild(otherElement);
+      enterName('Alice');
+      const nameWrapper = document.querySelector('#wrapper-Alice');
+      const otherElement = document.querySelector('#addHouse');
 
       const mockEvent = {
         target: otherElement,
@@ -102,15 +150,13 @@ describe('dragDrop', () => {
         preventDefault: vi.fn()
       };
 
-      const initialParent = draggableElement.parentElement;
+      const initialParent = nameWrapper.parentElement;
 
       drop(mockEvent);
 
       expect(mockEvent.preventDefault).not.toHaveBeenCalled();
       expect(mockEvent.dataTransfer.getData).not.toHaveBeenCalled();
-      expect(draggableElement.parentElement).toBe(initialParent);
-
-      otherElement.remove();
+      expect(nameWrapper.parentElement).toBe(initialParent);
     });
   });
 
@@ -146,13 +192,9 @@ describe('dragDrop', () => {
 
   describe('initDragDrop', () => {
     it('initializes without error when left-container exists', () => {
-      const container = document.createElement('div');
-      container.id = 'left-container';
-      document.body.appendChild(container);
-
+      const container = document.querySelector('#left-container');
+      expect(container).not.toBeNull();
       expect(() => initDragDrop()).not.toThrow();
-
-      container.remove();
     });
 
     it('handles missing container gracefully', () => {

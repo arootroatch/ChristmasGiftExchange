@@ -1,7 +1,8 @@
 import {beforeEach, beforeAll, describe, expect, it, vi} from "vitest";
-import {clearNameSelects, click, resetState, shouldBeDraggable, shouldSelect, stubPropertyByID} from "../specHelper";
+import {clearNameSelects, click, resetState, shouldBeDraggable, shouldSelect, stubProperty, stubPropertyByID, addHouseToDOM, change} from "../specHelper";
 import {Giver, initEventListeners} from "../../resources/js/components/name";
 import state from "../../resources/js/state";
+import * as house from "../../resources/js/components/house";
 
 describe('addName', () => {
     const input = document.querySelector("#input0");
@@ -77,5 +78,35 @@ describe('addName', () => {
         click("#b0");
         click("#delete-Alex1");
         expect(nameSelects[0].innerHTML).not.toContain("Alex");
+    });
+
+    it("clicking delete x removes name from house in state if it's in a house", () => {
+        house.initEventListeners();
+        addHouseToDOM();
+
+        // Set up: manually put Alex in house-0 (both state and DOM)
+        state.houses["house-0"] = ["Alex"];
+        const nameDiv = document.querySelector("#wrapper-Alex");
+        const nameContainer = document.querySelector("#house-0 .name-container");
+        const house0 = document.querySelector("#house-0");
+
+        // Stub the parentNode and closest methods to simulate Alex being in house-0
+        Object.defineProperty(nameDiv, 'parentNode', {
+          configurable: true,
+          get: () => nameContainer
+        });
+        stubProperty(nameContainer, 'closest', vi.fn(() => house0));
+
+        expect(state.houses["house-0"]).toContain("Alex");
+        click("#delete-Alex1");
+        expect(state.houses["house-0"]).not.toContain("Alex");
+    });
+
+    it("clicking delete x on name in main list does not affect state.houses", () => {
+        house.initEventListeners();
+        addHouseToDOM();
+        const previousHouses = {...state.houses};
+        click("#delete-Alex1");
+        expect(state.houses).toEqual(previousHouses);
     });
 });
