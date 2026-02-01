@@ -8,7 +8,6 @@ import {addEventListener, selectElement} from "../utils.js";
 import { registerComponent } from "../render.js";
 import { stateEvents, Events } from "../events.js";
 
-const participantsId = "participants";
 const leftContainerId = "left-container";
 const addHouseId = "addHouse";
 const nameListSelectId = "name-list-select";
@@ -36,7 +35,7 @@ export function insertNameFromSelect() {
   const name = this.value;
   if (name === "default") return;
 
-  const sourceContainer = document.querySelector(`#wrapper-${name}`)?.parentNode;
+  const sourceContainer = selectElement(`#wrapper-${name}`)?.parentNode;
   const sourceHouse = sourceContainer?.closest('.household');
   const sourceHouseID = sourceHouse?.id;
 
