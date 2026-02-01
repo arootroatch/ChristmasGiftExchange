@@ -7,7 +7,6 @@ import {selectElement} from "./utils";
 const generateId = "generate";
 const tableBodyId = "table-body";
 const nextStepId = "nextStep";
-const nameListId = "name-list";
 
 export function initEventListeners() {
   const generateBtn = selectElement(`#${generateId}`);
@@ -32,11 +31,6 @@ export function emptyTable() {
       <td></td>
       <td></td>
     </tr>`
-}
-
-function displayEmptyTable() {
-  let parentNode = selectElement(`#${tableBodyId}`);
-  parentNode?.insertAdjacentHTML("beforeend", emptyTable());
 }
 
 export function clearGeneratedListTable() {
@@ -156,14 +150,6 @@ function renderResultsToTable(results) {
     "beforeend",
     html
   );
-}
-
-function isNameContainer(element) {
-  return element.className === "name-container";
-}
-
-function isNameWrapper(element) {
-  return element.id?.includes("wrapper");
 }
 
 function isNotGiversHouse(house, giver) {
