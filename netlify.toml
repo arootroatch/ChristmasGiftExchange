@@ -1,0 +1,10 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+  functions = "netlify/functions"
+
+[functions.emails]
+  included_files = ["./emails/**"]
+
+[[plugins]]
+  package = "@netlify/plugin-emails"
