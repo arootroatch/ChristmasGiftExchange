@@ -4,7 +4,6 @@ import {
   clearGeneratedListTable,
   deepCopy,
   emptyTable,
-  fillHouses,
   generate,
   generateList,
   hasDuplicates, initEventListeners,
@@ -83,38 +82,6 @@ describe('generate', () => {
 
     it('handles multiple houses with duplicates', () => {
       expect(hasDuplicates([['Alice', 'Bob', 'Charlie'], ['Alice', "Alex"]])).toBe(true);
-    });
-  });
-
-  describe('fillHouses - deprecated but kept for validation', () => {
-    beforeEach(() => {
-      resetState();
-      removeAllNames();
-      removeAllHouses();
-    })
-
-    it('extracts names from households into state.houses', () => {
-      enterName("Alice");
-      enterName("Bob");
-      enterName("Charlie");
-      addHouseToDOM();
-      moveNameToHouse("#house-0-select", "Alice")
-      moveNameToHouse("#house-0-select", "Bob")
-
-      fillHouses();
-
-      expect(state.houses).toContainEqual(['Alice', 'Bob']);
-      expect(state.houses).toContainEqual(['Charlie']);
-    });
-
-    it('skips empty households', () => {
-      enterName("Alice");
-      addHouseToDOM();
-
-      fillHouses();
-
-      expect(state.houses.length).toBe(1);
-      expect(state.houses).toContainEqual(['Alice']);
     });
   });
 

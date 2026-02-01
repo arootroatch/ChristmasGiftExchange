@@ -51,49 +51,6 @@ export function hasDuplicates(arr) {
   return new Set(flattened).size !== flattened.length;
 }
 
-export function fillHouses() {
-  state.houses = getHouses().concat(getIndividualParticipantNames());
-}
-
-function getHouses() {
-  const houseElements = document.getElementsByClassName("household");
-  const houseElementsArray = [...houseElements];
-  return houseElementsArray.map(getHouse).filter((house) => house.length > 0);
-}
-
-function getHouse(house) {
-  let names = [];
-  house.childNodes.forEach((x) => {
-    if (isNameContainer(x)) {
-      x.childNodes.forEach((y) => {
-        if (isNameWrapper(y)) {
-          names.push(y.id.slice(8));
-        }
-      });
-    }
-  });
-  return names;
-}
-
-function getIndividualParticipantNames() {
-  let names = [];
-  const nameList = selectElement(`#${nameListId}`)?.childNodes;
-  if (nameList) {
-    const nameListArray = [...nameList];
-    nameListArray.forEach((x) => {
-      if (isNameContainer(x)) {
-        x.childNodes.forEach((y) => {
-          if (isNameWrapper(y)) {
-            // add them to their own array so they can be matched with anybody
-            names.push([y.id.slice(8)]);
-          }
-        });
-      }
-    });
-    return names;
-  }
-}
-
 export function deepCopy(arr) {
   let copy = [];
   arr.forEach(() => {
