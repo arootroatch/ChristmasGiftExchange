@@ -3,51 +3,41 @@ import state, {
   removeHouseFromState,
   addNameToHouse,
   removeNameFromHouse
-} from "../state";
-import {addEventListener, pushHTMl, selectElement, removeEventListener} from "../utils";
+} from "../state.js";
+import {addEventListener, selectElement} from "../utils.js";
+import { registerComponent } from "../render.js";
+import { stateEvents, Events } from "../events.js";
 
 const participantsId = "participants";
 const leftContainerId = "left-container";
 const addHouseId = "addHouse";
 const nameListSelectId = "name-list-select";
 
-export function houseTemplate(houseID, displayNumber) {
-  return `
-    <div class="household" id="${houseID}">
-      <h2 contenteditable="true">Group ${displayNumber} <span class="edit-span">(Click here to rename)</span></h2>
-      <div class="name-container"></div>
-      <select class="name-select" name="${houseID}-select" id="${houseID}-select">
-        ${nameSelectContent()}
-      </select>
-      <button class="button deleteHouse" id="${houseID}-delete">Delete Group</button>
-    </div>`
-}
-
-export function nameSelectContent() {
-  return `
-    <option disabled selected value="default">-- Select a name --</option>
-    ${state.givers.map((giver) => `<option value="${giver.name}">${giver.name}</option>`)}
-    `;
-}
-
+// User actions - only update state
 export function addHouse() {
   const houseNumber = Object.keys(state.houses).length;
   const houseID = `house-${houseNumber}`;
-  const displayNumber = houseNumber + 1;
-
   addHouseToState(houseID);
+}
 
-  pushHTMl(`#${leftContainerId}`, houseTemplate(houseID, displayNumber));
-  addEventListener(`#${houseID}-delete`, "click", deleteHouse);
-  addEventListener(`#${houseID}-select`, "change", insertNameFromSelect);
+export function deleteHouse() {
+  const houseDiv = this.closest('.household') || this.parentNode;
+  const houseID = houseDiv.id;
+
+  const names = [...(state.houses[houseID] || [])];
+  names.forEach(name => {
+    removeNameFromHouse(houseID, name);
+  });
+
+  removeHouseFromState(houseID);
 }
 
 export function insertNameFromSelect() {
   const name = this.value;
-  const nameDiv = selectElement(`#wrapper-${name}`);
+  if (name === "default") return;
 
-  const sourceContainer = nameDiv.parentNode;
-  const sourceHouse = sourceContainer.closest('.household');
+  const sourceContainer = document.querySelector(`#wrapper-${name}`)?.parentNode;
+  const sourceHouse = sourceContainer?.closest('.household');
   const sourceHouseID = sourceHouse?.id;
 
   const isDestMainList = (this.parentNode.id === "name-list");
@@ -61,38 +51,88 @@ export function insertNameFromSelect() {
     addNameToHouse(destHouseID, name);
   }
 
-  if (isDestMainList) {
-    selectElement(`#${participantsId}`).appendChild(nameDiv);
-  } else {
-    this.previousElementSibling.appendChild(nameDiv);
-  }
-
   this.value = "default";
 }
 
-function returnNamesToMainList(houseDiv){
-  const nameContainer = houseDiv.querySelector('.name-container');
-  const participants = selectElement(`#${participantsId}`);
-  const nameWrappers = [...nameContainer.querySelectorAll('.name-wrapper')];
+// Generic lifecycle - responds to all component events
+const houseRenderer = {
+  onComponentAdded(event) {
+    // Only handle house additions
+    if (event.type !== 'house') return;
 
-  nameWrappers.forEach(wrapper => {
-    participants.appendChild(wrapper);
-  });
-}
+    const container = selectElement(`#${leftContainerId}`);
+    if (!container) return;
 
-export function deleteHouse() {
-  const houseDiv = this.closest('.household') || this.parentNode;
-  const houseID = houseDiv.id;
+    const index = Object.keys(state.houses).indexOf(event.id);
+    const displayNumber = index + 1;
+    const html = this.template(event.id, displayNumber);
 
-  returnNamesToMainList(houseDiv);
-  removeHouseFromState(houseID);
+    container.insertAdjacentHTML('beforeend', html);
 
-  removeEventListener(`#${houseID}-delete`, "click", deleteHouse);
-  removeEventListener(`#${houseID}-select`, "change", insertNameFromSelect);
-  houseDiv.remove();
-}
+    // Trigger name and select components to render into the new house's slots
+    this.fillNameSlots(event.id);
 
-export function initEventListeners(){
+    // Attach listeners after slots are filled
+    this.attachListeners(event.id);
+  },
+
+  onComponentRemoved(event) {
+    if (event.type !== 'house') return;
+    selectElement(`#${event.id}`)?.remove();
+  },
+
+  onComponentUpdated(event) {
+    if (event.type !== 'house') return;
+
+    // Notify slot that it needs to re-render
+    const house = selectElement(`#${event.id}`);
+    if (!house) return;
+
+    const slot = house.querySelector(`[data-slot="names-${event.id}"]`);
+    if (slot) {
+      slot.setAttribute('data-needs-update', 'true');
+      this.fillNameSlots(event.id);
+    }
+  },
+
+  template(houseID, displayNumber) {
+    return `
+      <div class="household" id="${houseID}">
+        <h2 contenteditable="true">Group ${displayNumber} <span class="edit-span">(Click here to rename)</span></h2>
+        <div class="name-container" data-slot="names-${houseID}"></div>
+        <div data-slot="select-${houseID}"></div>
+        <button class="button deleteHouse" id="${houseID}-delete">Delete Group</button>
+      </div>`;
+  },
+
+  fillNameSlots(houseID) {
+    // Dispatch event for child components to fill their slots
+    stateEvents.emit(Events.COMPONENT_UPDATED, {
+      type: 'name-list',
+      id: `names-${houseID}`,
+      containerID: houseID,
+      data: state.houses[houseID]
+    });
+
+    stateEvents.emit(Events.COMPONENT_UPDATED, {
+      type: 'select',
+      id: `select-${houseID}`,
+      data: state.givers
+    });
+  },
+
+  attachListeners(houseID) {
+    addEventListener(`#${houseID}-delete`, 'click', deleteHouse);
+    addEventListener(`#${houseID}-select`, 'change', insertNameFromSelect);
+  }
+};
+
+// Initialize
+export function init() {
+  registerComponent('house', houseRenderer);
   addEventListener(`#${nameListSelectId}`, "change", insertNameFromSelect);
   addEventListener(`#${addHouseId}`, "click", addHouse);
 }
+
+// Backward compatibility with tests
+export const initEventListeners = init;

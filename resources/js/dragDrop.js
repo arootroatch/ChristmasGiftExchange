@@ -37,10 +37,14 @@ export function drop(e) {
     const sourceHouseID = getSourceHouse(nameWrapper);
     const destHouseID = getDestHouse(e);
 
-    if (sourceHouseID) removeNameFromHouse(sourceHouseID, name);
-    if (destHouseID) addNameToHouse(destHouseID, name);
+    // Only update state - events trigger DOM updates
+    if (sourceHouseID) {
+      removeNameFromHouse(sourceHouseID, name);
+    }
+    if (destHouseID) {
+      addNameToHouse(destHouseID, name);
+    }
 
-    e.target.appendChild(nameWrapper);
     e.target.style.backgroundColor = "transparent";
   }
 }

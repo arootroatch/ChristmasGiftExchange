@@ -2,6 +2,22 @@ import state from "../resources/js/state";
 import {expect, vi} from "vitest";
 import {indexHtml} from "../setupTests";
 import {selectElement} from "../resources/js/utils";
+import { initRenderSubscriptions } from "../resources/js/render";
+import * as house from "../resources/js/components/house";
+import * as name from "../resources/js/components/name";
+import * as select from "../resources/js/components/select";
+
+let isReactiveSystemInitialized = false;
+
+export function initReactiveSystem() {
+  if (!isReactiveSystemInitialized) {
+    house.init();
+    name.init();
+    select.init();
+    initRenderSubscriptions();
+    isReactiveSystemInitialized = true;
+  }
+}
 
 export function installGivers(givers) {
   state.givers = givers;

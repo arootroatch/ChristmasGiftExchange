@@ -9,7 +9,8 @@ import {
     stubPropertyByID,
     addHouseToDOM,
     change,
-    addNamesToDOM
+    addNamesToDOM,
+    initReactiveSystem
 } from "../specHelper";
 import {Giver, initEventListeners} from "../../resources/js/components/name";
 import state from "../../resources/js/state";
@@ -18,7 +19,10 @@ import * as house from "../../resources/js/components/house";
 describe('addName', () => {
     const input = document.querySelector("#input0");
 
-    beforeAll(initEventListeners);
+    beforeAll(() => {
+        initReactiveSystem();
+        initEventListeners();
+    });
     beforeEach(() => {
         resetState();
         clearNameSelects();
