@@ -107,7 +107,7 @@ export function deepCopy(arr) {
   return copy;
 }
 
-export function generateList(maxAttempts = 25) {
+export function generateList(_, maxAttempts = 25) {
   let counter = 0;
   const {error, results} = self.generate(counter, maxAttempts);
   if (error) {

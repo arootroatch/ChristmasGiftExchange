@@ -7,12 +7,12 @@ import {
   fillHouses,
   generate,
   generateList,
-  hasDuplicates,
+  hasDuplicates, initEventListeners,
   selectValidHouse
 } from '../resources/js/generate';
 import state from '../resources/js/state';
 import {
-  addHouseToDOM,
+  addHouseToDOM, click,
   enterName,
   giverByName,
   installGiverNames,
@@ -26,6 +26,8 @@ import {
 } from "./specHelper";
 import * as name from '../resources/js/components/name';
 import * as house from "../resources/js/components/house";
+
+const noPossibleComboError = "No possible combinations! Please try a different configuration/number of names."
 
 describe('generate', () => {
 
@@ -190,7 +192,18 @@ describe('generate', () => {
       moveNameToHouse("#house-0-select", "Alex");
       moveNameToHouse("#house-0-select", "Whitney");
       generateList();
-      shouldDisplayErrorSnackbar("No possible combinations! Please try a different configuration/number of names.");
+      shouldDisplayErrorSnackbar(noPossibleComboError);
+    });
+
+    it('works properly with event listener', () => {
+      initEventListeners();
+      enterName("Alex");
+      enterName("Whitney");
+      addHouseToDOM();
+      moveNameToHouse("#house-0-select", "Alex");
+      moveNameToHouse("#house-0-select", "Whitney");
+      click("#generate");
+      shouldDisplayErrorSnackbar(noPossibleComboError);
     });
 
     it('renders results table', () => {
@@ -268,7 +281,7 @@ describe('generate', () => {
     it('should return error if no possible combinations', () => {
       installGiverNames("Alex", "Whitney");
       state.houses = {"house-0": ["Alex", "Whitney"]}
-      expect(generate(0, 25)).toStrictEqual({error: "No possible combinations! Please try a different configuration/number of names."});
+      expect(generate(0, 25)).toStrictEqual({error: noPossibleComboError});
     });
 
     it('two names in separate houses', () => {
@@ -281,6 +294,13 @@ describe('generate', () => {
         error: null,
         results: state.givers
       });
+    })
+
+    it('three names in the same house, one name in participant list', () => {
+      installGiverNames("Alex", "Whitney", "Derek", "Elena");
+      state.houses = {"house-0": ["Alex", "Whitney", "Derek"]}
+      const results = generate(0, 25);
+      expect(results).toStrictEqual({error: noPossibleComboError});
     })
   })
 

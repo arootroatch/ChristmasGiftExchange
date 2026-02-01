@@ -119,6 +119,14 @@ export function addHouseToDOM() {
   click("#addHouse");
 }
 
+export function addNamesToDOM(...names){
+  const input = document.querySelector("#input0");
+  names.forEach(name => {
+    input.value = name;
+    click("#b0");
+  })
+}
+
 export function moveNameToHouse(houseSelector, name) {
   change(houseSelector, name);
 }

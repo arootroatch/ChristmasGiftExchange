@@ -1,5 +1,16 @@
 import {beforeEach, beforeAll, describe, expect, it, vi} from "vitest";
-import {clearNameSelects, click, resetState, shouldBeDraggable, shouldSelect, stubProperty, stubPropertyByID, addHouseToDOM, change} from "../specHelper";
+import {
+    clearNameSelects,
+    click,
+    resetState,
+    shouldBeDraggable,
+    shouldSelect,
+    stubProperty,
+    stubPropertyByID,
+    addHouseToDOM,
+    change,
+    addNamesToDOM
+} from "../specHelper";
 import {Giver, initEventListeners} from "../../resources/js/components/name";
 import state from "../../resources/js/state";
 import * as house from "../../resources/js/components/house";
@@ -11,8 +22,7 @@ describe('addName', () => {
     beforeEach(() => {
         resetState();
         clearNameSelects();
-        input.value = "alex";
-        click("#b0");
+        addNamesToDOM("alex");
     })
 
     it('Giver constructor', () => {
