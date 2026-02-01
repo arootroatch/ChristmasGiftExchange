@@ -1,0 +1,76 @@
+/* Snackbar Toast Notification Styles */
+#snackbar {
+  min-width: 250px; /* Set a default minimum width */
+  background-color: #fff; /* Black background color */
+  color: #000; /* White text color */
+  text-align: center; /* Centered text */
+  border-radius: 10px; /* Rounded borders */
+  border: 3px solid #198c0a;
+  padding: 16px;
+  position: fixed; /* Sit on top of the screen */
+  z-index: 10; /* Add a z-index if needed */
+  left: 50%; /* Center the snackbar */
+  transform: translateX(-50%);
+  top: 20px; /* 30px from the bottom */
+}
+
+/* Show the snackbar when clicking on a button (class added with JavaScript) */
+.show {
+  visibility: visible; /* Show the snackbar */
+  -webkit-animation: fadein 0.5s;
+  animation: fadein 0.5s;
+}
+
+.hide {
+  -webkit-animation: fadeout 0.5s;
+  animation: fadeout 0.5s;
+}
+
+.hidden {
+  visibility: hidden;
+}
+
+/* Animations to fade the snackbar in and out */
+@-webkit-keyframes fadein {
+  from {
+    top: 0;
+    opacity: 0;
+  }
+  to {
+    top: 20px;
+    opacity: 1;
+  }
+}
+
+@keyframes fadein {
+  from {
+    top: 0;
+    opacity: 0;
+  }
+  to {
+    top: 20px;
+    opacity: 1;
+  }
+}
+
+@-webkit-keyframes fadeout {
+  from {
+    top: 20px;
+    opacity: 1;
+  }
+  to {
+    top: 0;
+    opacity: 0;
+  }
+}
+
+@keyframes fadeout {
+  from {
+    top: 20px;
+    opacity: 1;
+  }
+  to {
+    top: 0;
+    opacity: 0;
+  }
+}

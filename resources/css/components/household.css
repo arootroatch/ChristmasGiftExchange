@@ -1,0 +1,45 @@
+/* Household Container Styles */
+#house1-header {
+  margin-top: 0;
+}
+
+.household,
+#name-list {
+  min-height: 5rem;
+  border: 2px solid rgba(255, 255, 255, 0.695);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  background-color: #9e9e9e8b;
+  max-width: 347px;
+}
+
+#name-list {
+  margin-top: 0;
+}
+
+.household {
+  margin-top: 1rem;
+}
+
+.household p,
+#name-list p {
+  margin: 5px;
+  display: inline-block;
+}
+
+.household h2,
+#name-list h2 {
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.name-select {
+  width: 100%;
+  color: black;
+  text-align: center;
+  margin-top: 15px;
+}
+
+.name-container {
+  padding-bottom: 35px; /* Keep space to enable drag and drop */
+}

@@ -1,0 +1,104 @@
+/* Responsive Media Queries */
+
+@media screen and (max-width: 740px) {
+  #container {
+    overflow-x: hidden;
+  }
+}
+
+@media screen and (max-width: 673px) {
+  #input0 {
+    margin: 5px;
+  }
+  #b0 {
+    margin-bottom: 0;
+  }
+}
+
+@media screen and (max-width: 630px) {
+  #flex-div {
+    display: block;
+  }
+  .table {
+    margin: 50px auto 0 auto;
+    width: 100%;
+    max-width: 350px;
+  }
+  body {
+    background-attachment: scroll;
+  }
+  .household,
+  #name-list {
+    margin: 0 auto;
+    max-width: 320px;
+  }
+  .household h2,
+  #name-list h2 {
+    text-align: center;
+  }
+  #left-container.secret {
+    #name-list {
+      padding-bottom: 65px;
+      & select {
+        margin-top: 20px;
+      }
+    }
+  }
+}
+
+@media screen and (max-width: 553px) {
+  #flex-div {
+    margin-top: 10px;
+  }
+}
+
+@media screen and (max-width: 499px) {
+  body {
+    padding-bottom: 150px;
+  }
+
+  .shortcut {
+    display: none;
+  }
+  #nextStep {
+    padding: 10px;
+  }
+}
+
+@media screen and (max-width: 429px) {
+  #emailTable {
+    min-width: 95%;
+    margin: 0 5px;
+  }
+}
+
+@media screen and (max-width: 339px) {
+  #container {
+    padding-left: 0;
+    padding-right: 5px;
+  }
+  body {
+    padding-bottom: 170px;
+  }
+  #addHouse,
+  #generate,
+  #secretGenerate {
+    padding: 10px;
+  }
+  .table {
+    min-width: auto;
+  }
+}
+
+@media screen and (max-width: 337px) {
+  #query {
+    & div {
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+  }
+  #emailQueryBtn {
+    margin-top: 5px;
+  }
+}

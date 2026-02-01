@@ -1,0 +1,19 @@
+/* Email Confirmation Box Styles */
+.sendEmails {
+  background-color: white;
+  max-width: 400px;
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 10px;
+  color: #198c0a;
+  padding: 20px;
+  border: 2px solid #198c0a;
+  text-align: center;
+  z-index: 10;
+}
+
+#hideEmails {
+  margin-left: 15px;
+}

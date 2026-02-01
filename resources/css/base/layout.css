@@ -1,0 +1,52 @@
+/* Main Layout Structure */
+#flex-div {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.edit-span {
+  font-size: 0.7em;
+}
+
+#control-strip {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  padding-top: 10px;
+  width: 100%;
+  background-color: #69292ac9;
+  display: flex;
+  justify-content: center;
+  z-index: 10;
+}
+
+#btn-div {
+  display: flex;
+  flex-wrap: wrap;
+  height: auto;
+  justify-content: center;
+}
+
+#btn-div:first-child {
+  margin-left: 10px;
+}
+
+#btn-div:last-child {
+  margin-right: 10px;
+}
+
+#get-started {
+  margin: 0 auto;
+  width: -webkit-fit-content;
+  width: -moz-fit-content;
+  width: fit-content;
+}
+
+#secretSantaBtn {
+  display: block;
+  margin-top: 10px;
+}

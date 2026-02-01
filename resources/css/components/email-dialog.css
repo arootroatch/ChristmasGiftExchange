@@ -1,0 +1,44 @@
+/* Email Entry Dialog Modal Styles */
+#emailTable {
+  min-height: 250px;
+  min-width: 400px;
+  width: auto;
+  position: fixed;
+  left: 50%;
+  top: 20px;
+  border-radius: 10px;
+  transform: translateX(-50%);
+  margin: 0;
+  table-layout: fixed;
+  z-index: 10;
+  background-color: white;
+  overflow: hidden;
+  h3 {
+    background-color: #69292a;
+    position: relative;
+    top: -20px;
+    padding: 20px;
+    margin-bottom: 0;
+  }
+  #emailBtnDiv{
+    display: flex;
+    justify-content: space-around;
+    margin-top: 5px;
+  }
+  .emailDiv {
+    position: relative;
+    top: -10px;
+    color: black;
+    display: flex;
+    border-bottom: 1px solid #69292a;
+    padding-bottom: 5px;
+    margin: 0 5px 5px;
+    & label {
+      width: 50%;
+      text-align: center;
+    }
+    & input {
+      width: 50%;
+    }
+  }
+}

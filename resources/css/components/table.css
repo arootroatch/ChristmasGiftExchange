@@ -1,0 +1,28 @@
+/* Results Table Styles */
+.table {
+  border-collapse: collapse;
+  width: 45%;
+  min-width: 300px;
+  border-radius: 20px 20px 0 0;
+  overflow: hidden;
+  margin-left: 10px;
+  & th {
+    padding: 12px 8px;
+    text-align: center;
+    background-color: #69292ac9;
+    color: white;
+  }
+  & td {
+    height: 20px;
+    padding: 8px;
+  }
+  & tr {
+    font-size: 1em;
+  }
+  & tr:nth-child(odd) {
+    background-color: #7b7b7b91;
+  }
+  & tr:nth-child(even) {
+    background-color: #9e9e9e8b;
+  }
+}
