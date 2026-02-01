@@ -7,7 +7,10 @@ export function click(selector){
 }
 
 export function addEventListener(selector, event, func) {
-    document.querySelector(selector).addEventListener(event, func);
+    const element = document.querySelector(selector);
+    if (element) {
+        element.addEventListener(event, func);
+    }
 }
 
 export function removeEventListener(selector, event, func) {

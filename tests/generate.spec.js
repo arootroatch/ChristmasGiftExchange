@@ -21,7 +21,8 @@ import {
   resetState,
   shouldDisplayEmailTable,
   shouldDisplayErrorSnackbar,
-  shouldNotDisplay
+  shouldNotDisplay,
+  initReactiveSystem
 } from "./specHelper";
 import * as name from '../resources/js/components/name';
 import * as house from "../resources/js/components/house";
@@ -31,6 +32,7 @@ const noPossibleComboError = "No possible combinations! Please try a different c
 describe('generate', () => {
 
   beforeAll(()=> {
+    initReactiveSystem();
     house.initEventListeners();
     name.initEventListeners();
   });

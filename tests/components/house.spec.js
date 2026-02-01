@@ -10,7 +10,8 @@ import {
   resetState,
   shouldSelect,
   stubProperty,
-  stubPropertyByID
+  stubPropertyByID,
+  initReactiveSystem
 } from "../specHelper";
 import {addEventListener, removeEventListener} from "../../resources/js/utils";
 import * as name from "../../resources/js/components/name";
@@ -27,7 +28,10 @@ describe('addHouse', () => {
     };
   });
 
-  beforeAll(initEventListeners);
+  beforeAll(() => {
+    initReactiveSystem();
+    initEventListeners();
+  });
 
   beforeEach(() => {
     resetState();
