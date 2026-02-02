@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>76/76</span>
+                <span class='fraction'>86/86</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>76/76</span>
+                <span class='fraction'>86/86</span>
             </div>
         
             
@@ -149,7 +149,29 @@
 <a name='L84'></a><a href='#L84'>84</a>
 <a name='L85'></a><a href='#L85'>85</a>
 <a name='L86'></a><a href='#L86'>86</a>
-<a name='L87'></a><a href='#L87'>87</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<a name='L87'></a><a href='#L87'>87</a>
+<a name='L88'></a><a href='#L88'>88</a>
+<a name='L89'></a><a href='#L89'>89</a>
+<a name='L90'></a><a href='#L90'>90</a>
+<a name='L91'></a><a href='#L91'>91</a>
+<a name='L92'></a><a href='#L92'>92</a>
+<a name='L93'></a><a href='#L93'>93</a>
+<a name='L94'></a><a href='#L94'>94</a>
+<a name='L95'></a><a href='#L95'>95</a>
+<a name='L96'></a><a href='#L96'>96</a>
+<a name='L97'></a><a href='#L97'>97</a>
+<a name='L98'></a><a href='#L98'>98</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -236,8 +258,19 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span></td><td class="text"><pre class="prettyprint lang-js">import {showEmailTable} from "./components/emailTable"
-import showSnackbar from "./components/snackbar"
 import state from "./state.js";
+import {showError} from "./components/snackbar";
+import {selectElement} from "./utils";
+&nbsp;
+const nextStepId = "nextStep";
+const addHouseId = "addHouse";
+const generateId = "generate";
+const nameListId = "name-list";
+const resultsTableId = "results-table";
+const introId = "intro";
+const leftContainerId = "left-container";
+const letsGoId = "letsGo";
+const secretSantaBtnId = "secretSantaBtn";
 &nbsp;
 const introArr = [
   ``,
@@ -250,9 +283,9 @@ const introArr = [
 ];
 &nbsp;
 export function conditionalRender() {
-  const next = document.getElementById("nextStep");
-  const addHouse = document.getElementById("addHouse");
-  const generate = document.getElementById("generate");
+  const next = selectElement(`#${nextStepId}`);
+  const addHouse = selectElement(`#${addHouseId}`);
+  const generate = selectElement(`#${generateId}`);
 &nbsp;
   switch (state.introIndex) {
     case 0:
@@ -276,29 +309,29 @@ export function conditionalRender() {
 }
 &nbsp;
 export function stepOne() {
-  document.getElementById("name-list").style.display = "block";
+  selectElement(`#${nameListId}`).style.display = "block";
   if (!state.isSecretSanta) {
-    document.getElementById("results-table").style.display = "table";
+    selectElement(`#${resultsTableId}`).style.display = "table";
   }
-  document.getElementById("nextStep").style.display = "block";
+  selectElement(`#${nextStepId}`).style.display = "block";
   introNext();
 }
 &nbsp;
 export function introNext() {
   if (state.givers.length &lt; 1 &amp;&amp; state.introIndex === 1) {
-    showSnackbar("Please add participant names", "error");
+    showError("Please add participant names");
     return;
   }
   if (state.introIndex === 3 &amp;&amp; !state.isGenerated) {
-    showSnackbar(`Please click "Generate List"`, "error");
+    showError(`Please click "Generate List"`);
     return;
   }
   if (state.introIndex === 3 &amp;&amp; state.isGenerated) {
     showEmailTable();
-    document.getElementById("nextStep").style.display = "none";
+    selectElement(`#${nextStepId}`).style.display = "none";
   }
   state.introIndex + 1 &gt; introArr.length <span class="branch-0 cbranch-no" title="branch not covered" >? (state.introIndex = 0) </span>: state.introIndex++;
-  const introDiv = document.getElementById("intro");
+  const introDiv = selectElement(`#${introId}`);
   if (state.introIndex &lt; introArr.length) {
     introDiv.innerHTML = `&lt;p&gt;${introArr[state.introIndex]}&lt;/p&gt;`;
   }
@@ -307,16 +340,16 @@ export function introNext() {
 &nbsp;
 export function secretSantaMode() {
   state.isSecretSanta = true;
-  document.getElementById("left-container").classList.add("secret");
+  selectElement(`#${leftContainerId}`).classList.add("secret");
   stepOne();
 }
 &nbsp;
 // Attach event listeners after function definitions
 // Only run in browser environment (not during tests unless explicitly imported)
 if (typeof document !== 'undefined') {
-  const nextStep = document.getElementById('nextStep');
-  const letsGo = document.getElementById('letsGo');
-  const secretSantaBtn = document.getElementById('secretSantaBtn');
+  const nextStep = selectElement(`#${nextStepId}`);
+  const letsGo = selectElement(`#${letsGoId}`);
+  const secretSantaBtn = selectElement(`#${secretSantaBtnId}`);
 &nbsp;
   if (nextStep) nextStep.addEventListener('click', introNext);
   if (letsGo) letsGo.addEventListener('click', stepOne);
@@ -328,7 +361,7 @@ if (typeof document !== 'undefined') {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-01-26T18:18:34.337Z
+                at 2026-02-02T02:12:14.137Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

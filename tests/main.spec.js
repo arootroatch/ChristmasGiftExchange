@@ -1,138 +1,145 @@
-import {describe, expect, it, vi, beforeEach} from 'vitest';
+import {beforeEach, describe, expect, it, vi} from 'vitest';
 import main from '../resources/js/main';
 
 vi.mock('../resources/js/generate', () => ({
-    initEventListeners: vi.fn(),
+  initEventListeners: vi.fn(),
 }));
 
 vi.mock('../resources/js/dragDrop', () => ({
-    initDragDrop: vi.fn(),
+  initDragDrop: vi.fn(),
 }));
 
 vi.mock('../resources/js/components/house', () => ({
-    init: vi.fn(),
-    initEventListeners: vi.fn(),
+  init: vi.fn(),
+  initEventListeners: vi.fn(),
 }));
 
 vi.mock('../resources/js/components/name', () => ({
-    init: vi.fn(),
-    initEventListeners: vi.fn(),
+  init: vi.fn(),
+  initEventListeners: vi.fn(),
 }));
 
 vi.mock('../resources/js/components/select', () => ({
-    init: vi.fn(),
+  init: vi.fn(),
 }));
 
 vi.mock('../resources/js/components/emailTable', () => ({
-    initEventListeners: vi.fn(),
+  initEventListeners: vi.fn(),
 }));
 
 vi.mock('../resources/js/components/emailQuery', () => ({
-    initEventListeners: vi.fn(),
+  initEventListeners: vi.fn(),
 }));
 
 vi.mock('../resources/js/render', () => ({
-    initRenderSubscriptions: vi.fn(),
+  initRenderSubscriptions: vi.fn(),
 }));
 
 describe('main', () => {
-    beforeEach(() => {
-        vi.clearAllMocks();
-    });
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
 
-    it('imports all required modules without errors', async () => {
-        // main.js is just a module aggregator with imports
-        // This test verifies it can be imported successfully
-        const importMain = async () => {
-            await import('../resources/js/main');
-        };
+  it('calls house.init', async () => {
+    const {init} = await import('../resources/js/components/house');
 
-        await expect(importMain()).resolves.not.toThrow();
-    });
+    main();
 
-    it('calls house.init', async () => {
-        const {init} = await import('../resources/js/components/house');
+    expect(init).toHaveBeenCalledTimes(1);
+  });
 
-        main();
+  it('calls name.init', async () => {
+    const {init} = await import('../resources/js/components/name');
 
-        expect(init).toHaveBeenCalledOnce();
-    });
+    main();
 
-    it('calls name.init', async () => {
-        const {init} = await import('../resources/js/components/name');
+    expect(init).toHaveBeenCalledTimes(1);
+  });
 
-        main();
+  it('calls select.init', async () => {
+    const {init} = await import('../resources/js/components/select');
 
-        expect(init).toHaveBeenCalledOnce();
-    });
+    main();
 
-    it('calls select.init', async () => {
-        const {init} = await import('../resources/js/components/select');
+    expect(init).toHaveBeenCalledTimes(1);
+  });
 
-        main();
+  it('calls initRenderSubscriptions', async () => {
+    const {initRenderSubscriptions} = await import('../resources/js/render');
 
-        expect(init).toHaveBeenCalledOnce();
-    });
+    main();
 
-    it('calls initRenderSubscriptions', async () => {
-        const {initRenderSubscriptions} = await import('../resources/js/render');
+    expect(initRenderSubscriptions).toHaveBeenCalledTimes(1);
+  });
 
-        main();
+  it('calls generate.initEventListeners', async () => {
+    const {initEventListeners} = await import('../resources/js/generate');
 
-        expect(initRenderSubscriptions).toHaveBeenCalledOnce();
-    });
+    main();
 
-    it('calls generate.initEventListeners', async () => {
-        const {initEventListeners} = await import('../resources/js/generate');
+    expect(initEventListeners).toHaveBeenCalledTimes(1);
+  });
 
-        main();
+  it('calls emailTable.initEventListeners', async () => {
+    const {initEventListeners} = await import('../resources/js/components/emailTable');
 
-        expect(initEventListeners).toHaveBeenCalledOnce();
-    });
+    main();
 
-    it('calls emailTable.initEventListeners', async () => {
-        const {initEventListeners} = await import('../resources/js/components/emailTable');
+    expect(initEventListeners).toHaveBeenCalledTimes(1);
+  });
 
-        main();
+  it('calls emailQuery.initEventListeners', async () => {
+    const {initEventListeners} = await import('../resources/js/components/emailQuery');
 
-        expect(initEventListeners).toHaveBeenCalledOnce();
-    });
+    main();
 
-    it('calls emailQuery.initEventListeners', async () => {
-        const {initEventListeners} = await import('../resources/js/components/emailQuery');
+    expect(initEventListeners).toHaveBeenCalledTimes(1);
+  });
 
-        main();
+  it('calls initDragDrop', async () => {
+    const {initDragDrop} = await import('../resources/js/dragDrop');
+    main();
+    expect(initDragDrop).toHaveBeenCalledTimes(1);
+  });
 
-        expect(initEventListeners).toHaveBeenCalledOnce();
-    });
+  it('calls all initialization functions in order', async () => {
+    const house = await import('../resources/js/components/house');
+    const name = await import('../resources/js/components/name');
+    const select = await import('../resources/js/components/select');
+    const {initRenderSubscriptions} = await import('../resources/js/render');
+    const generate = await import('../resources/js/generate');
+    const emailTable = await import('../resources/js/components/emailTable');
+    const emailQuery = await import('../resources/js/components/emailQuery');
+    const {initDragDrop} = await import('../resources/js/dragDrop');
 
-    it('calls initDragDrop', async () => {
-        const {initDragDrop} = await import('../resources/js/dragDrop');
+    main();
 
-        main();
+    // Verify all functions were called
+    expect(house.init).toHaveBeenCalledTimes(1);
+    expect(name.init).toHaveBeenCalledTimes(1);
+    expect(select.init).toHaveBeenCalledTimes(1);
+    expect(initRenderSubscriptions).toHaveBeenCalledTimes(1);
+    expect(generate.initEventListeners).toHaveBeenCalledTimes(1);
+    expect(emailTable.initEventListeners).toHaveBeenCalledTimes(1);
+    expect(emailQuery.initEventListeners).toHaveBeenCalledTimes(1);
+    expect(initDragDrop).toHaveBeenCalledTimes(1);
 
-        expect(initDragDrop).toHaveBeenCalledOnce();
-    });
+    // Verify the order using invocationCallOrder
+    const houseOrder = house.init.mock.invocationCallOrder[0];
+    const nameOrder = name.init.mock.invocationCallOrder[0];
+    const selectOrder = select.init.mock.invocationCallOrder[0];
+    const renderOrder = initRenderSubscriptions.mock.invocationCallOrder[0];
+    const generateOrder = generate.initEventListeners.mock.invocationCallOrder[0];
+    const emailTableOrder = emailTable.initEventListeners.mock.invocationCallOrder[0];
+    const emailQueryOrder = emailQuery.initEventListeners.mock.invocationCallOrder[0];
+    const dragDropOrder = initDragDrop.mock.invocationCallOrder[0];
 
-    it('calls all initialization functions in order', async () => {
-        const house = await import('../resources/js/components/house');
-        const name = await import('../resources/js/components/name');
-        const select = await import('../resources/js/components/select');
-        const {initRenderSubscriptions} = await import('../resources/js/render');
-        const generate = await import('../resources/js/generate');
-        const emailTable = await import('../resources/js/components/emailTable');
-        const emailQuery = await import('../resources/js/components/emailQuery');
-        const {initDragDrop} = await import('../resources/js/dragDrop');
-
-        main();
-
-        expect(house.init).toHaveBeenCalledOnce();
-        expect(name.init).toHaveBeenCalledOnce();
-        expect(select.init).toHaveBeenCalledOnce();
-        expect(initRenderSubscriptions).toHaveBeenCalledOnce();
-        expect(generate.initEventListeners).toHaveBeenCalledOnce();
-        expect(emailTable.initEventListeners).toHaveBeenCalledOnce();
-        expect(emailQuery.initEventListeners).toHaveBeenCalledOnce();
-        expect(initDragDrop).toHaveBeenCalledOnce();
-    });
+    expect(houseOrder).toBeLessThan(nameOrder);
+    expect(nameOrder).toBeLessThan(selectOrder);
+    expect(selectOrder).toBeLessThan(renderOrder);
+    expect(renderOrder).toBeLessThan(generateOrder);
+    expect(generateOrder).toBeLessThan(emailTableOrder);
+    expect(emailTableOrder).toBeLessThan(emailQueryOrder);
+    expect(emailQueryOrder).toBeLessThan(dragDropOrder);
+  });
 });

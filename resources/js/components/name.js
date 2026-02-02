@@ -1,71 +1,32 @@
-import state, { removeNameFromHouse, addGiver, removeGiver } from "../state.js";
+import state, {addGiver, removeGiver, removeNameFromHouse} from "../state.js";
 import {addEventListener, selectElement} from "../utils.js";
-import { registerComponent } from "../render.js";
+import {registerComponent} from "../render.js";
 
 const participantsId = "participants";
 const b0Id = "b0";
 
-export class Giver {
-  constructor(name, recipient = "", email = "") {
-    this.name = name;
-    this.email = email;
-    this.recipient = recipient;
-    this.date = "";
-    this.id = "";
-  }
+export function init() {
+  registerComponent('name', nameRenderer);
+  addEventListener(`#${b0Id}`, "click", addName);
 }
 
-// User actions - only update state
-export function addName() {
-  const nameInput = this.previousElementSibling;
-  let name = nameInput.value;
-
-  if (name !== "") {
-    name = name.charAt(0).toUpperCase() + name.slice(1);
-    addGiver(new Giver(name));
-    nameInput.value = "";
-  }
-}
-
-export function deleteName() {
-  const name = this.nextElementSibling.innerHTML;
-
-  const nameWrapper = this.parentNode;
-  const container = nameWrapper.parentNode;
-  const house = container.closest('.household');
-  const houseID = house?.id;
-
-  if (houseID) {
-    removeNameFromHouse(houseID, name);
-  }
-  removeGiver(name);
-}
-
-// Generic lifecycle - renders into slots
 const nameRenderer = {
   onComponentAdded(event) {
-    // Handle new names added to main list
-    if (event.type === 'name') {
-      this.renderParticipantsList();
-    }
+    if (event.type === 'name') this.renderParticipantsList();
   },
 
   onComponentRemoved(event) {
-    if (event.type === 'name') {
-      this.renderParticipantsList();
-    }
+    if (event.type === 'name') this.renderParticipantsList();
   },
 
   onComponentUpdated(event) {
-    // Listen for name-list slot updates from house component
     if (event.type === 'name-list') {
-      const slot = document.querySelector(`[data-slot="${event.id}"]`);
+      const slot = selectElement(`[data-slot="${event.id}"]`);
       if (slot && event.containerID) {
         this.renderIntoSlot(slot, event.containerID, event.data || []);
       }
     }
 
-    // Listen for participants list updates (from add/remove to houses)
     if (event.type === 'name' && event.id === 'participants') {
       this.renderParticipantsList();
     }
@@ -109,11 +70,38 @@ const nameRenderer = {
   }
 };
 
-// Initialize
-export function init() {
-  registerComponent('name', nameRenderer);
-  addEventListener(`#${b0Id}`, "click", addName);
+
+export class Giver {
+  constructor(name, recipient = "", email = "") {
+    this.name = name;
+    this.email = email;
+    this.recipient = recipient;
+    this.date = "";
+    this.id = "";
+  }
 }
 
-// Backward compatibility with tests
-export const initEventListeners = init;
+export function addName() {
+  const nameInput = this.previousElementSibling;
+  let name = nameInput.value;
+
+  if (name !== "") {
+    name = name.charAt(0).toUpperCase() + name.slice(1);
+    addGiver(name);
+    nameInput.value = "";
+  }
+}
+
+export function deleteName() {
+  const name = this.nextElementSibling.innerHTML;
+
+  const nameWrapper = this.parentNode;
+  const container = nameWrapper.parentNode;
+  const house = container.closest('.household');
+  const houseID = house?.id;
+
+  if (houseID) {
+    removeNameFromHouse(houseID, name);
+  }
+  removeGiver(name);
+}

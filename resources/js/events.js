@@ -4,9 +4,7 @@ class EventEmitter {
   }
 
   on(event, callback) {
-    if (!this.listeners[event]) {
-      this.listeners[event] = [];
-    }
+    if (!this.listeners[event]) this.listeners[event] = [];
     this.listeners[event].push(callback);
 
     return () => {
@@ -23,7 +21,6 @@ class EventEmitter {
 
 export const stateEvents = new EventEmitter();
 
-// Generic component lifecycle events
 export const Events = {
   COMPONENT_ADDED: 'component:added',
   COMPONENT_REMOVED: 'component:removed',
