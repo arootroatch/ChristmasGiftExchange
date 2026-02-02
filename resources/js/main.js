@@ -11,19 +11,14 @@ import "../js/keybindings.js"
 import "../js/components/snackbar.js";
 
 export default function main() {
-  // Step 1: Components initialize and register themselves
   house.init();
   name.init();
   select.init();
 
-  // Step 2: Initialize render subscriptions AFTER components registered
   initRenderSubscriptions();
 
-  // Step 3: Initialize other components
   generate.initEventListeners();
   emailTable.initEventListeners();
   emailQuery.initEventListeners();
-
-  // Step 4: Initialize drag/drop
   initDragDrop();
 }

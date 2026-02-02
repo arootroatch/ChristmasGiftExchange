@@ -1,4 +1,5 @@
 import { stateEvents, Events } from './events.js';
+import {Giver} from "./components/name";
 
 let state = {
   houses: {},
@@ -8,22 +9,14 @@ let state = {
   givers: [],
   nameNumber: 1,
 }
-
 export function addHouseToState(houseID) {
   state.houses[houseID] = [];
-  stateEvents.emit(Events.COMPONENT_ADDED, {
-    type: 'house',
-    id: houseID,
-    data: state.houses[houseID]
-  });
+  addComponent('house', houseID, state.houses[houseID]);
 }
 
 export function removeHouseFromState(houseID) {
   delete state.houses[houseID];
-  stateEvents.emit(Events.COMPONENT_REMOVED, {
-    type: 'house',
-    id: houseID
-  });
+  removeComponent('house', houseID);
 }
 
 export function addNameToHouse(houseID, name) {
@@ -32,52 +25,28 @@ export function addNameToHouse(houseID, name) {
   }
   if (!state.houses[houseID].includes(name)) {
     state.houses[houseID].push(name);
-    stateEvents.emit(Events.COMPONENT_UPDATED, {
-      type: 'house',
-      id: houseID,
-      data: state.houses[houseID]
-    });
-    // Trigger participants list re-render (names moved from main list to house)
-    stateEvents.emit(Events.COMPONENT_UPDATED, {
-      type: 'name',
-      id: 'participants',
-      data: state.givers
-    });
+    updateComponent('house', houseID, state.houses[houseID]);
+    updateComponent('name', 'participants', state.givers);
   }
 }
 
 export function removeNameFromHouse(houseID, name) {
   if (state.houses[houseID]) {
     state.houses[houseID] = state.houses[houseID].filter(n => n !== name);
-    stateEvents.emit(Events.COMPONENT_UPDATED, {
-      type: 'house',
-      id: houseID,
-      data: state.houses[houseID]
-    });
-    // Trigger participants list re-render (names moved from house to main list)
-    stateEvents.emit(Events.COMPONENT_UPDATED, {
-      type: 'name',
-      id: 'participants',
-      data: state.givers
-    });
+    updateComponent('house', houseID, state.houses[houseID]);
+    updateComponent('name', 'participants', state.givers);
   }
 }
 
-export function addGiver(giver) {
+export function addGiver(name) {
+  const giver = new Giver(name);
   state.givers.push(giver);
-  stateEvents.emit(Events.COMPONENT_ADDED, {
-    type: 'name',
-    id: giver.name,
-    data: giver
-  });
+  addComponent('name', giver.name, giver);
 }
 
 export function removeGiver(name) {
   state.givers = state.givers.filter(g => g.name !== name);
-  stateEvents.emit(Events.COMPONENT_REMOVED, {
-    type: 'name',
-    id: name
-  });
+  removeComponent('name', name);
 }
 
 export function getHousesArray() {
@@ -94,6 +63,39 @@ export function getIndividualParticipants() {
 
 export function getHousesForGeneration() {
   return getHousesArray().concat(getIndividualParticipants());
+}
+
+
+export function addComponent(type, id, data){
+  stateEvents.emit(Events.COMPONENT_ADDED, {
+    type: type,
+    id: id,
+    data: data
+  });
+}
+
+export function updateComponent(type, id, data){
+  stateEvents.emit(Events.COMPONENT_UPDATED, {
+    type: type,
+    id: id,
+    data: data
+  });
+}
+
+export function updateChildComponent(type, id, containerID, data){
+  stateEvents.emit(Events.COMPONENT_UPDATED, {
+    type: type,
+    id: id,
+    containerID: containerID,
+    data: data
+  });
+}
+
+export function removeComponent(type, id){
+  stateEvents.emit(Events.COMPONENT_REMOVED, {
+    type: type,
+    id: id,
+  });
 }
 
 export default state;

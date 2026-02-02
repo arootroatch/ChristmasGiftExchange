@@ -1,22 +1,21 @@
-import {beforeEach, beforeAll, describe, expect, it, vi} from "vitest";
+import {beforeAll, beforeEach, describe, expect, it, vi} from "vitest";
 import {
   addHouseToDOM,
   change,
   clearNameSelects,
   click,
-  enterName, moveNameToHouse,
-  removeAllNames,
+  enterName,
+  initReactiveSystem,
+  moveNameToHouse,
   removeAllHouses,
+  removeAllNames,
   resetState,
-  shouldSelect,
   shouldNotSelect,
-  stubProperty,
-  stubPropertyByID,
-  initReactiveSystem
+  shouldSelect,
+  stubProperty
 } from "../specHelper";
 import {addEventListener, removeEventListener} from "../../resources/js/utils";
-import * as name from "../../resources/js/components/name";
-import {addHouse, deleteHouse, initEventListeners, insertNameFromSelect} from "../../resources/js/components/house";
+import {addHouse, deleteHouse, init, insertNameFromSelect} from "../../resources/js/components/house";
 import state, * as stateModule from "../../resources/js/state";
 
 describe('addHouse', () => {
@@ -31,7 +30,7 @@ describe('addHouse', () => {
 
   beforeAll(() => {
     initReactiveSystem();
-    initEventListeners();
+    init();
   });
 
   beforeEach(() => {
