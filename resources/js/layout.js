@@ -85,14 +85,13 @@ export function secretSantaMode() {
   stepOne();
 }
 
-// Attach event listeners after function definitions
-// Only run in browser environment (not during tests unless explicitly imported)
 if (typeof document !== 'undefined') {
-  const nextStep = selectElement(`#${nextStepId}`);
-  const letsGo = selectElement(`#${letsGoId}`);
-  const secretSantaBtn = selectElement(`#${secretSantaBtnId}`);
+  const nextStep = selectElement('#nextStep');
+  const letsGo = selectElement('#letsGo');
+  const secretSantaBtn = selectElement('#secretSantaBtn');
 
   if (nextStep) nextStep.addEventListener('click', introNext);
   if (letsGo) letsGo.addEventListener('click', stepOne);
   if (secretSantaBtn) secretSantaBtn.addEventListener('click', secretSantaMode);
 }
+

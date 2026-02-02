@@ -3,8 +3,8 @@ import state, {
   addNameToHouse,
   removeHouseFromState,
   removeNameFromHouse,
-  updateChildComponent,
-  updateComponent
+  emitUpdateChildComponent,
+  emitUpdateComponent
 } from "../state.js";
 import {addEventListener, selectElement} from "../utils.js";
 import {registerComponent} from "../render.js";
@@ -64,8 +64,8 @@ const houseRenderer = {
   },
 
   fillNameSlots(houseID) {
-    updateChildComponent('name-list', `names-${houseID}`, houseID, state.houses[houseID]);
-    updateComponent('select', `select-${houseID}`, state.givers);
+    emitUpdateChildComponent('name-list', `names-${houseID}`, houseID, state.houses[houseID]);
+    emitUpdateComponent('select', `select-${houseID}`, state.givers);
   },
 
   attachListeners(houseID) {

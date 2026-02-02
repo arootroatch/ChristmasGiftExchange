@@ -1,7 +1,7 @@
 import {afterEach, beforeAll, beforeEach, describe, expect, it, vi} from 'vitest';
 import state from '../resources/js/state';
 import {removeAllHouses, removeAllNames, resetState} from "./specHelper";
-import {conditionalRender, introNext, secretSantaMode, stepOne} from "../resources/js/layout";
+import {conditionalRender, initEventListeners, introNext, secretSantaMode, stepOne} from "../resources/js/layout";
 
 describe('layout', () => {
   let nextStepBtn, letsGoBtn, secretSantaBtn, addHouseBtn, generateBtn;
@@ -226,6 +226,7 @@ describe('layout', () => {
   });
 
   describe('event listeners', () => {
+
     it('letsGo button has click listener attached', () => {
       expect(nameList.style.display).toBe('none');
 

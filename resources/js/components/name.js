@@ -70,17 +70,6 @@ const nameRenderer = {
   }
 };
 
-
-export class Giver {
-  constructor(name, recipient = "", email = "") {
-    this.name = name;
-    this.email = email;
-    this.recipient = recipient;
-    this.date = "";
-    this.id = "";
-  }
-}
-
 export function addName() {
   const nameInput = this.previousElementSibling;
   let name = nameInput.value;
