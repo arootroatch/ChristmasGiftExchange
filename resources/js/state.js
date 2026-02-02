@@ -1,5 +1,4 @@
 import { stateEvents, Events } from './events.js';
-import {Giver} from "./components/name";
 
 let state = {
   houses: {},
@@ -9,14 +8,25 @@ let state = {
   givers: [],
   nameNumber: 1,
 }
+
+export class Giver {
+  constructor(name, recipient = "", email = "") {
+    this.name = name;
+    this.email = email;
+    this.recipient = recipient;
+    this.date = "";
+    this.id = "";
+  }
+}
+
 export function addHouseToState(houseID) {
   state.houses[houseID] = [];
-  addComponent('house', houseID, state.houses[houseID]);
+  emitAddComponent('house', houseID, state.houses[houseID]);
 }
 
 export function removeHouseFromState(houseID) {
   delete state.houses[houseID];
-  removeComponent('house', houseID);
+  emitRemoveComponent('house', houseID);
 }
 
 export function addNameToHouse(houseID, name) {
@@ -25,28 +35,28 @@ export function addNameToHouse(houseID, name) {
   }
   if (!state.houses[houseID].includes(name)) {
     state.houses[houseID].push(name);
-    updateComponent('house', houseID, state.houses[houseID]);
-    updateComponent('name', 'participants', state.givers);
+    emitUpdateComponent('house', houseID, state.houses[houseID]);
+    emitUpdateComponent('name', 'participants', state.givers);
   }
 }
 
 export function removeNameFromHouse(houseID, name) {
   if (state.houses[houseID]) {
     state.houses[houseID] = state.houses[houseID].filter(n => n !== name);
-    updateComponent('house', houseID, state.houses[houseID]);
-    updateComponent('name', 'participants', state.givers);
+    emitUpdateComponent('house', houseID, state.houses[houseID]);
+    emitUpdateComponent('name', 'participants', state.givers);
   }
 }
 
 export function addGiver(name) {
   const giver = new Giver(name);
   state.givers.push(giver);
-  addComponent('name', giver.name, giver);
+  emitAddComponent('name', giver.name, giver);
 }
 
 export function removeGiver(name) {
   state.givers = state.givers.filter(g => g.name !== name);
-  removeComponent('name', name);
+  emitRemoveComponent('name', name);
 }
 
 export function getHousesArray() {
@@ -66,7 +76,7 @@ export function getHousesForGeneration() {
 }
 
 
-export function addComponent(type, id, data){
+export function emitAddComponent(type, id, data){
   stateEvents.emit(Events.COMPONENT_ADDED, {
     type: type,
     id: id,
@@ -74,7 +84,7 @@ export function addComponent(type, id, data){
   });
 }
 
-export function updateComponent(type, id, data){
+export function emitUpdateComponent(type, id, data){
   stateEvents.emit(Events.COMPONENT_UPDATED, {
     type: type,
     id: id,
@@ -82,7 +92,7 @@ export function updateComponent(type, id, data){
   });
 }
 
-export function updateChildComponent(type, id, containerID, data){
+export function emitUpdateChildComponent(type, id, containerID, data){
   stateEvents.emit(Events.COMPONENT_UPDATED, {
     type: type,
     id: id,
@@ -91,7 +101,7 @@ export function updateChildComponent(type, id, containerID, data){
   });
 }
 
-export function removeComponent(type, id){
+export function emitRemoveComponent(type, id){
   stateEvents.emit(Events.COMPONENT_REMOVED, {
     type: type,
     id: id,

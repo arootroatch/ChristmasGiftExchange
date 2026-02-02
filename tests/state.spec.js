@@ -6,9 +6,9 @@ import state, {
   removeNameFromHouse,
   getHousesArray,
   getIndividualParticipants,
-  getHousesForGeneration
+  getHousesForGeneration,
+  Giver
 } from '/resources/js/state.js'
-import { Giver } from '/resources/js/components/name.js'
 
 test('initial state', () => {
     expect(state.houses).toEqual({});

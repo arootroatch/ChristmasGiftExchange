@@ -11,8 +11,8 @@ import {
   shouldSelect,
   stubProperty
 } from "../specHelper";
-import {Giver, init} from "../../resources/js/components/name";
-import state from "../../resources/js/state";
+import {init} from "../../resources/js/components/name";
+import state, {Giver} from "../../resources/js/state";
 import * as house from "../../resources/js/components/house";
 
 describe('addName', () => {
