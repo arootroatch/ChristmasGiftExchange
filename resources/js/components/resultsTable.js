@@ -1,5 +1,6 @@
 import {registerComponent} from "../render.js";
-import {selectElement} from "../utils.js";
+import {selectElement, pushHTMl} from "../utils.js";
+import state from "../state.js";
 
 const tableBodyId = "table-body";
 
@@ -57,5 +58,11 @@ const resultsTableRenderer = {
   },
 
   onComponentUpdated(event) {
+    if (event.type === 'resultsTable' && event.data?.isGenerated === false && event.data?.isSecretSanta === false) {
+      clearGeneratedListTable();
+      pushHTMl(`#${tableBodyId}`, emptyTable());
+    } else if (event.type === 'resultsTable' && event.data?.isGenerated === true && event.data?.isSecretSanta === false) {
+      renderResultsToTable(state.givers);
+    }
   }
 };

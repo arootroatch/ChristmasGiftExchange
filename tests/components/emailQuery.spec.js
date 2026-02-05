@@ -1,5 +1,5 @@
 import {beforeEach, describe, expect, it, vi, afterAll, beforeAll} from "vitest";
-import {click, stubFetch, stubFetchError} from "../specHelper";
+import {click, expectColor, stubFetch, stubFetchError} from "../specHelper";
 import {initEventListeners} from "../../resources/js/components/emailQuery";
 import {waitFor} from "@testing-library/dom";
 
@@ -30,7 +30,7 @@ describe("getName", () => {
         stubFetch(true, 200, {recipient: "Whitney", date: "2023-01-01T00:00:00.000Z"});
         click("#emailQueryBtn");
         expect(emailQueryBtn.innerHTML).toContain('Loading...');
-        expect(emailQueryBtn.style.color).toBe("rgb(128, 128, 128)");
+        expectColor(emailQueryBtn.style.color, "rgb(128, 128, 128)", "#808080");
     })
 
     it("displays recipient and date", () => {

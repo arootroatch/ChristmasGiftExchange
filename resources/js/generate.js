@@ -1,6 +1,5 @@
 import {showEmailTable} from "./components/emailTable"
-import {renderResultsToTable} from "./components/resultsTable"
-import state, { getHousesForGeneration } from "./state.js";
+import state, { getHousesForGeneration, setIsGenerated } from "./state.js";
 import * as self from "./generate.js";
 import {showError} from "./components/snackbar";
 import {selectElement} from "./utils";
@@ -43,7 +42,7 @@ export function generateList(_, maxAttempts = 25) {
     selectElement(`#${generateId}`).style.display = "none";
     selectElement(`#${nextStepId}`).style.display = "none";
   } else {
-    renderResultsToTable(results);
+    setIsGenerated(true);
   }
 }
 

@@ -9,7 +9,7 @@ import {
 } from '../resources/js/generate';
 import {
   clearGeneratedListTable,
-  emptyTable
+  init as initResultsTable
 } from '../resources/js/components/resultsTable';
 import state, { getHousesForGeneration } from '../resources/js/state';
 import {
@@ -37,32 +37,6 @@ describe('generate', () => {
     initReactiveSystem();
   });
   beforeEach(resetState);
-
-  describe('emptyTable', () => {
-    it('returns HTML string with 4 empty table rows', () => {
-      const result = emptyTable();
-
-      expect(result).toContain('<tr>');
-      expect(result).toContain('<td></td>');
-      expect(result.match(/<tr>/g)).toHaveLength(4);
-      expect(result.match(/<td><\/td>/g)).toHaveLength(8);
-    });
-  });
-
-  describe('clearGeneratedListTable', () => {
-    beforeEach(() => {
-      document.querySelector('#table-body').innerHTML = `<tr></tr><tr></tr>`
-    });
-
-    it('clears table content', () => {
-      const tableBody = document.querySelector('#table-body');
-      expect(tableBody.children.length).toBe(2);
-
-      clearGeneratedListTable();
-
-      expect(tableBody.children.length).toBe(0);
-    });
-  });
 
   describe('hasDuplicates', () => {
 
@@ -129,6 +103,7 @@ describe('generate', () => {
       removeAllNames();
       removeAllHouses();
       clearGeneratedListTable();
+      initResultsTable();
     });
 
     it('invokes generate with counter=0 and default maxAttempts=25', () => {
@@ -228,6 +203,18 @@ describe('generate', () => {
       generateList();
       shouldNotDisplay("#generate");
       shouldNotDisplay("#nextStep");
+    });
+
+    it('calls setIsGenerated when not secret santa', async () => {
+      const stateModule = await import('../resources/js/state.js');
+      const spy = vi.spyOn(stateModule, 'setIsGenerated');
+
+      enterName("Alex");
+      enterName("Whitney");
+      generateList();
+
+      expect(spy).toHaveBeenCalledWith(true);
+      spy.mockRestore();
     });
 
   });

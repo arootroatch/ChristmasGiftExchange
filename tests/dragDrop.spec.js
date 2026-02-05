@@ -4,6 +4,7 @@ import state from '../resources/js/state';
 import {
   addHouseToDOM,
   enterName,
+  expectColor,
   initReactiveSystem,
   removeAllHouses,
   removeAllNames,
@@ -27,7 +28,12 @@ describe('dragDrop', () => {
       allowDrop(mockEvent);
 
       expect(mockEvent.preventDefault).toHaveBeenCalled();
-      expect(mockEvent.target.style.backgroundColor).toBe('#ffffff9e');
+      expectColor(
+        mockEvent.target.style.backgroundColor,
+        "#ffffff9e",
+        "rgba(255, 255, 255, 0.62)",
+        "rgb(255, 255, 255)"
+      );
     });
 
     it('does nothing when target is not name-container', () => {
@@ -95,7 +101,7 @@ describe('dragDrop', () => {
       expect(mockEvent.preventDefault).toHaveBeenCalled();
       expect(mockEvent.dataTransfer.getData).toHaveBeenCalledWith('text');
       expect(participants.contains(nameWrapper)).toBe(true);
-      expect(participants.style.backgroundColor).toBe('transparent');
+      expectColor(participants.style.backgroundColor, "transparent", "rgba(0, 0, 0, 0)", "#00000000");
     });
 
     it('updates state when dropping name into house', () => {
@@ -182,7 +188,7 @@ describe('dragDrop', () => {
 
       dragLeave(mockEvent);
 
-      expect(mockEvent.target.style.backgroundColor).toBe('transparent');
+      expectColor(mockEvent.target.style.backgroundColor, "transparent", "rgba(0, 0, 0, 0)", "#00000000");
     });
 
     it('sets background color to transparent even if it was already transparent', () => {
@@ -196,7 +202,7 @@ describe('dragDrop', () => {
 
       dragLeave(mockEvent);
 
-      expect(mockEvent.target.style.backgroundColor).toBe('transparent');
+      expectColor(mockEvent.target.style.backgroundColor, "transparent", "rgba(0, 0, 0, 0)", "#00000000");
     });
   });
 

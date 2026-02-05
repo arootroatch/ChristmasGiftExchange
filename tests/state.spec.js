@@ -1,4 +1,4 @@
-import { describe, beforeEach, expect, it, test } from 'vitest'
+import { describe, beforeEach, expect, it, test, vi } from 'vitest'
 import state, {
   addHouseToState,
   removeHouseFromState,
@@ -7,8 +7,10 @@ import state, {
   getHousesArray,
   getIndividualParticipants,
   getHousesForGeneration,
+  setIsGenerated,
   Giver
 } from '/resources/js/state.js'
+import { stateEvents, Events } from '/resources/js/events.js'
 
 test('initial state', () => {
     expect(state.houses).toEqual({});
@@ -133,6 +135,52 @@ describe('state helper functions', () => {
     it('should return empty array if all givers are in houses', () => {
       state.houses = {"house-0": ["Alice", "Bob", "Charlie"]};
       expect(getIndividualParticipants()).toEqual([]);
+    });
+  });
+
+  describe('setIsGenerated', () => {
+    it('sets state.isGenerated to true', () => {
+      state.isGenerated = false;
+      setIsGenerated(true);
+      expect(state.isGenerated).toBe(true);
+    });
+
+    it('sets state.isGenerated to false', () => {
+      state.isGenerated = true;
+      setIsGenerated(false);
+      expect(state.isGenerated).toBe(false);
+    });
+
+    it('emits COMPONENT_UPDATED event with resultsTable type', () => {
+      const spy = vi.fn();
+      const unsubscribe = stateEvents.on(Events.COMPONENT_UPDATED, spy);
+
+      state.isSecretSanta = false;
+      setIsGenerated(true);
+
+      expect(spy).toHaveBeenCalledWith({
+        type: 'resultsTable',
+        id: 'main',
+        data: { isGenerated: true, isSecretSanta: false }
+      });
+
+      unsubscribe();
+    });
+
+    it('includes current isSecretSanta value in emitted event', () => {
+      const spy = vi.fn();
+      const unsubscribe = stateEvents.on(Events.COMPONENT_UPDATED, spy);
+
+      state.isSecretSanta = true;
+      setIsGenerated(true);
+
+      expect(spy).toHaveBeenCalledWith({
+        type: 'resultsTable',
+        id: 'main',
+        data: { isGenerated: true, isSecretSanta: true }
+      });
+
+      unsubscribe();
     });
   });
 

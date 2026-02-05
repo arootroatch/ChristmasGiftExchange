@@ -1,6 +1,7 @@
 import {beforeEach, beforeAll, describe, expect, it, vi} from "vitest";
 import {
   click,
+  expectColor,
   installGiverNames,
   installGivers,
   shouldDisplayEmailTable,
@@ -70,7 +71,7 @@ describe('emailTable', () => {
     })
 
     it("sets button color to #808080", () => {
-      expect(submitEmailsButton.style.color).toBe("rgb(128, 128, 128)");
+      expectColor(submitEmailsButton.style.color, "rgb(128, 128, 128)", "#808080");
     })
 
     it("gets emails from form", () => {
@@ -142,7 +143,7 @@ describe('emailTable', () => {
 
     it("sets button text to Loading...", () => {
       expect(sendEmailsButton.innerHTML).toContain('Loading...');
-      expect(sendEmailsButton.style.color).toBe("rgb(128, 128, 128)");
+      expectColor(sendEmailsButton.style.color, "rgb(128, 128, 128)", "#808080");
     });
 
     it("sends emails for each giver", () => {

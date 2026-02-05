@@ -150,16 +150,16 @@ export function moveNameToHouse(houseSelector, name) {
 export function shouldDisplayErrorSnackbar(message) {
   const snackbar = document.querySelector("#snackbar");
   expect(snackbar.classList).toContain("show");
-  expect(snackbar.style.color).toBe("rgb(179, 30, 32)");
-  expect(snackbar.style.border).toBe("3px solid rgb(179, 30, 32)");
+  expectColor(snackbar.style.color, "rgb(179, 30, 32)", "#b31e20");
+  expectBorderColor(snackbar.style.border, "3px solid", "rgb(179, 30, 32)", "#b31e20");
   expect(snackbar.innerHTML).toContain(message);
 }
 
 export function shouldDisplaySuccessSnackbar(message) {
   const snackbar = selectElement("#snackbar");
   expect(snackbar.innerHTML).toContain(message);
-  expect(snackbar.style.color).toBe("rgb(25, 140, 10)");
-  expect(snackbar.style.border).toBe("2px solid rgb(25, 140, 10)");
+  expectColor(snackbar.style.color, "rgb(25, 140, 10)", "#198c0a");
+  expectBorderColor(snackbar.style.border, "2px solid", "rgb(25, 140, 10)", "#198c0a");
 }
 
 export function shouldDisplayEmailTable(...names) {
@@ -178,3 +178,81 @@ export function giverByName(name){
   return state.givers.filter((giver) => giver.name === name)[0];
 }
 
+export function expectColor(actual, ...expectedColors) {
+  const actualParsed = parseColor(actual);
+  const expectedParsed = expectedColors
+    .flat()
+    .map((color) => parseColor(color))
+    .filter((color) => color !== null);
+
+  expect(actualParsed).not.toBeNull();
+  expect(expectedParsed.length).toBeGreaterThan(0);
+
+  const matches = expectedParsed.some((expected) => colorsClose(actualParsed, expected));
+  expect(matches).toBe(true);
+}
+
+export function expectBorderColor(borderValue, expectedPrefix, ...expectedColors) {
+  expect(borderValue.startsWith(expectedPrefix)).toBe(true);
+  const colorPart = borderValue.slice(expectedPrefix.length).trim();
+  expectColor(colorPart, ...expectedColors);
+}
+
+function parseColor(value) {
+  if (value === undefined || value === null) return null;
+  const trimmed = String(value).trim().toLowerCase();
+  if (trimmed === "transparent") return {r: 0, g: 0, b: 0, a: 0};
+
+  if (trimmed.startsWith("rgb")) {
+    const match = trimmed.match(/rgba?\(([^)]+)\)/);
+    if (!match) return null;
+    const parts = match[1].split(",").map((part) => part.trim());
+    const r = Number.parseFloat(parts[0]);
+    const g = Number.parseFloat(parts[1]);
+    const b = Number.parseFloat(parts[2]);
+    const a = parts.length === 4 ? Number.parseFloat(parts[3]) : 1;
+    if ([r, g, b, a].some((num) => Number.isNaN(num))) return null;
+    return {r, g, b, a};
+  }
+
+  if (trimmed.startsWith("#")) {
+    const hex = trimmed.slice(1);
+    let r;
+    let g;
+    let b;
+    let a = 1;
+
+    if (hex.length === 3 || hex.length === 4) {
+      r = Number.parseInt(hex[0] + hex[0], 16);
+      g = Number.parseInt(hex[1] + hex[1], 16);
+      b = Number.parseInt(hex[2] + hex[2], 16);
+      if (hex.length === 4) {
+        a = Number.parseInt(hex[3] + hex[3], 16) / 255;
+      }
+      return {r, g, b, a};
+    }
+
+    if (hex.length === 6 || hex.length === 8) {
+      r = Number.parseInt(hex.slice(0, 2), 16);
+      g = Number.parseInt(hex.slice(2, 4), 16);
+      b = Number.parseInt(hex.slice(4, 6), 16);
+      if (hex.length === 8) {
+        a = Number.parseInt(hex.slice(6, 8), 16) / 255;
+      }
+      return {r, g, b, a};
+    }
+  }
+
+  return null;
+}
+
+function colorsClose(actual, expected) {
+  const channelTolerance = 0.5;
+  const alphaTolerance = 0.01;
+  return (
+    Math.abs(actual.r - expected.r) <= channelTolerance &&
+    Math.abs(actual.g - expected.g) <= channelTolerance &&
+    Math.abs(actual.b - expected.b) <= channelTolerance &&
+    Math.abs(actual.a - expected.a) <= alphaTolerance
+  );
+}

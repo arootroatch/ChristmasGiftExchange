@@ -76,7 +76,15 @@ export function getHousesForGeneration() {
 }
 
 
-export function emitAddComponent(type, id, data){
+export function setIsGenerated(bool) {
+  state.isGenerated = bool;
+  emitUpdateComponent('resultsTable', 'main', {
+    isGenerated: state.isGenerated,
+    isSecretSanta: state.isSecretSanta
+  });
+}
+
+function emitAddComponent(type, id, data){
   stateEvents.emit(Events.COMPONENT_ADDED, {
     type: type,
     id: id,
@@ -84,7 +92,7 @@ export function emitAddComponent(type, id, data){
   });
 }
 
-export function emitUpdateComponent(type, id, data){
+function emitUpdateComponent(type, id, data){
   stateEvents.emit(Events.COMPONENT_UPDATED, {
     type: type,
     id: id,
@@ -92,16 +100,7 @@ export function emitUpdateComponent(type, id, data){
   });
 }
 
-export function emitUpdateChildComponent(type, id, containerID, data){
-  stateEvents.emit(Events.COMPONENT_UPDATED, {
-    type: type,
-    id: id,
-    containerID: containerID,
-    data: data
-  });
-}
-
-export function emitRemoveComponent(type, id){
+function emitRemoveComponent(type, id){
   stateEvents.emit(Events.COMPONENT_REMOVED, {
     type: type,
     id: id,
