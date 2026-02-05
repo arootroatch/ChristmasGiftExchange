@@ -20,10 +20,10 @@ const nameRenderer = {
   },
 
   onComponentUpdated(event) {
-    if (event.type === 'name-list') {
-      const slot = selectElement(`[data-slot="${event.id}"]`);
-      if (slot && event.containerID) {
-        this.renderIntoSlot(slot, event.containerID, event.data || []);
+    if (event.type === 'house') {
+      const slot = selectElement(`[data-slot="names-${event.id}"]`);
+      if (slot) {
+        this.renderIntoSlot(slot, event.id, event.data || []);
       }
     }
 

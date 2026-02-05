@@ -1,6 +1,7 @@
 import {beforeAll, beforeEach, describe, expect, it} from "vitest";
 import {init, emptyTable, clearGeneratedListTable, renderResultsToTable} from "../../resources/js/components/resultsTable";
 import {initReactiveSystem, resetState} from "../specHelper";
+import state, {setIsGenerated} from "../../resources/js/state";
 
 describe('resultsTable', () => {
   beforeAll(() => {
@@ -48,12 +49,71 @@ describe('resultsTable', () => {
       {name: 'Alex', recipient: 'Whitney'},
       {name: 'Whitney', recipient: 'Alex'}
     ];
-    
+
     renderResultsToTable(results);
-    
+
     const tableBody = document.querySelector('#table-body');
     expect(tableBody.innerHTML).toContain('<td>Alex</td>');
     expect(tableBody.innerHTML).toContain('<td>Whitney</td>');
     expect(tableBody.querySelectorAll('tr').length).toBe(2);
+  });
+
+  it('renders empty table when setIsGenerated called with false', () => {
+    setIsGenerated(false);
+
+    const tableBody = document.querySelector('#table-body');
+    const rows = tableBody.querySelectorAll('tr');
+    const cells = tableBody.querySelectorAll('td');
+
+    expect(rows.length).toBe(4);
+    expect(cells.length).toBe(8);
+
+    cells.forEach(cell => {
+      expect(cell.textContent.trim()).toBe('');
+    });
+  });
+
+  it('renders results from state.givers when setIsGenerated called with true', () => {
+    state.givers = [
+      {name: 'Alex', recipient: 'Whitney', email: 'alex@example.com', date: '', id: '1'},
+      {name: 'Whitney', recipient: 'Jordan', email: 'whitney@example.com', date: '', id: '2'},
+      {name: 'Jordan', recipient: 'Alex', email: 'jordan@example.com', date: '', id: '3'}
+    ];
+
+    setIsGenerated(true);
+
+    const tableBody = document.querySelector('#table-body');
+    const rows = tableBody.querySelectorAll('tr');
+
+    expect(rows.length).toBe(3);
+
+    expect(tableBody.innerHTML).toContain('<td>Alex</td>');
+    expect(tableBody.innerHTML).toContain('<td>Whitney</td>');
+    expect(tableBody.innerHTML).toContain('<td>Jordan</td>');
+
+    const row1Cells = rows[0].querySelectorAll('td');
+    expect(row1Cells[0].textContent).toBe('Alex');
+    expect(row1Cells[1].textContent).toBe('Whitney');
+
+    const row2Cells = rows[1].querySelectorAll('td');
+    expect(row2Cells[0].textContent).toBe('Whitney');
+    expect(row2Cells[1].textContent).toBe('Jordan');
+
+    const row3Cells = rows[2].querySelectorAll('td');
+    expect(row3Cells[0].textContent).toBe('Jordan');
+    expect(row3Cells[1].textContent).toBe('Alex');
+  });
+
+  it('does not render results when isSecretSanta=true', () => {
+    state.givers = [
+      {name: 'Alex', recipient: 'Whitney', email: 'alex@example.com', date: '', id: '1'},
+      {name: 'Whitney', recipient: 'Alex', email: 'whitney@example.com', date: '', id: '2'}
+    ];
+    state.isSecretSanta = true;
+
+    setIsGenerated(true);
+
+    const tableBody = document.querySelector('#table-body');
+    expect(tableBody.children.length).toBe(0);
   });
 });

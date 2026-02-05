@@ -1,4 +1,6 @@
 import {registerComponent} from "../render.js";
+import {addEventListener} from "../utils.js";
+import {insertNameFromSelect} from "./house.js";
 import state from "../state.js";
 
 export function init() {
@@ -8,6 +10,10 @@ export function init() {
 const selectRenderer = {
   onComponentAdded(event) {
     if (event.type === 'name') this.updateAllSelects();
+    if (event.type === 'house') {
+      const slot = document.querySelector(`[data-slot="select-${event.id}"]`);
+      if (slot) this.renderIntoSlot(slot, state.givers);
+    }
   },
 
   onComponentRemoved(event) {
@@ -15,9 +21,9 @@ const selectRenderer = {
   },
 
   onComponentUpdated(event) {
-    if (event.type === 'select') {
-      const slot = document.querySelector(`[data-slot="${event.id}"]`);
-      if (slot) this.renderIntoSlot(slot, event.data || []);
+    if (event.type === 'house') {
+      const slot = document.querySelector(`[data-slot="select-${event.id}"]`);
+      if (slot) this.renderIntoSlot(slot, state.givers);
     }
   },
 
@@ -43,6 +49,7 @@ const selectRenderer = {
 
     if (!select) {
       slot.innerHTML = this.template(houseID, givers);
+      addEventListener(`#${houseID}-select`, 'change', insertNameFromSelect);
     } else {
       select.innerHTML = `
         ${this.defaultOption}

@@ -2,9 +2,7 @@ import state, {
   addHouseToState,
   addNameToHouse,
   removeHouseFromState,
-  removeNameFromHouse,
-  emitUpdateChildComponent,
-  emitUpdateComponent
+  removeNameFromHouse
 } from "../state.js";
 import {addEventListener, selectElement} from "../utils.js";
 import {registerComponent} from "../render.js";
@@ -31,7 +29,6 @@ const houseRenderer = {
     const html = this.template(event.id, displayNumber);
 
     container.insertAdjacentHTML('beforeend', html);
-    this.fillNameSlots(event.id);
     this.attachListeners(event.id);
   },
 
@@ -41,16 +38,6 @@ const houseRenderer = {
   },
 
   onComponentUpdated(event) {
-    if (event.type !== 'house') return;
-
-    const house = selectElement(`#${event.id}`);
-    if (!house) return;
-
-    const slot = house.querySelector(`[data-slot="names-${event.id}"]`);
-    if (slot) {
-      slot.setAttribute('data-needs-update', 'true');
-      this.fillNameSlots(event.id);
-    }
   },
 
   template(houseID, displayNumber) {
@@ -63,14 +50,8 @@ const houseRenderer = {
       </div>`;
   },
 
-  fillNameSlots(houseID) {
-    emitUpdateChildComponent('name-list', `names-${houseID}`, houseID, state.houses[houseID]);
-    emitUpdateComponent('select', `select-${houseID}`, state.givers);
-  },
-
   attachListeners(houseID) {
     addEventListener(`#${houseID}-delete`, 'click', deleteHouse);
-    addEventListener(`#${houseID}-select`, 'change', insertNameFromSelect);
   }
 };
 
