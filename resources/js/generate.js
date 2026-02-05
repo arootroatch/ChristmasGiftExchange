@@ -1,43 +1,16 @@
 import {showEmailTable} from "./components/emailTable"
+import {renderResultsToTable} from "./components/resultsTable"
 import state, { getHousesForGeneration } from "./state.js";
 import * as self from "./generate.js";
 import {showError} from "./components/snackbar";
 import {selectElement} from "./utils";
 
 const generateId = "generate";
-const tableBodyId = "table-body";
 const nextStepId = "nextStep";
 
 export function initEventListeners() {
   const generateBtn = selectElement(`#${generateId}`);
   if (generateBtn) generateBtn.addEventListener("click", generateList);
-}
-
-export function emptyTable() {
-  return `
-    <tr>
-        <td></td>
-        <td></td>
-    </tr>
-    <tr>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td></td>
-      <td></td>
-    </tr>`
-}
-
-export function clearGeneratedListTable() {
-  let parentNode = selectElement(`#${tableBodyId}`);
-  while (parentNode?.firstChild) {
-    parentNode.removeChild(parentNode.firstChild);
-  }
 }
 
 export function hasDuplicates(arr) {
@@ -135,21 +108,6 @@ function selectRecipient(house) {
 
 function removeName(availableRecipients, houseIndex, recipientIndex) {
   availableRecipients[houseIndex].splice(recipientIndex, 1);
-}
-
-function renderResultsToTable(results) {
-  clearGeneratedListTable();
-  let html = '';
-  for (const giver of results) {
-    html += `<tr>
-                <td>${giver.name}</td>
-                <td>${giver.recipient}</td>
-            </tr>`;
-  }
-  selectElement(`#${tableBodyId}`).insertAdjacentHTML(
-    "beforeend",
-    html
-  );
 }
 
 function isNotGiversHouse(house, giver) {

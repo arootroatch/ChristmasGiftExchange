@@ -86,9 +86,9 @@ export function secretSantaMode() {
 }
 
 if (typeof document !== 'undefined') {
-  const nextStep = selectElement('#nextStep');
-  const letsGo = selectElement('#letsGo');
-  const secretSantaBtn = selectElement('#secretSantaBtn');
+  const nextStep = selectElement(`#${nextStepId}`);
+  const letsGo = selectElement(`#${letsGoId}`);
+  const secretSantaBtn = selectElement(`#${secretSantaBtnId}`);
 
   if (nextStep) nextStep.addEventListener('click', introNext);
   if (letsGo) letsGo.addEventListener('click', stepOne);
