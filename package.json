@@ -2,7 +2,7 @@
   "name": "christmas-gift-exchange",
   "version": "1.0.0",
   "description": "Gift exchange generator site for holiday name picking",
-  "main": "dragDrop.js",
+  "main": "main.js",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -24,8 +24,7 @@
     "dotenv": "^16.3.2",
     "mongodb": "^6.3.0",
     "n": "^10.1.0",
-    "node-fetch": "^3.3.2",
-    "stable": "^0.1.8"
+    "node-fetch": "^3.3.2"
   },
   "devDependencies": {
     "@testing-library/dom": "^10.4.0",

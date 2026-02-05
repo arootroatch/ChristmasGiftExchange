@@ -151,7 +151,7 @@ export function shouldDisplayErrorSnackbar(message) {
   const snackbar = document.querySelector("#snackbar");
   expect(snackbar.classList).toContain("show");
   expect(snackbar.style.color).toBe("rgb(179, 30, 32)");
-  expect(snackbar.style.border).toBe("3px solid #b31e20");
+  expect(snackbar.style.border).toBe("3px solid rgb(179, 30, 32)");
   expect(snackbar.innerHTML).toContain(message);
 }
 
@@ -159,7 +159,7 @@ export function shouldDisplaySuccessSnackbar(message) {
   const snackbar = selectElement("#snackbar");
   expect(snackbar.innerHTML).toContain(message);
   expect(snackbar.style.color).toBe("rgb(25, 140, 10)");
-  expect(snackbar.style.border).toBe("2px solid #198c0a");
+  expect(snackbar.style.border).toBe("2px solid rgb(25, 140, 10)");
 }
 
 export function shouldDisplayEmailTable(...names) {

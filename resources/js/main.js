@@ -3,6 +3,7 @@ import {initDragDrop} from "./dragDrop.js";
 import * as house from "../js/components/house.js";
 import * as name from "../js/components/name.js";
 import * as select from "../js/components/select.js";
+import * as resultsTable from "../js/components/resultsTable.js";
 import * as emailTable from "../js/components/emailTable.js";
 import * as emailQuery from "../js/components/emailQuery.js";
 import { initRenderSubscriptions } from './render.js';
@@ -14,6 +15,7 @@ export default function main() {
   house.init();
   name.init();
   select.init();
+  resultsTable.init();
 
   initRenderSubscriptions();
 

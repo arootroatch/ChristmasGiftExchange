@@ -1,14 +1,16 @@
 import {beforeAll, beforeEach, describe, expect, it, vi} from 'vitest';
 import * as generateModule from '../resources/js/generate';
 import {
-  clearGeneratedListTable,
   deepCopy,
-  emptyTable,
   generate,
   generateList,
   hasDuplicates, initEventListeners,
   selectValidHouse
 } from '../resources/js/generate';
+import {
+  clearGeneratedListTable,
+  emptyTable
+} from '../resources/js/components/resultsTable';
 import state, { getHousesForGeneration } from '../resources/js/state';
 import {
   addHouseToDOM, click,
