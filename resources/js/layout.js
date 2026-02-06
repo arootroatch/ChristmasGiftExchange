@@ -1,5 +1,5 @@
 import {showEmailTable} from "./components/emailTable"
-import state from "./state.js";
+import state, {isGenerated} from "./state.js";
 import {showError} from "./components/snackbar";
 import {selectElement} from "./utils";
 
@@ -63,11 +63,11 @@ export function introNext() {
     showError("Please add participant names");
     return;
   }
-  if (state.introIndex === 3 && !state.isGenerated) {
+  if (state.introIndex === 3 && !isGenerated()) {
     showError(`Please click "Generate List"`);
     return;
   }
-  if (state.introIndex === 3 && state.isGenerated) {
+  if (state.introIndex === 3 && isGenerated()) {
     showEmailTable();
     selectElement(`#${nextStepId}`).style.display = "none";
   }

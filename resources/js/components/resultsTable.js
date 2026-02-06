@@ -58,11 +58,8 @@ const resultsTableRenderer = {
   },
 
   onComponentUpdated(event) {
-    if (event.type === 'resultsTable' && event.data?.isGenerated === false && event.data?.isSecretSanta === false) {
-      clearGeneratedListTable();
-      pushHTMl(`#${tableBodyId}`, emptyTable());
-    } else if (event.type === 'resultsTable' && event.data?.isGenerated === true && event.data?.isSecretSanta === false) {
-      renderResultsToTable(state.givers);
+    if (event.type === 'resultsTable' && event.data?.isGenerated === true && event.data?.isSecretSanta === false) {
+      renderResultsToTable(event.data.givers);
     }
   }
 };

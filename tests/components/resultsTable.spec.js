@@ -1,14 +1,19 @@
 import {beforeAll, beforeEach, describe, expect, it} from "vitest";
-import {init, emptyTable, clearGeneratedListTable, renderResultsToTable} from "../../resources/js/components/resultsTable";
-import {initReactiveSystem, resetState} from "../specHelper";
-import state, {setIsGenerated} from "../../resources/js/state";
+import {
+  clearGeneratedListTable,
+  emptyTable,
+  init,
+  renderResultsToTable
+} from "../../resources/js/components/resultsTable";
+import {initReactiveSystem, installGiverNames, resetState} from "../specHelper";
+import state, {assignRecipients} from "../../resources/js/state";
 
 describe('resultsTable', () => {
   beforeAll(() => {
     initReactiveSystem();
     init();
   });
-  
+
   beforeEach(() => {
     resetState();
     // Clear the table body manually
@@ -26,7 +31,7 @@ describe('resultsTable', () => {
 
   it('emptyTable returns HTML string with 4 empty table rows', () => {
     const result = emptyTable();
-    
+
     expect(result).toContain('<tr>');
     expect(result).toContain('<td></td>');
     expect(result.match(/<tr>/g)).toHaveLength(4);
@@ -36,11 +41,11 @@ describe('resultsTable', () => {
   it('clearGeneratedListTable clears table content', () => {
     const tableBody = document.querySelector('#table-body');
     tableBody.innerHTML = '<tr></tr><tr></tr>';
-    
+
     expect(tableBody.children.length).toBe(2);
-    
+
     clearGeneratedListTable();
-    
+
     expect(tableBody.children.length).toBe(0);
   });
 
@@ -58,29 +63,10 @@ describe('resultsTable', () => {
     expect(tableBody.querySelectorAll('tr').length).toBe(2);
   });
 
-  it('renders empty table when setIsGenerated called with false', () => {
-    setIsGenerated(false);
+  it('renders results from state.givers when assignRecipients is called', () => {
+    installGiverNames("Alex", "Whitney", "Jordan");
 
-    const tableBody = document.querySelector('#table-body');
-    const rows = tableBody.querySelectorAll('tr');
-    const cells = tableBody.querySelectorAll('td');
-
-    expect(rows.length).toBe(4);
-    expect(cells.length).toBe(8);
-
-    cells.forEach(cell => {
-      expect(cell.textContent.trim()).toBe('');
-    });
-  });
-
-  it('renders results from state.givers when setIsGenerated called with true', () => {
-    state.givers = [
-      {name: 'Alex', recipient: 'Whitney', email: 'alex@example.com', date: '', id: '1'},
-      {name: 'Whitney', recipient: 'Jordan', email: 'whitney@example.com', date: '', id: '2'},
-      {name: 'Jordan', recipient: 'Alex', email: 'jordan@example.com', date: '', id: '3'}
-    ];
-
-    setIsGenerated(true);
+    assignRecipients(["Whitney", "Jordan", "Alex"]);
 
     const tableBody = document.querySelector('#table-body');
     const rows = tableBody.querySelectorAll('tr');
@@ -105,13 +91,10 @@ describe('resultsTable', () => {
   });
 
   it('does not render results when isSecretSanta=true', () => {
-    state.givers = [
-      {name: 'Alex', recipient: 'Whitney', email: 'alex@example.com', date: '', id: '1'},
-      {name: 'Whitney', recipient: 'Alex', email: 'whitney@example.com', date: '', id: '2'}
-    ];
+    installGiverNames("Alex", "Whitney");
     state.isSecretSanta = true;
 
-    setIsGenerated(true);
+    assignRecipients(["Whitney", "Alex"]);
 
     const tableBody = document.querySelector('#table-body');
     expect(tableBody.children.length).toBe(0);

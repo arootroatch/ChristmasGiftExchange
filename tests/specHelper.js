@@ -101,7 +101,6 @@ export function clearNameSelects() {
 
 export function resetState() {
   state.houses = {};
-  state.isGenerated = false;
   state.introIndex = 0;
   state.isSecretSanta = false;
   state.givers = [];

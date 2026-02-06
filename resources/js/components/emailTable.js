@@ -1,4 +1,4 @@
-import state from "../state";
+import state, {isGenerated} from "../state";
 import {addEventListener, fetchWithErrorHandling, selectElement, setLoadingState, unshiftHTMl} from "../utils";
 import {showError, showSuccess} from "./snackbar";
 
@@ -25,7 +25,8 @@ export function emailInput(i) {
 
 
 export function showEmailTable() {
-  if (!state.isGenerated) {
+  if (!isGenerated()) {
+    console.log("not generated")
     showError(`Please click "Generate List" before entering emails.`);
   } else {
     const table = selectElement(`#${emailTableId}`);
