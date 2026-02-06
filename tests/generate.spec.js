@@ -1,17 +1,16 @@
 import {beforeAll, beforeEach, describe, expect, it, vi} from 'vitest';
 import * as generateModule from '../resources/js/generate';
 import {
-  deepCopy,
   generate,
   generateList,
-  hasDuplicates, initEventListeners,
-  selectValidHouse
+  hasDuplicates,
+  initEventListeners
 } from '../resources/js/generate';
 import {
   clearGeneratedListTable,
   init as initResultsTable
 } from '../resources/js/components/resultsTable';
-import state, { getHousesForGeneration } from '../resources/js/state';
+import state from '../resources/js/state';
 import {
   addHouseToDOM, click,
   enterName,
@@ -26,8 +25,6 @@ import {
   shouldNotDisplay,
   initReactiveSystem
 } from "./specHelper";
-import * as name from '../resources/js/components/name';
-import * as house from "../resources/js/components/house";
 
 const noPossibleComboError = "No possible combinations! Please try a different configuration/number of names."
 
@@ -61,41 +58,6 @@ describe('generate', () => {
     });
   });
 
-  describe('deepCopy', () => {
-    it('creates deep copy of array', () => {
-      const original = [['Alice', 'Bob'], ['Charlie'], ['David', 'Eve']];
-      const result = deepCopy(original);
-
-      expect(result).toEqual(original);
-      expect(result).not.toBe(original);
-      expect(result[0]).not.toBe(original[0]);
-    });
-
-    it('two arrays with one name each', () => {
-      const original = [['Alice'], ['Charlie']];
-      const result = deepCopy(original);
-
-      expect(result).toEqual(original);
-      expect(result).not.toBe(original);
-      expect(result[0]).not.toBe(original[0]);
-    });
-
-    it('handles empty array', () => {
-      const result = deepCopy([]);
-
-      expect(result).toEqual([]);
-    });
-
-    it('modifications to copy do not affect original', () => {
-      const original = [['Alice', 'Bob']];
-      const result = deepCopy(original);
-
-      result[0].push('Charlie');
-
-      expect(original[0]).toEqual(['Alice', 'Bob']);
-      expect(result[0]).toEqual(['Alice', 'Bob', 'Charlie']);
-    });
-  });
 
   describe('generateList', () => {
     beforeEach(() => {
@@ -104,16 +66,6 @@ describe('generate', () => {
       removeAllHouses();
       clearGeneratedListTable();
       initResultsTable();
-    });
-
-    it('invokes generate with counter=0 and default maxAttempts=25', () => {
-      enterName("Alex")
-      enterName("Whitney")
-      const generate = vi.spyOn(generateModule, "generate");
-
-      generateList();
-
-      expect(generate).toHaveBeenCalledWith(0, 25);
     });
 
     it('shows error snackbar when there are no names', () => {
@@ -205,15 +157,15 @@ describe('generate', () => {
       shouldNotDisplay("#nextStep");
     });
 
-    it('calls setIsGenerated when not secret santa', async () => {
+    it('calls assignRecipients when not secret santa', async () => {
       const stateModule = await import('../resources/js/state.js');
-      const spy = vi.spyOn(stateModule, 'setIsGenerated');
+      const spy = vi.spyOn(stateModule, 'assignRecipients');
 
       enterName("Alex");
       enterName("Whitney");
       generateList();
 
-      expect(spy).toHaveBeenCalledWith(true);
+      expect(spy).toHaveBeenCalledWith(["Whitney", "Alex"]);
       spy.mockRestore();
     });
 
@@ -242,14 +194,13 @@ describe('generate', () => {
 
     it('two names in separate houses', () => {
       installGiverNames("Alex", "Whitney");
+      const alexIndex = state.givers.indexOf(giverByName("Alex"));
+      const whitIndex = state.givers.indexOf(giverByName("Whitney"));
       state.houses = {"house-0": ["Alex"], "house-1": ["Whitney"]}
-      const results = generate(0, 25);
-      expect(giverByName("Alex").recipient).toEqual("Whitney");
-      expect(giverByName("Whitney").recipient).toEqual("Alex");
-      expect(results).toStrictEqual({
-        error: null,
-        results: state.givers
-      });
+      const {assignments, error} = generate(0, 25);
+      expect(assignments[alexIndex]).toEqual("Whitney");
+      expect(assignments[whitIndex]).toEqual("Alex");
+      expect(error).toBeNull;
     })
 
     it('three names in the same house, one name in participant list', () => {
@@ -259,38 +210,5 @@ describe('generate', () => {
       expect(results).toStrictEqual({error: noPossibleComboError});
     })
   })
-
-  describe('selectValidHouse', () => {
-    it('should only return n house that does not contain giver', () => {
-      state.houses = {"house-0": ["Alex", "Whitney"], "house-1": ["Charlie", "Emily"], "house-2": ["Megan", "Hunter"]};
-      const result = selectValidHouse(
-        [["Alex", "Whitney"], ["Charlie", "Emily"], ["Megan", "Hunter"]],
-        {name: "Alex"});
-
-      expect(result.randomHouseIndex).not.toBe(0);
-      expect(result.randomHouse).not.toStrictEqual(["Alex", "Whitney"]);
-    });
-
-    it('giver is not an available recipient', () => {
-      state.houses = {"house-0": ["Alex", "Whitney"], "house-1": ["Charlie", "Emily"], "house-2": ["Megan", "Hunter"]};
-      const result = selectValidHouse(
-        [["Whitney"], ["Charlie", "Emily"], ["Megan", "Hunter"]],
-        {name: "Alex"});
-
-      expect(result.randomHouseIndex).not.toEqual(0);
-      expect(result.randomHouse).not.toStrictEqual(["Whitney"]);
-    });
-
-    it('givers house is the only available', () => {
-      state.houses = {"house-0": ["Alex", "Whitney"], "house-1": ["Charlie", "Emily"], "house-2": ["Megan", "Hunter"]};
-      const result = selectValidHouse(
-        [["Whitney"]],
-        {name: "Alex"});
-
-      expect(result.randomHouseIndex).toEqual(null);
-      expect(result.randomHouse).toEqual(null);
-    });
-  })
-
 
 });

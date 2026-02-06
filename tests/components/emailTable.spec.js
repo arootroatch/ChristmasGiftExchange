@@ -1,4 +1,4 @@
-import {beforeEach, beforeAll, describe, expect, it, vi} from "vitest";
+import {beforeAll, beforeEach, describe, expect, it, vi} from "vitest";
 import {
   click,
   expectColor,
@@ -10,14 +10,15 @@ import {
   stubFetch
 } from "../specHelper";
 import "../../resources/js/components/name";
-import state from "../../resources/js/state";
+import state, {Giver, isGenerated} from "../../resources/js/state";
 import {alex, hunter, megan, whitney} from "../testData";
 import {
   displaySendEmails,
   emailInput,
   getEmails,
   handleEmailSubmitError,
-  hideElement, initEventListeners,
+  hideElement,
+  initEventListeners,
   showEmailTable
 } from "../../resources/js/components/emailTable";
 
@@ -249,16 +250,17 @@ describe('emailTable', () => {
   describe("showEmailTable", () => {
 
     it("shows error snackbar when state.generated is false", () => {
-      state.isGenerated = false;
+
       showEmailTable();
 
       shouldDisplayErrorSnackbar('Please click "Generate List" before entering emails.');
     });
 
     it("renders email inputs and shows table when state.generated is true", () => {
-      state.isGenerated = true;
+      installGivers([new Giver("Alex", "Whitney"),
+        new Giver("Whitney", "Alex")]);
+      console.log("isGenerated(): ", isGenerated());
       state.isSecretSanta = true;
-      state.givers = [{name: "TestUser1"}, {name: "TestUser2"}];
       const table = document.querySelector("#emailTable");
       const body = document.querySelector("#emailTableBody");
       table.classList.remove("show");
@@ -266,13 +268,13 @@ describe('emailTable', () => {
 
       showEmailTable();
 
-      shouldDisplayEmailTable("TestUser1", "TestUser2");
+      shouldDisplayEmailTable("Alex", "Whitney");
     });
 
     it("displays hideEmails button when state.secretSanta is false", () => {
-      state.isGenerated = true;
       state.isSecretSanta = false;
-      state.givers = [{name: "TestUser"}];
+      installGivers([new Giver("Alex", "Whitney"),
+        new Giver("Whitney", "Alex")]);
       const hideButton = document.querySelector("#hideEmails");
       const table = document.querySelector("#emailTable");
       table.classList.remove("show");

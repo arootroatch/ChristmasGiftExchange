@@ -1,5 +1,5 @@
 import {showEmailTable} from "./components/emailTable"
-import state, { getHousesForGeneration, setIsGenerated } from "./state.js";
+import state, {assignRecipients, getHousesForGeneration} from "./state.js";
 import * as self from "./generate.js";
 import {showError} from "./components/snackbar";
 import {selectElement} from "./utils";
@@ -17,111 +17,34 @@ export function hasDuplicates(arr) {
   return new Set(flattened).size !== flattened.length;
 }
 
-export function deepCopy(arr) {
-  let copy = [];
-  arr.forEach(() => {
-    copy.push([]);
-  });
-  for (let i = 0; i < arr.length; i++) {
-    for (let j = 0; j < arr[i].length; j++) {
-      copy[i].push(arr[i][j]);
-    }
-  }
-  return copy;
-}
-
-export function generateList(_, maxAttempts = 25) {
-  let counter = 0;
-  const {error, results} = self.generate(counter, maxAttempts);
+export function generateList(_) {
+  const {error, assignments} = self.generate();
   if (error) {
     showError(error);
     return;
   }
+
+  assignRecipients(assignments);
   if (state.isSecretSanta) {
     showEmailTable();
     selectElement(`#${generateId}`).style.display = "none";
     selectElement(`#${nextStepId}`).style.display = "none";
-  } else {
-    setIsGenerated(true);
   }
 }
 
-export function generate(counter, maxAttempts) {
-  const error = checkForImpossible(counter, maxAttempts);
+export function generate() {
+  const error = checkForImpossible();
   if (error) return error;
-  attemptToDrawNames();
 
-  if (state.isGenerated) {
-    return {results: state.givers, error: null}
-  } else {
-    return self.generate(counter + 1, maxAttempts);
+  const assignment = buildRecipientAssignment();
+  if (!assignment) {
+    return {error: "No possible combinations! Please try a different configuration/number of names."};
   }
+
+  return {assignments: assignment, error: null}
 }
 
-function attemptToDrawNames() {
-  let availableRecipients = deepCopy(getHousesForGeneration());
-
-  for (const giver of state.givers) {
-    const {randomHouseIndex, randomHouse} = selectValidHouse(availableRecipients, giver);
-
-    if (randomHouseIndex == null || randomHouse == null) {
-      state.isGenerated = false;
-      break;
-    }
-
-    const {recipient, randomRecipientIndex} = selectRecipient(randomHouse);
-    giver.recipient = recipient;
-    removeName(availableRecipients, randomHouseIndex, randomRecipientIndex);
-    maybeRemoveHouse(availableRecipients, randomHouseIndex);
-    state.isGenerated = true;
-  }
-}
-
-export function selectValidHouse(availableRecipients, giver) {
-  let randomHouseIndex = Math.floor(availableRecipients.length * Math.random());
-  let randomHouse = availableRecipients[randomHouseIndex];
-
-  if (isNotGiversHouse(randomHouse, giver)) {
-    return {randomHouseIndex: randomHouseIndex, randomHouse: randomHouse}
-  } else {
-    if (availableRecipients.length > 1) {
-      const prevIndex = randomHouseIndex;
-      while (randomHouseIndex === prevIndex) {
-        randomHouseIndex = Math.floor(availableRecipients * Math.random());
-        randomHouse = availableRecipients[randomHouseIndex];
-      }
-      return {randomHouseIndex: randomHouseIndex, randomHouse: randomHouse};
-    } else {
-      return {randomHouseIndex: null, randomHouse: null}
-    }
-  }
-}
-
-function selectRecipient(house) {
-  const randomRecipientIndex = Math.floor(house.length * Math.random());
-  return {
-    recipient: house[randomRecipientIndex],
-    randomRecipientIndex: randomRecipientIndex
-  }
-}
-
-function removeName(availableRecipients, houseIndex, recipientIndex) {
-  availableRecipients[houseIndex].splice(recipientIndex, 1);
-}
-
-function isNotGiversHouse(house, giver) {
-  const allHouses = getHousesForGeneration();
-  const originalHouse = allHouses.find((h) => h.includes(house[0]));
-  return !originalHouse.includes(giver.name)
-}
-
-function maybeRemoveHouse(availableRecipients, index) {
-  if (availableRecipients[index].length === 0) {
-    availableRecipients.splice(index, 1);
-  }
-}
-
-function checkForImpossible(counter, maxAttempts) {
+function checkForImpossible() {
   const housesArray = getHousesForGeneration();
 
   if (housesArray.length < 1) return {error: "Please enter participants' names."};
@@ -130,7 +53,83 @@ function checkForImpossible(counter, maxAttempts) {
     return {
       error: "Duplicate name detected! Please delete the duplicate and re-enter it with a last initial or nickname."
     };
+}
 
-  if (counter >= maxAttempts)
-    return {error: "No possible combinations! Please try a different configuration/number of names."};
+function buildRecipientAssignment() {
+  const houses = getHousesForGeneration();
+  const giverNames = state.givers.map(giver => giver.name);
+
+  if (giverNames.length === 0) return null;
+
+  const nameToHouse = buildNameToHouseMap(houses);
+  const recipientIndexByName = buildRecipientIndexMap(giverNames);
+  const adjacency = buildAdjacency(giverNames, nameToHouse, recipientIndexByName);
+
+  if (adjacency.some(list => list.length === 0)) return null;
+
+  const matchToGiver = findPerfectMatching(adjacency, giverNames.length);
+  if (!matchToGiver) return null;
+
+  return buildAssignmentFromMatch(giverNames, matchToGiver);
+}
+
+function buildNameToHouseMap(houses) {
+  const nameToHouse = new Map();
+  houses.forEach((house, houseIndex) => {
+    house.forEach(name => nameToHouse.set(name, houseIndex));
+  });
+  return nameToHouse;
+}
+
+function buildRecipientIndexMap(giverNames) {
+  return new Map(giverNames.map((name, index) => [name, index]));
+}
+
+function buildAdjacency(giverNames, nameToHouse, recipientIndexByName) {
+  return giverNames.map((giverName) => {
+    const giverHouse = nameToHouse.get(giverName);
+    const eligible = giverNames
+      .filter(name => nameToHouse.get(name) !== giverHouse)
+      .map(name => recipientIndexByName.get(name));
+    shuffleInPlace(eligible);
+    return eligible;
+  });
+}
+
+function findPerfectMatching(adjacency, giverCount) {
+  const matchToGiver = Array(giverCount).fill(null);
+
+  function tryMatch(giverIndex, seen) {
+    for (const recipientIndex of adjacency[giverIndex]) {
+      if (seen[recipientIndex]) continue;
+      seen[recipientIndex] = true;
+      if (matchToGiver[recipientIndex] == null || tryMatch(matchToGiver[recipientIndex], seen)) {
+        matchToGiver[recipientIndex] = giverIndex;
+        return true;
+      }
+    }
+    return false;
+  }
+
+  for (let giverIndex = 0; giverIndex < giverCount; giverIndex++) {
+    const seen = Array(giverCount).fill(false);
+    if (!tryMatch(giverIndex, seen)) return null;
+  }
+
+  return matchToGiver;
+}
+
+function buildAssignmentFromMatch(giverNames, matchToGiver) {
+  const assignment = Array(giverNames.length);
+  matchToGiver.forEach((giverIndex, recipientIndex) => {
+    assignment[giverIndex] = giverNames[recipientIndex];
+  });
+  return assignment;
+}
+
+function shuffleInPlace(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
 }

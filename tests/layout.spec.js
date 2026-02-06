@@ -93,7 +93,6 @@ describe('layout', () => {
     it('does not advance from step 3 without generation', () => {
       state.introIndex = 3;
       state.givers = [{name: 'Alice', recipient: ''}];
-      state.isGenerated = false;
 
       introNext();
 
@@ -102,8 +101,7 @@ describe('layout', () => {
 
     it('advances from step 3 with generated list', () => {
       state.introIndex = 3;
-      state.givers = [{name: 'Alice', recipient: ''}];
-      state.isGenerated = true;
+      state.givers = [{name: 'Alice', recipient: 'Bob'}];
 
       introNext();
 

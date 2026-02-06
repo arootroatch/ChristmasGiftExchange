@@ -1,24 +1,24 @@
-import { describe, beforeEach, expect, it, test, vi } from 'vitest'
+import {beforeEach, describe, expect, it, test, vi} from 'vitest'
 import state, {
   addHouseToState,
-  removeHouseFromState,
   addNameToHouse,
-  removeNameFromHouse,
+  assignRecipients,
   getHousesArray,
-  getIndividualParticipants,
   getHousesForGeneration,
-  setIsGenerated,
-  Giver
+  getIndividualParticipants,
+  Giver,
+  removeHouseFromState,
+  removeNameFromHouse
 } from '/resources/js/state.js'
-import { stateEvents, Events } from '/resources/js/events.js'
+import {Events, stateEvents} from '/resources/js/events.js'
+import {installGiverNames} from "./specHelper";
 
 test('initial state', () => {
-    expect(state.houses).toEqual({});
-    expect(state.isGenerated).toEqual(false);
-    expect(state.introIndex).toEqual(0);
-    expect(state.isSecretSanta).toEqual(false);
-    expect(state.givers).toEqual([]);
-    expect(state.nameNumber).toEqual(1);
+  expect(state.houses).toEqual({});
+  expect(state.introIndex).toEqual(0);
+  expect(state.isSecretSanta).toEqual(false);
+  expect(state.givers).toEqual([]);
+  expect(state.nameNumber).toEqual(1);
 })
 
 describe('state helper functions', () => {
@@ -138,30 +138,28 @@ describe('state helper functions', () => {
     });
   });
 
-  describe('setIsGenerated', () => {
-    it('sets state.isGenerated to true', () => {
-      state.isGenerated = false;
-      setIsGenerated(true);
-      expect(state.isGenerated).toBe(true);
-    });
+  describe('assignRecipients', () => {
+    it('updates givers with recipients', () => {
+      installGiverNames("Alice", "Whitney", "Bob");
+      assignRecipients(["Whitney", "Bob", "Alice"]);
 
-    it('sets state.isGenerated to false', () => {
-      state.isGenerated = true;
-      setIsGenerated(false);
-      expect(state.isGenerated).toBe(false);
+      expect(state.givers[0].recipient).toBe("Whitney");
+      expect(state.givers[1].recipient).toBe("Bob");
+      expect(state.givers[2].recipient).toBe("Alice");
     });
 
     it('emits COMPONENT_UPDATED event with resultsTable type', () => {
       const spy = vi.fn();
       const unsubscribe = stateEvents.on(Events.COMPONENT_UPDATED, spy);
-
+      installGiverNames("Alice", "Whitney", "Bob");
       state.isSecretSanta = false;
-      setIsGenerated(true);
+
+      assignRecipients(["Whitney", "Bob", "Alice"]);
 
       expect(spy).toHaveBeenCalledWith({
         type: 'resultsTable',
         id: 'main',
-        data: { isGenerated: true, isSecretSanta: false }
+        data: {isGenerated: true, isSecretSanta: false, givers: state.givers}
       });
 
       unsubscribe();
@@ -170,14 +168,15 @@ describe('state helper functions', () => {
     it('includes current isSecretSanta value in emitted event', () => {
       const spy = vi.fn();
       const unsubscribe = stateEvents.on(Events.COMPONENT_UPDATED, spy);
-
+      installGiverNames("Alice", "Whitney", "Bob");
       state.isSecretSanta = true;
-      setIsGenerated(true);
+
+      assignRecipients(["Whitney", "Bob", "Alice"]);
 
       expect(spy).toHaveBeenCalledWith({
         type: 'resultsTable',
         id: 'main',
-        data: { isGenerated: true, isSecretSanta: true }
+        data: {isGenerated: true, isSecretSanta: true, givers: state.givers},
       });
 
       unsubscribe();

@@ -1,8 +1,7 @@
-import { stateEvents, Events } from './events.js';
+import {Events, stateEvents} from './events.js';
 
 let state = {
   houses: {},
-  isGenerated: false,
   introIndex: 0,
   isSecretSanta: false,
   givers: [],
@@ -75,16 +74,22 @@ export function getHousesForGeneration() {
   return getHousesArray().concat(getIndividualParticipants());
 }
 
-
-export function setIsGenerated(bool) {
-  state.isGenerated = bool;
+export function assignRecipients(assignments) {
+  assignments.forEach((recipient, index) => {
+    state.givers[index].recipient = recipient;
+  });
   emitUpdateComponent('resultsTable', 'main', {
-    isGenerated: state.isGenerated,
-    isSecretSanta: state.isSecretSanta
+    isGenerated: true,
+    isSecretSanta: state.isSecretSanta,
+    givers: state.givers
   });
 }
 
-function emitAddComponent(type, id, data){
+export function isGenerated(){
+  return state.givers.every(g => g.recipient && g.recipient !== "");
+}
+
+function emitAddComponent(type, id, data) {
   stateEvents.emit(Events.COMPONENT_ADDED, {
     type: type,
     id: id,
@@ -92,7 +97,7 @@ function emitAddComponent(type, id, data){
   });
 }
 
-function emitUpdateComponent(type, id, data){
+function emitUpdateComponent(type, id, data) {
   stateEvents.emit(Events.COMPONENT_UPDATED, {
     type: type,
     id: id,
@@ -100,7 +105,7 @@ function emitUpdateComponent(type, id, data){
   });
 }
 
-function emitRemoveComponent(type, id){
+function emitRemoveComponent(type, id) {
   stateEvents.emit(Events.COMPONENT_REMOVED, {
     type: type,
     id: id,
