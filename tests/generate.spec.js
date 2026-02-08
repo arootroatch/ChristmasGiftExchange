@@ -10,7 +10,7 @@ import {
   clearGeneratedListTable,
   init as initResultsTable
 } from '../resources/js/components/resultsTable';
-import state from '../resources/js/state';
+import {state} from '../resources/js/state';
 import {
   addHouseToDOM, click,
   enterName,

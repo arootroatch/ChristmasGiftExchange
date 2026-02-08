@@ -13,7 +13,7 @@ import {
   addHouseToDOM,
   moveNameToHouse,
 } from "../specHelper";
-import state from "../../resources/js/state";
+import {state} from "../../resources/js/state";
 
 describe('nameList', () => {
 

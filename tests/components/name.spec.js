@@ -11,17 +11,13 @@ import {
   shouldSelect,
   stubProperty
 } from "../specHelper";
-import {init} from "../../resources/js/components/name";
-import state, {Giver} from "../../resources/js/state";
-import * as house from "../../resources/js/components/house";
+import {state, Giver} from "../../resources/js/state";
 
 describe('addName', () => {
   const input = document.querySelector("#input0");
 
   beforeAll(() => {
     initReactiveSystem();
-    init();
-    house.init();
   });
   beforeEach(() => {
     resetState();
@@ -95,7 +91,6 @@ describe('addName', () => {
   });
 
   it("clicking delete x removes name from house in state if it's in a house", () => {
-    house.init();
     addHouseToDOM();
 
     // Set up: manually put Alex in house-0 (both state and DOM)
@@ -117,7 +112,6 @@ describe('addName', () => {
   });
 
   it("clicking delete x on name in main list does not affect state.houses", () => {
-    house.init();
     addHouseToDOM();
     const previousHouses = {...state.houses};
     click("#delete-Alex1");

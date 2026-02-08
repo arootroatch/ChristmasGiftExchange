@@ -1,5 +1,5 @@
 import {afterEach, beforeAll, beforeEach, describe, expect, it, vi} from 'vitest';
-import state from '../resources/js/state';
+import {state} from '../resources/js/state';
 import {removeAllHouses, removeAllNames, resetState} from "./specHelper";
 import {cleanupKeybindings, initKeybindings, isMobileDevice} from "../resources/js/keybindings";
 

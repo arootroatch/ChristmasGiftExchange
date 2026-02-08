@@ -1,5 +1,7 @@
 import {beforeEach, describe, expect, it, test, vi} from 'vitest'
-import state, {
+import {
+  state,
+  startExchange,
   addGiver,
   addHouseToState,
   addNameToHouse,
@@ -15,9 +17,14 @@ import state, {
 import {Events, stateEvents} from '/resources/js/events.js'
 import {installGiverNames} from "./specHelper";
 
-test('initial state', () => {
+test('state is undefined before exchange starts', () => {
+  expect(state).toBeUndefined();
+})
+
+test('startExchange initializes state', () => {
+  startExchange();
   expect(state.houses).toEqual({});
-  expect(state.introIndex).toEqual(0);
+  expect(state.step).toEqual(1);
   expect(state.isSecretSanta).toEqual(false);
   expect(state.givers).toEqual([]);
   expect(state.nameNumber).toEqual(1);
@@ -25,7 +32,7 @@ test('initial state', () => {
 
 describe('state helper functions', () => {
   beforeEach(() => {
-    state.houses = {};
+    startExchange();
     state.givers = [
       new Giver("Alice"),
       new Giver("Bob"),
@@ -180,18 +187,16 @@ describe('state helper functions', () => {
       expect(state.givers[2].recipient).toBe("Alice");
     });
 
-    it('emits COMPONENT_UPDATED event with resultsTable type', () => {
+    it('emits RECIPIENTS_ASSIGNED event', () => {
       const spy = vi.fn();
-      const unsubscribe = stateEvents.on(Events.COMPONENT_UPDATED, spy);
+      const unsubscribe = stateEvents.on(Events.RECIPIENTS_ASSIGNED, spy);
       installGiverNames("Alice", "Whitney", "Bob");
       state.isSecretSanta = false;
 
       assignRecipients(["Whitney", "Bob", "Alice"]);
 
       expect(spy).toHaveBeenCalledWith({
-        type: 'resultsTable',
-        id: 'main',
-        data: {isGenerated: true, isSecretSanta: false, givers: state.givers}
+        isGenerated: true, isSecretSanta: false, givers: state.givers
       });
 
       unsubscribe();
@@ -199,16 +204,14 @@ describe('state helper functions', () => {
 
     it('includes current isSecretSanta value in emitted event', () => {
       const spy = vi.fn();
-      const unsubscribe = stateEvents.on(Events.COMPONENT_UPDATED, spy);
+      const unsubscribe = stateEvents.on(Events.RECIPIENTS_ASSIGNED, spy);
       installGiverNames("Alice", "Whitney", "Bob");
       state.isSecretSanta = true;
 
       assignRecipients(["Whitney", "Bob", "Alice"]);
 
       expect(spy).toHaveBeenCalledWith({
-        type: 'resultsTable',
-        id: 'main',
-        data: {isGenerated: true, isSecretSanta: true, givers: state.givers},
+        isGenerated: true, isSecretSanta: true, givers: state.givers,
       });
 
       unsubscribe();

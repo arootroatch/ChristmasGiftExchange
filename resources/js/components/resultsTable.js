@@ -1,26 +1,15 @@
-import {registerComponent} from "../render.js";
-import {selectElement, pushHTML} from "../utils.js";
-import state from "../state.js";
+import {pushHTML, selectElement} from "../utils.js";
+import {Events, stateEvents} from "../events.js";
 
 const tableBodyId = "table-body";
 
 export function init() {
-  registerComponent('resultsTable', resultsTableRenderer);
-}
-
-const resultsTableRenderer = {
-  onComponentAdded(event) {
-  },
-
-  onComponentRemoved(event) {
-  },
-
-  onComponentUpdated(event) {
-    if (event.type === 'resultsTable' && event.data?.isGenerated === true && event.data?.isSecretSanta === false) {
-      renderResultsToTable(event.data.givers);
+  stateEvents.on(Events.RECIPIENTS_ASSIGNED, ({isGenerated, isSecretSanta, givers}) => {
+    if (isGenerated && !isSecretSanta) {
+      renderResultsToTable(givers);
     }
-  }
-};
+  });
+}
 
 export function emptyTable() {
   return `
@@ -61,4 +50,3 @@ function renderResultsToTable(results) {
   }
   pushHTML(`#${tableBodyId}`, html);
 }
-

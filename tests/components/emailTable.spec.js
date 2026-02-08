@@ -10,7 +10,7 @@ import {
   stubFetch
 } from "../specHelper";
 import "../../resources/js/components/name";
-import state, {Giver, isGenerated} from "../../resources/js/state";
+import {state, Giver, isGenerated, startExchange} from "../../resources/js/state";
 import {alex, hunter, megan, whitney} from "../testData";
 import {
   displaySendEmails,
@@ -58,6 +58,7 @@ describe('emailTable', () => {
       {name: "Whitney", email: "whitney@gmail.com"},
       {name: "Hunter", email: "hunter@gmail.com"},
       {name: "Megan", email: "megan@gmail.com"}]);
+    startExchange();
     installGiverNames("Alex", "Whitney", "Hunter", "Megan");
     const submitEmailsButton = document.querySelector("#submitEmails");
 

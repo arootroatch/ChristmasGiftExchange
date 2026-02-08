@@ -15,8 +15,9 @@ import {
   stubProperty
 } from "../specHelper";
 import {addEventListener, removeEventListener} from "../../resources/js/utils";
-import {addHouse, deleteHouse, init, insertNameFromSelect} from "../../resources/js/components/house";
-import state, * as stateModule from "../../resources/js/state";
+import {addHouse, deleteHouse, insertNameFromSelect} from "../../resources/js/components/house";
+import {state} from "../../resources/js/state";
+import * as stateModule from "../../resources/js/state";
 
 describe('addHouse', () => {
   vi.mock(import("/resources/js/utils.js"), async (importOriginal) => {
@@ -30,7 +31,6 @@ describe('addHouse', () => {
 
   beforeAll(() => {
     initReactiveSystem();
-    init();
   });
 
   beforeEach(() => {

@@ -1,5 +1,5 @@
 import {showEmailTable} from "./components/emailTable"
-import state, {isGenerated} from "./state.js";
+import {state, isGenerated, startExchange} from "./state.js";
 import {showError} from "./components/snackbar";
 import {selectElement} from "./utils";
 
@@ -28,7 +28,7 @@ export function conditionalRender() {
   const addHouse = selectElement(`#${addHouseId}`);
   const generate = selectElement(`#${generateId}`);
 
-  switch (state.introIndex) {
+  switch (state.step) {
     case 0:
       break;
     case 1:
@@ -50,6 +50,7 @@ export function conditionalRender() {
 }
 
 export function stepOne() {
+  if (!state) startExchange();
   selectElement(`#${nameListId}`).style.display = "block";
   if (!state.isSecretSanta) {
     selectElement(`#${resultsTableId}`).style.display = "table";
@@ -59,28 +60,28 @@ export function stepOne() {
 }
 
 export function introNext() {
-  if (state.givers.length < 1 && state.introIndex === 1) {
+  if (state.givers.length < 1 && state.step === 1) {
     showError("Please add participant names");
     return;
   }
-  if (state.introIndex === 3 && !isGenerated()) {
+  if (state.step === 3 && !isGenerated()) {
     showError(`Please click "Generate List"`);
     return;
   }
-  if (state.introIndex === 3 && isGenerated()) {
+  if (state.step === 3 && isGenerated()) {
     showEmailTable();
     selectElement(`#${nextStepId}`).style.display = "none";
   }
-  state.introIndex + 1 > introArr.length ? (state.introIndex = 0) : state.introIndex++;
+  state.step + 1 > introArr.length ? (state.step = 0) : state.step++;
   const introDiv = selectElement(`#${introId}`);
-  if (state.introIndex < introArr.length) {
-    introDiv.innerHTML = `<p>${introArr[state.introIndex]}</p>`;
+  if (state.step < introArr.length) {
+    introDiv.innerHTML = `<p>${introArr[state.step]}</p>`;
   }
   conditionalRender();
 }
 
 export function secretSantaMode() {
-  state.isSecretSanta = true;
+  startExchange(true);
   selectElement(`#${leftContainerId}`).classList.add("secret");
   stepOne();
 }

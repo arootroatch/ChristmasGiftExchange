@@ -1,4 +1,4 @@
-import state from "./state";
+import {state} from "./state";
 import {click, selectElement} from "./utils";
 
 const input0Id = "input0";
