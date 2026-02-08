@@ -1,54 +1,47 @@
-import state, {addGiver, removeGiver, removeNameFromHouse} from "../state.js";
-import {addEventListener, selectElement} from "../utils.js";
+import state, {removeGiver} from "../state.js";
+import {selectElement} from "../utils.js";
 import {registerComponent} from "../render.js";
-
-const participantsId = "participants";
-const b0Id = "b0";
 
 export function init() {
   registerComponent('name', nameRenderer);
-  addEventListener(`#${b0Id}`, "click", addName);
 }
 
 const nameRenderer = {
   onComponentAdded(event) {
-    if (event.type === 'name') this.renderParticipantsList();
+    if (event.type === 'name') this.renderParticipantsSlot();
   },
 
   onComponentRemoved(event) {
-    if (event.type === 'name') this.renderParticipantsList();
+    if (event.type === 'name') this.renderParticipantsSlot();
   },
 
   onComponentUpdated(event) {
     if (event.type === 'house') {
       const slot = selectElement(`[data-slot="names-${event.id}"]`);
       if (slot) {
-        this.renderIntoSlot(slot, event.id, event.data || []);
+        this.renderIntoSlot(slot, event.data || []);
       }
+      this.renderParticipantsSlot();
     }
 
     if (event.type === 'name' && event.id === 'participants') {
-      this.renderParticipantsList();
+      this.renderParticipantsSlot();
     }
   },
 
-  renderParticipantsList() {
-    const participants = selectElement(`#${participantsId}`);
-    if (!participants) return;
+  renderParticipantsSlot() {
+    const slot = selectElement('[data-slot="names-participants"]');
+    if (!slot) return;
 
     const namesInHouses = Object.values(state.houses).flat();
-    const namesInMainList = state.givers
+    const names = state.givers
       .map(g => g.name)
       .filter(name => !namesInHouses.includes(name));
 
-    participants.innerHTML = namesInMainList
-      .map(name => this.template(name))
-      .join('');
-
-    this.attachListeners(participants);
+    this.renderIntoSlot(slot, names);
   },
 
-  renderIntoSlot(slot, containerID, names) {
+  renderIntoSlot(slot, names) {
     slot.innerHTML = names.map(name => this.template(name)).join('');
     this.attachListeners(slot);
   },
@@ -65,32 +58,10 @@ const nameRenderer = {
 
   attachListeners(container) {
     container.querySelectorAll('.delete-name').forEach(btn => {
-      btn.addEventListener('click', deleteName);
+      btn.addEventListener('click', (event) => {
+        const name = event.currentTarget.nextElementSibling.innerHTML;
+        removeGiver(name);
+      });
     });
   }
 };
-
-export function addName() {
-  const nameInput = this.previousElementSibling;
-  let name = nameInput.value;
-
-  if (name !== "") {
-    name = name.charAt(0).toUpperCase() + name.slice(1);
-    addGiver(name);
-    nameInput.value = "";
-  }
-}
-
-export function deleteName() {
-  const name = this.nextElementSibling.innerHTML;
-
-  const nameWrapper = this.parentNode;
-  const container = nameWrapper.parentNode;
-  const house = container.closest('.household');
-  const houseID = house?.id;
-
-  if (houseID) {
-    removeNameFromHouse(houseID, name);
-  }
-  removeGiver(name);
-}

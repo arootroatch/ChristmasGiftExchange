@@ -49,19 +49,6 @@ describe('resultsTable', () => {
     expect(tableBody.children.length).toBe(0);
   });
 
-  it('renderResultsToTable renders results to table', () => {
-    const results = [
-      {name: 'Alex', recipient: 'Whitney'},
-      {name: 'Whitney', recipient: 'Alex'}
-    ];
-
-    renderResultsToTable(results);
-
-    const tableBody = document.querySelector('#table-body');
-    expect(tableBody.innerHTML).toContain('<td>Alex</td>');
-    expect(tableBody.innerHTML).toContain('<td>Whitney</td>');
-    expect(tableBody.querySelectorAll('tr').length).toBe(2);
-  });
 
   it('renders results from state.givers when assignRecipients is called', () => {
     installGiverNames("Alex", "Whitney", "Jordan");

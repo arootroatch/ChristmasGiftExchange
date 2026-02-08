@@ -17,11 +17,11 @@ export function removeEventListener(selector, event, func) {
     document.querySelector(selector).removeEventListener(event, func);
 }
 
-export function pushHTMl(selector, html) {
+export function pushHTML(selector, html) {
     document.querySelector(selector).insertAdjacentHTML("beforeend", html);
 }
 
-export function unshiftHTMl(selector, html) {
+export function unshiftHTML(selector, html) {
     document.querySelector(selector).insertAdjacentHTML("afterbegin", html);
 }
 

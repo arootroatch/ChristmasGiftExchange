@@ -1,5 +1,5 @@
 import state, {isGenerated} from "../state";
-import {addEventListener, fetchWithErrorHandling, selectElement, setLoadingState, unshiftHTMl} from "../utils";
+import {addEventListener, fetchWithErrorHandling, selectElement, setLoadingState, unshiftHTML} from "../utils";
 import {showError, showSuccess} from "./snackbar";
 
 const emailTableId = "emailTable";
@@ -31,7 +31,7 @@ export function showEmailTable() {
   } else {
     const table = selectElement(`#${emailTableId}`);
     for (let i = 0; i < state.givers.length; i++) {
-      unshiftHTMl(`#${emailTableBodyId}`, emailInput(i))
+      unshiftHTML(`#${emailTableBodyId}`, emailInput(i))
     }
     table.classList.replace("hidden", "show");
     if (!state.isSecretSanta) {
@@ -162,3 +162,17 @@ export function initEventListeners() {
   addEventListener(`#${emailTableBodyId}`, "submit", submitEmails);
   addEventListener(`#${hideEmailsId}`, "click", hideEmailTable);
 }
+
+// const resultsTableRenderer = {
+//   onComponentAdded(event) {
+//   },
+//
+//   onComponentRemoved(event) {
+//   },
+//
+//   onComponentUpdated(event) {
+//     if (event.type === 'resultsTable' && event.data?.isGenerated === true && event.data?.isSecretSanta === false) {
+//       renderResultsToTable(event.data.givers);
+//     }
+//   }
+// };
