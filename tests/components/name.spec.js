@@ -14,7 +14,7 @@ import {
 import {state, Giver} from "../../resources/js/state";
 
 describe('addName', () => {
-  const input = document.querySelector("#input0");
+  let input;
 
   beforeAll(() => {
     initReactiveSystem();
@@ -23,6 +23,7 @@ describe('addName', () => {
     resetState();
     clearNameSelects();
     addNamesToDOM("alex");
+    input = document.querySelector("#input0");
   })
 
   it('Giver constructor', () => {

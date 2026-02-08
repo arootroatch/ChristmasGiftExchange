@@ -5,6 +5,8 @@ import * as name from "../js/components/name.js";
 import * as nameList from "../js/components/nameList.js";
 import * as select from "../js/components/select.js";
 import * as resultsTable from "../js/components/resultsTable.js";
+import * as controlStrip from "../js/components/controlStrip.js";
+import * as instructions from "../js/components/instructions.js";
 import * as emailTable from "../js/components/emailTable.js";
 import * as emailQuery from "../js/components/emailQuery.js";
 import "../js/layout.js";
@@ -17,8 +19,9 @@ export default function main() {
   nameList.init();
   select.init();
   resultsTable.init();
+  controlStrip.init();
+  instructions.init();
 
-  generate.initEventListeners();
   emailTable.initEventListeners();
   emailQuery.initEventListeners();
   initDragDrop();

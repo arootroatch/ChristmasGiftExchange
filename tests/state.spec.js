@@ -10,6 +10,7 @@ import {
   getHousesForGeneration,
   getIndividualParticipants,
   Giver,
+  nextStep,
   removeGiver,
   removeHouseFromState,
   removeNameFromHouse
@@ -237,6 +238,25 @@ describe('state helper functions', () => {
     it('should return only houses when all givers are in houses', () => {
       state.houses = {"house-0": ["Alice", "Bob"], "house-1": ["Charlie"]};
       expect(getHousesForGeneration()).toEqual([["Alice", "Bob"], ["Charlie"]]);
+    });
+  });
+
+  describe('nextStep', () => {
+    it('increments step and emits NEXT_STEP', () => {
+      const spy = vi.fn();
+      const unsubscribe = stateEvents.on(Events.NEXT_STEP, spy);
+
+      nextStep();
+
+      expect(state.step).toBe(2);
+      expect(spy).toHaveBeenCalledWith({step: 2});
+      unsubscribe();
+    });
+
+    it('wraps to 0 when maxSteps is provided', () => {
+      state.step = 3;
+      nextStep(3);
+      expect(state.step).toBe(0);
     });
   });
 });

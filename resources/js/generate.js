@@ -7,11 +7,6 @@ import {selectElement} from "./utils";
 const generateId = "generate";
 const nextStepId = "nextStep";
 
-export function initEventListeners() {
-  const generateBtn = selectElement(`#${generateId}`);
-  if (generateBtn) generateBtn.addEventListener("click", generateList);
-}
-
 export function hasDuplicates(arr) {
   let flattened = arr.flat();
   return new Set(flattened).size !== flattened.length;

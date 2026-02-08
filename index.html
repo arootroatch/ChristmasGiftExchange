@@ -48,31 +48,7 @@
 
     </div>
     <div id="background"></div>
-    <div id="control-strip">
-      <div id="btn-div">
-        <button
-          class="btn-bottom"
-          id="generate"
-          style="display: none"
-        >
-          Generate List<br /><span class="shortcut">(Ctrl+Enter)</span>
-        </button>
-        <button
-          class="btn-bottom"
-          id="addHouse"
-          style="display: none"
-        >
-          Add Group<br /><span class="shortcut">(Shift+Enter)</span>
-        </button>
-        <button
-          class="btn-bottom"
-          id="nextStep"
-          style="display: none;"
-        >
-          Next Step
-        </button>
-      </div>
-    </div>
+    <div id="control-strip"></div>
     <div id="container">
       <h1>Gift Exchange Generator</h1>
       <div id="intro" class="closed">
@@ -127,25 +103,6 @@
       </div>
       <div id="flex-div">
         <div id="left-container">
-          <div id="name-list" style="display: none;">
-            <h2 id="house1-header">Participant Names</h2>
-            <div
-              class="name-container"
-              id="participants"
-              data-slot="names-participants"
-            ></div>
-            <input type="text" id="input0" class="name-input" />
-            <button
-              class="button"
-              type="submit"
-              id="b0"
-            >
-              Add Name (Enter)
-            </button>
-            <select class="name-select" name="name-list-select" id="name-list-select">
-              <option disabled selected value="default">-- Select a name --</option>
-            </select>
-          </div>
         </div>
         <table class="table" id="results-table" style="display: none;">
           <thead>

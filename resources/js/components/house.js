@@ -9,14 +9,11 @@ import {addEventListener, selectElement} from "../utils.js";
 import {Events, stateEvents} from "../events.js";
 
 const leftContainerId = "left-container";
-const addHouseId = "addHouse";
 const nameListSelectId = "name-list-select";
 
 export function init() {
   stateEvents.on(Events.HOUSE_ADDED, onHouseAdded);
   stateEvents.on(Events.HOUSE_REMOVED, onHouseRemoved);
-  addEventListener(`#${nameListSelectId}`, "change", insertNameFromSelect);
-  addEventListener(`#${addHouseId}`, "click", addHouse);
 }
 
 function onHouseAdded({houseID}) {

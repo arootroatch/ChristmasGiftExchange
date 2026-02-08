@@ -22,6 +22,8 @@ class EventEmitter {
 export const stateEvents = new EventEmitter();
 
 export const Events = {
+  EXCHANGE_STARTED: 'exchange:started',
+  NEXT_STEP: 'exchange:nextStep',
   GIVER_ADDED: 'giver:added',
   GIVER_REMOVED: 'giver:removed',
   HOUSE_ADDED: 'house:added',

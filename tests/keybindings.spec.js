@@ -1,24 +1,21 @@
 import {afterEach, beforeAll, beforeEach, describe, expect, it, vi} from 'vitest';
 import {state} from '../resources/js/state';
-import {removeAllHouses, removeAllNames, resetState} from "./specHelper";
+import {initReactiveSystem, removeAllHouses, resetState} from "./specHelper";
 import {cleanupKeybindings, initKeybindings, isMobileDevice} from "../resources/js/keybindings";
 
 describe('keybindings', () => {
-  let input0, b0Button, addHouseButton, generateButton;
+  let addHouseButton, generateButton;
 
   beforeAll(() => {
-    b0Button = document.getElementById("b0");
-    input0 = document.getElementById("input0");
-    addHouseButton = document.getElementById("addHouse");
-    generateButton = document.getElementById("generate");
+    initReactiveSystem();
   });
 
   beforeEach(() => {
     resetState();
     removeAllHouses();
-    removeAllNames();
+    addHouseButton = document.getElementById("addHouse");
+    generateButton = document.getElementById("generate");
 
-    vi.spyOn(b0Button, "click");
     vi.spyOn(addHouseButton, 'click');
     vi.spyOn(generateButton, 'click');
   });
@@ -60,32 +57,6 @@ describe('keybindings', () => {
       // Initialize with desktop userAgent
       const desktopUA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)';
       initKeybindings(desktopUA);
-    });
-
-    describe('Enter key on input0', () => {
-      it('triggers b0 button click when Enter is pressed', () => {
-        const event = new KeyboardEvent('keyup', {
-          keyCode: 13,
-          bubbles: true,
-          cancelable: true,
-        });
-
-        input0.dispatchEvent(event);
-
-        expect(b0Button.click).toHaveBeenCalledTimes(1);
-      });
-
-      it('does not trigger b0 button for other keys', () => {
-        const event = new KeyboardEvent('keyup', {
-          keyCode: 65, // 'A' key
-          bubbles: true,
-          cancelable: true,
-        });
-
-        input0.dispatchEvent(event);
-
-        expect(b0Button.click).not.toHaveBeenCalled();
-      });
     });
 
     describe('Shift+Enter for addHouse', () => {
@@ -205,19 +176,6 @@ describe('keybindings', () => {
       // Window listeners should not trigger on mobile
       expect(addHouseButton.click).not.toHaveBeenCalled();
       expect(generateButton.click).not.toHaveBeenCalled();
-    });
-
-    it('still adds input0 listener on mobile', () => {
-      const enterEvent = new KeyboardEvent('keyup', {
-        keyCode: 13,
-        bubbles: true,
-        cancelable: true,
-      });
-
-      input0.dispatchEvent(enterEvent);
-
-      // Input listener should work on mobile
-      expect(b0Button.click).toHaveBeenCalledTimes(1);
     });
   });
 });

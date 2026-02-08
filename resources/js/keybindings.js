@@ -1,7 +1,6 @@
 import {state} from "./state";
-import {click, selectElement} from "./utils";
+import {click} from "./utils";
 
-const input0Id = "input0";
 const b0Id = "b0";
 const addHouseId = "addHouse";
 const generateId = "generate";
@@ -12,13 +11,6 @@ export function isMobileDevice(userAgent = navigator.userAgent) {
 }
 
 // Event handler functions
-function enterClick(evt) {
-  if (evt.keyCode === 13) {
-    evt.preventDefault();
-    click(`#${b0Id}`);
-  }
-}
-
 function enterAddHouse(evt) {
   if (evt.shiftKey && evt.keyCode === 13) {
     evt.preventDefault();
@@ -42,11 +34,6 @@ export function initKeybindings(userAgent = navigator.userAgent) {
   // Clean up existing listeners first
   cleanupKeybindings();
 
-  const input0 = selectElement(`#${input0Id}`);
-  if (input0) {
-    input0.addEventListener("keyup", enterClick);
-  }
-
   // Only add window shortcuts on desktop
   if (!isMobileDevice(userAgent)) {
     window.addEventListener("keyup", enterAddHouse);
@@ -59,11 +46,6 @@ export function initKeybindings(userAgent = navigator.userAgent) {
 
 // Remove all keyboard bindings
 export function cleanupKeybindings() {
-  const input0 = selectElement(`#${input0Id}`);
-  if (input0) {
-    input0.removeEventListener("keyup", enterClick);
-  }
-
   // Only remove window listeners if they were added
   if (hasWindowListeners) {
     window.removeEventListener("keyup", enterAddHouse);
