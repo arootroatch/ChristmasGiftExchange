@@ -1,5 +1,5 @@
 import {showEmailTable} from "./components/emailTable"
-import state, {assignRecipients, getHousesForGeneration} from "./state.js";
+import {state, assignRecipients, getHousesForGeneration} from "./state.js";
 import * as self from "./generate.js";
 import {showError} from "./components/snackbar";
 import {selectElement} from "./utils";

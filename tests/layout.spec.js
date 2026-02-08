@@ -1,5 +1,5 @@
 import {afterEach, beforeAll, beforeEach, describe, expect, it, vi} from 'vitest';
-import state from '../resources/js/state';
+import {state} from '../resources/js/state';
 import {removeAllHouses, removeAllNames, resetState} from "./specHelper";
 import {conditionalRender, initEventListeners, introNext, secretSantaMode, stepOne} from "../resources/js/layout";
 
@@ -62,77 +62,77 @@ describe('layout', () => {
     });
 
     it('calls introNext which increments introIndex', () => {
-      state.introIndex = 0;
+      state.step = 0;
 
       stepOne();
 
-      expect(state.introIndex).toBe(1);
+      expect(state.step).toBe(1);
     });
   });
 
   describe('introNext', () => {
     it('does not advance from step 1 without givers', () => {
-      state.introIndex = 1;
+      state.step = 1;
       state.givers = [];
 
       introNext();
 
-      expect(state.introIndex).toBe(1);
+      expect(state.step).toBe(1);
     });
 
     it('advances from step 1 with givers', () => {
-      state.introIndex = 1;
+      state.step = 1;
       state.givers = [{name: 'Alice', recipient: ''}];
 
       introNext();
 
-      expect(state.introIndex).toBe(2);
+      expect(state.step).toBe(2);
       expect(intro.innerHTML).toContain('Step 2 / 4');
     });
 
     it('does not advance from step 3 without generation', () => {
-      state.introIndex = 3;
+      state.step = 3;
       state.givers = [{name: 'Alice', recipient: ''}];
 
       introNext();
 
-      expect(state.introIndex).toBe(3);
+      expect(state.step).toBe(3);
     });
 
     it('advances from step 3 with generated list', () => {
-      state.introIndex = 3;
+      state.step = 3;
       state.givers = [{name: 'Alice', recipient: 'Bob'}];
 
       introNext();
 
-      expect(state.introIndex).toBe(4);
+      expect(state.step).toBe(4);
       expect(nextStepBtn.style.display).toBe('none');
     });
 
     it('updates intro div innerHTML with step content', () => {
-      state.introIndex = 0;
+      state.step = 0;
       state.givers = [{name: 'Alice', recipient: ''}];
 
       introNext();
 
       expect(intro.innerHTML).toContain('Step 1 / 4');
-      expect(state.introIndex).toBe(1);
+      expect(state.step).toBe(1);
     });
 
     it('calls conditionalRender to update button visibility', () => {
-      state.introIndex = 0;
+      state.step = 0;
       state.givers = [{name: 'Alice', recipient: ''}];
 
       introNext();
 
-      expect(state.introIndex).toBe(1);
+      expect(state.step).toBe(1);
       expect(addHouseBtn.style.display).toBe('none');
     });
   });
 
   describe('conditionalRender', () => {
     it('does nothing at step 0', () => {
-      state.introIndex = 0;
+      state.step = 0;
       addHouseBtn.style.display = 'block';
       generateBtn.style.display = 'block';
 
@@ -143,7 +143,7 @@ describe('layout', () => {
     });
 
     it('hides addHouse button at step 1', () => {
-      state.introIndex = 1;
+      state.step = 1;
       addHouseBtn.style.display = 'block';
 
       conditionalRender();
@@ -152,7 +152,7 @@ describe('layout', () => {
     });
 
     it('shows addHouse button at step 2', () => {
-      state.introIndex = 2;
+      state.step = 2;
 
       conditionalRender();
 
@@ -161,7 +161,7 @@ describe('layout', () => {
     });
 
     it('shows generate button in normal mode at step 3', () => {
-      state.introIndex = 3;
+      state.step = 3;
       state.isSecretSanta = false;
 
       conditionalRender();
@@ -171,7 +171,7 @@ describe('layout', () => {
     });
 
     it('shows generate button in secret santa mode at step 3 - hides nextStep button', () => {
-      state.introIndex = 3;
+      state.step = 3;
       state.isSecretSanta = true;
 
       conditionalRender();
@@ -181,7 +181,7 @@ describe('layout', () => {
     });
 
     it('hides generate buttons at step 4', () => {
-      state.introIndex = 4;
+      state.step = 4;
       generateBtn.style.display = 'block';
 
       conditionalRender();
@@ -242,12 +242,12 @@ describe('layout', () => {
     });
 
     it('nextStep button has click listener attached', () => {
-      state.introIndex = 0;
+      state.step = 0;
       state.givers = [{name: 'Alice', recipient: ''}];
 
       nextStepBtn.click();
 
-      expect(state.introIndex).toBeGreaterThan(0);
+      expect(state.step).toBeGreaterThan(0);
     });
   });
 });

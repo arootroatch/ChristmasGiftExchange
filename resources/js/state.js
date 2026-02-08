@@ -1,12 +1,17 @@
 import {Events, stateEvents} from './events.js';
 
-let state = {
-  houses: {},
-  introIndex: 0,
-  isSecretSanta: false,
-  givers: [],
-  nameNumber: 1,
+export let state;
+
+export function startExchange(isSecretSanta = false) {
+  state = {
+    houses: {},
+    step: 1,
+    isSecretSanta: isSecretSanta,
+    givers: [],
+    nameNumber: 1,
+  }
 }
+
 
 export class Giver {
   constructor(name, recipient = "", email = "") {
@@ -20,12 +25,12 @@ export class Giver {
 
 export function addHouseToState(houseID) {
   state.houses[houseID] = [];
-  emitAddComponent('house', houseID, state.houses[houseID]);
+  stateEvents.emit(Events.HOUSE_ADDED, {houseID});
 }
 
 export function removeHouseFromState(houseID) {
   delete state.houses[houseID];
-  emitRemoveComponent('house', houseID);
+  stateEvents.emit(Events.HOUSE_REMOVED, {houseID});
 }
 
 export function addNameToHouse(houseID, name) {
@@ -34,23 +39,21 @@ export function addNameToHouse(houseID, name) {
   }
   if (!state.houses[houseID].includes(name)) {
     state.houses[houseID].push(name);
-    emitUpdateComponent('house', houseID, state.houses[houseID]);
-    emitUpdateComponent('name', 'participants', state.givers);
+    stateEvents.emit(Events.NAME_ADDED_TO_HOUSE, {houseID, name, members: state.houses[houseID]});
   }
 }
 
 export function removeNameFromHouse(houseID, name) {
   if (state.houses[houseID]) {
     state.houses[houseID] = state.houses[houseID].filter(n => n !== name);
-    emitUpdateComponent('house', houseID, state.houses[houseID]);
-    emitUpdateComponent('name', 'participants', state.givers);
+    stateEvents.emit(Events.NAME_REMOVED_FROM_HOUSE, {houseID, name, members: state.houses[houseID]});
   }
 }
 
 export function addGiver(name) {
   const giver = new Giver(name);
   state.givers.push(giver);
-  emitAddComponent('name', giver.name, giver);
+  stateEvents.emit(Events.GIVER_ADDED, {name, giver});
 }
 
 export function removeGiver(name) {
@@ -60,7 +63,7 @@ export function removeGiver(name) {
     }
   });
   state.givers = state.givers.filter(g => g.name !== name);
-  emitRemoveComponent('name', name);
+  stateEvents.emit(Events.GIVER_REMOVED, {name});
 }
 
 export function getHousesArray() {
@@ -83,38 +86,13 @@ export function assignRecipients(assignments) {
   assignments.forEach((recipient, index) => {
     state.givers[index].recipient = recipient;
   });
-  emitUpdateComponent('resultsTable', 'main', {
+  stateEvents.emit(Events.RECIPIENTS_ASSIGNED, {
     isGenerated: true,
     isSecretSanta: state.isSecretSanta,
     givers: state.givers
   });
 }
 
-export function isGenerated(){
+export function isGenerated() {
   return state.givers.every(g => g.recipient && g.recipient !== "");
 }
-
-function emitAddComponent(type, id, data) {
-  stateEvents.emit(Events.COMPONENT_ADDED, {
-    type: type,
-    id: id,
-    data: data
-  });
-}
-
-function emitUpdateComponent(type, id, data) {
-  stateEvents.emit(Events.COMPONENT_UPDATED, {
-    type: type,
-    id: id,
-    data: data
-  });
-}
-
-function emitRemoveComponent(type, id) {
-  stateEvents.emit(Events.COMPONENT_REMOVED, {
-    type: type,
-    id: id,
-  });
-}
-
-export default state;

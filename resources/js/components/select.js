@@ -1,75 +1,67 @@
-import {registerComponent} from "../render.js";
 import {addEventListener} from "../utils.js";
 import {insertNameFromSelect} from "./house.js";
-import state from "../state.js";
+import {state} from "../state.js";
+import {Events, stateEvents} from "../events.js";
 
 export function init() {
-  registerComponent('select', selectRenderer);
+  stateEvents.on(Events.GIVER_ADDED, () => updateAllSelects());
+  stateEvents.on(Events.GIVER_REMOVED, () => updateAllSelects());
+  stateEvents.on(Events.HOUSE_ADDED, ({houseID}) => {
+    const slot = document.querySelector(`[data-slot="select-${houseID}"]`);
+    if (slot) renderIntoSlot(slot, state.givers);
+  });
+  stateEvents.on(Events.NAME_ADDED_TO_HOUSE, ({houseID}) => {
+    const slot = document.querySelector(`[data-slot="select-${houseID}"]`);
+    if (slot) renderIntoSlot(slot, state.givers);
+  });
+  stateEvents.on(Events.NAME_REMOVED_FROM_HOUSE, ({houseID}) => {
+    const slot = document.querySelector(`[data-slot="select-${houseID}"]`);
+    if (slot) renderIntoSlot(slot, state.givers);
+  });
 }
 
-const selectRenderer = {
-  onComponentAdded(event) {
-    if (event.type === 'name') this.updateAllSelects();
-    if (event.type === 'house') {
-      const slot = document.querySelector(`[data-slot="select-${event.id}"]`);
-      if (slot) this.renderIntoSlot(slot, state.givers);
-    }
-  },
+function updateAllSelects() {
+  const slots = document.querySelectorAll('[data-slot^="select-"]');
+  slots.forEach(slot => renderIntoSlot(slot, state.givers));
+  updateNameListSelect();
+}
 
-  onComponentRemoved(event) {
-    if (event.type === 'name') this.updateAllSelects();
-  },
+function updateNameListSelect() {
+  const nameListSelect = document.querySelector('#name-list-select');
+  if (!nameListSelect) return;
 
-  onComponentUpdated(event) {
-    if (event.type === 'house') {
-      const slot = document.querySelector(`[data-slot="select-${event.id}"]`);
-      if (slot) this.renderIntoSlot(slot, state.givers);
-    }
-  },
+  nameListSelect.innerHTML = `
+      ${defaultOption()}
+      ${allNameOptions(state.givers)}`;
+}
 
-  updateAllSelects() {
-    const slots = document.querySelectorAll('[data-slot^="select-"]');
-    slots.forEach(slot => this.renderIntoSlot(slot, state.givers));
-    this.updateNameListSelect();
-  },
+function renderIntoSlot(slot, givers) {
+  const slotId = slot.getAttribute('data-slot');
+  const houseID = slotId.replace('select-', '');
+  let select = slot.querySelector(`#${houseID}-select`);
 
-  updateNameListSelect() {
-    const nameListSelect = document.querySelector('#name-list-select');
-    if (!nameListSelect) return;
-
-    nameListSelect.innerHTML = `
-      ${this.defaultOption}
-      ${this.allNameOptions(state.givers)}`;
-  },
-
-  renderIntoSlot(slot, givers) {
-    const slotId = slot.getAttribute('data-slot');
-    const houseID = slotId.replace('select-', '');
-    let select = slot.querySelector(`#${houseID}-select`);
-
-    if (!select) {
-      slot.innerHTML = this.template(houseID, givers);
-      addEventListener(`#${houseID}-select`, 'change', insertNameFromSelect);
-    } else {
-      select.innerHTML = `
-        ${this.defaultOption}
-        ${this.allNameOptions(givers)}`;
-    }
-  },
-
-  template(houseID, givers) {
-    return `
-      <select class="name-select" id="${houseID}-select">
-        ${this.defaultOption}
-        ${this.allNameOptions(givers)}
-      </select>`;
-  },
-
-  allNameOptions(givers) {
-    return givers.map(g => `<option value="${g.name}">${g.name}</option>`).join('');
-  },
-
-  defaultOption() {
-    return `<option value="default" selected="selected">-- Select a name --</option>`
+  if (!select) {
+    slot.innerHTML = template(houseID, givers);
+    addEventListener(`#${houseID}-select`, 'change', insertNameFromSelect);
+  } else {
+    select.innerHTML = `
+        ${defaultOption()}
+        ${allNameOptions(givers)}`;
   }
-};
+}
+
+function template(houseID, givers) {
+  return `
+      <select class="name-select" id="${houseID}-select">
+        ${defaultOption()}
+        ${allNameOptions(givers)}
+      </select>`;
+}
+
+function allNameOptions(givers) {
+  return givers.map(g => `<option value="${g.name}">${g.name}</option>`).join('');
+}
+
+function defaultOption() {
+  return `<option value="default" selected="selected">-- Select a name --</option>`
+}

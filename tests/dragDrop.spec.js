@@ -1,6 +1,6 @@
 import {beforeAll, beforeEach, describe, expect, it, vi} from 'vitest';
 import {allowDrop, drag, dragLeave, drop, initDragDrop} from '../resources/js/dragDrop';
-import state from '../resources/js/state';
+import {state} from '../resources/js/state';
 import {
   addHouseToDOM,
   enterName,
@@ -11,8 +11,7 @@ import {
   resetState,
   shouldSelect
 } from './specHelper';
-import * as house from '../resources/js/components/house';
-import * as name from '../resources/js/components/name';
+
 
 describe('dragDrop', () => {
   describe('allowDrop', () => {
@@ -72,8 +71,6 @@ describe('dragDrop', () => {
   describe('drop', () => {
     beforeAll(() => {
       initReactiveSystem();
-      house.init();
-      name.init();
     });
 
     beforeEach(() => {

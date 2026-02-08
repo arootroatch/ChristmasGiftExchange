@@ -22,7 +22,11 @@ class EventEmitter {
 export const stateEvents = new EventEmitter();
 
 export const Events = {
-  COMPONENT_ADDED: 'component:added',
-  COMPONENT_REMOVED: 'component:removed',
-  COMPONENT_UPDATED: 'component:updated',
+  GIVER_ADDED: 'giver:added',
+  GIVER_REMOVED: 'giver:removed',
+  HOUSE_ADDED: 'house:added',
+  HOUSE_REMOVED: 'house:removed',
+  NAME_ADDED_TO_HOUSE: 'name:addedToHouse',
+  NAME_REMOVED_FROM_HOUSE: 'name:removedFromHouse',
+  RECIPIENTS_ASSIGNED: 'recipients:assigned',
 };

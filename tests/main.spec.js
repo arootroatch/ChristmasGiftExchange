@@ -35,11 +35,6 @@ vi.mock('../resources/js/components/emailQuery', () => ({
   initEventListeners: vi.fn(),
 }));
 
-vi.mock('../resources/js/render', () => ({
-  initRenderSubscriptions: vi.fn(),
-  registerComponent: vi.fn(),
-}));
-
 describe('main', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -77,14 +72,6 @@ describe('main', () => {
     expect(init).toHaveBeenCalledTimes(1);
   });
 
-  it('calls initRenderSubscriptions', async () => {
-    const {initRenderSubscriptions} = await import('../resources/js/render');
-
-    main();
-
-    expect(initRenderSubscriptions).toHaveBeenCalledTimes(1);
-  });
-
   it('calls generate.initEventListeners', async () => {
     const {initEventListeners} = await import('../resources/js/generate');
 
@@ -120,7 +107,6 @@ describe('main', () => {
     const name = await import('../resources/js/components/name');
     const select = await import('../resources/js/components/select');
     const resultsTable = await import('../resources/js/components/resultsTable');
-    const {initRenderSubscriptions} = await import('../resources/js/render');
     const generate = await import('../resources/js/generate');
     const emailTable = await import('../resources/js/components/emailTable');
     const emailQuery = await import('../resources/js/components/emailQuery');
@@ -133,7 +119,6 @@ describe('main', () => {
     expect(name.init).toHaveBeenCalledTimes(1);
     expect(select.init).toHaveBeenCalledTimes(1);
     expect(resultsTable.init).toHaveBeenCalledTimes(1);
-    expect(initRenderSubscriptions).toHaveBeenCalledTimes(1);
     expect(generate.initEventListeners).toHaveBeenCalledTimes(1);
     expect(emailTable.initEventListeners).toHaveBeenCalledTimes(1);
     expect(emailQuery.initEventListeners).toHaveBeenCalledTimes(1);
@@ -144,7 +129,6 @@ describe('main', () => {
     const nameOrder = name.init.mock.invocationCallOrder[0];
     const selectOrder = select.init.mock.invocationCallOrder[0];
     const resultsTableOrder = resultsTable.init.mock.invocationCallOrder[0];
-    const renderOrder = initRenderSubscriptions.mock.invocationCallOrder[0];
     const generateOrder = generate.initEventListeners.mock.invocationCallOrder[0];
     const emailTableOrder = emailTable.initEventListeners.mock.invocationCallOrder[0];
     const emailQueryOrder = emailQuery.initEventListeners.mock.invocationCallOrder[0];
@@ -153,8 +137,7 @@ describe('main', () => {
     expect(houseOrder).toBeLessThan(nameOrder);
     expect(nameOrder).toBeLessThan(selectOrder);
     expect(selectOrder).toBeLessThan(resultsTableOrder);
-    expect(resultsTableOrder).toBeLessThan(renderOrder);
-    expect(renderOrder).toBeLessThan(generateOrder);
+    expect(resultsTableOrder).toBeLessThan(generateOrder);
     expect(generateOrder).toBeLessThan(emailTableOrder);
     expect(emailTableOrder).toBeLessThan(emailQueryOrder);
     expect(emailQueryOrder).toBeLessThan(dragDropOrder);

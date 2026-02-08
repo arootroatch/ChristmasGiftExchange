@@ -3,10 +3,9 @@ import {
   clearGeneratedListTable,
   emptyTable,
   init,
-  renderResultsToTable
 } from "../../resources/js/components/resultsTable";
 import {initReactiveSystem, installGiverNames, resetState} from "../specHelper";
-import state, {assignRecipients} from "../../resources/js/state";
+import {state, assignRecipients} from "../../resources/js/state";
 
 describe('resultsTable', () => {
   beforeAll(() => {

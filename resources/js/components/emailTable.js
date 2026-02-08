@@ -1,4 +1,4 @@
-import state, {isGenerated} from "../state";
+import {state, isGenerated} from "../state";
 import {addEventListener, fetchWithErrorHandling, selectElement, setLoadingState, unshiftHTML} from "../utils";
 import {showError, showSuccess} from "./snackbar";
 

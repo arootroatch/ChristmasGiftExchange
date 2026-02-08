@@ -1,8 +1,7 @@
-import state from "../resources/js/state";
+import {state, startExchange} from "../resources/js/state";
 import {expect, vi} from "vitest";
 import {indexHtml} from "../setupTests";
 import {selectElement} from "../resources/js/utils";
-import { initRenderSubscriptions } from "../resources/js/render";
 import * as house from "../resources/js/components/house";
 import * as name from "../resources/js/components/name";
 import * as nameList from "../resources/js/components/nameList";
@@ -16,7 +15,6 @@ export function initReactiveSystem() {
     name.init();
     nameList.init();
     select.init();
-    initRenderSubscriptions();
     isReactiveSystemInitialized = true;
   }
 }
@@ -102,11 +100,7 @@ export function clearNameSelects() {
 }
 
 export function resetState() {
-  state.houses = {};
-  state.introIndex = 0;
-  state.isSecretSanta = false;
-  state.givers = [];
-  state.nameNumber = 1;
+  startExchange();
 }
 
 export function resetDOM() {
