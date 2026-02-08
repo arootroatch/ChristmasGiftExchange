@@ -3,8 +3,7 @@ import * as generateModule from '../resources/js/generate';
 import {
   generate,
   generateList,
-  hasDuplicates,
-  initEventListeners
+  hasDuplicates
 } from '../resources/js/generate';
 import {
   clearGeneratedListTable,
@@ -92,7 +91,6 @@ describe('generate', () => {
     });
 
     it('works properly with event listener', () => {
-      initEventListeners();
       enterName("Alex");
       enterName("Whitney");
       addHouseToDOM();

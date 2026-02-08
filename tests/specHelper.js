@@ -6,6 +6,8 @@ import * as house from "../resources/js/components/house";
 import * as name from "../resources/js/components/name";
 import * as nameList from "../resources/js/components/nameList";
 import * as select from "../resources/js/components/select";
+import * as controlStrip from "../resources/js/components/controlStrip";
+import * as instructions from "../resources/js/components/instructions";
 
 let isReactiveSystemInitialized = false;
 
@@ -15,6 +17,8 @@ export function initReactiveSystem() {
     name.init();
     nameList.init();
     select.init();
+    controlStrip.init();
+    instructions.init();
     isReactiveSystemInitialized = true;
   }
 }

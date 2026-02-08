@@ -36,6 +36,19 @@ describe('nameList', () => {
       expect(document.querySelector("#input0").value).toBe("");
     });
 
+    it('adds giver when Enter is pressed in input', () => {
+      const input = document.querySelector("#input0");
+      input.value = "alex";
+      const event = new KeyboardEvent('keyup', {
+        keyCode: 13,
+        bubbles: true,
+        cancelable: true,
+      });
+      input.dispatchEvent(event);
+      expect(state.givers.length).toBe(1);
+      expect(state.givers[0].name).toBe("Alex");
+    });
+
     it('does nothing when input is empty', () => {
       click("#b0");
       expect(state.givers.length).toBe(0);

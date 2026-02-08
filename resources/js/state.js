@@ -10,6 +10,16 @@ export function startExchange(isSecretSanta = false) {
     givers: [],
     nameNumber: 1,
   }
+  stateEvents.emit(Events.EXCHANGE_STARTED);
+}
+
+export function nextStep(maxSteps = null) {
+  if (typeof maxSteps === "number") {
+    state.step + 1 > maxSteps ? (state.step = 0) : state.step++;
+  } else {
+    state.step++;
+  }
+  stateEvents.emit(Events.NEXT_STEP, {step: state.step});
 }
 
 

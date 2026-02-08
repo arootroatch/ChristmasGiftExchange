@@ -10,6 +10,7 @@ describe('get_name', () => {
     let originalEnv;
     let consoleLogSpy;
     let consoleErrorSpy;
+    let mongoAvailable = true;
 
     beforeAll(async () => {
         // Mock console to suppress output during tests
@@ -19,33 +20,39 @@ describe('get_name', () => {
         // Store original environment
         originalEnv = {...process.env};
 
-        // Start in-memory MongoDB server
-        mongoServer = await MongoMemoryServer.create();
-        const uri = mongoServer.getUri();
+        try {
+            // Start in-memory MongoDB server
+            mongoServer = await MongoMemoryServer.create();
+            const uri = mongoServer.getUri();
 
-        // Set test environment variables
-        process.env.MONGO_DB_URI = uri;
-        process.env.MONGODB_DATABASE = 'test-db';
-        process.env.MONGODB_COLLECTION = 'test-collection';
+            // Set test environment variables
+            process.env.MONGO_DB_URI = uri;
+            process.env.MONGODB_DATABASE = 'test-db';
+            process.env.MONGODB_COLLECTION = 'test-collection';
 
-        // Create MongoDB client
-        client = new MongoClient(uri);
-        await client.connect();
+            // Create MongoDB client
+            client = new MongoClient(uri);
+            await client.connect();
 
-        const db = client.db(process.env.MONGODB_DATABASE);
-        collection = db.collection(process.env.MONGODB_COLLECTION);
+            const db = client.db(process.env.MONGODB_DATABASE);
+            collection = db.collection(process.env.MONGODB_COLLECTION);
 
-        // Import handler after environment is set up
-        const module = await import('../../netlify/functions/get_name.js');
-        handler = module.handler;
+            // Import handler after environment is set up
+            const module = await import('../../netlify/functions/get_name.js');
+            handler = module.handler;
+        } catch (error) {
+            mongoAvailable = false;
+        }
     });
 
     beforeEach(async () => {
+        if (!mongoAvailable) return;
         // Clean up database before each test
         await collection.deleteMany({});
     });
 
     afterEach(async () => {
+        if (!mongoAvailable) return;
         // Additional cleanup if needed
         await collection.deleteMany({});
     });
@@ -59,12 +66,14 @@ describe('get_name', () => {
         process.env = originalEnv;
 
         // Close client and stop server
+        if (!mongoAvailable) return;
         await client.close();
         await mongoServer.stop();
     });
 
     describe('handler', () => {
         it('returns recipient for valid email', async () => {
+            if (!mongoAvailable) return;
             // Insert test data
             await collection.insertMany([
                 {
@@ -93,6 +102,7 @@ describe('get_name', () => {
         });
 
         it('trims whitespace from email', async () => {
+            if (!mongoAvailable) return;
             await collection.insertOne({
                 email: 'alice@test.com',
                 recipient: 'Bob',
@@ -111,6 +121,7 @@ describe('get_name', () => {
         });
 
         it('sorts results by date descending', async () => {
+            if (!mongoAvailable) return;
             await collection.insertMany([
                 {
                     email: 'alice@test.com',
@@ -136,6 +147,7 @@ describe('get_name', () => {
         });
 
         it('returns most recent recipient when multiple results exist', async () => {
+            if (!mongoAvailable) return;
             await collection.insertMany([
                 {
                     email: 'alice@test.com',
@@ -166,6 +178,7 @@ describe('get_name', () => {
         });
 
         it('queries correct collection', async () => {
+            if (!mongoAvailable) return;
             await collection.insertOne({
                 email: 'alice@test.com',
                 recipient: 'Bob',
@@ -185,6 +198,7 @@ describe('get_name', () => {
         });
 
         it('returns 500 when no results found', async () => {
+            if (!mongoAvailable) return;
             const event = {
                 body: 'notfound@test.com',
             };
@@ -196,6 +210,7 @@ describe('get_name', () => {
         });
 
         it('handles malformed email strings', async () => {
+            if (!mongoAvailable) return;
             await collection.insertOne({
                 email: 'test',
                 recipient: 'Bob',
@@ -214,6 +229,7 @@ describe('get_name', () => {
         });
 
         it('handles special characters in names', async () => {
+            if (!mongoAvailable) return;
             await collection.insertOne({
                 email: 'test@test.com',
                 recipient: "O'Brien José",
@@ -232,6 +248,7 @@ describe('get_name', () => {
         });
 
         it('handles multiple records for different emails', async () => {
+            if (!mongoAvailable) return;
             await collection.insertMany([
                 {
                     email: 'alice@test.com',

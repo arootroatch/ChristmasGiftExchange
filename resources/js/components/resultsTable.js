@@ -1,9 +1,15 @@
 import {pushHTML, selectElement} from "../utils.js";
 import {Events, stateEvents} from "../events.js";
+import {state} from "../state.js";
 
 const tableBodyId = "table-body";
 
 export function init() {
+  stateEvents.on(Events.EXCHANGE_STARTED, () => {
+    const table = selectElement('#results-table');
+    if (!table) return;
+    table.style.display = state.isSecretSanta ? "none" : "table";
+  });
   stateEvents.on(Events.RECIPIENTS_ASSIGNED, ({isGenerated, isSecretSanta, givers}) => {
     if (isGenerated && !isSecretSanta) {
       renderResultsToTable(givers);
