@@ -33,7 +33,9 @@ Container components (like `house.js` and `nameList.js`) follow a consistent str
 - Child components (e.g., `name.js`, `select.js`) fill slots inside the container via the `data-slot` pattern
 
 ### Key Design Principles
-- **State functions encapsulate emit logic** — External code calls state functions (e.g., `addGiver`, `setIsGenerated`) which handle both state mutation and event emission. Emit functions (`emitAddComponent`, `emitUpdateComponent`, `emitRemoveComponent`) are private to state.js.
+- **State functions are pure state mutators** — They handle mutation, cascading cleanup (e.g., `removeGiver` removes from houses too), and event emission. Input validation and formatting (e.g., capitalization, empty checks) belong in the UI handler, not in state functions.
+- **Event handlers call state functions directly** — No intermediate wrapper functions like `addName` or `deleteName` that just delegate to state functions. Inline arrows are fine for short handlers; multi-line handlers can be extracted into named functions.
+- **Emit functions are private** — `emitAddComponent`, `emitUpdateComponent`, `emitRemoveComponent` are internal to state.js. External code calls named state functions (e.g., `addGiver`, `removeGiver`).
 - **Components subscribe to events they care about** — Each component checks `event.type` in its lifecycle methods and responds accordingly. Components are self-sufficient in knowing what events matter to them.
 - **Generate module only updates state** — `generate.js` does not directly call rendering functions. It updates state and lets components respond via the event system.
 - **No framework** — Pure vanilla JS with a lightweight pub/sub event system.
