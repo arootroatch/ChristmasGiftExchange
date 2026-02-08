@@ -1,5 +1,5 @@
 import {registerComponent} from "../render.js";
-import {selectElement, pushHTMl} from "../utils.js";
+import {selectElement, pushHTML} from "../utils.js";
 import state from "../state.js";
 
 const tableBodyId = "table-body";
@@ -7,6 +7,20 @@ const tableBodyId = "table-body";
 export function init() {
   registerComponent('resultsTable', resultsTableRenderer);
 }
+
+const resultsTableRenderer = {
+  onComponentAdded(event) {
+  },
+
+  onComponentRemoved(event) {
+  },
+
+  onComponentUpdated(event) {
+    if (event.type === 'resultsTable' && event.data?.isGenerated === true && event.data?.isSecretSanta === false) {
+      renderResultsToTable(event.data.givers);
+    }
+  }
+};
 
 export function emptyTable() {
   return `
@@ -26,6 +40,7 @@ export function emptyTable() {
       <td></td>
       <td></td>
     </tr>`
+
 }
 
 export function clearGeneratedListTable() {
@@ -35,7 +50,7 @@ export function clearGeneratedListTable() {
   }
 }
 
-export function renderResultsToTable(results) {
+function renderResultsToTable(results) {
   clearGeneratedListTable();
   let html = '';
   for (const giver of results) {
@@ -44,22 +59,6 @@ export function renderResultsToTable(results) {
                 <td>${giver.recipient}</td>
             </tr>`;
   }
-  selectElement(`#${tableBodyId}`).insertAdjacentHTML(
-    "beforeend",
-    html
-  );
+  pushHTML(`#${tableBodyId}`, html);
 }
 
-const resultsTableRenderer = {
-  onComponentAdded(event) {
-  },
-
-  onComponentRemoved(event) {
-  },
-
-  onComponentUpdated(event) {
-    if (event.type === 'resultsTable' && event.data?.isGenerated === true && event.data?.isSecretSanta === false) {
-      renderResultsToTable(event.data.givers);
-    }
-  }
-};

@@ -1,5 +1,6 @@
 import {beforeEach, describe, expect, it, test, vi} from 'vitest'
 import state, {
+  addGiver,
   addHouseToState,
   addNameToHouse,
   assignRecipients,
@@ -7,6 +8,7 @@ import state, {
   getHousesForGeneration,
   getIndividualParticipants,
   Giver,
+  removeGiver,
   removeHouseFromState,
   removeNameFromHouse
 } from '/resources/js/state.js'
@@ -101,6 +103,36 @@ describe('state helper functions', () => {
       state.houses["house-0"] = ["Alice"];
       removeNameFromHouse("house-0", "Bob");
       expect(state.houses["house-0"]).toEqual(["Alice"]);
+    });
+  });
+
+  describe('addGiver', () => {
+    it('should add a giver to state', () => {
+      state.givers = [];
+      addGiver("Alice");
+      expect(state.givers.length).toBe(1);
+      expect(state.givers[0].name).toBe("Alice");
+    });
+  });
+
+  describe('removeGiver', () => {
+    it('should remove giver from state', () => {
+      removeGiver("Bob");
+      expect(state.givers.map(g => g.name)).toEqual(["Alice", "Charlie"]);
+    });
+
+    it('should remove giver from house before removing from state', () => {
+      state.houses = {"house-0": ["Alice", "Bob"]};
+      removeGiver("Alice");
+      expect(state.houses["house-0"]).toEqual(["Bob"]);
+      expect(state.givers.map(g => g.name)).toEqual(["Bob", "Charlie"]);
+    });
+
+    it('should handle giver not in any house', () => {
+      state.houses = {"house-0": ["Bob"]};
+      removeGiver("Alice");
+      expect(state.houses["house-0"]).toEqual(["Bob"]);
+      expect(state.givers.map(g => g.name)).toEqual(["Bob", "Charlie"]);
     });
   });
 

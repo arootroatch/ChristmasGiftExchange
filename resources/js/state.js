@@ -54,6 +54,11 @@ export function addGiver(name) {
 }
 
 export function removeGiver(name) {
+  Object.keys(state.houses).forEach(houseID => {
+    if (state.houses[houseID].includes(name)) {
+      removeNameFromHouse(houseID, name);
+    }
+  });
   state.givers = state.givers.filter(g => g.name !== name);
   emitRemoveComponent('name', name);
 }

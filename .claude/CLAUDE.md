@@ -15,13 +15,22 @@ A vanilla JavaScript web app for drawing names in a gift exchange or Secret Sant
 ```js
 {
   houses: {},           // houseID -> array of names
-  isGenerated: false,   // whether names have been successfully generated
   introIndex: 0,        // current intro step
   isSecretSanta: false, // secret santa mode toggle
   givers: [],           // array of Giver objects
   nameNumber: 1         // counter for unique field IDs
 }
 ```
+- `isGenerated()` is a derived function (checks if all givers have recipients), not a stored field
+
+### Container Component Pattern
+Container components (like `house.js` and `nameList.js`) follow a consistent structure:
+- **`template()`** — Returns the full HTML string including the outermost container div (e.g., `<div id="name-list">...</div>`), not just inner contents
+- **`init()`** — Registers the component via `registerComponent()` and calls `attachListeners()` for static DOM elements
+- **`attachListeners()`** — Wires up event listeners on elements within the template
+- **`onComponentAdded(event)`** — Filters by `event.type`, inserts template into `#left-container` (via `unshiftHTML` or `insertAdjacentHTML`), then calls `attachListeners()` for dynamically rendered elements
+- **Empty lifecycle stubs** — `onComponentRemoved`, `onComponentUpdated` can be empty if the component doesn't react to those events
+- Child components (e.g., `name.js`, `select.js`) fill slots inside the container via the `data-slot` pattern
 
 ### Key Design Principles
 - **State functions encapsulate emit logic** — External code calls state functions (e.g., `addGiver`, `setIsGenerated`) which handle both state mutation and event emission. Emit functions (`emitAddComponent`, `emitUpdateComponent`, `emitRemoveComponent`) are private to state.js.
@@ -37,12 +46,13 @@ resources/js/
   events.js            # EventEmitter class
   render.js            # Component registry + event routing
   generate.js          # Name drawing algorithm
-  utils.js             # DOM helpers (selectElement, click, addEventListener, pushHTMl, etc.)
+  utils.js             # DOM helpers (selectElement, click, addEventListener, pushHTML, unshiftHTML, etc.)
   layout.js            # Step navigation, intro flow
   dragDrop.js          # Drag and drop name reassignment
   keybindings.js       # Keyboard shortcuts
   components/
-    house.js           # House/group management
+    house.js           # House/group container component
+    nameList.js        # Name list container component
     name.js            # Participant name management
     select.js          # Dropdown rendering
     resultsTable.js    # Results display (event-driven)
@@ -63,6 +73,7 @@ tests/
   components/
     resultsTable.spec.js
     house.spec.js
+    nameList.spec.js
     name.spec.js
     emailTable.spec.js
     snackbar.spec.js
