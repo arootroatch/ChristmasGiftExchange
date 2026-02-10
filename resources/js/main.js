@@ -22,7 +22,7 @@ export default function main() {
   controlStrip.init();
   instructions.init();
 
-  emailTable.initEventListeners();
+  emailTable.init();
   emailQuery.initEventListeners();
   initDragDrop();
 }

@@ -7,6 +7,16 @@ const b0Id = "b0";
 const inputId = "input0";
 const nameListId = "name-list";
 
+export function init() {
+  stateEvents.on(Events.EXCHANGE_STARTED, () => {
+    if (selectElement(`#${nameListId}`)) return;
+    unshiftHTML('#left-container', template());
+    attachListeners();
+    const list = selectElement(`#${nameListId}`);
+    if (list) list.style.display = "block";
+  });
+}
+
 function template() {
   return `
   <div id="${nameListId}" style="display: none;">
@@ -36,14 +46,4 @@ function attachListeners() {
     }
   });
   addEventListener("#name-list-select", "change", insertNameFromSelect);
-}
-
-export function init() {
-  stateEvents.on(Events.EXCHANGE_STARTED, () => {
-    if (selectElement(`#${nameListId}`)) return;
-    unshiftHTML('#left-container', template());
-    attachListeners();
-    const list = selectElement(`#${nameListId}`);
-    if (list) list.style.display = "block";
-  });
 }

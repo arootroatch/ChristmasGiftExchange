@@ -1,11 +1,6 @@
-import {showEmailTable} from "./components/emailTable"
 import {state, assignRecipients, getHousesForGeneration} from "./state.js";
 import * as self from "./generate.js";
 import {showError} from "./components/snackbar";
-import {selectElement} from "./utils";
-
-const generateId = "generate";
-const nextStepId = "nextStep";
 
 export function hasDuplicates(arr) {
   let flattened = arr.flat();
@@ -20,11 +15,6 @@ export function generateList(_) {
   }
 
   assignRecipients(assignments);
-  if (state.isSecretSanta) {
-    showEmailTable();
-    selectElement(`#${generateId}`).style.display = "none";
-    selectElement(`#${nextStepId}`).style.display = "none";
-  }
 }
 
 export function generate() {

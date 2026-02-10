@@ -1,6 +1,7 @@
-import {state, isGenerated} from "../state";
-import {addEventListener, fetchWithErrorHandling, selectElement, setLoadingState, unshiftHTML} from "../utils";
-import {showError, showSuccess} from "./snackbar";
+import {state} from "../state.js";
+import {addEventListener, fetchWithErrorHandling, selectElement, setLoadingState, unshiftHTML} from "../utils.js";
+import {showError, showSuccess} from "./snackbar.js";
+import {Events, stateEvents} from "../events.js";
 
 const emailTableId = "emailTable";
 const emailTableBodyId = "emailTableBody";
@@ -8,36 +9,60 @@ const hideEmailsId = "hideEmails";
 const sendEmailsId = "sendEmails";
 const submitEmailsId = "submitEmails";
 const sendEmailsBtnId = "sendEmailsBtn";
+const containerId = "email-table-container";
 
-export function emailInput(i) {
+export function init() {
+  stateEvents.on(Events.RECIPIENTS_ASSIGNED, ({isSecretSanta}) => {
+    if (isSecretSanta) {
+      render();
+    }
+  });
+  stateEvents.on(Events.NEXT_STEP, ({step}) => {
+    if (step === 4) {
+      render();
+    }
+  });
+  stateEvents.on(Events.EXCHANGE_STARTED, () => {
+    const container = selectElement(`#${containerId}`);
+    if (container) container.innerHTML = "";
+  });
+}
+
+function template() {
+  return `
+    <div id="${emailTableId}" class="show">
+      <h3>Please enter each participant's email address</h3>
+      <form id="${emailTableBodyId}">
+      ${state.givers.map((giver, i) => emailInput(giver, i)).join("")}
+        <div id="emailBtnDiv">
+          <button class="button" id="${hideEmailsId}" style="display: none;">Dismiss</button>
+          <button type="submit" class="button" id="${submitEmailsId}">Submit Emails</button>
+        </div>
+      </form>
+    </div>`;
+}
+
+export function emailInput(giver, i) {
   return `
     <div class="emailDiv">
-      <label for=${i}>${state.givers[i].name}</label>
-      <input type="email" 
-             class="emailInput" 
-             maxlength="100" 
-             placeholder="${state.givers[i].name}@example.com" 
-             name=${state.givers[i].name}
-             id=${i} 
+      <label for=${i}>${giver.name}</label>
+      <input type="email"
+             class="emailInput"
+             maxlength="100"
+             placeholder="${giver.name}@example.com"
+             name=${giver.name}
+             id=${i}
              required/>
     </div>`;
 }
 
-
-export function showEmailTable() {
-  if (!isGenerated()) {
-    console.log("not generated")
-    showError(`Please click "Generate List" before entering emails.`);
-  } else {
-    const table = selectElement(`#${emailTableId}`);
-    for (let i = 0; i < state.givers.length; i++) {
-      unshiftHTML(`#${emailTableBodyId}`, emailInput(i))
-    }
-    table.classList.replace("hidden", "show");
-    if (!state.isSecretSanta) {
-      selectElement(`#${hideEmailsId}`).style.display = "block";
-    }
-  }
+function render() {
+  const container = selectElement(`#${containerId}`);
+  if (!container) return;
+  container.innerHTML = template();
+  if (!state.isSecretSanta) selectElement(`#${hideEmailsId}`).style.display = "block";
+  addEventListener(`#${emailTableBodyId}`, "submit", submitEmails);
+  addEventListener(`#${hideEmailsId}`, "click", hideEmailTable);
 }
 
 function hideEmailTable() {
@@ -49,32 +74,7 @@ function hideEmailTable() {
   }, 500);
 }
 
-
-export function hideElement(thing) {
-  const table = selectElement(`#${thing}`);
-  table.classList.add("hide");
-  setTimeout(() => {
-    table.classList.replace("show", "hidden");
-    table.classList.remove("hide");
-  }, 500);
-}
-
-export function handleEmailSubmitError(response) {
-  console.log(response.body);
-}
-
-function updateStateWithEmails(emails) {
-  let random = Math.random().toString(20);
-  let date = new Date().toISOString();
-  emails.forEach((obj) => {
-    let i = parseInt(obj.index);
-    state.givers[i].email = obj.email;
-    state.givers[i].id = `${state.givers.length}_${random}_${date}`;
-    state.givers[i].date = date;
-  });
-}
-
-export async function submitEmails(event) {
+async function submitEmails(event) {
   event.preventDefault();
   setLoadingState(`#${submitEmailsId}`);
   const emails = getEmails();
@@ -94,6 +94,62 @@ export async function submitEmails(event) {
   }
 
   return false;
+}
+
+function getEmails() {
+  const emailInputs = Array.from(document.getElementsByClassName("emailInput"));
+  return emailInputs.map((input) => {
+    return {
+      name: input.name,
+      email: input.value.trim(),
+      index: input.id
+    };
+  });
+}
+
+function updateStateWithEmails(emails) {
+  let random = Math.random().toString(20);
+  let date = new Date().toISOString();
+  emails.forEach((obj) => {
+    let i = parseInt(obj.index);
+    state.givers[i].email = obj.email;
+    state.givers[i].id = `${state.givers.length}_${random}_${date}`;
+    state.givers[i].date = date;
+  });
+}
+
+async function postToServer() {
+  const options = {
+    method: "POST",
+    mode: "cors",
+    body: JSON.stringify(state.givers),
+  };
+  return await fetchWithErrorHandling("/.netlify/functions/postToDb", options);
+}
+
+
+export function displaySendEmails() {
+  const sendDiv = selectElement(`#${sendEmailsId}`);
+  sendDiv.innerHTML = `
+          <p>${state.givers.length} email addresses added successfully!</p>
+          <p>Now let's send out those emails:</p>
+          <button class="button" id="${sendEmailsBtnId}">Send Emails</button>
+        `;
+  sendDiv.classList.replace("hidden", "show");
+  addEventListener(`#${sendEmailsBtnId}`, "click", batchEmails);
+}
+
+export function hideElement(thing) {
+  const table = selectElement(`#${thing}`);
+  table.classList.add("hide");
+  setTimeout(() => {
+    table.classList.replace("show", "hidden");
+    table.classList.remove("hide");
+  }, 500);
+}
+
+export function handleEmailSubmitError(response) {
+  console.log(response.body);
 }
 
 function dispatchEmailOptions(giver) {
@@ -126,53 +182,3 @@ async function batchEmails() {
   hideElement(sendEmailsId);
   showSuccess(`Sent ${count} of ${state.givers.length} emails successfully!`);
 }
-
-export function displaySendEmails() {
-  const sendDiv = selectElement(`#${sendEmailsId}`);
-  sendDiv.innerHTML = `
-          <p>${state.givers.length} email addresses added successfully!</p>
-          <p>Now let's send out those emails:</p>
-          <button class="button" id="${sendEmailsBtnId}">Send Emails</button>
-        `;
-  sendDiv.classList.replace("hidden", "show");
-  addEventListener(`#${sendEmailsBtnId}`, "click", batchEmails);
-}
-
-export function getEmails() {
-  const emailInputs = Array.from(document.getElementsByClassName("emailInput"));
-  return emailInputs.map((input) => {
-    return {
-      name: input.name,
-      email: input.value.trim(),
-      index: input.id
-    };
-  });
-}
-
-export async function postToServer() {
-  const options = {
-    method: "POST",
-    mode: "cors",
-    body: JSON.stringify(state.givers),
-  };
-  return await fetchWithErrorHandling("/.netlify/functions/postToDb", options);
-}
-
-export function initEventListeners() {
-  addEventListener(`#${emailTableBodyId}`, "submit", submitEmails);
-  addEventListener(`#${hideEmailsId}`, "click", hideEmailTable);
-}
-
-// const resultsTableRenderer = {
-//   onComponentAdded(event) {
-//   },
-//
-//   onComponentRemoved(event) {
-//   },
-//
-//   onComponentUpdated(event) {
-//     if (event.type === 'resultsTable' && event.data?.isGenerated === true && event.data?.isSecretSanta === false) {
-//       renderResultsToTable(event.data.givers);
-//     }
-//   }
-// };

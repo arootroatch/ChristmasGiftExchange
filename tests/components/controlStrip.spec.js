@@ -1,10 +1,10 @@
 import {afterEach, beforeAll, beforeEach, describe, expect, it, vi} from "vitest";
-import {resetDOM, resetState} from "../specHelper";
+import {click, resetDOM, resetState} from "../specHelper";
 import * as generateModule from "../../resources/js/generate";
-import * as houseModule from "../../resources/js/components/house";
-import * as controlStripModule from "../../resources/js/components/controlStrip";
+import * as stateModule from "../../resources/js/state";
 import {init as initControlStrip} from "../../resources/js/components/controlStrip";
-import {nextStep, state} from "../../resources/js/state";
+import {state} from "../../resources/js/state";
+import {selectElement, selectElements} from "../../resources/js/utils";
 
 describe("controlStrip", () => {
   beforeAll(() => {
@@ -19,16 +19,16 @@ describe("controlStrip", () => {
   });
 
   it("does not render before exchange starts", () => {
-    expect(document.querySelector("#generate")).toBeNull();
-    expect(document.querySelector("#addHouse")).toBeNull();
-    expect(document.querySelector("#nextStep")).toBeNull();
+    expect(selectElement("#generate")).toBeNull();
+    expect(selectElement("#addHouse")).toBeNull();
+    expect(selectElement("#nextStep")).toBeNull();
   });
 
   it("renders after EXCHANGE_STARTED", () => {
     resetState();
-    const generateBtn = document.querySelector("#generate");
-    const addHouseBtn = document.querySelector("#addHouse");
-    const nextStepBtn = document.querySelector("#nextStep");
+    const generateBtn = selectElement("#generate");
+    const addHouseBtn = selectElement("#addHouse");
+    const nextStepBtn = selectElement("#nextStep");
     expect(generateBtn).not.toBeNull();
     expect(addHouseBtn).not.toBeNull();
     expect(nextStepBtn).not.toBeNull();
@@ -40,47 +40,50 @@ describe("controlStrip", () => {
   it("renders only once on repeated EXCHANGE_STARTED", () => {
     resetState();
     resetState();
-    expect(document.querySelectorAll("#generate").length).toBe(1);
-    expect(document.querySelectorAll("#addHouse").length).toBe(1);
-    expect(document.querySelectorAll("#nextStep").length).toBe(1);
+    expect(selectElements("#generate").length).toBe(1);
+    expect(selectElements("#addHouse").length).toBe(1);
+    expect(selectElements("#nextStep").length).toBe(1);
   });
 
   it("updates button visibility on NEXT_STEP", () => {
     resetState();
-    const addHouseBtn = document.querySelector("#addHouse");
-    const generateBtn = document.querySelector("#generate");
-    const nextStepBtn = document.querySelector("#nextStep");
+    state.givers = [{name: "Alice", recipient: ""}];
+    const addHouseBtn = selectElement("#addHouse");
+    const generateBtn = selectElement("#generate");
+    const nextStepBtn = selectElement("#nextStep");
 
-    nextStep();
+    nextStepBtn.click();
     expect(addHouseBtn.style.display).toBe("block");
     expect(generateBtn.style.display).toBe("none");
 
     state.isSecretSanta = true;
-    nextStepBtn.style.display = "block";
-    nextStep();
+    nextStepBtn.click();
     expect(addHouseBtn.style.display).toBe("none");
     expect(generateBtn.style.display).toBe("block");
     expect(nextStepBtn.style.display).toBe("none");
   });
 
-  it("hides generate button at step 4", () => {
+  it("hides generate button and next step at step 4", () => {
     resetState();
-    const generateBtn = document.querySelector("#generate");
+    const generateBtn = selectElement("#generate");
+    const nextStepBtn = selectElement("#nextStep");
     state.step = 3;
-    nextStep();
+    state.givers = [{name: "Alice", recipient: "Bob"}];
+    nextStepBtn.click();
     expect(generateBtn.style.display).toBe("none");
+    expect(nextStepBtn.style.display).toBe("none");
   });
 
   it("wires button listeners", () => {
     const generateSpy = vi.spyOn(generateModule, "generateList").mockImplementation(() => {});
-    const addHouseSpy = vi.spyOn(houseModule, "addHouse").mockImplementation(() => {});
+    const addHouseSpy = vi.spyOn(stateModule, "addHouseToState").mockImplementation(() => {});
 
     resetState();
     state.givers = [{name: "Alice", recipient: ""}];
 
-    document.querySelector("#generate").click();
-    document.querySelector("#addHouse").click();
-    document.querySelector("#nextStep").click();
+    selectElement("#generate").click();
+    selectElement("#addHouse").click();
+    selectElement("#nextStep").click();
 
     expect(generateSpy).toHaveBeenCalledTimes(1);
     expect(addHouseSpy).toHaveBeenCalledTimes(1);
@@ -93,7 +96,7 @@ describe("controlStrip", () => {
       state.step = 1;
       state.givers = [];
 
-      controlStripModule.introNext();
+      click("#nextStep");
 
       expect(state.step).toBe(1);
     });
@@ -103,7 +106,7 @@ describe("controlStrip", () => {
       state.step = 1;
       state.givers = [{name: "Alice", recipient: ""}];
 
-      controlStripModule.introNext();
+      click("#nextStep");
 
       expect(state.step).toBe(2);
     });
@@ -113,7 +116,7 @@ describe("controlStrip", () => {
       state.step = 3;
       state.givers = [{name: "Alice", recipient: ""}];
 
-      controlStripModule.introNext();
+      click("#nextStep");
 
       expect(state.step).toBe(3);
     });
@@ -123,9 +126,9 @@ describe("controlStrip", () => {
       state.step = 3;
       state.givers = [{name: "Alice", recipient: "Bob"}];
 
-      controlStripModule.introNext();
+      click("#nextStep");
 
-      expect(state.step).toBe(0);
+      expect(state.step).toBe(4);
     });
   });
 });

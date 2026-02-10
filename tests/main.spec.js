@@ -28,7 +28,7 @@ vi.mock('../resources/js/components/controlStrip', () => ({
 }));
 
 vi.mock('../resources/js/components/emailTable', () => ({
-  initEventListeners: vi.fn(),
+  init: vi.fn(),
 }));
 
 vi.mock('../resources/js/components/emailQuery', () => ({
@@ -80,12 +80,12 @@ it('calls controlStrip.init', async () => {
   expect(init).toHaveBeenCalledTimes(1);
 });
 
-  it('calls emailTable.initEventListeners', async () => {
-    const {initEventListeners} = await import('../resources/js/components/emailTable');
+  it('calls emailTable.init', async () => {
+    const {init} = await import('../resources/js/components/emailTable');
 
     main();
 
-    expect(initEventListeners).toHaveBeenCalledTimes(1);
+    expect(init).toHaveBeenCalledTimes(1);
   });
 
   it('calls emailQuery.initEventListeners', async () => {
@@ -120,7 +120,7 @@ it('calls controlStrip.init', async () => {
   expect(select.init).toHaveBeenCalledTimes(1);
   expect(resultsTable.init).toHaveBeenCalledTimes(1);
   expect(controlStrip.init).toHaveBeenCalledTimes(1);
-  expect(emailTable.initEventListeners).toHaveBeenCalledTimes(1);
+  expect(emailTable.init).toHaveBeenCalledTimes(1);
   expect(emailQuery.initEventListeners).toHaveBeenCalledTimes(1);
   expect(initDragDrop).toHaveBeenCalledTimes(1);
 
@@ -130,7 +130,7 @@ it('calls controlStrip.init', async () => {
   const selectOrder = select.init.mock.invocationCallOrder[0];
   const resultsTableOrder = resultsTable.init.mock.invocationCallOrder[0];
   const controlStripOrder = controlStrip.init.mock.invocationCallOrder[0];
-  const emailTableOrder = emailTable.initEventListeners.mock.invocationCallOrder[0];
+  const emailTableOrder = emailTable.init.mock.invocationCallOrder[0];
   const emailQueryOrder = emailQuery.initEventListeners.mock.invocationCallOrder[0];
   const dragDropOrder = initDragDrop.mock.invocationCallOrder[0];
 

@@ -2,6 +2,10 @@ export function selectElement(selector){
     return document.querySelector(selector);
 }
 
+export function selectElements(selector){
+    return document.querySelectorAll(selector);
+}
+
 export function click(selector){
     document.querySelector(selector).click();
 }

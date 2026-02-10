@@ -4,13 +4,13 @@ import {
   expectColor,
   installGiverNames,
   installGivers,
+  resetState,
   shouldDisplayEmailTable,
-  shouldDisplayErrorSnackbar,
   shouldDisplaySuccessSnackbar,
   stubFetch
 } from "../specHelper";
 import "../../resources/js/components/name";
-import {state, Giver, isGenerated, startExchange} from "../../resources/js/state";
+import {assignRecipients, Giver, nextStep, startExchange, state} from "../../resources/js/state";
 import {alex, hunter, megan, whitney} from "../testData";
 import {
   displaySendEmails,
@@ -18,11 +18,10 @@ import {
   getEmails,
   handleEmailSubmitError,
   hideElement,
-  initEventListeners,
-  showEmailTable
+  init,
 } from "../../resources/js/components/emailTable";
 
-function renderEmailTable(givers) {
+function renderEmailTableInputs(givers) {
   const body = document.querySelector("#emailTableBody");
   for (let i = 0; i < givers.length; i++) {
     body.insertAdjacentHTML(
@@ -34,6 +33,11 @@ function renderEmailTable(givers) {
         `
     );
   }
+}
+
+function triggerEmailTableRender() {
+  installGivers([new Giver("Alex", "Whitney"), new Giver("Whitney", "Alex")]);
+  assignRecipients(["Whitney", "Alex"]);
 }
 
 describe('emailTable', () => {
@@ -50,42 +54,110 @@ describe('emailTable', () => {
     }
   })
 
-  beforeAll(initEventListeners)
+  beforeAll(() => {
+    init();
+  });
+
+  beforeEach(() => {
+    resetState();
+    state.isSecretSanta = true;
+  });
+
+  describe("reactive rendering", () => {
+    it("renders on RECIPIENTS_ASSIGNED when isSecretSanta", () => {
+      state.isSecretSanta = true;
+      installGivers([new Giver("Alex", "Whitney"), new Giver("Whitney", "Alex")]);
+
+      assignRecipients(["Whitney", "Alex"]);
+
+      shouldDisplayEmailTable("Alex", "Whitney");
+    });
+
+    it("does not render on RECIPIENTS_ASSIGNED when not isSecretSanta", () => {
+      state.isSecretSanta = false;
+      installGivers([new Giver("Alex", "Whitney"), new Giver("Whitney", "Alex")]);
+
+      assignRecipients(["Whitney", "Alex"]);
+
+      expect(document.querySelector("#emailTable")).toBeNull();
+    });
+
+    it("renders on NEXT_STEP when step is 4", () => {
+      installGivers([new Giver("Alex", "Whitney"), new Giver("Whitney", "Alex")]);
+      state.step = 3;
+
+      nextStep();
+
+      shouldDisplayEmailTable("Alex", "Whitney");
+    });
+
+    it("does not render on NEXT_STEP when step is not 4", () => {
+      installGivers([new Giver("Alex", ""), new Giver("Whitney", "")]);
+      state.step = 1;
+
+      nextStep();
+
+      expect(document.querySelector("#emailTable")).toBeNull();
+    });
+
+    it("clears container on EXCHANGE_STARTED", () => {
+      triggerEmailTableRender();
+      expect(document.querySelector("#emailTable")).not.toBeNull();
+
+      startExchange();
+
+      expect(document.querySelector("#emailTable")).toBeNull();
+    });
+
+    it("displays dismiss button when not secret santa", () => {
+      state.isSecretSanta = false;
+      installGivers([new Giver("Alex", "Whitney"), new Giver("Whitney", "Alex")]);
+      state.step = 3;
+
+      nextStep();
+
+      const hideButton = document.querySelector("#hideEmails");
+      expect(hideButton.style.display).toBe("block");
+    });
+
+    it("hides dismiss button in secret santa mode", () => {
+      state.isSecretSanta = true;
+      installGivers([new Giver("Alex", "Whitney"), new Giver("Whitney", "Alex")]);
+
+      assignRecipients(["Whitney", "Alex"]);
+
+      const hideButton = document.querySelector("#hideEmails");
+      expect(hideButton.style.display).toBe("none");
+    });
+  });
 
   describe("submitEmails", () => {
-    renderEmailTable([
-      {name: "Alex", email: "arootroatch@gmail.com"},
-      {name: "Whitney", email: "whitney@gmail.com"},
-      {name: "Hunter", email: "hunter@gmail.com"},
-      {name: "Megan", email: "megan@gmail.com"}]);
-    startExchange();
-    installGiverNames("Alex", "Whitney", "Hunter", "Megan");
-    const submitEmailsButton = document.querySelector("#submitEmails");
-
     beforeEach(() => {
+      triggerEmailTableRender();
+      // Clear render-generated inputs and givers, replace with test data
+      const body = document.querySelector("#emailTableBody");
+      body.querySelectorAll(".emailDiv").forEach(el => el.remove());
+      state.givers = [];
+      installGiverNames("Alex", "Whitney", "Hunter", "Megan");
+      renderEmailTableInputs([
+        {name: "Alex", email: "arootroatch@gmail.com"},
+        {name: "Whitney", email: "whitney@gmail.com"},
+        {name: "Hunter", email: "hunter@gmail.com"},
+        {name: "Megan", email: "megan@gmail.com"}]);
+
       const emailTableBody = document.getElementById("emailTableBody");
       const submitEvent = new Event("submit", {bubbles: true, cancelable: true});
       emailTableBody.dispatchEvent(submitEvent);
-    })
+    });
 
     it('sets button text to Loading...', () => {
+      const submitEmailsButton = document.querySelector("#submitEmails");
       expect(submitEmailsButton.innerHTML).toBe('Loading...');
     })
 
     it("sets button color to #808080", () => {
+      const submitEmailsButton = document.querySelector("#submitEmails");
       expectColor(submitEmailsButton.style.color, "rgb(128, 128, 128)", "#808080");
-    })
-
-    it("gets emails from form", () => {
-      const result = getEmails();
-      expect(result).toContainEqual({"name": "Alex", "email": "arootroatch@gmail.com", "index": "0"});
-      expect(result).toContainEqual({"name": "Whitney", "email": "whitney@gmail.com", "index": "1"});
-      expect(result).toContainEqual({"name": "Hunter", "email": "hunter@gmail.com", "index": "2"});
-      expect(result).toContainEqual({"name": "Megan", "email": "megan@gmail.com", "index": "3"});
-    })
-
-    it("invokes getEmails", () => {
-      expect(getEmails).toHaveBeenCalled();
     })
 
     it("sets email, id, and date for each giver", () => {
@@ -119,7 +191,10 @@ describe('emailTable', () => {
 
     it("hides email table after saving emails", async () => {
       const table = document.querySelector("#emailTable");
-      expect(table.classList).toContain("hide");
+
+      await vi.waitFor(() => {
+        expect(table.classList).toContain("hide");
+      });
 
       vi.advanceTimersByTime(500);
 
@@ -190,7 +265,8 @@ describe('emailTable', () => {
 
   describe("submitEmails error handling", () => {
     beforeEach(() => {
-      renderEmailTable([
+      triggerEmailTableRender();
+      renderEmailTableInputs([
         {name: "Alex", email: "alex@test.com"},
         {name: "Whitney", email: "whitney@test.com"}
       ]);
@@ -218,9 +294,8 @@ describe('emailTable', () => {
   });
 
   it("hideElement replaces classes after timeout", () => {
+    triggerEmailTableRender();
     const table = document.querySelector("#emailTable");
-    table.classList.remove("hidden");
-    table.classList.add("show");
 
     hideElement("emailTable");
 
@@ -235,7 +310,7 @@ describe('emailTable', () => {
 
   it("emailInput returns correct HTML template", () => {
     state.givers = [{name: "Alex"}, {name: "Whitney"}];
-    const result = emailInput(0);
+    const result = emailInput(state.givers[0], 0);
 
     expect(result).toContain('<div class="emailDiv">');
     expect(result).toContain('<label for=0>Alex</label>');
@@ -248,51 +323,10 @@ describe('emailTable', () => {
     expect(result).toContain('required');
   });
 
-  describe("showEmailTable", () => {
-
-    it("shows error snackbar when state.generated is false", () => {
-
-      showEmailTable();
-
-      shouldDisplayErrorSnackbar('Please click "Generate List" before entering emails.');
-    });
-
-    it("renders email inputs and shows table when state.generated is true", () => {
-      installGivers([new Giver("Alex", "Whitney"),
-        new Giver("Whitney", "Alex")]);
-      console.log("isGenerated(): ", isGenerated());
-      state.isSecretSanta = true;
-      const table = document.querySelector("#emailTable");
-      const body = document.querySelector("#emailTableBody");
-      table.classList.remove("show");
-      table.classList.add("hidden");
-
-      showEmailTable();
-
-      shouldDisplayEmailTable("Alex", "Whitney");
-    });
-
-    it("displays hideEmails button when state.secretSanta is false", () => {
-      state.isSecretSanta = false;
-      installGivers([new Giver("Alex", "Whitney"),
-        new Giver("Whitney", "Alex")]);
-      const hideButton = document.querySelector("#hideEmails");
-      const table = document.querySelector("#emailTable");
-      table.classList.remove("show");
-      table.classList.add("hidden");
-      hideButton.style.display = "none";
-
-      showEmailTable();
-
-      expect(hideButton.style.display).toBe("block");
-    });
-  });
-
   it("hideEmailTable hides the table and button", () => {
+    triggerEmailTableRender();
     const table = document.querySelector("#emailTable");
     const hideButton = document.querySelector("#hideEmails");
-    table.classList.remove("hidden");
-    table.classList.add("show");
     hideButton.style.display = "block";
 
     click("#hideEmails");
