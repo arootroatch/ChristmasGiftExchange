@@ -77,19 +77,19 @@ describe('get_name', () => {
             // Insert test data
             await collection.insertMany([
                 {
-                    email: 'alice@test.com',
-                    recipient: 'Bob',
+                    email: 'alex@test.com',
+                    recipient: 'Whitney',
                     date: new Date('2024-12-01'),
                 },
                 {
-                    email: 'alice@test.com',
-                    recipient: 'Charlie',
+                    email: 'alex@test.com',
+                    recipient: 'Hunter',
                     date: new Date('2023-12-01'),
                 },
             ]);
 
             const event = {
-                body: 'alice@test.com',
+                body: 'alex@test.com',
             };
 
             const response = await handler(event);
@@ -97,96 +97,96 @@ describe('get_name', () => {
             expect(response.statusCode).toBe(200);
 
             const body = JSON.parse(response.body);
-            expect(body.recipient).toBe('Bob'); // Most recent
+            expect(body.recipient).toBe('Whitney'); // Most recent
             expect(new Date(body.date)).toEqual(new Date('2024-12-01'));
         });
 
         it('trims whitespace from email', async () => {
             if (!mongoAvailable) return;
             await collection.insertOne({
-                email: 'alice@test.com',
-                recipient: 'Bob',
+                email: 'alex@test.com',
+                recipient: 'Whitney',
                 date: new Date('2024-12-01'),
             });
 
             const event = {
-                body: '  alice@test.com  ',
+                body: '  alex@test.com  ',
             };
 
             const response = await handler(event);
 
             expect(response.statusCode).toBe(200);
             const body = JSON.parse(response.body);
-            expect(body.recipient).toBe('Bob');
+            expect(body.recipient).toBe('Whitney');
         });
 
         it('sorts results by date descending', async () => {
             if (!mongoAvailable) return;
             await collection.insertMany([
                 {
-                    email: 'alice@test.com',
-                    recipient: 'Charlie',
+                    email: 'alex@test.com',
+                    recipient: 'Hunter',
                     date: new Date('2023-12-01'),
                 },
                 {
-                    email: 'alice@test.com',
-                    recipient: 'Bob',
+                    email: 'alex@test.com',
+                    recipient: 'Whitney',
                     date: new Date('2024-12-01'),
                 },
             ]);
 
             const event = {
-                body: 'alice@test.com',
+                body: 'alex@test.com',
             };
 
             const response = await handler(event);
             const body = JSON.parse(response.body);
 
-            // Should return the most recent (Bob from 2024)
-            expect(body.recipient).toBe('Bob');
+            // Should return the most recent (Whitney from 2024)
+            expect(body.recipient).toBe('Whitney');
         });
 
         it('returns most recent recipient when multiple results exist', async () => {
             if (!mongoAvailable) return;
             await collection.insertMany([
                 {
-                    email: 'alice@test.com',
-                    recipient: 'David',
+                    email: 'alex@test.com',
+                    recipient: 'Megan',
                     date: new Date('2025-12-01'),
                 },
                 {
-                    email: 'alice@test.com',
-                    recipient: 'Bob',
+                    email: 'alex@test.com',
+                    recipient: 'Whitney',
                     date: new Date('2024-12-01'),
                 },
                 {
-                    email: 'alice@test.com',
-                    recipient: 'Charlie',
+                    email: 'alex@test.com',
+                    recipient: 'Hunter',
                     date: new Date('2023-12-01'),
                 },
             ]);
 
             const event = {
-                body: 'alice@test.com',
+                body: 'alex@test.com',
             };
 
             const response = await handler(event);
             const body = JSON.parse(response.body);
 
-            expect(body.recipient).toBe('David');
+            expect(body.recipient).toBe('Megan');
             expect(new Date(body.date)).toEqual(new Date('2025-12-01'));
         });
 
         it('queries correct collection', async () => {
             if (!mongoAvailable) return;
             await collection.insertOne({
-                email: 'alice@test.com',
-                recipient: 'Bob',
+                email: 'alex@test.com',
+                recipient: 'Whitney',
                 date: new Date('2024-12-01'),
             });
 
             const event = {
-                body: 'alice@test.com',
+                body: 'alex@test.com',
             };
 
             const response = await handler(event);
@@ -194,7 +194,7 @@ describe('get_name', () => {
             expect(response.statusCode).toBe(200);
             // If it found the document, it queried the right collection
             const body = JSON.parse(response.body);
-            expect(body.recipient).toBe('Bob');
+            expect(body.recipient).toBe('Whitney');
         });
 
         it('returns 500 when no results found', async () => {
@@ -213,7 +213,7 @@ describe('get_name', () => {
             if (!mongoAvailable) return;
             await collection.insertOne({
                 email: 'test',
-                recipient: 'Bob',
+                recipient: 'Whitney',
                 date: new Date('2024-12-01'),
             });
 
@@ -225,7 +225,7 @@ describe('get_name', () => {
 
             expect(response.statusCode).toBe(200);
             const body = JSON.parse(response.body);
-            expect(body.recipient).toBe('Bob');
+            expect(body.recipient).toBe('Whitney');
         });
 
         it('handles special characters in names', async () => {
@@ -251,25 +251,25 @@ describe('get_name', () => {
             if (!mongoAvailable) return;
             await collection.insertMany([
                 {
-                    email: 'alice@test.com',
-                    recipient: 'Bob',
+                    email: 'alex@test.com',
+                    recipient: 'Whitney',
                     date: new Date('2024-12-01'),
                 },
                 {
-                    email: 'bob@test.com',
-                    recipient: 'Charlie',
+                    email: 'whitney@test.com',
+                    recipient: 'Hunter',
                     date: new Date('2024-12-01'),
                 },
             ]);
 
             const event = {
-                body: 'bob@test.com',
+                body: 'whitney@test.com',
             };
 
             const response = await handler(event);
             const body = JSON.parse(response.body);
 
-            expect(body.recipient).toBe('Charlie');
+            expect(body.recipient).toBe('Hunter');
         });
     });
 });

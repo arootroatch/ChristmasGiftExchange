@@ -9,9 +9,9 @@ async function refreshEnv(handler, mockFetch){
     handler = module.handler;
 
     const giver = {
-        name: 'Alice',
-        recipient: 'Bob',
-        email: 'alice@test.com',
+        name: 'Alex',
+        recipient: 'Whitney',
+        email: 'alex@test.com',
     };
 
     const event = {
@@ -82,9 +82,9 @@ describe('dispatchEmail', () => {
             mockFetch.mockResolvedValue({ok: true});
 
             const giver = {
-                name: 'Alice',
-                recipient: 'Bob',
-                email: 'alice@test.com',
+                name: 'Alex',
+                recipient: 'Whitney',
+                email: 'alex@test.com',
             };
 
             const event = {
@@ -110,9 +110,9 @@ describe('dispatchEmail', () => {
             mockFetch.mockResolvedValue({ok: true});
 
             const giver = {
-                name: 'Alice',
-                recipient: 'Bob',
-                email: 'alice@test.com',
+                name: 'Alex',
+                recipient: 'Whitney',
+                email: 'alex@test.com',
             };
 
             const event = {
@@ -126,11 +126,11 @@ describe('dispatchEmail', () => {
 
             expect(requestBody).toEqual({
                 from: 'alex@soundrootsproductions.com',
-                to: 'alice@test.com',
+                to: 'alex@test.com',
                 subject: 'Your gift exchange recipient name has arrived!',
                 parameters: {
-                    name: 'Alice',
-                    recipient: 'Bob',
+                    name: 'Alex',
+                    recipient: 'Whitney',
                 },
             });
         });
@@ -140,9 +140,9 @@ describe('dispatchEmail', () => {
             mockFetch.mockResolvedValue({ok: true});
 
             const giver = {
-                name: 'Charlie',
-                recipient: 'David',
-                email: 'charlie@test.com',
+                name: 'Hunter',
+                recipient: 'Megan',
+                email: 'hunter@test.com',
             };
 
             const event = {
@@ -151,17 +151,17 @@ describe('dispatchEmail', () => {
 
             await handler(event);
 
-            expect(consoleSpy).toHaveBeenCalledWith('giver', 'Charlie');
-            expect(consoleSpy).toHaveBeenCalledWith('recipient', 'David');
+            expect(consoleSpy).toHaveBeenCalledWith('giver', 'Hunter');
+            expect(consoleSpy).toHaveBeenCalledWith('recipient', 'Megan');
         });
 
         it('returns 200 after successful email send', async () => {
             mockFetch.mockResolvedValue({ok: true});
 
             const giver = {
-                name: 'Eve',
-                recipient: 'Frank',
-                email: 'eve@test.com',
+                name: 'Alex',
+                recipient: 'Whitney',
+                email: 'alex@test.com',
             };
 
             const event = {
@@ -177,9 +177,9 @@ describe('dispatchEmail', () => {
             mockFetch.mockRejectedValue(new Error('Network error'));
 
             const giver = {
-                name: 'Alice',
-                recipient: 'Bob',
-                email: 'alice@test.com',
+                name: 'Alex',
+                recipient: 'Whitney',
+                email: 'alex@test.com',
             };
 
             const event = {

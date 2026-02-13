@@ -6,6 +6,7 @@ import {init as initNextStepButton} from "../../../resources/js/components/contr
 import {init as initAddHouseButton} from "../../../resources/js/components/controlStrip/addHouseButton";
 import {state} from "../../../resources/js/state";
 import {selectElement} from "../../../resources/js/utils";
+import {alex} from "../../testData";
 
 describe("addHouseButton", () => {
   beforeAll(() => {
@@ -29,7 +30,7 @@ describe("addHouseButton", () => {
 
   it("renders at step 2", () => {
     resetState();
-    state.givers = [{name: "Alice", recipient: ""}];
+    state.givers = [{...alex}];
     click("#nextStep"); // step 2
     expect(state.step).toBe(2);
     expect(selectElement("#addHouse")).not.toBeNull();
@@ -37,7 +38,7 @@ describe("addHouseButton", () => {
 
   it("is removed at step 3", () => {
     resetState();
-    state.givers = [{name: "Alice", recipient: ""}];
+    state.givers = [{...alex}];
     click("#nextStep"); // step 2
     expect(selectElement("#addHouse")).not.toBeNull();
     click("#nextStep"); // step 3
@@ -48,7 +49,7 @@ describe("addHouseButton", () => {
   it("click calls addHouseToState", () => {
     const spy = vi.spyOn(stateModule, "addHouseToState").mockImplementation(() => {});
     resetState();
-    state.givers = [{name: "Alice", recipient: ""}];
+    state.givers = [{...alex}];
     click("#nextStep"); // step 2
     click("#addHouse");
     expect(spy).toHaveBeenCalledTimes(1);
@@ -69,7 +70,7 @@ describe("addHouseButton", () => {
     it("triggers at step 2 (button rendered)", () => {
       const spy = vi.spyOn(stateModule, "addHouseToState").mockImplementation(() => {});
       resetState();
-      state.givers = [{name: "Alice", recipient: ""}];
+      state.givers = [{...alex}];
       click("#nextStep"); // step 2
       dispatchShiftEnter();
       expect(spy).toHaveBeenCalledTimes(1);
@@ -85,7 +86,7 @@ describe("addHouseButton", () => {
     it("does not trigger at step 3 (button removed)", () => {
       const spy = vi.spyOn(stateModule, "addHouseToState");
       resetState();
-      state.givers = [{name: "Alice", recipient: ""}];
+      state.givers = [{...alex}];
       click("#nextStep"); // step 2
       click("#nextStep"); // step 3
       dispatchShiftEnter();
@@ -100,7 +101,7 @@ describe("addHouseButton", () => {
       const spy = vi.spyOn(stateModule, "addHouseToState");
       resetDOM();
       resetState();
-      state.givers = [{name: "Alice", recipient: ""}];
+      state.givers = [{...alex}];
       click("#nextStep"); // step 2
       dispatchShiftEnter();
       expect(spy).not.toHaveBeenCalled();

@@ -4,6 +4,7 @@ import {init as initControlStrip} from "../../../resources/js/components/control
 import {init as initNextStepButton} from "../../../resources/js/components/controlStrip/nextStepButton";
 import {state} from "../../../resources/js/state";
 import {selectElement} from "../../../resources/js/utils";
+import {alex, whitney} from "../../testData";
 
 describe("nextStepButton", () => {
   beforeAll(() => {
@@ -26,7 +27,7 @@ describe("nextStepButton", () => {
 
   it("stays rendered at step 2", () => {
     resetState();
-    state.givers = [{name: "Alice", recipient: ""}];
+    state.givers = [{...alex}];
     click("#nextStep");
     expect(state.step).toBe(2);
     expect(selectElement("#nextStep")).not.toBeNull();
@@ -34,7 +35,7 @@ describe("nextStepButton", () => {
 
   it("stays rendered at step 3 (non-secret-santa)", () => {
     resetState();
-    state.givers = [{name: "Alice", recipient: ""}];
+    state.givers = [{...alex}];
     click("#nextStep"); // step 2
     click("#nextStep"); // step 3
     expect(state.step).toBe(3);
@@ -43,7 +44,7 @@ describe("nextStepButton", () => {
 
   it("is removed at step 3 with isSecretSanta", () => {
     resetState();
-    state.givers = [{name: "Alice", recipient: ""}];
+    state.givers = [{...alex}];
     state.isSecretSanta = true;
     click("#nextStep"); // step 2
     click("#nextStep"); // step 3
@@ -53,7 +54,7 @@ describe("nextStepButton", () => {
 
   it("is removed at step 4", () => {
     resetState();
-    state.givers = [{name: "Alice", recipient: "Bob"}];
+    state.givers = [{...alex, recipient: whitney.name}];
     state.step = 3;
     click("#nextStep"); // step 4
     expect(state.step).toBe(4);
@@ -71,7 +72,7 @@ describe("nextStepButton", () => {
   it("advances from step 1 with givers", () => {
     resetState();
     state.step = 1;
-    state.givers = [{name: "Alice", recipient: ""}];
+    state.givers = [{...alex}];
     click("#nextStep");
     expect(state.step).toBe(2);
   });
@@ -79,7 +80,7 @@ describe("nextStepButton", () => {
   it("does not advance from step 3 without generation", () => {
     resetState();
     state.step = 3;
-    state.givers = [{name: "Alice", recipient: ""}];
+    state.givers = [{...alex}];
     click("#nextStep");
     expect(state.step).toBe(3);
   });
@@ -87,7 +88,7 @@ describe("nextStepButton", () => {
   it("advances from step 3 with generated list", () => {
     resetState();
     state.step = 3;
-    state.givers = [{name: "Alice", recipient: "Bob"}];
+    state.givers = [{...alex, recipient: whitney.name}];
     click("#nextStep");
     expect(state.step).toBe(4);
   });

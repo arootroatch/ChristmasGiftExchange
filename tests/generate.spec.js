@@ -24,19 +24,19 @@ describe('generate', () => {
     });
 
     it('handles single house with no duplicates', () => {
-      expect(hasDuplicates([['Alice', 'Bob', 'Charlie']])).toBe(false);
+      expect(hasDuplicates([['Alex', 'Whitney', 'Hunter']])).toBe(false);
     });
 
     it('handles single house with duplicates', () => {
-      expect(hasDuplicates([['Alice', 'Alice', 'Charlie']])).toBe(true);
+      expect(hasDuplicates([['Alex', 'Alex', 'Hunter']])).toBe(true);
     });
 
     it('handles multiple houses with no duplicates', () => {
-      expect(hasDuplicates([['Alice', 'Bob', 'Charlie'], ['Joe', "Alex"]])).toBe(false);
+      expect(hasDuplicates([['Alex', 'Whitney'], ['Hunter', 'Megan']])).toBe(false);
     });
 
     it('handles multiple houses with duplicates', () => {
-      expect(hasDuplicates([['Alice', 'Bob', 'Charlie'], ['Alice', "Alex"]])).toBe(true);
+      expect(hasDuplicates([['Alex', 'Whitney', 'Hunter'], ['Alex', 'Megan']])).toBe(true);
     });
   });
 
@@ -73,8 +73,8 @@ describe('generate', () => {
     })
 
     it('three names in the same house, one name in participant list', () => {
-      installGiverNames("Alex", "Whitney", "Derek", "Elena");
-      state.houses = {"house-0": ["Alex", "Whitney", "Derek"]}
+      installGiverNames("Alex", "Whitney", "Hunter", "Megan");
+      state.houses = {"house-0": ["Alex", "Whitney", "Hunter"]}
       const results = generate(0, 25);
       expect(results).toStrictEqual({error: noPossibleComboError});
     })

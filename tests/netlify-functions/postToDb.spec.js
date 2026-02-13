@@ -65,8 +65,8 @@ describe('postToDb', () => {
         it('successfully inserts documents and returns 200', async () => {
             if (!mongoAvailable) return;
             const docs = [
-                {name: 'Alice', recipient: 'Bob', email: 'alice@test.com'},
-                {name: 'Bob', recipient: 'Charlie', email: 'bob@test.com'},
+                {name: 'Alex', recipient: 'Whitney', email: 'alex@test.com'},
+                {name: 'Whitney', recipient: 'Hunter', email: 'whitney@test.com'},
             ];
 
             const event = {
@@ -85,15 +85,15 @@ describe('postToDb', () => {
             const insertedDocs = await collection.find({}).toArray();
 
             expect(insertedDocs).toHaveLength(2);
-            expect(insertedDocs[0].name).toBe('Alice');
-            expect(insertedDocs[1].name).toBe('Bob');
+            expect(insertedDocs[0].name).toBe('Alex');
+            expect(insertedDocs[1].name).toBe('Whitney');
         });
 
         it('parses JSON body correctly', async () => {
             if (!mongoAvailable) return;
             const docs = [
-                {name: 'Alice', recipient: 'Bob'},
-                {name: 'Charlie', recipient: 'Alice'},
+                {name: 'Alex', recipient: 'Whitney'},
+                {name: 'Hunter', recipient: 'Alex'},
             ];
 
             const event = {
@@ -107,10 +107,10 @@ describe('postToDb', () => {
             const insertedDocs = await collection.find({}).toArray();
 
             expect(insertedDocs).toHaveLength(2);
-            expect(insertedDocs[0].name).toBe('Alice');
-            expect(insertedDocs[0].recipient).toBe('Bob');
-            expect(insertedDocs[1].name).toBe('Charlie');
-            expect(insertedDocs[1].recipient).toBe('Alice');
+            expect(insertedDocs[0].name).toBe('Alex');
+            expect(insertedDocs[0].recipient).toBe('Whitney');
+            expect(insertedDocs[1].name).toBe('Hunter');
+            expect(insertedDocs[1].recipient).toBe('Alex');
         });
 
         it('rejects with error for empty array of documents', async () => {
@@ -126,7 +126,7 @@ describe('postToDb', () => {
 
         it('handles single document', async () => {
             if (!mongoAvailable) return;
-            const docs = [{name: 'Alice', recipient: 'Bob', email: 'alice@test.com'}];
+            const docs = [{name: 'Alex', recipient: 'Whitney', email: 'alex@test.com'}];
             const event = {
                 body: JSON.stringify(docs),
             };
@@ -141,17 +141,16 @@ describe('postToDb', () => {
             const insertedDocs = await collection.find({}).toArray();
 
             expect(insertedDocs).toHaveLength(1);
-            expect(insertedDocs[0].name).toBe('Alice');
+            expect(insertedDocs[0].name).toBe('Alex');
         });
 
         it('handles multiple documents', async () => {
             if (!mongoAvailable) return;
             const docs = [
-                {name: 'Alice', recipient: 'Bob'},
-                {name: 'Bob', recipient: 'Charlie'},
-                {name: 'Charlie', recipient: 'David'},
-                {name: 'David', recipient: 'Eve'},
-                {name: 'Eve', recipient: 'Alice'},
+                {name: 'Alex', recipient: 'Whitney'},
+                {name: 'Whitney', recipient: 'Hunter'},
+                {name: 'Hunter', recipient: 'Megan'},
+                {name: 'Megan', recipient: 'Alex'},
             ];
 
             const event = {
@@ -161,13 +160,13 @@ describe('postToDb', () => {
             const response = await handler(event);
 
             expect(response.statusCode).toBe(200);
-            expect(response.result.insertedCount).toBe(5);
+            expect(response.result.insertedCount).toBe(4);
 
             const db = client.db('gift-exchange');
             const collection = db.collection(process.env.MONGODB_COLLECTION);
             const insertedDocs = await collection.find({}).toArray();
 
-            expect(insertedDocs).toHaveLength(5);
+            expect(insertedDocs).toHaveLength(4);
         });
 
         it('stores documents with all fields intact', async () => {

@@ -7,7 +7,7 @@ import {
   shouldDisplaySuccessSnackbar,
   stubFetch,
 } from "../../specHelper";
-import {Giver, startExchange, state, addEmailsToGivers} from "../../../resources/js/state";
+import {startExchange, state, addEmailsToGivers} from "../../../resources/js/state";
 import {init} from "../../../resources/js/components/emailTable/sendEmails";
 import {init as initSnackbar} from "../../../resources/js/components/snackbar";
 import {alex, hunter, megan, whitney} from "../../testData";
@@ -29,12 +29,12 @@ describe("sendEmails", () => {
 
   function triggerEmailsAdded() {
     installGivers([
-      new Giver("Alex", "Whitney", "alex@gmail.com"),
-      new Giver("Whitney", "Alex", "whitney@gmail.com"),
+      {...alex, recipient: whitney.name},
+      {...whitney, recipient: alex.name},
     ]);
     addEmailsToGivers([
-      {name: "Alex", email: "alex@gmail.com", index: 0},
-      {name: "Whitney", email: "whitney@gmail.com", index: 1},
+      {name: alex.name, email: alex.email, index: 0},
+      {name: whitney.name, email: whitney.email, index: 1},
     ]);
   }
 
@@ -64,16 +64,17 @@ describe("sendEmails", () => {
     let sendEmailsButton;
 
     beforeEach(() => {
-      alex.recipient = "Whitney";
-      whitney.recipient = "Hunter";
-      hunter.recipient = "Megan";
-      megan.recipient = "Alex";
-      installGivers([alex, whitney, hunter, megan]);
+      installGivers([
+        {...alex, recipient: whitney.name},
+        {...whitney, recipient: hunter.name},
+        {...hunter, recipient: megan.name},
+        {...megan, recipient: alex.name},
+      ]);
       addEmailsToGivers([
-        {name: "Alex", email: "alex@gmail.com", index: 0},
-        {name: "Whitney", email: "whitney@gmail.com", index: 1},
-        {name: "Hunter", email: "hunter@gmail.com", index: 2},
-        {name: "Megan", email: "megan@gmail.com", index: 3},
+        {name: alex.name, email: alex.email, index: 0},
+        {name: whitney.name, email: whitney.email, index: 1},
+        {name: hunter.name, email: hunter.email, index: 2},
+        {name: megan.name, email: megan.email, index: 3},
       ]);
       sendEmailsButton = document.querySelector("#sendEmailsBtn");
       click("#sendEmailsBtn");

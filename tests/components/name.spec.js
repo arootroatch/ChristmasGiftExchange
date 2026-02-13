@@ -11,7 +11,8 @@ import {
   shouldSelect,
   stubProperty
 } from "../specHelper";
-import {state, Giver} from "../../resources/js/state";
+import {state} from "../../resources/js/state";
+import {alex, whitney} from "../testData";
 
 describe('addName', () => {
   let input;
@@ -26,8 +27,8 @@ describe('addName', () => {
     input = document.querySelector("#input0");
   })
 
-  it('Giver constructor', () => {
-    const giver = new Giver("Alex", "Whitney", "alex@gmail.com");
+  it('Giver object shape', () => {
+    const giver = {...alex, recipient: whitney.name};
     expect(giver.name).toBe("Alex");
     expect(giver.email).toBe("alex@gmail.com");
     expect(giver.recipient).toBe("Whitney");
@@ -55,7 +56,7 @@ describe('addName', () => {
 
   it("clicking delete x removes name from state", () => {
     expect(state.givers[0].name).toEqual("Alex");
-    state.givers.push(new Giver("Whitney", "", ""));
+    state.givers.push({...whitney});
     expect(state.givers.length).toBe(2);
     click("#delete-Alex1");
     expect(state.givers.length).toBe(1);

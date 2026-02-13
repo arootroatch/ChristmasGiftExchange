@@ -1,6 +1,7 @@
 import {afterEach, beforeAll, beforeEach, describe, expect, it, vi} from 'vitest';
 import {state, startExchange} from '../resources/js/state';
 import {initReactiveSystem, resetDOM} from "./specHelper";
+import {alex} from "./testData";
 import {init, secretSantaMode} from "../resources/js/layout";
 
 describe('layout', () => {
@@ -67,7 +68,7 @@ describe('layout', () => {
       startExchange(false);
       const nextStepBtn = document.querySelector("#nextStep");
       state.step = 0;
-      state.givers = [{name: 'Alice', recipient: ''}];
+      state.givers = [{...alex}];
 
       nextStepBtn.click();
 

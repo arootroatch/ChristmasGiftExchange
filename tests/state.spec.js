@@ -10,12 +10,12 @@ import {
   getHousesArray,
   getHousesForGeneration,
   getIndividualParticipants,
-  Giver,
   nextStep,
   removeGiver,
   removeHouseFromState,
   removeNameFromHouse
 } from '/resources/js/state.js'
+import {alex, whitney, hunter} from "./testData";
 import {Events, stateEvents} from '/resources/js/events.js'
 import {installGiverNames} from "./specHelper";
 
@@ -36,9 +36,9 @@ describe('state helper functions', () => {
   beforeEach(() => {
     startExchange();
     state.givers = [
-      new Giver("Alice"),
-      new Giver("Bob"),
-      new Giver("Charlie")
+      {...alex},
+      {...whitney},
+      {...hunter}
     ];
   });
 
@@ -58,102 +58,102 @@ describe('state helper functions', () => {
 
   describe('removeHouseFromState', () => {
     it('should remove house by ID', () => {
-      state.houses = {"house-0": ["Alice"], "house-1": ["Bob"]};
+      state.houses = {"house-0": ["Alex"], "house-1": ["Whitney"]};
       removeHouseFromState("house-0");
       expect(state.houses["house-0"]).toBeUndefined();
-      expect(state.houses["house-1"]).toEqual(["Bob"]);
+      expect(state.houses["house-1"]).toEqual(["Whitney"]);
     });
 
     it('should handle removing non-existent house', () => {
-      state.houses = {"house-0": ["Alice"]};
+      state.houses = {"house-0": ["Alex"]};
       expect(() => removeHouseFromState("house-99")).not.toThrow();
-      expect(state.houses["house-0"]).toEqual(["Alice"]);
+      expect(state.houses["house-0"]).toEqual(["Alex"]);
     });
   });
 
   describe('addNameToHouse', () => {
     it('should add name to existing house', () => {
       state.houses["house-0"] = [];
-      addNameToHouse("house-0", "Alice");
-      expect(state.houses["house-0"]).toEqual(["Alice"]);
+      addNameToHouse("house-0", "Alex");
+      expect(state.houses["house-0"]).toEqual(["Alex"]);
     });
 
     it('should create house if it does not exist', () => {
-      addNameToHouse("house-0", "Alice");
-      expect(state.houses["house-0"]).toEqual(["Alice"]);
+      addNameToHouse("house-0", "Alex");
+      expect(state.houses["house-0"]).toEqual(["Alex"]);
     });
 
     it('should not add duplicate names', () => {
-      state.houses["house-0"] = ["Alice"];
-      addNameToHouse("house-0", "Alice");
-      expect(state.houses["house-0"]).toEqual(["Alice"]);
+      state.houses["house-0"] = ["Alex"];
+      addNameToHouse("house-0", "Alex");
+      expect(state.houses["house-0"]).toEqual(["Alex"]);
     });
 
     it('should add multiple names to same house', () => {
       state.houses["house-0"] = [];
-      addNameToHouse("house-0", "Alice");
-      addNameToHouse("house-0", "Bob");
-      expect(state.houses["house-0"]).toEqual(["Alice", "Bob"]);
+      addNameToHouse("house-0", "Alex");
+      addNameToHouse("house-0", "Whitney");
+      expect(state.houses["house-0"]).toEqual(["Alex", "Whitney"]);
     });
   });
 
   describe('removeNameFromHouse', () => {
     it('should remove name from house', () => {
-      state.houses["house-0"] = ["Alice", "Bob"];
-      removeNameFromHouse("house-0", "Alice");
-      expect(state.houses["house-0"]).toEqual(["Bob"]);
+      state.houses["house-0"] = ["Alex", "Whitney"];
+      removeNameFromHouse("house-0", "Alex");
+      expect(state.houses["house-0"]).toEqual(["Whitney"]);
     });
 
     it('should handle non-existent house', () => {
-      expect(() => removeNameFromHouse("house-99", "Alice")).not.toThrow();
+      expect(() => removeNameFromHouse("house-99", "Alex")).not.toThrow();
     });
 
     it('should handle non-existent name', () => {
-      state.houses["house-0"] = ["Alice"];
-      removeNameFromHouse("house-0", "Bob");
-      expect(state.houses["house-0"]).toEqual(["Alice"]);
+      state.houses["house-0"] = ["Alex"];
+      removeNameFromHouse("house-0", "Whitney");
+      expect(state.houses["house-0"]).toEqual(["Alex"]);
     });
   });
 
   describe('addGiver', () => {
     it('should add a giver to state', () => {
       state.givers = [];
-      addGiver("Alice");
+      addGiver("Alex");
       expect(state.givers.length).toBe(1);
-      expect(state.givers[0].name).toBe("Alice");
+      expect(state.givers[0].name).toBe("Alex");
     });
   });
 
   describe('removeGiver', () => {
     it('should remove giver from state', () => {
-      removeGiver("Bob");
-      expect(state.givers.map(g => g.name)).toEqual(["Alice", "Charlie"]);
+      removeGiver("Whitney");
+      expect(state.givers.map(g => g.name)).toEqual(["Alex", "Hunter"]);
     });
 
     it('should remove giver from house before removing from state', () => {
-      state.houses = {"house-0": ["Alice", "Bob"]};
-      removeGiver("Alice");
-      expect(state.houses["house-0"]).toEqual(["Bob"]);
-      expect(state.givers.map(g => g.name)).toEqual(["Bob", "Charlie"]);
+      state.houses = {"house-0": ["Alex", "Whitney"]};
+      removeGiver("Alex");
+      expect(state.houses["house-0"]).toEqual(["Whitney"]);
+      expect(state.givers.map(g => g.name)).toEqual(["Whitney", "Hunter"]);
     });
 
     it('should handle giver not in any house', () => {
-      state.houses = {"house-0": ["Bob"]};
-      removeGiver("Alice");
-      expect(state.houses["house-0"]).toEqual(["Bob"]);
-      expect(state.givers.map(g => g.name)).toEqual(["Bob", "Charlie"]);
+      state.houses = {"house-0": ["Whitney"]};
+      removeGiver("Alex");
+      expect(state.houses["house-0"]).toEqual(["Whitney"]);
+      expect(state.givers.map(g => g.name)).toEqual(["Whitney", "Hunter"]);
     });
   });
 
   describe('getHousesArray', () => {
     it('should return array of house arrays', () => {
-      state.houses = {"house-0": ["Alice"], "house-1": ["Bob", "Charlie"]};
-      expect(getHousesArray()).toEqual([["Alice"], ["Bob", "Charlie"]]);
+      state.houses = {"house-0": ["Alex"], "house-1": ["Whitney", "Hunter"]};
+      expect(getHousesArray()).toEqual([["Alex"], ["Whitney", "Hunter"]]);
     });
 
     it('should filter out empty houses', () => {
-      state.houses = {"house-0": ["Alice"], "house-1": [], "house-2": ["Bob"]};
-      expect(getHousesArray()).toEqual([["Alice"], ["Bob"]]);
+      state.houses = {"house-0": ["Alex"], "house-1": [], "house-2": ["Whitney"]};
+      expect(getHousesArray()).toEqual([["Alex"], ["Whitney"]]);
     });
 
     it('should handle empty state.houses object', () => {
@@ -164,38 +164,38 @@ describe('state helper functions', () => {
 
   describe('getIndividualParticipants', () => {
     it('should return individuals not in any house', () => {
-      state.houses = {"house-0": ["Alice"]};
-      expect(getIndividualParticipants()).toEqual([["Bob"], ["Charlie"]]);
+      state.houses = {"house-0": ["Alex"]};
+      expect(getIndividualParticipants()).toEqual([["Whitney"], ["Hunter"]]);
     });
 
     it('should return all givers if no houses', () => {
       state.houses = {};
-      expect(getIndividualParticipants()).toEqual([["Alice"], ["Bob"], ["Charlie"]]);
+      expect(getIndividualParticipants()).toEqual([["Alex"], ["Whitney"], ["Hunter"]]);
     });
 
     it('should return empty array if all givers are in houses', () => {
-      state.houses = {"house-0": ["Alice", "Bob", "Charlie"]};
+      state.houses = {"house-0": ["Alex", "Whitney", "Hunter"]};
       expect(getIndividualParticipants()).toEqual([]);
     });
   });
 
   describe('assignRecipients', () => {
     it('updates givers with recipients', () => {
-      installGiverNames("Alice", "Whitney", "Bob");
-      assignRecipients(["Whitney", "Bob", "Alice"]);
+      installGiverNames("Alex", "Whitney", "Hunter");
+      assignRecipients(["Whitney", "Hunter", "Alex"]);
 
       expect(state.givers[0].recipient).toBe("Whitney");
-      expect(state.givers[1].recipient).toBe("Bob");
-      expect(state.givers[2].recipient).toBe("Alice");
+      expect(state.givers[1].recipient).toBe("Hunter");
+      expect(state.givers[2].recipient).toBe("Alex");
     });
 
     it('emits RECIPIENTS_ASSIGNED event', () => {
       const spy = vi.fn();
       const unsubscribe = stateEvents.on(Events.RECIPIENTS_ASSIGNED, spy);
-      installGiverNames("Alice", "Whitney", "Bob");
+      installGiverNames("Alex", "Whitney", "Hunter");
       state.isSecretSanta = false;
 
-      assignRecipients(["Whitney", "Bob", "Alice"]);
+      assignRecipients(["Whitney", "Hunter", "Alex"]);
 
       expect(spy).toHaveBeenCalledWith({
         isGenerated: true, isSecretSanta: false, givers: state.givers
@@ -207,10 +207,10 @@ describe('state helper functions', () => {
     it('includes current isSecretSanta value in emitted event', () => {
       const spy = vi.fn();
       const unsubscribe = stateEvents.on(Events.RECIPIENTS_ASSIGNED, spy);
-      installGiverNames("Alice", "Whitney", "Bob");
+      installGiverNames("Alex", "Whitney", "Hunter");
       state.isSecretSanta = true;
 
-      assignRecipients(["Whitney", "Bob", "Alice"]);
+      assignRecipients(["Whitney", "Hunter", "Alex"]);
 
       expect(spy).toHaveBeenCalledWith({
         isGenerated: true, isSecretSanta: true, givers: state.givers,
@@ -222,23 +222,23 @@ describe('state helper functions', () => {
 
   describe('getHousesForGeneration', () => {
     it('should combine houses and individuals', () => {
-      state.houses = {"house-0": ["Alice", "Bob"]};
-      expect(getHousesForGeneration()).toEqual([["Alice", "Bob"], ["Charlie"]]);
+      state.houses = {"house-0": ["Alex", "Whitney"]};
+      expect(getHousesForGeneration()).toEqual([["Alex", "Whitney"], ["Hunter"]]);
     });
 
     it('should filter empty houses', () => {
-      state.houses = {"house-0": ["Alice"], "house-1": [], "house-2": ["Bob"]};
-      expect(getHousesForGeneration()).toEqual([["Alice"], ["Bob"], ["Charlie"]]);
+      state.houses = {"house-0": ["Alex"], "house-1": [], "house-2": ["Whitney"]};
+      expect(getHousesForGeneration()).toEqual([["Alex"], ["Whitney"], ["Hunter"]]);
     });
 
     it('should return only individuals when no houses exist', () => {
       state.houses = {};
-      expect(getHousesForGeneration()).toEqual([["Alice"], ["Bob"], ["Charlie"]]);
+      expect(getHousesForGeneration()).toEqual([["Alex"], ["Whitney"], ["Hunter"]]);
     });
 
     it('should return only houses when all givers are in houses', () => {
-      state.houses = {"house-0": ["Alice", "Bob"], "house-1": ["Charlie"]};
-      expect(getHousesForGeneration()).toEqual([["Alice", "Bob"], ["Charlie"]]);
+      state.houses = {"house-0": ["Alex", "Whitney"], "house-1": ["Hunter"]};
+      expect(getHousesForGeneration()).toEqual([["Alex", "Whitney"], ["Hunter"]]);
     });
   });
 
@@ -267,7 +267,7 @@ describe('state helper functions', () => {
 
     beforeEach(() => {
       state.givers = [];
-      installGiverNames("Alice", "Bob", "Charlie");
+      installGiverNames("Alex", "Whitney", "Hunter");
       mockDate = new Date('2026-02-13T12:00:00.000Z');
       vi.setSystemTime(mockDate);
       randomSpy = vi.spyOn(Math, 'random').mockReturnValue(0.123456789);
@@ -275,20 +275,20 @@ describe('state helper functions', () => {
 
     it('should set email on each giver by index', () => {
       const emails = [
-        {name: "Alice", email: "alice@example.com", index: 0},
-        {name: "Bob", email: "bob@example.com", index: 1}
+        {name: "Alex", email: "alex@example.com", index: 0},
+        {name: "Whitney", email: "whitney@example.com", index: 1}
       ];
 
       addEmailsToGivers(emails);
 
-      expect(state.givers[0].email).toBe("alice@example.com");
-      expect(state.givers[1].email).toBe("bob@example.com");
+      expect(state.givers[0].email).toBe("alex@example.com");
+      expect(state.givers[1].email).toBe("whitney@example.com");
       expect(state.givers[2].email).toBe("");
     });
 
     it('should set date on each giver', () => {
       const emails = [
-        {name: "Alice", email: "alice@example.com", index: 0}
+        {name: "Alex", email: "alex@example.com", index: 0}
       ];
 
       addEmailsToGivers(emails);
@@ -298,7 +298,7 @@ describe('state helper functions', () => {
 
     it('should generate unique id with format giverCount_random_date', () => {
       const emails = [
-        {name: "Alice", email: "alice@example.com", index: 0}
+        {name: "Alex", email: "alex@example.com", index: 0}
       ];
 
       addEmailsToGivers(emails);
@@ -309,16 +309,16 @@ describe('state helper functions', () => {
 
     it('should handle multiple emails at once', () => {
       const emails = [
-        {name: "Alice", email: "alice@example.com", index: 0},
-        {name: "Bob", email: "bob@example.com", index: 1},
-        {name: "Charlie", email: "charlie@example.com", index: 2}
+        {name: "Alex", email: "alex@example.com", index: 0},
+        {name: "Whitney", email: "whitney@example.com", index: 1},
+        {name: "Hunter", email: "hunter@example.com", index: 2}
       ];
 
       addEmailsToGivers(emails);
 
-      expect(state.givers[0].email).toBe("alice@example.com");
-      expect(state.givers[1].email).toBe("bob@example.com");
-      expect(state.givers[2].email).toBe("charlie@example.com");
+      expect(state.givers[0].email).toBe("alex@example.com");
+      expect(state.givers[1].email).toBe("whitney@example.com");
+      expect(state.givers[2].email).toBe("hunter@example.com");
 
       state.givers.forEach(giver => {
         expect(giver.date).toBe("2026-02-13T12:00:00.000Z");
@@ -330,7 +330,7 @@ describe('state helper functions', () => {
       const spy = vi.fn();
       const unsubscribe = stateEvents.on(Events.EMAILS_ADDED, spy);
       const emails = [
-        {name: "Alice", email: "alice@example.com", index: 0}
+        {name: "Alex", email: "alex@example.com", index: 0}
       ];
 
       addEmailsToGivers(emails);

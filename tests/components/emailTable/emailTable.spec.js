@@ -10,7 +10,8 @@ import {
   stubFetch
 } from "../../specHelper";
 import "../../../resources/js/components/name";
-import {assignRecipients, Giver, nextStep, startExchange, state} from "../../../resources/js/state";
+import {assignRecipients, nextStep, startExchange, state} from "../../../resources/js/state";
+import {alex, whitney} from "../../testData";
 import {
   emailInput,
   init,
@@ -32,7 +33,7 @@ function renderEmailTableInputs(givers) {
 }
 
 function triggerEmailTableRender() {
-  installGivers([new Giver("Alex", "Whitney"), new Giver("Whitney", "Alex")]);
+  installGivers([{...alex, recipient: whitney.name}, {...whitney, recipient: alex.name}]);
   assignRecipients(["Whitney", "Alex"]);
 }
 
@@ -61,7 +62,7 @@ describe('emailTable', () => {
   describe("reactive rendering", () => {
     it("renders on RECIPIENTS_ASSIGNED when isSecretSanta", () => {
       state.isSecretSanta = true;
-      installGivers([new Giver("Alex", "Whitney"), new Giver("Whitney", "Alex")]);
+      installGivers([{...alex, recipient: whitney.name}, {...whitney, recipient: alex.name}]);
 
       assignRecipients(["Whitney", "Alex"]);
 
@@ -70,7 +71,7 @@ describe('emailTable', () => {
 
     it("does not render on RECIPIENTS_ASSIGNED when not isSecretSanta", () => {
       state.isSecretSanta = false;
-      installGivers([new Giver("Alex", "Whitney"), new Giver("Whitney", "Alex")]);
+      installGivers([{...alex, recipient: whitney.name}, {...whitney, recipient: alex.name}]);
 
       assignRecipients(["Whitney", "Alex"]);
 
@@ -78,7 +79,7 @@ describe('emailTable', () => {
     });
 
     it("renders on NEXT_STEP when step is 4", () => {
-      installGivers([new Giver("Alex", "Whitney"), new Giver("Whitney", "Alex")]);
+      installGivers([{...alex, recipient: whitney.name}, {...whitney, recipient: alex.name}]);
       state.step = 3;
 
       nextStep();
@@ -87,7 +88,7 @@ describe('emailTable', () => {
     });
 
     it("does not render on NEXT_STEP when step is not 4", () => {
-      installGivers([new Giver("Alex", ""), new Giver("Whitney", "")]);
+      installGivers([{...alex}, {...whitney}]);
       state.step = 1;
 
       nextStep();
@@ -106,7 +107,7 @@ describe('emailTable', () => {
 
     it("displays dismiss button when not secret santa", () => {
       state.isSecretSanta = false;
-      installGivers([new Giver("Alex", "Whitney"), new Giver("Whitney", "Alex")]);
+      installGivers([{...alex, recipient: whitney.name}, {...whitney, recipient: alex.name}]);
       state.step = 3;
 
       nextStep();
@@ -117,7 +118,7 @@ describe('emailTable', () => {
 
     it("hides dismiss button in secret santa mode", () => {
       state.isSecretSanta = true;
-      installGivers([new Giver("Alex", "Whitney"), new Giver("Whitney", "Alex")]);
+      installGivers([{...alex, recipient: whitney.name}, {...whitney, recipient: alex.name}]);
 
       assignRecipients(["Whitney", "Alex"]);
 

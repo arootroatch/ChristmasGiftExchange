@@ -80,14 +80,14 @@ describe('dragDrop', () => {
     });
 
     it('appends element to target and resets background when target is name-container', () => {
-      enterName('Alice');
+      enterName('Alex');
       const participants = document.querySelector('#participants');
-      const nameWrapper = document.querySelector('#wrapper-Alice');
+      const nameWrapper = document.querySelector('#wrapper-Alex');
 
       const mockEvent = {
         target: participants,
         dataTransfer: {
-          getData: vi.fn(() => 'wrapper-Alice')
+          getData: vi.fn(() => 'wrapper-Alex')
         },
         preventDefault: vi.fn()
       };
@@ -102,7 +102,7 @@ describe('dragDrop', () => {
     });
 
     it('updates state when dropping name into house', () => {
-      enterName('Alice');
+      enterName('Alex');
       addHouseToDOM();
 
       const houseContainer = document.querySelector('#house-0 .name-container');
@@ -110,49 +110,49 @@ describe('dragDrop', () => {
       const mockEvent = {
         target: houseContainer,
         dataTransfer: {
-          getData: vi.fn(() => 'wrapper-Alice')
+          getData: vi.fn(() => 'wrapper-Alex')
         },
         preventDefault: vi.fn()
       };
 
       drop(mockEvent);
 
-      expect(state.houses["house-0"]).toContain('Alice');
-      // Check that a name wrapper for Alice exists in the house container (re-rendered)
-      shouldSelect('#house-0 .name-container #wrapper-Alice');
+      expect(state.houses["house-0"]).toContain('Alex');
+      // Check that a name wrapper for Alex exists in the house container (re-rendered)
+      shouldSelect('#house-0 .name-container #wrapper-Alex');
     });
 
     it('updates state when moving name between houses', () => {
-      enterName('Alice');
+      enterName('Alex');
       addHouseToDOM();
       addHouseToDOM();
 
-      const nameWrapper = document.querySelector('#wrapper-Alice');
+      const nameWrapper = document.querySelector('#wrapper-Alex');
       const house0Container = document.querySelector('#house-0 .name-container');
       const house1Container = document.querySelector('#house-1 .name-container');
 
       house0Container.appendChild(nameWrapper);
-      state.houses["house-0"].push("Alice");
+      state.houses["house-0"].push("Alex");
 
       const mockEvent = {
         target: house1Container,
         dataTransfer: {
-          getData: vi.fn(() => 'wrapper-Alice')
+          getData: vi.fn(() => 'wrapper-Alex')
         },
         preventDefault: vi.fn()
       };
 
       drop(mockEvent);
 
-      expect(state.houses["house-0"]).not.toContain('Alice');
-      expect(state.houses["house-1"]).toContain('Alice');
-      // Check that a name wrapper for Alice exists in house-1 (re-rendered)
-      shouldSelect('#house-1 .name-container #wrapper-Alice');
+      expect(state.houses["house-0"]).not.toContain('Alex');
+      expect(state.houses["house-1"]).toContain('Alex');
+      // Check that a name wrapper for Alex exists in house-1 (re-rendered)
+      shouldSelect('#house-1 .name-container #wrapper-Alex');
     });
 
     it('does nothing when target is not name-container', () => {
-      enterName('Alice');
-      const nameWrapper = document.querySelector('#wrapper-Alice');
+      enterName('Alex');
+      const nameWrapper = document.querySelector('#wrapper-Alex');
       const otherElement = document.querySelector('#container');
 
       const mockEvent = {

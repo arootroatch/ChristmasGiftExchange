@@ -21,6 +21,7 @@ import {clearGeneratedListTable, init as initResultsTable} from "../../../resour
 import {init as initEmailTable} from "../../../resources/js/components/emailTable/emailTable";
 import {state} from "../../../resources/js/state";
 import {selectElement} from "../../../resources/js/utils";
+import {alex, whitney} from "../../testData";
 
 const noPossibleComboError = "No possible combinations! Please try a different configuration/number of names."
 
@@ -48,7 +49,7 @@ describe("generateButton", () => {
 
   it("is not rendered at step 2", () => {
     resetState();
-    state.givers = [{name: "Alice", recipient: ""}];
+    state.givers = [{...alex}];
     click("#nextStep"); // step 2
     expect(state.step).toBe(2);
     expect(selectElement("#generate")).toBeNull();
@@ -56,7 +57,7 @@ describe("generateButton", () => {
 
   it("renders at step 3", () => {
     resetState();
-    state.givers = [{name: "Alice", recipient: ""}];
+    state.givers = [{...alex}];
     click("#nextStep"); // step 2
     click("#nextStep"); // step 3
     expect(state.step).toBe(3);
@@ -66,7 +67,7 @@ describe("generateButton", () => {
   it("click calls generateList", () => {
     const spy = vi.spyOn(generateButtonModule, "generateList").mockImplementation(() => {});
     resetState();
-    state.givers = [{name: "Alice", recipient: ""}];
+    state.givers = [{...alex}];
     click("#nextStep"); // step 2
     click("#nextStep"); // step 3
     click("#generate");
@@ -75,7 +76,7 @@ describe("generateButton", () => {
 
   it("is removed at step 4", () => {
     resetState();
-    state.givers = [{name: "Alice", recipient: "Bob"}];
+    state.givers = [{...alex, recipient: whitney.name}];
     state.step = 3;
     click("#nextStep"); // step 4
     expect(state.step).toBe(4);
@@ -97,7 +98,7 @@ describe("generateButton", () => {
     it("triggers at step 3 (button rendered)", () => {
       const spy = vi.spyOn(generateButtonModule, "generateList").mockImplementation(() => {});
       resetState();
-      state.givers = [{name: "Alice", recipient: ""}];
+      state.givers = [{...alex}];
       click("#nextStep"); // step 2
       click("#nextStep"); // step 3
       dispatchCtrlEnter();
@@ -107,7 +108,7 @@ describe("generateButton", () => {
     it("does not trigger at step 2 (button not rendered)", () => {
       const spy = vi.spyOn(generateButtonModule, "generateList");
       resetState();
-      state.givers = [{name: "Alice", recipient: ""}];
+      state.givers = [{...alex}];
       click("#nextStep"); // step 2
       dispatchCtrlEnter();
       expect(spy).not.toHaveBeenCalled();
@@ -121,7 +122,7 @@ describe("generateButton", () => {
       const spy = vi.spyOn(generateButtonModule, "generateList").mockImplementation(() => {});
       resetDOM();
       resetState();
-      state.givers = [{name: "Alice", recipient: ""}];
+      state.givers = [{...alex}];
       click("#nextStep"); // step 2
       click("#nextStep"); // step 3
       dispatchCtrlEnter();

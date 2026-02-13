@@ -50,9 +50,9 @@ describe('resultsTable', () => {
 
 
   it('renders results from state.givers when assignRecipients is called', () => {
-    installGiverNames("Alex", "Whitney", "Jordan");
+    installGiverNames("Alex", "Whitney", "Hunter");
 
-    assignRecipients(["Whitney", "Jordan", "Alex"]);
+    assignRecipients(["Whitney", "Hunter", "Alex"]);
 
     const tableBody = document.querySelector('#table-body');
     const rows = tableBody.querySelectorAll('tr');
@@ -61,7 +61,7 @@ describe('resultsTable', () => {
 
     expect(tableBody.innerHTML).toContain('<td>Alex</td>');
     expect(tableBody.innerHTML).toContain('<td>Whitney</td>');
-    expect(tableBody.innerHTML).toContain('<td>Jordan</td>');
+    expect(tableBody.innerHTML).toContain('<td>Hunter</td>');
 
     const row1Cells = rows[0].querySelectorAll('td');
     expect(row1Cells[0].textContent).toBe('Alex');
@@ -69,10 +69,10 @@ describe('resultsTable', () => {
 
     const row2Cells = rows[1].querySelectorAll('td');
     expect(row2Cells[0].textContent).toBe('Whitney');
-    expect(row2Cells[1].textContent).toBe('Jordan');
+    expect(row2Cells[1].textContent).toBe('Hunter');
 
     const row3Cells = rows[2].querySelectorAll('td');
-    expect(row3Cells[0].textContent).toBe('Jordan');
+    expect(row3Cells[0].textContent).toBe('Hunter');
     expect(row3Cells[1].textContent).toBe('Alex');
   });
 
