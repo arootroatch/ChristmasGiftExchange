@@ -1,4 +1,4 @@
-import {state, startExchange} from "../resources/js/state";
+import {addHouseToState, state, startExchange} from "../resources/js/state";
 import {expect, vi} from "vitest";
 import {indexHtml} from "../setupTests";
 import {selectElement} from "../resources/js/utils";
@@ -6,7 +6,10 @@ import * as house from "../resources/js/components/house";
 import * as name from "../resources/js/components/name";
 import * as nameList from "../resources/js/components/nameList";
 import * as select from "../resources/js/components/select";
-import * as controlStrip from "../resources/js/components/controlStrip";
+import * as controlStrip from "../resources/js/components/controlStrip/controlStrip";
+import * as nextStepButton from "../resources/js/components/controlStrip/nextStepButton";
+import * as addHouseButton from "../resources/js/components/controlStrip/addHouseButton";
+import * as generateButton from "../resources/js/components/controlStrip/generateButton";
 import * as instructions from "../resources/js/components/instructions";
 
 let isReactiveSystemInitialized = false;
@@ -18,6 +21,9 @@ export function initReactiveSystem() {
     nameList.init();
     select.init();
     controlStrip.init();
+    nextStepButton.init();
+    addHouseButton.init();
+    generateButton.init();
     instructions.init();
     isReactiveSystemInitialized = true;
   }
@@ -131,7 +137,9 @@ export function enterName(name) {
 }
 
 export function addHouseToDOM() {
-  click("#addHouse");
+  const houseNumber = Object.keys(state.houses).length;
+  const houseID = `house-${houseNumber}`;
+  addHouseToState(houseID);
 }
 
 export function addNamesToDOM(...names){

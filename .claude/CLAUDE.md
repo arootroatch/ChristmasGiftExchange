@@ -52,7 +52,11 @@ resources/js/
   layout.js            # Step navigation, intro flow
   dragDrop.js          # Drag and drop name reassignment
   components/
-    controlStrip.js    # Control buttons + keyboard shortcuts
+    controlStrip/
+      controlStrip.js    # Container shell with slots + keybinding helpers
+      nextStepButton.js  # Next Step button component
+      addHouseButton.js  # Add Group button component
+      generateButton.js  # Generate List button component
     house.js           # House/group container component
     nameList.js        # Name list container component
     name.js            # Participant name management
@@ -72,6 +76,11 @@ tests/
   dragDrop.spec.js
   main.spec.js
   components/
+    controlStrip/
+      controlStrip.spec.js
+      nextStepButton.spec.js
+      addHouseButton.spec.js
+      generateButton.spec.js
     resultsTable.spec.js
     house.spec.js
     nameList.spec.js
@@ -93,7 +102,7 @@ Key functions to reuse:
 - `initReactiveSystem()` — Initializes house, name, select components + render subscriptions (call in `beforeAll`)
 - `resetState()` — Resets all state to defaults (call in `beforeEach`)
 - `enterName(name)` — Sets input value and clicks Add
-- `addHouseToDOM()` — Clicks Add Group button
+- `addHouseToDOM()` — Calls addHouseToState directly
 - `moveNameToHouse(selector, name)` — Changes select to move name
 - `click(selector)` / `change(selector, value)` — Simulate events
 - `shouldSelect(selector)` / `shouldNotSelect(selector)` — Assert element exists/doesn't

@@ -9,7 +9,6 @@ import {addEventListener, selectElement} from "../utils.js";
 import {Events, stateEvents} from "../events.js";
 
 const leftContainerId = "left-container";
-const nameListSelectId = "name-list-select";
 
 export function init() {
   stateEvents.on(Events.HOUSE_ADDED, onHouseAdded);

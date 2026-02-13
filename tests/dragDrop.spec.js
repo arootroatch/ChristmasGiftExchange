@@ -153,7 +153,7 @@ describe('dragDrop', () => {
     it('does nothing when target is not name-container', () => {
       enterName('Alice');
       const nameWrapper = document.querySelector('#wrapper-Alice');
-      const otherElement = document.querySelector('#addHouse');
+      const otherElement = document.querySelector('#container');
 
       const mockEvent = {
         target: otherElement,

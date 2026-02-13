@@ -22,7 +22,7 @@ import {
   resetState,
   shouldDisplayEmailTable,
   shouldDisplayErrorSnackbar,
-  shouldNotDisplay,
+  shouldNotSelect,
   initReactiveSystem
 } from "./specHelper";
 
@@ -95,9 +95,11 @@ describe('generate', () => {
     it('works properly with event listener', () => {
       enterName("Alex");
       enterName("Whitney");
+      click("#nextStep"); // step 2
       addHouseToDOM();
       moveNameToHouse("#house-0-select", "Alex");
       moveNameToHouse("#house-0-select", "Whitney");
+      click("#nextStep"); // step 3 — generate button renders
       click("#generate");
       shouldDisplayErrorSnackbar(noPossibleComboError);
     });
@@ -153,8 +155,8 @@ describe('generate', () => {
       enterName("Whitney");
 
       generateList();
-      shouldNotDisplay("#generate");
-      shouldNotDisplay("#nextStep");
+      shouldNotSelect("#generate");
+      shouldNotSelect("#nextStep");
     });
 
     it('calls assignRecipients when not secret santa', async () => {
