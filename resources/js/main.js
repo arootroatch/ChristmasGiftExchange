@@ -1,4 +1,4 @@
-import * as generate from "../js/generate.js";
+import "../js/generate.js";
 import {initDragDrop} from "./dragDrop.js";
 import * as house from "../js/components/house.js";
 import * as name from "../js/components/name.js";
@@ -9,6 +9,7 @@ import * as controlStrip from "../js/components/controlStrip.js";
 import * as instructions from "../js/components/instructions.js";
 import * as emailTable from "../js/components/emailTable.js";
 import * as emailQuery from "../js/components/emailQuery.js";
+import * as sendEmails from "../js/components/sendEmails.js";
 import "../js/layout.js";
 import "../js/keybindings.js"
 import "../js/components/snackbar.js";
@@ -24,5 +25,6 @@ export default function main() {
 
   emailTable.init();
   emailQuery.initEventListeners();
+  sendEmails.init();
   initDragDrop();
 }

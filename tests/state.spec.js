@@ -5,6 +5,7 @@ import {
   addGiver,
   addHouseToState,
   addNameToHouse,
+  addEmailsToGivers,
   assignRecipients,
   getHousesArray,
   getHousesForGeneration,
@@ -257,6 +258,93 @@ describe('state helper functions', () => {
       state.step = 3;
       nextStep(3);
       expect(state.step).toBe(0);
+    });
+  });
+
+  describe('addEmailsToGivers', () => {
+    let mockDate;
+    let randomSpy;
+
+    beforeEach(() => {
+      state.givers = [];
+      installGiverNames("Alice", "Bob", "Charlie");
+      mockDate = new Date('2026-02-13T12:00:00.000Z');
+      vi.setSystemTime(mockDate);
+      randomSpy = vi.spyOn(Math, 'random').mockReturnValue(0.123456789);
+    });
+
+    it('should set email on each giver by index', () => {
+      const emails = [
+        {name: "Alice", email: "alice@example.com", index: 0},
+        {name: "Bob", email: "bob@example.com", index: 1}
+      ];
+
+      addEmailsToGivers(emails);
+
+      expect(state.givers[0].email).toBe("alice@example.com");
+      expect(state.givers[1].email).toBe("bob@example.com");
+      expect(state.givers[2].email).toBe("");
+    });
+
+    it('should set date on each giver', () => {
+      const emails = [
+        {name: "Alice", email: "alice@example.com", index: 0}
+      ];
+
+      addEmailsToGivers(emails);
+
+      expect(state.givers[0].date).toBe("2026-02-13T12:00:00.000Z");
+    });
+
+    it('should generate unique id with format giverCount_random_date', () => {
+      const emails = [
+        {name: "Alice", email: "alice@example.com", index: 0}
+      ];
+
+      addEmailsToGivers(emails);
+
+      const expectedId = `3_${Math.random().toString(20)}_${mockDate.toISOString()}`;
+      expect(state.givers[0].id).toBe(expectedId);
+    });
+
+    it('should handle multiple emails at once', () => {
+      const emails = [
+        {name: "Alice", email: "alice@example.com", index: 0},
+        {name: "Bob", email: "bob@example.com", index: 1},
+        {name: "Charlie", email: "charlie@example.com", index: 2}
+      ];
+
+      addEmailsToGivers(emails);
+
+      expect(state.givers[0].email).toBe("alice@example.com");
+      expect(state.givers[1].email).toBe("bob@example.com");
+      expect(state.givers[2].email).toBe("charlie@example.com");
+
+      state.givers.forEach(giver => {
+        expect(giver.date).toBe("2026-02-13T12:00:00.000Z");
+        expect(giver.id).toContain("3_");
+      });
+    });
+
+    it('should emit EMAILS_ADDED event', () => {
+      const spy = vi.fn();
+      const unsubscribe = stateEvents.on(Events.EMAILS_ADDED, spy);
+      const emails = [
+        {name: "Alice", email: "alice@example.com", index: 0}
+      ];
+
+      addEmailsToGivers(emails);
+
+      expect(spy).toHaveBeenCalledWith({givers: state.givers});
+      unsubscribe();
+    });
+
+    it('should handle empty emails array', () => {
+      const originalGivers = [...state.givers];
+
+      addEmailsToGivers([]);
+
+      expect(state.givers).toEqual(originalGivers);
     });
   });
 });

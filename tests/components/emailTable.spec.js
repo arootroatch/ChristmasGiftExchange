@@ -6,18 +6,13 @@ import {
   installGivers,
   resetState,
   shouldDisplayEmailTable,
-  shouldDisplaySuccessSnackbar,
+  shouldDisplayErrorSnackbar,
   stubFetch
 } from "../specHelper";
 import "../../resources/js/components/name";
 import {assignRecipients, Giver, nextStep, startExchange, state} from "../../resources/js/state";
-import {alex, hunter, megan, whitney} from "../testData";
 import {
-  displaySendEmails,
   emailInput,
-  getEmails,
-  handleEmailSubmitError,
-  hideElement,
   init,
 } from "../../resources/js/components/emailTable";
 
@@ -40,19 +35,17 @@ function triggerEmailTableRender() {
   assignRecipients(["Whitney", "Alex"]);
 }
 
+function submitEmailForm() {
+  const emailTableBody = document.getElementById("emailTableBody");
+  const submitEvent = new Event("submit", {bubbles: true, cancelable: true});
+  emailTableBody.dispatchEvent(submitEvent);
+}
+
 describe('emailTable', () => {
   stubFetch(true, 200, {});
   Math.random = vi.fn(() => 123456789);
   vi.useFakeTimers();
   vi.setSystemTime(new Date(2023, 0, 1));
-  vi.mock(import("/resources/js/components/emailTable"), async (importOriginal) => {
-    const actual = await importOriginal()
-    return {
-      ...actual,
-      getEmails: vi.fn(actual.getEmails),
-      postToServer: vi.fn(actual.postToServer),
-    }
-  })
 
   beforeAll(() => {
     init();
@@ -145,9 +138,7 @@ describe('emailTable', () => {
         {name: "Hunter", email: "hunter@gmail.com"},
         {name: "Megan", email: "megan@gmail.com"}]);
 
-      const emailTableBody = document.getElementById("emailTableBody");
-      const submitEvent = new Event("submit", {bubbles: true, cancelable: true});
-      emailTableBody.dispatchEvent(submitEvent);
+      submitEmailForm();
     });
 
     it('sets button text to Loading...', () => {
@@ -160,16 +151,16 @@ describe('emailTable', () => {
       expectColor(submitEmailsButton.style.color, "rgb(128, 128, 128)", "#808080");
     })
 
-    it("sets email, id, and date for each giver", () => {
-      const date = new Date().toISOString();
-      const givers = [
-        [state.givers[0], "arootroatch@gmail.com"],
-        [state.givers[1], "whitney@gmail.com"],
-        [state.givers[2], "hunter@gmail.com"],
-        [state.givers[3], "megan@gmail.com"]];
+    it("sets email, id, and date for each giver", async () => {
+      await vi.waitFor(() => {
+        expect(state.givers[0].email).toBe("arootroatch@gmail.com");
+      });
 
-      givers.forEach(([giver, email]) => {
-        expect(giver.email).toBe(email);
+      const expectedEmails = ["arootroatch@gmail.com", "whitney@gmail.com", "hunter@gmail.com", "megan@gmail.com"];
+      const date = state.givers[0].date;
+
+      state.givers.forEach((giver, i) => {
+        expect(giver.email).toBe(expectedEmails[i]);
         expect(giver.date).toBe(date);
         expect(giver.id).toBe(`4_1ibc1j9_${date}`);
       })
@@ -180,16 +171,7 @@ describe('emailTable', () => {
         {"body": JSON.stringify(state.givers), "method": "POST", "mode": "cors"});
     })
 
-    it("displays saved emails success message", async () => {
-      const sendDiv = document.querySelector("#sendEmails");
-      expect(sendDiv.innerHTML).toContain("4 email addresses added successfully!");
-      expect(sendDiv.innerHTML).toContain("Now let's send out those emails:");
-      expect(sendDiv.innerHTML).toContain(`<button class="button" id="sendEmailsBtn">Send Emails</button>`);
-      expect(sendDiv.classList).not.toContain("hidden");
-      expect(sendDiv.classList).toContain("show");
-    })
-
-    it("hides email table after saving emails", async () => {
+    it("hides email table on EMAILS_ADDED", async () => {
       const table = document.querySelector("#emailTable");
 
       await vi.waitFor(() => {
@@ -205,66 +187,12 @@ describe('emailTable', () => {
 
   })
 
-  describe("batchEmails", () => {
-    let sendEmailsButton;
-    beforeEach(() => {
-      alex.recipient = "Whitney";
-      whitney.recipient = "Hunter";
-      hunter.recipient = "Megan";
-      megan.recipient = "Alex";
-      installGivers([alex, whitney, hunter, megan]);
-      displaySendEmails();
-      sendEmailsButton = document.querySelector("#sendEmailsBtn");
-      click("#sendEmailsBtn");
-    })
-
-    it("sets button text to Loading...", () => {
-      expect(sendEmailsButton.innerHTML).toContain('Loading...');
-      expectColor(sendEmailsButton.style.color, "rgb(128, 128, 128)", "#808080");
-    });
-
-    it("sends emails for each giver", () => {
-      state.givers.forEach((giver) => {
-        expect(global.fetch).toHaveBeenCalledWith("/.netlify/functions/dispatchEmail", {
-          "body": JSON.stringify({
-            name: giver.name,
-            recipient: giver.recipient,
-            email: giver.email
-          }),
-          "method": "POST",
-          "mode": "cors"
-        });
-      })
-    })
-
-    it("hides sendEmails popup", () => {
-      const sendEmails = document.querySelector("#sendEmails");
-      expect(sendEmails.classList).toContain("hide");
-      setTimeout(() => {
-        expect(sendEmails.classList).not.toContain("hide");
-        expect(sendEmails.classList).not.toContain("show");
-        expect(sendEmails.classList).toContain("hidden");
-      }, 500);
-    })
-
-    it("displays success snackbar with number of emails sent", () => {
-      shouldDisplaySuccessSnackbar("Sent 4 of 4 emails successfully!");
-    });
-  })
-
-  it("handleEmailSubmitError logs response body", () => {
-    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {
-    });
-    const response = {status: 500, body: "Server error message"};
-
-    handleEmailSubmitError(response);
-
-    expect(consoleSpy).toHaveBeenCalledWith("Server error message");
-    consoleSpy.mockRestore();
-  });
-
   describe("submitEmails error handling", () => {
     beforeEach(() => {
+      global.fetch = vi.fn(() => Promise.resolve({
+        status: 500,
+        body: "Database connection failed"
+      }));
       triggerEmailTableRender();
       renderEmailTableInputs([
         {name: "Alex", email: "alex@test.com"},
@@ -273,39 +201,26 @@ describe('emailTable', () => {
       installGiverNames("Alex", "Whitney");
     });
 
-    it("logs error when postToServer returns non-200 status", async () => {
-      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {
-      });
-      global.fetch = vi.fn(() => Promise.resolve({
-        status: 500,
-        body: "Database connection failed"
-      }));
+    it("does not add emails to givers when postToServer returns non-200 status", async () => {
+      const initialEmail0 = state.givers[0].email;
+      const initialEmail1 = state.givers[1].email;
 
-      const emailTableBody = document.getElementById("emailTableBody");
-      const submitEvent = new Event("submit", {bubbles: true, cancelable: true});
-      emailTableBody.dispatchEvent(submitEvent);
+      submitEmailForm();
 
       await vi.waitFor(() => {
-        expect(consoleSpy).toHaveBeenCalledWith("Database connection failed");
+        expect(global.fetch).toHaveBeenCalled();
       });
-
-      consoleSpy.mockRestore();
+      expect(state.givers[0].email).toBe(initialEmail0);
+      expect(state.givers[1].email).toBe(initialEmail1);
     });
-  });
 
-  it("hideElement replaces classes after timeout", () => {
-    triggerEmailTableRender();
-    const table = document.querySelector("#emailTable");
+    it("displays error snackbar when postToServer returns non-200 status", async () => {
+      submitEmailForm();
 
-    hideElement("emailTable");
-
-    expect(table.classList).toContain("hide");
-
-    vi.advanceTimersByTime(500);
-
-    expect(table.classList).toContain("hidden");
-    expect(table.classList).not.toContain("show");
-    expect(table.classList).not.toContain("hide");
+      await vi.waitFor(() => {
+        shouldDisplayErrorSnackbar("Failed to submit emails");
+      });
+    });
   });
 
   it("emailInput returns correct HTML template", () => {

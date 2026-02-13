@@ -31,4 +31,5 @@ export const Events = {
   NAME_ADDED_TO_HOUSE: 'name:addedToHouse',
   NAME_REMOVED_FROM_HOUSE: 'name:removedFromHouse',
   RECIPIENTS_ASSIGNED: 'recipients:assigned',
+  EMAILS_ADDED: 'emails:added',
 };

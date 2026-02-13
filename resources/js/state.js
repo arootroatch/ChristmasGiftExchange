@@ -103,6 +103,18 @@ export function assignRecipients(assignments) {
   });
 }
 
+export function addEmailsToGivers(emails) {
+  let random = Math.random().toString(20);
+  let date = new Date().toISOString();
+  emails.forEach((obj) => {
+    let i = parseInt(obj.index);
+    state.givers[i].email = obj.email;
+    state.givers[i].id = `${state.givers.length}_${random}_${date}`;
+    state.givers[i].date = date;
+  });
+  stateEvents.emit(Events.EMAILS_ADDED, {givers: state.givers});
+}
+
 export function isGenerated() {
   return state.givers.every(g => g.recipient && g.recipient !== "");
 }
