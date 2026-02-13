@@ -1,7 +1,7 @@
-import {state} from "../state.js";
-import {addEventListener, fetchWithErrorHandling, pushHTML, selectElement, setLoadingState} from "../utils.js";
-import {showSuccess} from "./snackbar.js";
-import {Events, stateEvents} from "../events.js";
+import {state} from "../../state.js";
+import {addEventListener, fetchWithErrorHandling, pushHTML, selectElement, setLoadingState} from "../../utils.js";
+import {showSuccess} from "../snackbar.js";
+import {Events, stateEvents} from "../../events.js";
 
 const sendEmailsId = "sendEmails";
 const sendEmailsBtnId = "sendEmailsBtn";

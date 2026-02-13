@@ -6,10 +6,10 @@ import {
   resetState,
   shouldDisplaySuccessSnackbar,
   stubFetch,
-} from "../specHelper";
-import {Giver, startExchange, state, addEmailsToGivers} from "../../resources/js/state";
-import {init} from "../../resources/js/components/sendEmails";
-import {alex, hunter, megan, whitney} from "../testData";
+} from "../../specHelper";
+import {Giver, startExchange, state, addEmailsToGivers} from "../../../resources/js/state";
+import {init} from "../../../resources/js/components/emailTable/sendEmails";
+import {alex, hunter, megan, whitney} from "../../testData";
 
 describe("sendEmails", () => {
   stubFetch(true, 200, {});

@@ -8,13 +8,13 @@ import {
   shouldDisplayEmailTable,
   shouldDisplayErrorSnackbar,
   stubFetch
-} from "../specHelper";
-import "../../resources/js/components/name";
-import {assignRecipients, Giver, nextStep, startExchange, state} from "../../resources/js/state";
+} from "../../specHelper";
+import "../../../resources/js/components/name";
+import {assignRecipients, Giver, nextStep, startExchange, state} from "../../../resources/js/state";
 import {
   emailInput,
   init,
-} from "../../resources/js/components/emailTable";
+} from "../../../resources/js/components/emailTable/emailTable";
 
 function renderEmailTableInputs(givers) {
   const body = document.querySelector("#emailTableBody");

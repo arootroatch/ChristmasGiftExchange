@@ -7,9 +7,9 @@ import * as select from "../js/components/select.js";
 import * as resultsTable from "../js/components/resultsTable.js";
 import * as controlStrip from "../js/components/controlStrip.js";
 import * as instructions from "../js/components/instructions.js";
-import * as emailTable from "../js/components/emailTable.js";
+import * as emailTable from "../js/components/emailTable/emailTable.js";
 import * as emailQuery from "../js/components/emailQuery.js";
-import * as sendEmails from "../js/components/sendEmails.js";
+import * as sendEmails from "../js/components/emailTable/sendEmails.js";
 import "../js/layout.js";
 import "../js/keybindings.js"
 import "../js/components/snackbar.js";

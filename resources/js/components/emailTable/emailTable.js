@@ -1,7 +1,7 @@
-import {addEmailsToGivers, state} from "../state.js";
-import {addEventListener, fetchWithErrorHandling, pushHTML, selectElement, setLoadingState} from "../utils.js";
-import {showError} from "./snackbar.js";
-import {Events, stateEvents} from "../events.js";
+import {addEmailsToGivers, state} from "../../state.js";
+import {addEventListener, fetchWithErrorHandling, pushHTML, selectElement, setLoadingState} from "../../utils.js";
+import {showError} from "../snackbar.js";
+import {Events, stateEvents} from "../../events.js";
 
 const emailTableId = "emailTable";
 const emailTableBodyId = "emailTableBody";

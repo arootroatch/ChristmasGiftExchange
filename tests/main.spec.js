@@ -27,7 +27,7 @@ vi.mock('../resources/js/components/controlStrip', () => ({
   init: vi.fn(),
 }));
 
-vi.mock('../resources/js/components/emailTable', () => ({
+vi.mock('../resources/js/components/emailTable/emailTable', () => ({
   init: vi.fn(),
 }));
 
@@ -81,7 +81,7 @@ it('calls controlStrip.init', async () => {
 });
 
   it('calls emailTable.init', async () => {
-    const {init} = await import('../resources/js/components/emailTable');
+    const {init} = await import('../resources/js/components/emailTable/emailTable');
 
     main();
 
@@ -108,7 +108,7 @@ it('calls controlStrip.init', async () => {
   const select = await import('../resources/js/components/select');
   const resultsTable = await import('../resources/js/components/resultsTable');
   const controlStrip = await import('../resources/js/components/controlStrip');
-  const emailTable = await import('../resources/js/components/emailTable');
+  const emailTable = await import('../resources/js/components/emailTable/emailTable');
   const emailQuery = await import('../resources/js/components/emailQuery');
   const {initDragDrop} = await import('../resources/js/dragDrop');
 

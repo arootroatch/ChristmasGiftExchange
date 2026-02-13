@@ -9,7 +9,7 @@ import {
   clearGeneratedListTable,
   init as initResultsTable
 } from '../resources/js/components/resultsTable';
-import {init as initEmailTable} from '../resources/js/components/emailTable';
+import {init as initEmailTable} from '../resources/js/components/emailTable/emailTable';
 import {state} from '../resources/js/state';
 import {
   addHouseToDOM, click,
