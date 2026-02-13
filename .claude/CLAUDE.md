@@ -51,8 +51,8 @@ resources/js/
   utils.js             # DOM helpers (selectElement, click, addEventListener, pushHTML, unshiftHTML, etc.)
   layout.js            # Step navigation, intro flow
   dragDrop.js          # Drag and drop name reassignment
-  keybindings.js       # Keyboard shortcuts
   components/
+    controlStrip.js    # Control buttons + keyboard shortcuts
     house.js           # House/group container component
     nameList.js        # Name list container component
     name.js            # Participant name management
@@ -70,7 +70,6 @@ tests/
   generate.spec.js
   layout.spec.js
   dragDrop.spec.js
-  keybindings.spec.js
   main.spec.js
   components/
     resultsTable.spec.js
