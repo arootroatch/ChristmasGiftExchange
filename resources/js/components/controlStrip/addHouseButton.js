@@ -1,7 +1,6 @@
-import {addEventListener, click, selectElement} from "../../utils.js";
+import {addKeybinding, addEventListener, click, removeKeybinding, selectElement} from "../../utils.js";
 import {Events, stateEvents} from "../../events.js";
 import {addHouseToState, state} from "../../state.js";
-import {addKeybinding, removeKeybinding} from "./controlStrip.js";
 
 const addHouseId = "addHouse";
 const slotSelector = '[data-slot="addHouse"]';

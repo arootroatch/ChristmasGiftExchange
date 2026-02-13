@@ -3,20 +3,6 @@ import {Events, stateEvents} from "../../events.js";
 
 const controlStripId = "control-strip";
 
-export function isMobileDevice(userAgent = navigator.userAgent) {
-  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
-}
-
-export function addKeybinding(handler) {
-  if (!isMobileDevice()) {
-    window.addEventListener("keyup", handler);
-  }
-}
-
-export function removeKeybinding(handler) {
-  window.removeEventListener("keyup", handler);
-}
-
 export function init() {
   stateEvents.on(Events.EXCHANGE_STARTED, () => {
     render();

@@ -35,6 +35,20 @@ export function setLoadingState(selector) {
     btn.style.color = "#808080";
 }
 
+export function isMobileDevice(userAgent = navigator.userAgent) {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+}
+
+export function addKeybinding(handler) {
+    if (!isMobileDevice()) {
+        window.addEventListener("keyup", handler);
+    }
+}
+
+export function removeKeybinding(handler) {
+    window.removeEventListener("keyup", handler);
+}
+
 export async function fetchWithErrorHandling(url, options = {}) {
     try {
         return await fetch(url, options);

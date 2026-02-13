@@ -1,8 +1,7 @@
-import {addEventListener, click, selectElement} from "../../utils.js";
+import {addKeybinding, addEventListener, click, removeKeybinding, selectElement} from "../../utils.js";
 import {Events, stateEvents} from "../../events.js";
 import {generateList} from "../../generate.js";
 import {state} from "../../state.js";
-import {addKeybinding, removeKeybinding} from "./controlStrip.js";
 
 const generateId = "generate";
 const slotSelector = '[data-slot="generate"]';
