@@ -7,7 +7,7 @@ export function selectElements(selector){
 }
 
 export function click(selector){
-    document.querySelector(selector).click();
+    document.querySelector(selector)?.click();
 }
 
 export function addEventListener(selector, event, func) {

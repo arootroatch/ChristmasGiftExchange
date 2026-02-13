@@ -1,20 +1,8 @@
-import {state, assignRecipients, getHousesForGeneration} from "./state.js";
-import * as self from "./generate.js";
-import {showError} from "./components/snackbar";
+import {state, getHousesForGeneration} from "./state.js";
 
 export function hasDuplicates(arr) {
   let flattened = arr.flat();
   return new Set(flattened).size !== flattened.length;
-}
-
-export function generateList(_) {
-  const {error, assignments} = self.generate();
-  if (error) {
-    showError(error);
-    return;
-  }
-
-  assignRecipients(assignments);
 }
 
 export function generate() {

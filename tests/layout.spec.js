@@ -1,7 +1,7 @@
 import {afterEach, beforeAll, beforeEach, describe, expect, it, vi} from 'vitest';
 import {state, startExchange} from '../resources/js/state';
 import {initReactiveSystem, resetDOM} from "./specHelper";
-import {initEventListeners, secretSantaMode} from "../resources/js/layout";
+import {init, secretSantaMode} from "../resources/js/layout";
 
 describe('layout', () => {
   let letsGoBtn, secretSantaBtn, leftContainer;
@@ -12,7 +12,7 @@ describe('layout', () => {
 
   beforeEach(() => {
     resetDOM();
-    initEventListeners();
+    init();
     letsGoBtn = document.querySelector("#letsGo");
     secretSantaBtn = document.querySelector("#secretSantaBtn");
     leftContainer = document.querySelector("#left-container");

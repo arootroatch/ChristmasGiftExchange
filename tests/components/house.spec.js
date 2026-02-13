@@ -15,8 +15,8 @@ import {
   stubProperty
 } from "../specHelper";
 import {addEventListener, removeEventListener} from "../../resources/js/utils";
-import {addHouse, deleteHouse, insertNameFromSelect} from "../../resources/js/components/house";
-import {state} from "../../resources/js/state";
+import {insertNameFromSelect} from "../../resources/js/components/select";
+import {addHouseToState, state} from "../../resources/js/state";
 import * as stateModule from "../../resources/js/state";
 
 describe('addHouse', () => {
@@ -49,7 +49,7 @@ describe('addHouse', () => {
   });
 
   it('adds click event listener to delete house button', () => {
-    expect(addEventListener).toHaveBeenCalledWith("#house-0-delete", "click", deleteHouse);
+    expect(addEventListener).toHaveBeenCalledWith("#house-0-delete", "click", expect.any(Function));
   });
 
   it('adds change event listener to name select', () => {
@@ -67,7 +67,7 @@ describe("deleteHouse", () => {
     removeAllNames();
     enterName("Alex");
     enterName("Whitney");
-    addHouse();
+    addHouseToDOM();
     moveNameToHouse("#house-0-select", "Alex");
     moveNameToHouse("#house-0-select", "Whitney");
   });
@@ -110,7 +110,7 @@ describe("deleteHouse", () => {
   it.skip("removes event listeners for deleteHouse and name select", () => {
     // Skipped: In reactive architecture, removing house div automatically cleans up event listeners
     click("#house-0-delete");
-    expect(removeEventListener).toHaveBeenCalledWith("#house-0-delete", "click", deleteHouse);
+    expect(removeEventListener).toHaveBeenCalledWith("#house-0-delete", "click", expect.any(Function));
     expect(removeEventListener).toHaveBeenCalledWith("#house-0-select", "change", insertNameFromSelect);
 
   })
@@ -129,7 +129,7 @@ describe('insertNameFromSelect', () => {
     removeAllHouses();
     clearNameSelects();
     enterName("Alex");
-    addHouse();
+    addHouseToDOM();
     select = document.querySelector("#house-0-select");
   })
 

@@ -1,7 +1,6 @@
 import {
   state,
   addHouseToState,
-  addNameToHouse,
   removeHouseFromState,
   removeNameFromHouse
 } from "../state.js";
@@ -45,39 +44,17 @@ function attachListeners(houseID) {
   addEventListener(`#${houseID}-delete`, 'click', deleteHouse);
 }
 
-export function addHouse() {
+function addHouse() {
   const houseNumber = Object.keys(state.houses).length;
   const houseID = `house-${houseNumber}`;
   addHouseToState(houseID);
 }
 
-export function deleteHouse() {
+function deleteHouse() {
   const houseDiv = this.closest('.household') || this.parentNode;
   const houseID = houseDiv.id;
 
   const names = [...(state.houses[houseID] || [])];
   names.forEach(name => removeNameFromHouse(houseID, name));
   removeHouseFromState(houseID);
-}
-
-export function insertNameFromSelect() {
-  const name = this.value;
-  if (name === "default") return;
-
-  const sourceContainer = selectElement(`#wrapper-${name}`)?.parentNode;
-  const sourceHouse = sourceContainer?.closest('.household');
-  const sourceHouseID = sourceHouse?.id;
-
-  const isDestMainList = (this.parentNode.id === "name-list");
-  const destHouse = this.closest('.household');
-  const destHouseID = isDestMainList ? null : destHouse?.id;
-
-  if (sourceHouseID) {
-    removeNameFromHouse(sourceHouseID, name);
-  }
-  if (destHouseID) {
-    addNameToHouse(destHouseID, name);
-  }
-
-  this.value = "default";
 }

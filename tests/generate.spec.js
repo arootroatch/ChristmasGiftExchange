@@ -1,28 +1,10 @@
-import {beforeAll, beforeEach, describe, expect, it, vi} from 'vitest';
-import * as generateModule from '../resources/js/generate';
-import {
-  generate,
-  generateList,
-  hasDuplicates
-} from '../resources/js/generate';
-import {
-  clearGeneratedListTable,
-  init as initResultsTable
-} from '../resources/js/components/resultsTable';
-import {init as initEmailTable} from '../resources/js/components/emailTable/emailTable';
+import {beforeAll, beforeEach, describe, expect, it} from 'vitest';
+import {generate, hasDuplicates} from '../resources/js/generate';
 import {state} from '../resources/js/state';
 import {
-  addHouseToDOM, click,
-  enterName,
   giverByName,
   installGiverNames,
-  moveNameToHouse,
-  removeAllHouses,
-  removeAllNames,
   resetState,
-  shouldDisplayEmailTable,
-  shouldDisplayErrorSnackbar,
-  shouldNotSelect,
   initReactiveSystem
 } from "./specHelper";
 
@@ -32,7 +14,6 @@ describe('generate', () => {
 
   beforeAll(()=> {
     initReactiveSystem();
-    initEmailTable();
   });
   beforeEach(resetState);
 
@@ -57,120 +38,6 @@ describe('generate', () => {
     it('handles multiple houses with duplicates', () => {
       expect(hasDuplicates([['Alice', 'Bob', 'Charlie'], ['Alice', "Alex"]])).toBe(true);
     });
-  });
-
-
-  describe('generateList', () => {
-    beforeEach(() => {
-      resetState();
-      removeAllNames();
-      removeAllHouses();
-      clearGeneratedListTable();
-      initResultsTable();
-    });
-
-    it('shows error snackbar when there are no names', () => {
-      generateList();
-      shouldDisplayErrorSnackbar("Please enter participants' names.");
-    });
-
-    it('shows error snackbar when duplicate names', () => {
-      enterName("Alex");
-      enterName("Whitney");
-      enterName("Whitney");
-      generateList();
-      shouldDisplayErrorSnackbar("Duplicate name detected! Please delete the duplicate and re-enter it with a last initial or nickname.");
-    });
-
-    it('shows error message when maxAttempt number has been reached without generating valid list', () => {
-      enterName("Alex");
-      enterName("Whitney");
-      addHouseToDOM();
-      moveNameToHouse("#house-0-select", "Alex");
-      moveNameToHouse("#house-0-select", "Whitney");
-      generateList();
-      shouldDisplayErrorSnackbar(noPossibleComboError);
-    });
-
-    it('works properly with event listener', () => {
-      enterName("Alex");
-      enterName("Whitney");
-      click("#nextStep"); // step 2
-      addHouseToDOM();
-      moveNameToHouse("#house-0-select", "Alex");
-      moveNameToHouse("#house-0-select", "Whitney");
-      click("#nextStep"); // step 3 — generate button renders
-      click("#generate");
-      shouldDisplayErrorSnackbar(noPossibleComboError);
-    });
-
-    it('renders results table', () => {
-      enterName("Alex");
-      enterName("Whitney");
-
-      generateList();
-      let tableHTML = '';
-      for (const giver of state.givers) {
-        tableHTML += `<tr>
-                <td>${giver.name}</td>
-                <td>${giver.recipient}</td>
-            </tr>`;
-      }
-      const table = document.querySelector("#table-body");
-
-      expect(table.innerHTML).toContain(tableHTML);
-    });
-
-    it('one name in house another in participant list', () => {
-      enterName("Alex");
-      enterName("Whitney");
-      addHouseToDOM();
-      moveNameToHouse("#house-0-select", "Alex");
-
-      generateList();
-      let tableHTML = '';
-      for (const giver of state.givers) {
-        tableHTML += `<tr>
-                <td>${giver.name}</td>
-                <td>${giver.recipient}</td>
-            </tr>`;
-      }
-      const table = document.querySelector("#table-body");
-
-      expect(table.innerHTML).toContain(tableHTML);
-    });
-
-    it('should display email table instead of results table if secret santa mode', () => {
-      state.isSecretSanta = true;
-      enterName("Alex");
-      enterName("Whitney");
-
-      generateList();
-      shouldDisplayEmailTable("Alex", "Whitney");
-    });
-
-    it('should hide secretGenerate and nextStep buttons in Secret Santa mode after generating', () => {
-      state.isSecretSanta = true;
-      enterName("Alex");
-      enterName("Whitney");
-
-      generateList();
-      shouldNotSelect("#generate");
-      shouldNotSelect("#nextStep");
-    });
-
-    it('calls assignRecipients when not secret santa', async () => {
-      const stateModule = await import('../resources/js/state.js');
-      const spy = vi.spyOn(stateModule, 'assignRecipients');
-
-      enterName("Alex");
-      enterName("Whitney");
-      generateList();
-
-      expect(spy).toHaveBeenCalledWith(["Whitney", "Alex"]);
-      spy.mockRestore();
-    });
-
   });
 
   describe('generate', () => {

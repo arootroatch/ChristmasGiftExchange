@@ -11,11 +11,13 @@ import * as nextStepButton from "../resources/js/components/controlStrip/nextSte
 import * as addHouseButton from "../resources/js/components/controlStrip/addHouseButton";
 import * as generateButton from "../resources/js/components/controlStrip/generateButton";
 import * as instructions from "../resources/js/components/instructions";
+import * as snackbar from "../resources/js/components/snackbar";
 
 let isReactiveSystemInitialized = false;
 
 export function initReactiveSystem() {
   if (!isReactiveSystemInitialized) {
+    snackbar.init();
     house.init();
     name.init();
     nameList.init();
@@ -117,6 +119,7 @@ export function resetDOM() {
   document.open();
   document.write(indexHtml);
   document.close();
+  snackbar.init();
 }
 
 export function removeAllNames() {

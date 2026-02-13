@@ -1,7 +1,9 @@
 import {addKeybinding, addEventListener, click, removeKeybinding, selectElement} from "../../utils.js";
 import {Events, stateEvents} from "../../events.js";
-import {generateList} from "../../generate.js";
-import {state} from "../../state.js";
+import {generate} from "../../generate.js";
+import {assignRecipients, state} from "../../state.js";
+import {showError} from "../snackbar.js";
+import * as self from "./generateButton.js";
 
 const generateId = "generate";
 const slotSelector = '[data-slot="generate"]';
@@ -36,11 +38,20 @@ function template() {
   `;
 }
 
+export function generateList() {
+  const {error, assignments} = generate();
+  if (error) {
+    showError(error);
+    return;
+  }
+  assignRecipients(assignments);
+}
+
 function render() {
   const slot = selectElement(slotSelector);
   if (!slot || slot.querySelector(`#${generateId}`)) return;
   slot.innerHTML = template();
-  addEventListener(`#${generateId}`, "click", generateList);
+  addEventListener(`#${generateId}`, "click", self.generateList);
   addKeybinding(enterGenerate);
 }
 

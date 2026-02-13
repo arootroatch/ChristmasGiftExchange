@@ -1,4 +1,3 @@
-import "../js/generate.js";
 import {initDragDrop} from "./dragDrop.js";
 import * as house from "../js/components/house.js";
 import * as name from "../js/components/name.js";
@@ -13,10 +12,11 @@ import * as instructions from "../js/components/instructions.js";
 import * as emailTable from "../js/components/emailTable/emailTable.js";
 import * as emailQuery from "../js/components/emailQuery.js";
 import * as sendEmails from "../js/components/emailTable/sendEmails.js";
-import "../js/layout.js";
-import "../js/components/snackbar.js";
+import * as snackbar from "../js/components/snackbar.js";
+import * as layout from "../js/layout.js";
 
 export default function main() {
+  snackbar.init();
   house.init();
   name.init();
   nameList.init();
@@ -29,7 +29,8 @@ export default function main() {
   instructions.init();
 
   emailTable.init();
-  emailQuery.initEventListeners();
+  emailQuery.init();
   sendEmails.init();
+  layout.init();
   initDragDrop();
 }

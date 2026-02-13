@@ -7,9 +7,8 @@ A vanilla JavaScript web app for drawing names in a gift exchange or Secret Sant
 
 ### Event-Driven Component System
 - **state.js** — Central state object + mutation functions that emit events
-- **events.js** — `EventEmitter` class with `stateEvents` singleton and `Events` enum (`COMPONENT_ADDED`, `COMPONENT_REMOVED`, `COMPONENT_UPDATED`)
-- **render.js** — `registerComponent(type, handlers)` + `initRenderSubscriptions()` that routes events to all registered component lifecycle methods (`onComponentAdded`, `onComponentUpdated`, `onComponentRemoved`)
-- **Components** register via `init()` → `registerComponent()` and respond to events by checking `event.type`
+- **events.js** — `EventEmitter` class with `stateEvents` singleton and `Events` enum
+- **Components** subscribe via `init()` → `stateEvents.on()` and respond to specific events
 
 ### State Object
 ```js
@@ -26,7 +25,7 @@ A vanilla JavaScript web app for drawing names in a gift exchange or Secret Sant
 ### Container Component Pattern
 Container components (like `house.js` and `nameList.js`) follow a consistent structure:
 - **`template()`** — Returns the full HTML string including the outermost container div (e.g., `<div id="name-list">...</div>`), not just inner contents
-- **`init()`** — Registers the component via `registerComponent()` and calls `attachListeners()` for static DOM elements
+- **`init()`** — Subscribes to state events via `stateEvents.on()` and calls `attachListeners()` for static DOM elements
 - **`attachListeners()`** — Wires up event listeners on elements within the template
 - **`onComponentAdded(event)`** — Filters by `event.type`, inserts template into `#left-container` (via `unshiftHTML` or `insertAdjacentHTML`), then calls `attachListeners()` for dynamically rendered elements
 - **Empty lifecycle stubs** — `onComponentRemoved`, `onComponentUpdated` can be empty if the component doesn't react to those events
@@ -46,7 +45,6 @@ resources/js/
   main.js              # Entry point, initializes all components
   state.js             # State management + event emission
   events.js            # EventEmitter class
-  render.js            # Component registry + event routing
   generate.js          # Name drawing algorithm
   utils.js             # DOM helpers (selectElement, click, addEventListener, pushHTML, unshiftHTML, etc.)
   layout.js            # Step navigation, intro flow

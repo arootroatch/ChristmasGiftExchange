@@ -1,6 +1,5 @@
-import {addEventListener} from "../utils.js";
-import {insertNameFromSelect} from "./house.js";
-import {state} from "../state.js";
+import {addEventListener, selectElement} from "../utils.js";
+import {addNameToHouse, removeNameFromHouse, state} from "../state.js";
 import {Events, stateEvents} from "../events.js";
 
 export function init() {
@@ -18,6 +17,28 @@ export function init() {
     const slot = document.querySelector(`[data-slot="select-${houseID}"]`);
     if (slot) renderIntoSlot(slot, state.givers);
   });
+}
+
+export function insertNameFromSelect() {
+  const name = this.value;
+  if (name === "default") return;
+
+  const sourceContainer = selectElement(`#wrapper-${name}`)?.parentNode;
+  const sourceHouse = sourceContainer?.closest('.household');
+  const sourceHouseID = sourceHouse?.id;
+
+  const isDestMainList = (this.parentNode.id === "name-list");
+  const destHouse = this.closest('.household');
+  const destHouseID = isDestMainList ? null : destHouse?.id;
+
+  if (sourceHouseID) {
+    removeNameFromHouse(sourceHouseID, name);
+  }
+  if (destHouseID) {
+    addNameToHouse(destHouseID, name);
+  }
+
+  this.value = "default";
 }
 
 function updateAllSelects() {

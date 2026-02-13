@@ -1,6 +1,6 @@
 import {beforeEach, describe, expect, it, vi, afterAll, beforeAll} from "vitest";
 import {click, expectColor, stubFetch, stubFetchError} from "../specHelper";
-import {initEventListeners} from "../../resources/js/components/emailQuery";
+import {init} from "../../resources/js/components/emailQuery";
 import {waitFor} from "@testing-library/dom";
 
 describe("getName", () => {
@@ -13,7 +13,7 @@ describe("getName", () => {
         // Mock console to suppress output during tests
         consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
         consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-        initEventListeners();
+        init();
     });
 
     afterAll(() => {

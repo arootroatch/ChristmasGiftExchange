@@ -1,17 +1,36 @@
 import {afterEach, beforeAll, beforeEach, describe, expect, it, vi} from "vitest";
-import {click, resetDOM, resetState} from "../../specHelper";
-import * as generateModule from "../../../resources/js/generate";
+import {
+  addHouseToDOM,
+  click,
+  enterName,
+  initReactiveSystem,
+  moveNameToHouse,
+  removeAllHouses,
+  removeAllNames,
+  resetDOM,
+  resetState,
+  shouldDisplayEmailTable,
+  shouldDisplayErrorSnackbar,
+  shouldNotSelect
+} from "../../specHelper";
+import * as generateButtonModule from "../../../resources/js/components/controlStrip/generateButton";
 import {init as initControlStrip} from "../../../resources/js/components/controlStrip/controlStrip";
 import {init as initNextStepButton} from "../../../resources/js/components/controlStrip/nextStepButton";
-import {init as initGenerateButton} from "../../../resources/js/components/controlStrip/generateButton";
+import {init as initGenerateButton, generateList} from "../../../resources/js/components/controlStrip/generateButton";
+import {clearGeneratedListTable, init as initResultsTable} from "../../../resources/js/components/resultsTable";
+import {init as initEmailTable} from "../../../resources/js/components/emailTable/emailTable";
 import {state} from "../../../resources/js/state";
 import {selectElement} from "../../../resources/js/utils";
 
+const noPossibleComboError = "No possible combinations! Please try a different configuration/number of names."
+
 describe("generateButton", () => {
   beforeAll(() => {
+    initReactiveSystem();
     initControlStrip();
     initNextStepButton();
     initGenerateButton();
+    initEmailTable();
   });
 
   beforeEach(() => {
@@ -45,7 +64,7 @@ describe("generateButton", () => {
   });
 
   it("click calls generateList", () => {
-    const spy = vi.spyOn(generateModule, "generateList").mockImplementation(() => {});
+    const spy = vi.spyOn(generateButtonModule, "generateList").mockImplementation(() => {});
     resetState();
     state.givers = [{name: "Alice", recipient: ""}];
     click("#nextStep"); // step 2
@@ -76,7 +95,7 @@ describe("generateButton", () => {
     });
 
     it("triggers at step 3 (button rendered)", () => {
-      const spy = vi.spyOn(generateModule, "generateList").mockImplementation(() => {});
+      const spy = vi.spyOn(generateButtonModule, "generateList").mockImplementation(() => {});
       resetState();
       state.givers = [{name: "Alice", recipient: ""}];
       click("#nextStep"); // step 2
@@ -86,7 +105,7 @@ describe("generateButton", () => {
     });
 
     it("does not trigger at step 2 (button not rendered)", () => {
-      const spy = vi.spyOn(generateModule, "generateList");
+      const spy = vi.spyOn(generateButtonModule, "generateList");
       resetState();
       state.givers = [{name: "Alice", recipient: ""}];
       click("#nextStep"); // step 2
@@ -99,7 +118,7 @@ describe("generateButton", () => {
       Object.defineProperty(navigator, "userAgent", {
         value: "Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X)", configurable: true
       });
-      const spy = vi.spyOn(generateModule, "generateList").mockImplementation(() => {});
+      const spy = vi.spyOn(generateButtonModule, "generateList").mockImplementation(() => {});
       resetDOM();
       resetState();
       state.givers = [{name: "Alice", recipient: ""}];
@@ -109,5 +128,122 @@ describe("generateButton", () => {
       expect(spy).not.toHaveBeenCalled();
       Object.defineProperty(navigator, "userAgent", { value: originalUA, configurable: true });
     });
+  });
+});
+
+describe("generateList", () => {
+  beforeAll(() => {
+    initReactiveSystem();
+    initEmailTable();
+  });
+
+  beforeEach(() => {
+    resetState();
+    removeAllNames();
+    removeAllHouses();
+    clearGeneratedListTable();
+    initResultsTable();
+  });
+
+  it('shows error snackbar when there are no names', () => {
+    generateList();
+    shouldDisplayErrorSnackbar("Please enter participants' names.");
+  });
+
+  it('shows error snackbar when duplicate names', () => {
+    enterName("Alex");
+    enterName("Whitney");
+    enterName("Whitney");
+    generateList();
+    shouldDisplayErrorSnackbar("Duplicate name detected! Please delete the duplicate and re-enter it with a last initial or nickname.");
+  });
+
+  it('shows error message when maxAttempt number has been reached without generating valid list', () => {
+    enterName("Alex");
+    enterName("Whitney");
+    addHouseToDOM();
+    moveNameToHouse("#house-0-select", "Alex");
+    moveNameToHouse("#house-0-select", "Whitney");
+    generateList();
+    shouldDisplayErrorSnackbar(noPossibleComboError);
+  });
+
+  it('works properly with event listener', () => {
+    enterName("Alex");
+    enterName("Whitney");
+    click("#nextStep"); // step 2
+    addHouseToDOM();
+    moveNameToHouse("#house-0-select", "Alex");
+    moveNameToHouse("#house-0-select", "Whitney");
+    click("#nextStep"); // step 3 — generate button renders
+    click("#generate");
+    shouldDisplayErrorSnackbar(noPossibleComboError);
+  });
+
+  it('renders results table', () => {
+    enterName("Alex");
+    enterName("Whitney");
+
+    generateList();
+    let tableHTML = '';
+    for (const giver of state.givers) {
+      tableHTML += `<tr>
+                <td>${giver.name}</td>
+                <td>${giver.recipient}</td>
+            </tr>`;
+    }
+    const table = document.querySelector("#table-body");
+
+    expect(table.innerHTML).toContain(tableHTML);
+  });
+
+  it('one name in house another in participant list', () => {
+    enterName("Alex");
+    enterName("Whitney");
+    addHouseToDOM();
+    moveNameToHouse("#house-0-select", "Alex");
+
+    generateList();
+    let tableHTML = '';
+    for (const giver of state.givers) {
+      tableHTML += `<tr>
+                <td>${giver.name}</td>
+                <td>${giver.recipient}</td>
+            </tr>`;
+    }
+    const table = document.querySelector("#table-body");
+
+    expect(table.innerHTML).toContain(tableHTML);
+  });
+
+  it('should display email table instead of results table if secret santa mode', () => {
+    state.isSecretSanta = true;
+    enterName("Alex");
+    enterName("Whitney");
+
+    generateList();
+    shouldDisplayEmailTable("Alex", "Whitney");
+  });
+
+  it('should hide secretGenerate and nextStep buttons in Secret Santa mode after generating', () => {
+    state.isSecretSanta = true;
+    enterName("Alex");
+    enterName("Whitney");
+
+    generateList();
+    shouldNotSelect("#generate");
+    shouldNotSelect("#nextStep");
+  });
+
+  it('calls assignRecipients when not secret santa', async () => {
+    const stateModule = await import('../../../resources/js/state.js');
+    const spy = vi.spyOn(stateModule, 'assignRecipients');
+
+    enterName("Alex");
+    enterName("Whitney");
+    generateList();
+
+    expect(spy).toHaveBeenCalledWith(["Whitney", "Alex"]);
+    spy.mockRestore();
   });
 });

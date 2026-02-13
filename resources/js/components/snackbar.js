@@ -1,4 +1,8 @@
-const bar = document.querySelector("#snackbar")
+let bar;
+
+export function init() {
+  bar = document.querySelector("#snackbar");
+}
 
 export function showError(message) {
   bar.style.color = "#b31e20";

@@ -15,6 +15,7 @@ import {
   emailInput,
   init,
 } from "../../../resources/js/components/emailTable/emailTable";
+import {init as initSnackbar} from "../../../resources/js/components/snackbar";
 
 function renderEmailTableInputs(givers) {
   const body = document.querySelector("#emailTableBody");
@@ -48,6 +49,7 @@ describe('emailTable', () => {
   vi.setSystemTime(new Date(2023, 0, 1));
 
   beforeAll(() => {
+    initSnackbar();
     init();
   });
 

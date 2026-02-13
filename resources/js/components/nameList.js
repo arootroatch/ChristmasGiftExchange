@@ -1,6 +1,6 @@
 import {addGiver} from "../state.js";
 import {addEventListener, selectElement, unshiftHTML} from "../utils.js";
-import {insertNameFromSelect} from "./house.js";
+import {insertNameFromSelect} from "./select.js";
 import {Events, stateEvents} from "../events.js";
 
 const b0Id = "b0";

@@ -9,6 +9,7 @@ import {
 } from "../../specHelper";
 import {Giver, startExchange, state, addEmailsToGivers} from "../../../resources/js/state";
 import {init} from "../../../resources/js/components/emailTable/sendEmails";
+import {init as initSnackbar} from "../../../resources/js/components/snackbar";
 import {alex, hunter, megan, whitney} from "../../testData";
 
 describe("sendEmails", () => {
@@ -16,6 +17,7 @@ describe("sendEmails", () => {
   vi.useFakeTimers();
 
   beforeAll(() => {
+    initSnackbar();
     init();
   });
 

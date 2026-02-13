@@ -85,6 +85,6 @@ async function getName(e) {
   }
 }
 
-export function initEventListeners() {
+export function init() {
   addEventListener(`#${emailQueryBtnId}`, "click", getName);
 }

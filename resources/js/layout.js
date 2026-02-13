@@ -10,14 +10,10 @@ export function secretSantaMode() {
   startExchange(true);
 }
 
-export function initEventListeners() {
+export function init() {
   const letsGo = selectElement(`#${letsGoId}`);
   const secretSantaBtn = selectElement(`#${secretSantaBtnId}`);
 
   if (letsGo) letsGo.onclick = () => startExchange(false);
   if (secretSantaBtn) secretSantaBtn.onclick = secretSantaMode;
-}
-
-if (typeof document !== 'undefined' && typeof process === 'undefined') {
-  initEventListeners();
 }
