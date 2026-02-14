@@ -59,17 +59,17 @@ describe("addHouseButton", () => {
     expect(spy).toHaveBeenCalledTimes(1);
   });
 
-  it("is removed when recipients assigned in non-secret-santa mode", () => {
+  it("is not removed when recipients assigned in non-secret-santa mode", () => {
     resetState();
     state.givers = [{...alex}];
     click("#nextStep"); // step 2
     expect(selectElement("#addHouse")).not.toBeNull();
     installGiverNames("Alex", "Whitney");
     assignRecipients(["Whitney", "Alex"]);
-    expect(selectElement("#addHouse")).toBeNull();
+    expect(selectElement("#addHouse")).not.toBeNull();
   });
 
-  it("is not removed when recipients assigned in secret santa mode", () => {
+  it("is removed when recipients assigned in secret santa mode", () => {
     resetState();
     state.isSecretSanta = true;
     state.givers = [{...alex}];
@@ -77,7 +77,7 @@ describe("addHouseButton", () => {
     expect(selectElement("#addHouse")).not.toBeNull();
     installGiverNames("Alex", "Whitney");
     assignRecipients(["Whitney", "Alex"]);
-    expect(selectElement("#addHouse")).not.toBeNull();
+    expect(selectElement("#addHouse")).toBeNull();
   });
 
   describe("Shift+Enter keybinding", () => {

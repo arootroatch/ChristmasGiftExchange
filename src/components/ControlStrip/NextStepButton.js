@@ -1,10 +1,17 @@
-import {addEventListener, selectElement} from "../../utils.js";
+import {addKeybinding, addEventListener, click, removeKeybinding, selectElement} from "../../utils.js";
 import {Events, stateEvents} from "../../Events.js";
 import {isGenerated, nextStep, state} from "../../state.js";
 import {showError} from "../Snackbar.js";
 
 const nextStepId = "nextStep";
 const slotSelector = '[data-slot="nextStep"]';
+
+function enterNextStep(evt) {
+  if (evt.altKey && evt.keyCode === 13) {
+    evt.preventDefault();
+    click(`#${nextStepId}`);
+  }
+}
 
 export function init() {
   stateEvents.on(Events.EXCHANGE_STARTED, () => {
@@ -27,7 +34,7 @@ export function init() {
 function template() {
   return `
     <button class="btn-bottom" id="${nextStepId}">
-      Next Step
+      Next Step<br /><span class="shortcut">(Alt+Enter)</span>
     </button>
   `;
 }
@@ -49,9 +56,12 @@ function render() {
   if (!slot || slot.querySelector(`#${nextStepId}`)) return;
   slot.innerHTML = template();
   addEventListener(`#${nextStepId}`, "click", introNext);
+  removeKeybinding(enterNextStep);
+  addKeybinding(enterNextStep);
 }
 
 function remove() {
   const slot = selectElement(slotSelector);
   if (slot) slot.innerHTML = "";
+  removeKeybinding(enterNextStep);
 }

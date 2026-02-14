@@ -24,7 +24,7 @@ export function init() {
     }
   });
   stateEvents.on(Events.RECIPIENTS_ASSIGNED, ({isSecretSanta}) => {
-    if (!isSecretSanta) {
+    if (isSecretSanta) {
       remove();
     }
   });

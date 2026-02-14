@@ -1,4 +1,3 @@
-/* Button Styles */
 .button,
 .btn-bottom {
   background-color: #69292ac9;
@@ -22,8 +21,7 @@
   margin: 5px auto 0 auto;
 }
 
-#secretGenerate,
-#nextStep {
+#secretGenerate {
   padding: 10px;
 }
 

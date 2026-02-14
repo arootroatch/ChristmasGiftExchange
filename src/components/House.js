@@ -42,12 +42,6 @@ function attachListeners(houseID) {
   addEventListener(`#${houseID}-delete`, 'click', deleteHouse);
 }
 
-function addHouse() {
-  const houseNumber = Object.keys(state.houses).length;
-  const houseID = `house-${houseNumber}`;
-  addHouseToState(houseID);
-}
-
 function deleteHouse() {
   const houseDiv = this.closest('.household') || this.parentNode;
   const houseID = houseDiv.id;

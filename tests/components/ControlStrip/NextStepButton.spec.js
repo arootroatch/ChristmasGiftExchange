@@ -1,5 +1,6 @@
 import {afterEach, beforeAll, beforeEach, describe, expect, it, vi} from "vitest";
 import {click, resetDOM, resetState} from "../../specHelper";
+import * as stateModule from "../../../src/state";
 import {init as initControlStrip} from "../../../src/components/ControlStrip/ControlStrip";
 import {init as initNextStepButton} from "../../../src/components/ControlStrip/NextStepButton";
 import {state} from "../../../src/state";
@@ -91,5 +92,50 @@ describe("nextStepButton", () => {
     state.givers = [{...alex, recipient: whitney.name}];
     click("#nextStep");
     expect(state.step).toBe(4);
+  });
+
+  describe("Alt+Enter keybinding", () => {
+    function dispatchAltEnter() {
+      window.dispatchEvent(new KeyboardEvent("keyup", {
+        altKey: true, keyCode: 13, bubbles: true, cancelable: true
+      }));
+    }
+
+    afterEach(() => {
+      resetDOM();
+      resetState();
+    });
+
+    it("triggers at step 1 (button rendered)", () => {
+      const spy = vi.spyOn(stateModule, "nextStep").mockImplementation(() => {});
+      resetState();
+      state.givers = [{...alex}];
+      dispatchAltEnter();
+      expect(spy).toHaveBeenCalledTimes(1);
+    });
+
+    it("does not trigger at step 4 (button removed)", () => {
+      resetState();
+      state.givers = [{...alex, recipient: whitney.name}];
+      state.step = 3;
+      click("#nextStep"); // step 4
+      const spy = vi.spyOn(stateModule, "nextStep");
+      dispatchAltEnter();
+      expect(spy).not.toHaveBeenCalled();
+    });
+
+    it("does not add keybinding on mobile", () => {
+      const originalUA = navigator.userAgent;
+      Object.defineProperty(navigator, "userAgent", {
+        value: "Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X)", configurable: true
+      });
+      const spy = vi.spyOn(stateModule, "nextStep");
+      resetDOM();
+      resetState();
+      state.givers = [{...alex}];
+      dispatchAltEnter();
+      expect(spy).not.toHaveBeenCalled();
+      Object.defineProperty(navigator, "userAgent", { value: originalUA, configurable: true });
+    });
   });
 });
