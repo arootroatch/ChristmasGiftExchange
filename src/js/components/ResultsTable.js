@@ -2,51 +2,45 @@ import {pushHTML, selectElement} from "../utils.js";
 import {Events, stateEvents} from "../Events.js";
 import {state} from "../state.js";
 
+const tableId = "results-table";
 const tableBodyId = "table-body";
+const flexDivSelector = "#flex-div";
 
-export function init() {
-  stateEvents.on(Events.EXCHANGE_STARTED, () => {
-    const table = selectElement('#results-table');
-    if (!table) return;
-    table.style.display = state.isSecretSanta ? "none" : "table";
-  });
-  stateEvents.on(Events.RECIPIENTS_ASSIGNED, ({isGenerated, isSecretSanta, givers}) => {
-    if (isGenerated && !isSecretSanta) {
-      renderResultsToTable(givers);
-    }
-  });
+function template() {
+  return `<table class="table" id="${tableId}">
+    <thead>
+      <tr>
+        <th>Giver</th>
+        <th>Recipient</th>
+      </tr>
+    </thead>
+    <tbody id="${tableBodyId}">
+      <tr><td></td><td></td></tr>
+      <tr><td></td><td></td></tr>
+      <tr><td></td><td></td></tr>
+      <tr><td></td><td></td></tr>
+    </tbody>
+  </table>`;
 }
 
-export function emptyTable() {
-  return `
-    <tr>
-        <td></td>
-        <td></td>
-    </tr>
-    <tr>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td></td>
-      <td></td>
-    </tr>`
-
+function render() {
+  remove();
+  pushHTML(flexDivSelector, template());
 }
 
-export function clearGeneratedListTable() {
-  let parentNode = selectElement(`#${tableBodyId}`);
-  while (parentNode?.firstChild) {
-    parentNode.removeChild(parentNode.firstChild);
+function remove() {
+  selectElement(`#${tableId}`)?.remove();
+}
+
+function clearTable() {
+  const tbody = selectElement(`#${tableBodyId}`);
+  while (tbody?.firstChild) {
+    tbody.removeChild(tbody.firstChild);
   }
 }
 
-function renderResultsToTable(results) {
-  clearGeneratedListTable();
+function renderResults(results) {
+  clearTable();
   let html = '';
   for (const giver of results) {
     html += `<tr>
@@ -55,4 +49,19 @@ function renderResultsToTable(results) {
             </tr>`;
   }
   pushHTML(`#${tableBodyId}`, html);
+}
+
+export function init() {
+  stateEvents.on(Events.EXCHANGE_STARTED, () => {
+    if (state.isSecretSanta) {
+      remove();
+    } else {
+      render();
+    }
+  });
+  stateEvents.on(Events.RECIPIENTS_ASSIGNED, ({isGenerated, isSecretSanta, givers}) => {
+    if (isGenerated && !isSecretSanta) {
+      renderResults(givers);
+    }
+  });
 }

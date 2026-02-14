@@ -17,7 +17,7 @@ import * as generateButtonModule from "../../../src/js/components/ControlStrip/G
 import {init as initControlStrip} from "../../../src/js/components/ControlStrip/ControlStrip";
 import {init as initNextStepButton} from "../../../src/js/components/ControlStrip/NextStepButton";
 import {init as initGenerateButton, generateList} from "../../../src/js/components/ControlStrip/GenerateButton";
-import {clearGeneratedListTable, init as initResultsTable} from "../../../src/js/components/ResultsTable";
+import {init as initResultsTable} from "../../../src/js/components/ResultsTable";
 import {init as initEmailTable} from "../../../src/js/components/EmailTable/EmailTable";
 import {state} from "../../../src/js/state";
 import {selectElement} from "../../../src/js/utils";
@@ -135,6 +135,7 @@ describe("generateButton", () => {
 describe("generateList", () => {
   beforeAll(() => {
     initReactiveSystem();
+    initResultsTable();
     initEmailTable();
   });
 
@@ -142,8 +143,6 @@ describe("generateList", () => {
     resetState();
     removeAllNames();
     removeAllHouses();
-    clearGeneratedListTable();
-    initResultsTable();
   });
 
   it('shows error snackbar when there are no names', () => {

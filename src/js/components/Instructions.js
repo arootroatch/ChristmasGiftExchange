@@ -10,10 +10,6 @@ export const instructions = [
 
 const introId = "intro";
 
-export function getInstructionsLength() {
-  return instructions.length;
-}
-
 function renderInstructions() {
   if (!state || state.step < 1 || state.step > instructions.length) return;
   const introDiv = selectElement(`#${introId}`);

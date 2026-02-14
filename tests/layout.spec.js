@@ -40,11 +40,11 @@ describe('layout', () => {
       expect(leftContainer.classList).toContain('secret');
     });
 
-    it('does not show results-table in secret santa mode', () => {
+    it('does not render results-table in secret santa mode', () => {
       secretSantaMode();
 
       const resultsTable = document.querySelector("#results-table");
-      expect(resultsTable.style.display).toBe('none');
+      expect(resultsTable).toBeNull();
     });
   });
 

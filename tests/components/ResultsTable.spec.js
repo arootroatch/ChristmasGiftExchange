@@ -1,11 +1,7 @@
 import {beforeAll, beforeEach, describe, expect, it} from "vitest";
-import {
-  clearGeneratedListTable,
-  emptyTable,
-  init,
-} from "../../src/js/components/ResultsTable";
-import {initReactiveSystem, installGiverNames, resetState} from "../specHelper";
-import {state, assignRecipients} from "../../src/js/state";
+import {init} from "../../src/js/components/ResultsTable";
+import {initReactiveSystem, installGiverNames, resetDOM, resetState} from "../specHelper";
+import {assignRecipients, startExchange, state} from "../../src/js/state";
 
 describe('resultsTable', () => {
   beforeAll(() => {
@@ -14,42 +10,51 @@ describe('resultsTable', () => {
   });
 
   beforeEach(() => {
+    resetDOM();
     resetState();
-    // Clear the table body manually
-    const tableBody = document.querySelector('#table-body');
-    if (tableBody) {
-      while (tableBody.firstChild) {
-        tableBody.removeChild(tableBody.firstChild);
-      }
-    }
   });
 
   it('component has init function', () => {
     expect(typeof init).toBe('function');
   });
 
-  it('emptyTable returns HTML string with 4 empty table rows', () => {
-    const result = emptyTable();
+  it('renders table into #flex-div on non-secret-santa exchange', () => {
+    startExchange(false);
 
-    expect(result).toContain('<tr>');
-    expect(result).toContain('<td></td>');
-    expect(result.match(/<tr>/g)).toHaveLength(4);
-    expect(result.match(/<td><\/td>/g)).toHaveLength(8);
+    const table = document.querySelector("#results-table");
+    expect(table).not.toBeNull();
+    expect(table.closest("#flex-div")).not.toBeNull();
   });
 
-  it('clearGeneratedListTable clears table content', () => {
-    const tableBody = document.querySelector('#table-body');
-    tableBody.innerHTML = '<tr></tr><tr></tr>';
+  it('renders empty placeholder rows in tbody', () => {
+    startExchange(false);
 
-    expect(tableBody.children.length).toBe(2);
-
-    clearGeneratedListTable();
-
-    expect(tableBody.children.length).toBe(0);
+    const rows = document.querySelectorAll("#table-body tr");
+    expect(rows.length).toBe(4);
+    rows.forEach(row => {
+      const cells = row.querySelectorAll("td");
+      expect(cells.length).toBe(2);
+      cells.forEach(cell => expect(cell.textContent).toBe(""));
+    });
   });
 
+  it('does not render table on secret santa exchange', () => {
+    startExchange(true);
+
+    const table = document.querySelector("#results-table");
+    expect(table).toBeNull();
+  });
+
+  it('removes table when switching to secret santa', () => {
+    startExchange(false);
+    expect(document.querySelector("#results-table")).not.toBeNull();
+
+    startExchange(true);
+    expect(document.querySelector("#results-table")).toBeNull();
+  });
 
   it('renders results from state.givers when assignRecipients is called', () => {
+    startExchange(false);
     installGiverNames("Alex", "Whitney", "Hunter");
 
     assignRecipients(["Whitney", "Hunter", "Alex"]);
@@ -58,10 +63,6 @@ describe('resultsTable', () => {
     const rows = tableBody.querySelectorAll('tr');
 
     expect(rows.length).toBe(3);
-
-    expect(tableBody.innerHTML).toContain('<td>Alex</td>');
-    expect(tableBody.innerHTML).toContain('<td>Whitney</td>');
-    expect(tableBody.innerHTML).toContain('<td>Hunter</td>');
 
     const row1Cells = rows[0].querySelectorAll('td');
     expect(row1Cells[0].textContent).toBe('Alex');
@@ -77,12 +78,12 @@ describe('resultsTable', () => {
   });
 
   it('does not render results when isSecretSanta=true', () => {
+    startExchange(true);
     installGiverNames("Alex", "Whitney");
-    state.isSecretSanta = true;
 
     assignRecipients(["Whitney", "Alex"]);
 
     const tableBody = document.querySelector('#table-body');
-    expect(tableBody.children.length).toBe(0);
+    expect(tableBody).toBeNull();
   });
 });
