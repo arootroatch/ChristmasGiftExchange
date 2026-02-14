@@ -1,17 +1,17 @@
-import {addHouseToState, state, startExchange} from "../resources/js/state";
+import {addHouseToState, state, startExchange} from "../src/js/state";
 import {expect, vi} from "vitest";
 import {indexHtml} from "../setupTests";
-import {selectElement} from "../resources/js/utils";
-import * as house from "../resources/js/components/house";
-import * as name from "../resources/js/components/name";
-import * as nameList from "../resources/js/components/nameList";
-import * as select from "../resources/js/components/select";
-import * as controlStrip from "../resources/js/components/controlStrip/controlStrip";
-import * as nextStepButton from "../resources/js/components/controlStrip/nextStepButton";
-import * as addHouseButton from "../resources/js/components/controlStrip/addHouseButton";
-import * as generateButton from "../resources/js/components/controlStrip/generateButton";
-import * as instructions from "../resources/js/components/instructions";
-import * as snackbar from "../resources/js/components/snackbar";
+import {selectElement} from "../src/js/utils";
+import * as house from "../src/js/components/House";
+import * as name from "../src/js/components/Name";
+import * as nameList from "../src/js/components/NameList";
+import * as select from "../src/js/components/Select";
+import * as controlStrip from "../src/js/components/ControlStrip/ControlStrip";
+import * as nextStepButton from "../src/js/components/ControlStrip/NextStepButton";
+import * as addHouseButton from "../src/js/components/ControlStrip/AddHouseButton";
+import * as generateButton from "../src/js/components/ControlStrip/GenerateButton";
+import * as instructions from "../src/js/components/Instructions";
+import * as snackbar from "../src/js/components/Snackbar";
 
 let isReactiveSystemInitialized = false;
 

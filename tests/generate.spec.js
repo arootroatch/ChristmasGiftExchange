@@ -1,6 +1,6 @@
 import {beforeAll, beforeEach, describe, expect, it} from 'vitest';
-import {generate, hasDuplicates} from '../resources/js/generate';
-import {state} from '../resources/js/state';
+import {generate, hasDuplicates} from '../src/js/generate';
+import {state} from '../src/js/state';
 import {
   giverByName,
   installGiverNames,

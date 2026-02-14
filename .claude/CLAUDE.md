@@ -7,7 +7,7 @@ A vanilla JavaScript web app for drawing names in a gift exchange or Secret Sant
 
 ### Event-Driven Component System
 - **state.js** — Central state object + mutation functions that emit events
-- **events.js** — `EventEmitter` class with `stateEvents` singleton and `Events` enum
+- **Events.js** — `EventEmitter` class with `stateEvents` singleton and `Events` enum
 - **Components** subscribe via `init()` → `stateEvents.on()` and respond to specific events
 
 ### State Object
@@ -41,13 +41,12 @@ Container components (like `house.js` and `nameList.js`) follow a consistent str
 
 ### File Structure
 ```
-resources/js/
-  main.js              # Entry point, initializes all components
+src/js/
+  main.js              # Entry point, initializes all components, landing page buttons
   state.js             # State management + event emission
-  events.js            # EventEmitter class
+  Events.js            # EventEmitter class
   generate.js          # Name drawing algorithm
   utils.js             # DOM helpers (selectElement, click, addEventListener, pushHTML, unshiftHTML, etc.)
-  layout.js            # Step navigation, intro flow
   dragDrop.js          # Drag and drop name reassignment
   components/
     controlStrip/

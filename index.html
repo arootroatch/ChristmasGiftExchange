@@ -1,35 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="google-site-verification" content="1C8TxsJKei1eJlFhX8ga4fRwAlKlt1jKN5yQX9OxL90" />
+<head>
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <meta charset="UTF-8"/>
+    <meta name="google-site-verification" content="1C8TxsJKei1eJlFhX8ga4fRwAlKlt1jKN5yQX9OxL90"/>
     <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, maximum-scale=1"
+            name="viewport"
+            content="width=device-width, initial-scale=1, maximum-scale=1"
     />
     <div itemscope itemtype="https://schema.org/WebSite">
-      <meta itemprop="url" content="https://giftexchangegenerator.netlify.app/"/>
-      <meta itemprop="name" content="Gift Exchange Generator"/>
-      <meta itemprop="alternateName" content="Secret Santa Generator"/>
+        <meta itemprop="url" content="https://giftexchangegenerator.netlify.app/"/>
+        <meta itemprop="name" content="Gift Exchange Generator"/>
+        <meta itemprop="alternateName" content="Secret Santa Generator"/>
     </div>
-    <link rel="stylesheet" href="/resources/css/main.css" type="text/css" />
+    <link rel="stylesheet" href="/css/main.css" type="text/css"/>
     <title>Gift Exchange Generator</title>
     <meta
-      name="description"
-      content="Digitally draw names at random for a gift exchange or Secret Santa and email the results."
+            name="description"
+            content="Digitally draw names at random for a gift exchange or Secret Santa and email the results."
     />
-  </head>
-  <body>
-    <div id="snackbar" class="hidden"></div>
+</head>
+<body>
+<div id="snackbar" class="hidden"></div>
 
-    <div id="background"></div>
-    <div id="container">
-      <h1>Gift Exchange Generator</h1>
-      <div id="intro" class="closed">
+<div id="background"></div>
+<div id="container">
+    <h1>Gift Exchange Generator</h1>
+    <div id="intro" class="closed">
         <p id="introPara">
-          Drawing names for a gift exchange or Secret Santa? Here's a
-          web app to make it easier! <br><br>
-          Simply:
+            Drawing names for a gift exchange or Secret Santa? Here's a
+            web app to make it easier! <br><br>
+            Simply:
         </p>
         <ol>
             <li>Add all participant names</li>
@@ -48,9 +52,9 @@
             <p>Ready to get started?</p>
             <button class="button" id="letsGo" style="margin-bottom: 0;">Let's go!</button>
             <button
-                class="btn-bottom"
-                id="secretSantaBtn"
-                >
+                    class="btn-bottom"
+                    id="secretSantaBtn"
+            >
                 Secret Santa Mode
             </button>
         </div>
@@ -60,65 +64,66 @@
             </label>
             <div>
                 <input
-                    type="email"
-                    maxlength="100"
-                    id="emailQuery"
-                    placeholder="Enter your email to search"
+                        type="email"
+                        maxlength="100"
+                        id="emailQuery"
+                        placeholder="Enter your email to search"
                 />
                 <button
-                    type="submit"
-                    class="button queryBtn"
-                    id="emailQueryBtn"
+                        type="submit"
+                        class="button queryBtn"
+                        id="emailQueryBtn"
                 >
-                Search it!
+                    Search it!
                 </button>
             </div>
         </div>
-      </div>
-      <div id="flex-div">
+    </div>
+    <div id="flex-div">
         <div id="left-container">
         </div>
         <table class="table" id="results-table" style="display: none;">
-          <thead>
+            <thead>
             <tr>
-              <th>Giver</th>
-              <th>Recipient</th>
+                <th>Giver</th>
+                <th>Recipient</th>
             </tr>
-          </thead>
-          <tbody id="table-body">
+            </thead>
+            <tbody id="table-body">
             <tr>
-              <td></td>
-              <td></td>
-            </tr>
-            <tr>
-              <td></td>
-              <td></td>
+                <td></td>
+                <td></td>
             </tr>
             <tr>
-              <td></td>
-              <td></td>
+                <td></td>
+                <td></td>
             </tr>
             <tr>
-              <td></td>
-              <td></td>
+                <td></td>
+                <td></td>
             </tr>
-          </tbody>
+            <tr>
+                <td></td>
+                <td></td>
+            </tr>
+            </tbody>
         </table>
-      </div>
     </div>
-    <div style="display: none">Powered by Verifalia <a href="https://verifalia.com/">email verifier</a></div>
-    <script defer
-      src="https://unpkg.com/verifalia-widget@1.10.0/dist/verifalia-widget.js"
-      data-verifalia-appkey="c7211d6169e942ba92ae6b850bfe0309"
-      integrity="sha512-Byn2sawjqjYOq9vwcSZdb8ncm3h3B4EmeyQ5hM035sShmwzv58/LdwACNmzJnkmILKvEvavSvdI6HaHy8FJWvg=="
-      crossorigin="anonymous"></script>
-  </body>
-  <script type="module">
-    import main from '/resources/js/main.js';
-    main();
-  </script>
-  <script
-    src="https://kit.fontawesome.com/554d629fb0.js"
-    crossorigin="anonymous"
-  ></script>
+</div>
+<div style="display: none">Powered by Verifalia <a href="https://verifalia.com/">email verifier</a></div>
+<script defer
+        src="https://unpkg.com/verifalia-widget@1.10.0/dist/verifalia-widget.js"
+        data-verifalia-appkey="c7211d6169e942ba92ae6b850bfe0309"
+        integrity="sha512-Byn2sawjqjYOq9vwcSZdb8ncm3h3B4EmeyQ5hM035sShmwzv58/LdwACNmzJnkmILKvEvavSvdI6HaHy8FJWvg=="
+        crossorigin="anonymous"></script>
+</body>
+<script type="module">
+  import main from '/src/js/main.js';
+
+  main();
+</script>
+<script
+        src="https://kit.fontawesome.com/554d629fb0.js"
+        crossorigin="anonymous"
+></script>
 </html>

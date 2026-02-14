@@ -1,61 +1,57 @@
 import {beforeEach, describe, expect, it, vi} from 'vitest';
-import main from '../resources/js/main';
+import main from '../src/js/main';
 
-vi.mock('../resources/js/dragDrop', () => ({
+vi.mock('../src/js/dragDrop', () => ({
   initDragDrop: vi.fn(),
 }));
 
-vi.mock('../resources/js/components/house', () => ({
+vi.mock('../src/js/components/House', () => ({
   init: vi.fn(),
   initEventListeners: vi.fn(),
 }));
 
-vi.mock('../resources/js/components/name', () => ({
+vi.mock('../src/js/components/Name', () => ({
   init: vi.fn(),
   initEventListeners: vi.fn(),
 }));
 
-vi.mock('../resources/js/components/select', () => ({
+vi.mock('../src/js/components/Select', () => ({
   init: vi.fn(),
 }));
 
-vi.mock('../resources/js/components/resultsTable', () => ({
+vi.mock('../src/js/components/ResultsTable', () => ({
   init: vi.fn(),
 }));
 
-vi.mock('../resources/js/components/controlStrip/controlStrip', () => ({
+vi.mock('../src/js/components/ControlStrip/ControlStrip', () => ({
   init: vi.fn(),
 }));
 
-vi.mock('../resources/js/components/controlStrip/nextStepButton', () => ({
+vi.mock('../src/js/components/ControlStrip/NextStepButton', () => ({
   init: vi.fn(),
 }));
 
-vi.mock('../resources/js/components/controlStrip/addHouseButton', () => ({
+vi.mock('../src/js/components/ControlStrip/AddHouseButton', () => ({
   init: vi.fn(),
 }));
 
-vi.mock('../resources/js/components/controlStrip/generateButton', () => ({
+vi.mock('../src/js/components/ControlStrip/GenerateButton', () => ({
   init: vi.fn(),
 }));
 
-vi.mock('../resources/js/components/emailTable/emailTable', () => ({
+vi.mock('../src/js/components/EmailTable/EmailTable', () => ({
   init: vi.fn(),
 }));
 
-vi.mock('../resources/js/components/emailQuery', () => ({
+vi.mock('../src/js/components/EmailQuery', () => ({
   init: vi.fn(),
 }));
 
-vi.mock('../resources/js/components/snackbar', () => ({
+vi.mock('../src/js/components/Snackbar', () => ({
   init: vi.fn(),
 }));
 
-vi.mock('../resources/js/components/emailTable/sendEmails', () => ({
-  init: vi.fn(),
-}));
-
-vi.mock('../resources/js/layout', () => ({
+vi.mock('../src/js/components/EmailTable/SendEmails', () => ({
   init: vi.fn(),
 }));
 
@@ -65,7 +61,7 @@ describe('main', () => {
   });
 
   it('calls house.init', async () => {
-    const {init} = await import('../resources/js/components/house');
+    const {init} = await import('../src/js/components/House');
 
     main();
 
@@ -73,7 +69,7 @@ describe('main', () => {
   });
 
   it('calls name.init', async () => {
-    const {init} = await import('../resources/js/components/name');
+    const {init} = await import('../src/js/components/Name');
 
     main();
 
@@ -81,7 +77,7 @@ describe('main', () => {
   });
 
   it('calls select.init', async () => {
-    const {init} = await import('../resources/js/components/select');
+    const {init} = await import('../src/js/components/Select');
 
     main();
 
@@ -89,7 +85,7 @@ describe('main', () => {
   });
 
   it('calls resultsTable.init', async () => {
-    const {init} = await import('../resources/js/components/resultsTable');
+    const {init} = await import('../src/js/components/ResultsTable');
 
     main();
 
@@ -97,7 +93,7 @@ describe('main', () => {
   });
 
 it('calls controlStrip.init', async () => {
-  const {init} = await import('../resources/js/components/controlStrip/controlStrip');
+  const {init} = await import('../src/js/components/ControlStrip/ControlStrip');
 
   main();
 
@@ -105,7 +101,7 @@ it('calls controlStrip.init', async () => {
 });
 
 it('calls nextStepButton.init', async () => {
-  const {init} = await import('../resources/js/components/controlStrip/nextStepButton');
+  const {init} = await import('../src/js/components/ControlStrip/NextStepButton');
 
   main();
 
@@ -113,7 +109,7 @@ it('calls nextStepButton.init', async () => {
 });
 
 it('calls addHouseButton.init', async () => {
-  const {init} = await import('../resources/js/components/controlStrip/addHouseButton');
+  const {init} = await import('../src/js/components/ControlStrip/AddHouseButton');
 
   main();
 
@@ -121,7 +117,7 @@ it('calls addHouseButton.init', async () => {
 });
 
 it('calls generateButton.init', async () => {
-  const {init} = await import('../resources/js/components/controlStrip/generateButton');
+  const {init} = await import('../src/js/components/ControlStrip/GenerateButton');
 
   main();
 
@@ -129,7 +125,7 @@ it('calls generateButton.init', async () => {
 });
 
   it('calls emailTable.init', async () => {
-    const {init} = await import('../resources/js/components/emailTable/emailTable');
+    const {init} = await import('../src/js/components/EmailTable/EmailTable');
 
     main();
 
@@ -137,7 +133,7 @@ it('calls generateButton.init', async () => {
   });
 
   it('calls emailQuery.init', async () => {
-    const {init} = await import('../resources/js/components/emailQuery');
+    const {init} = await import('../src/js/components/EmailQuery');
 
     main();
 
@@ -145,15 +141,7 @@ it('calls generateButton.init', async () => {
   });
 
   it('calls snackbar.init', async () => {
-    const {init} = await import('../resources/js/components/snackbar');
-
-    main();
-
-    expect(init).toHaveBeenCalledTimes(1);
-  });
-
-  it('calls layout.init', async () => {
-    const {init} = await import('../resources/js/layout');
+    const {init} = await import('../src/js/components/Snackbar');
 
     main();
 
@@ -161,26 +149,25 @@ it('calls generateButton.init', async () => {
   });
 
   it('calls initDragDrop', async () => {
-    const {initDragDrop} = await import('../resources/js/dragDrop');
+    const {initDragDrop} = await import('../src/js/dragDrop');
     main();
     expect(initDragDrop).toHaveBeenCalledTimes(1);
   });
 
   it('calls all initialization functions in order', async () => {
-    const snackbar = await import('../resources/js/components/snackbar');
-    const house = await import('../resources/js/components/house');
-    const name = await import('../resources/js/components/name');
-    const select = await import('../resources/js/components/select');
-    const resultsTable = await import('../resources/js/components/resultsTable');
-    const controlStrip = await import('../resources/js/components/controlStrip/controlStrip');
-    const nextStepButton = await import('../resources/js/components/controlStrip/nextStepButton');
-    const addHouseButton = await import('../resources/js/components/controlStrip/addHouseButton');
-    const generateButton = await import('../resources/js/components/controlStrip/generateButton');
-    const emailTable = await import('../resources/js/components/emailTable/emailTable');
-    const emailQuery = await import('../resources/js/components/emailQuery');
-    const sendEmails = await import('../resources/js/components/emailTable/sendEmails');
-    const layout = await import('../resources/js/layout');
-    const {initDragDrop} = await import('../resources/js/dragDrop');
+    const snackbar = await import('../src/js/components/Snackbar');
+    const house = await import('../src/js/components/House');
+    const name = await import('../src/js/components/Name');
+    const select = await import('../src/js/components/Select');
+    const resultsTable = await import('../src/js/components/ResultsTable');
+    const controlStrip = await import('../src/js/components/ControlStrip/ControlStrip');
+    const nextStepButton = await import('../src/js/components/ControlStrip/NextStepButton');
+    const addHouseButton = await import('../src/js/components/ControlStrip/AddHouseButton');
+    const generateButton = await import('../src/js/components/ControlStrip/GenerateButton');
+    const emailTable = await import('../src/js/components/EmailTable/EmailTable');
+    const emailQuery = await import('../src/js/components/EmailQuery');
+    const sendEmails = await import('../src/js/components/EmailTable/SendEmails');
+    const {initDragDrop} = await import('../src/js/dragDrop');
 
     main();
 
@@ -196,7 +183,6 @@ it('calls generateButton.init', async () => {
     expect(emailTable.init).toHaveBeenCalledTimes(1);
     expect(emailQuery.init).toHaveBeenCalledTimes(1);
     expect(sendEmails.init).toHaveBeenCalledTimes(1);
-    expect(layout.init).toHaveBeenCalledTimes(1);
     expect(initDragDrop).toHaveBeenCalledTimes(1);
 
     const snackbarOrder = snackbar.init.mock.invocationCallOrder[0];
@@ -211,7 +197,6 @@ it('calls generateButton.init', async () => {
     const emailTableOrder = emailTable.init.mock.invocationCallOrder[0];
     const emailQueryOrder = emailQuery.init.mock.invocationCallOrder[0];
     const sendEmailsOrder = sendEmails.init.mock.invocationCallOrder[0];
-    const layoutOrder = layout.init.mock.invocationCallOrder[0];
     const dragDropOrder = initDragDrop.mock.invocationCallOrder[0];
 
     expect(snackbarOrder).toBeLessThan(houseOrder);
@@ -225,7 +210,6 @@ it('calls generateButton.init', async () => {
     expect(generateOrder).toBeLessThan(emailTableOrder);
     expect(emailTableOrder).toBeLessThan(emailQueryOrder);
     expect(emailQueryOrder).toBeLessThan(sendEmailsOrder);
-    expect(sendEmailsOrder).toBeLessThan(layoutOrder);
-    expect(layoutOrder).toBeLessThan(dragDropOrder);
+    expect(sendEmailsOrder).toBeLessThan(dragDropOrder);
   });
 });
