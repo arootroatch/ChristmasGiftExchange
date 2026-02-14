@@ -9,14 +9,14 @@ import {
   shouldDisplayErrorSnackbar,
   stubFetch
 } from "../../specHelper";
-import "../../../src/js/components/Name";
-import {assignRecipients, nextStep, startExchange, state} from "../../../src/js/state";
+import "../../../src/components/Name";
+import {assignRecipients, nextStep, startExchange, state} from "../../../src/state";
 import {alex, whitney} from "../../testData";
 import {
   emailInput,
   init,
-} from "../../../src/js/components/EmailTable/EmailTable";
-import {init as initSnackbar} from "../../../src/js/components/Snackbar";
+} from "../../../src/components/EmailTable/EmailTable";
+import {init as initSnackbar} from "../../../src/components/Snackbar";
 
 function renderEmailTableInputs(givers) {
   const body = document.querySelector("#emailTableBody");

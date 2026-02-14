@@ -1,11 +1,11 @@
 import {afterEach, beforeAll, beforeEach, describe, expect, it, vi} from "vitest";
 import {click, resetDOM, resetState} from "../../specHelper";
-import * as stateModule from "../../../src/js/state";
-import {init as initControlStrip} from "../../../src/js/components/ControlStrip/ControlStrip";
-import {init as initNextStepButton} from "../../../src/js/components/ControlStrip/NextStepButton";
-import {init as initAddHouseButton} from "../../../src/js/components/ControlStrip/AddHouseButton";
-import {state} from "../../../src/js/state";
-import {selectElement} from "../../../src/js/utils";
+import * as stateModule from "../../../src/state";
+import {init as initControlStrip} from "../../../src/components/ControlStrip/ControlStrip";
+import {init as initNextStepButton} from "../../../src/components/ControlStrip/NextStepButton";
+import {init as initAddHouseButton} from "../../../src/components/ControlStrip/AddHouseButton";
+import {state} from "../../../src/state";
+import {selectElement} from "../../../src/utils";
 import {alex} from "../../testData";
 
 describe("addHouseButton", () => {

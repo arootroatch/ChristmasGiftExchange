@@ -13,14 +13,14 @@ import {
   shouldDisplayErrorSnackbar,
   shouldNotSelect
 } from "../../specHelper";
-import * as generateButtonModule from "../../../src/js/components/ControlStrip/GenerateButton";
-import {init as initControlStrip} from "../../../src/js/components/ControlStrip/ControlStrip";
-import {init as initNextStepButton} from "../../../src/js/components/ControlStrip/NextStepButton";
-import {init as initGenerateButton, generateList} from "../../../src/js/components/ControlStrip/GenerateButton";
-import {init as initResultsTable} from "../../../src/js/components/ResultsTable";
-import {init as initEmailTable} from "../../../src/js/components/EmailTable/EmailTable";
-import {state} from "../../../src/js/state";
-import {selectElement} from "../../../src/js/utils";
+import * as generateButtonModule from "../../../src/components/ControlStrip/GenerateButton";
+import {init as initControlStrip} from "../../../src/components/ControlStrip/ControlStrip";
+import {init as initNextStepButton} from "../../../src/components/ControlStrip/NextStepButton";
+import {init as initGenerateButton, generateList} from "../../../src/components/ControlStrip/GenerateButton";
+import {init as initResultsTable} from "../../../src/components/ResultsTable";
+import {init as initEmailTable} from "../../../src/components/EmailTable/EmailTable";
+import {state} from "../../../src/state";
+import {selectElement} from "../../../src/utils";
 import {alex, whitney} from "../../testData";
 
 const noPossibleComboError = "No possible combinations! Please try a different configuration/number of names."
@@ -236,7 +236,7 @@ describe("generateList", () => {
   });
 
   it('calls assignRecipients when not secret santa', async () => {
-    const stateModule = await import('../../../src/js/state.js');
+    const stateModule = await import('../../../src/state.js');
     const spy = vi.spyOn(stateModule, 'assignRecipients');
 
     enterName("Alex");

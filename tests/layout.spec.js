@@ -1,8 +1,8 @@
 import {afterEach, beforeAll, beforeEach, describe, expect, it, vi} from 'vitest';
-import {state, startExchange} from '../src/js/state';
+import {state, startExchange} from '../src/state';
 import {initReactiveSystem, resetDOM} from "./specHelper";
 import {alex} from "./testData";
-import {secretSantaMode} from "../src/js/main";
+import {secretSantaMode} from "../src/main";
 
 describe('layout', () => {
   let letsGoBtn, secretSantaBtn, leftContainer;

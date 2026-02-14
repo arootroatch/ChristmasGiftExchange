@@ -7,9 +7,9 @@ import {
   shouldDisplaySuccessSnackbar,
   stubFetch,
 } from "../../specHelper";
-import {startExchange, state, addEmailsToGivers} from "../../../src/js/state";
-import {init} from "../../../src/js/components/EmailTable/SendEmails";
-import {init as initSnackbar} from "../../../src/js/components/Snackbar";
+import {startExchange, state, addEmailsToGivers} from "../../../src/state";
+import {init} from "../../../src/components/EmailTable/SendEmails";
+import {init as initSnackbar} from "../../../src/components/Snackbar";
 import {alex, hunter, megan, whitney} from "../../testData";
 
 describe("sendEmails", () => {

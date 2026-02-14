@@ -1,57 +1,57 @@
 import {beforeEach, describe, expect, it, vi} from 'vitest';
-import main from '../src/js/main';
+import main from '../src/main';
 
-vi.mock('../src/js/dragDrop', () => ({
+vi.mock('../src/dragDrop', () => ({
   initDragDrop: vi.fn(),
 }));
 
-vi.mock('../src/js/components/House', () => ({
+vi.mock('../src/components/House', () => ({
   init: vi.fn(),
   initEventListeners: vi.fn(),
 }));
 
-vi.mock('../src/js/components/Name', () => ({
+vi.mock('../src/components/Name', () => ({
   init: vi.fn(),
   initEventListeners: vi.fn(),
 }));
 
-vi.mock('../src/js/components/Select', () => ({
+vi.mock('../src/components/Select', () => ({
   init: vi.fn(),
 }));
 
-vi.mock('../src/js/components/ResultsTable', () => ({
+vi.mock('../src/components/ResultsTable', () => ({
   init: vi.fn(),
 }));
 
-vi.mock('../src/js/components/ControlStrip/ControlStrip', () => ({
+vi.mock('../src/components/ControlStrip/ControlStrip', () => ({
   init: vi.fn(),
 }));
 
-vi.mock('../src/js/components/ControlStrip/NextStepButton', () => ({
+vi.mock('../src/components/ControlStrip/NextStepButton', () => ({
   init: vi.fn(),
 }));
 
-vi.mock('../src/js/components/ControlStrip/AddHouseButton', () => ({
+vi.mock('../src/components/ControlStrip/AddHouseButton', () => ({
   init: vi.fn(),
 }));
 
-vi.mock('../src/js/components/ControlStrip/GenerateButton', () => ({
+vi.mock('../src/components/ControlStrip/GenerateButton', () => ({
   init: vi.fn(),
 }));
 
-vi.mock('../src/js/components/EmailTable/EmailTable', () => ({
+vi.mock('../src/components/EmailTable/EmailTable', () => ({
   init: vi.fn(),
 }));
 
-vi.mock('../src/js/components/EmailQuery', () => ({
+vi.mock('../src/components/EmailQuery', () => ({
   init: vi.fn(),
 }));
 
-vi.mock('../src/js/components/Snackbar', () => ({
+vi.mock('../src/components/Snackbar', () => ({
   init: vi.fn(),
 }));
 
-vi.mock('../src/js/components/EmailTable/SendEmails', () => ({
+vi.mock('../src/components/EmailTable/SendEmails', () => ({
   init: vi.fn(),
 }));
 
@@ -61,7 +61,7 @@ describe('main', () => {
   });
 
   it('calls house.init', async () => {
-    const {init} = await import('../src/js/components/House');
+    const {init} = await import('../src/components/House');
 
     main();
 
@@ -69,7 +69,7 @@ describe('main', () => {
   });
 
   it('calls name.init', async () => {
-    const {init} = await import('../src/js/components/Name');
+    const {init} = await import('../src/components/Name');
 
     main();
 
@@ -77,7 +77,7 @@ describe('main', () => {
   });
 
   it('calls select.init', async () => {
-    const {init} = await import('../src/js/components/Select');
+    const {init} = await import('../src/components/Select');
 
     main();
 
@@ -85,7 +85,7 @@ describe('main', () => {
   });
 
   it('calls resultsTable.init', async () => {
-    const {init} = await import('../src/js/components/ResultsTable');
+    const {init} = await import('../src/components/ResultsTable');
 
     main();
 
@@ -93,7 +93,7 @@ describe('main', () => {
   });
 
 it('calls controlStrip.init', async () => {
-  const {init} = await import('../src/js/components/ControlStrip/ControlStrip');
+  const {init} = await import('../src/components/ControlStrip/ControlStrip');
 
   main();
 
@@ -101,7 +101,7 @@ it('calls controlStrip.init', async () => {
 });
 
 it('calls nextStepButton.init', async () => {
-  const {init} = await import('../src/js/components/ControlStrip/NextStepButton');
+  const {init} = await import('../src/components/ControlStrip/NextStepButton');
 
   main();
 
@@ -109,7 +109,7 @@ it('calls nextStepButton.init', async () => {
 });
 
 it('calls addHouseButton.init', async () => {
-  const {init} = await import('../src/js/components/ControlStrip/AddHouseButton');
+  const {init} = await import('../src/components/ControlStrip/AddHouseButton');
 
   main();
 
@@ -117,7 +117,7 @@ it('calls addHouseButton.init', async () => {
 });
 
 it('calls generateButton.init', async () => {
-  const {init} = await import('../src/js/components/ControlStrip/GenerateButton');
+  const {init} = await import('../src/components/ControlStrip/GenerateButton');
 
   main();
 
@@ -125,7 +125,7 @@ it('calls generateButton.init', async () => {
 });
 
   it('calls emailTable.init', async () => {
-    const {init} = await import('../src/js/components/EmailTable/EmailTable');
+    const {init} = await import('../src/components/EmailTable/EmailTable');
 
     main();
 
@@ -133,7 +133,7 @@ it('calls generateButton.init', async () => {
   });
 
   it('calls emailQuery.init', async () => {
-    const {init} = await import('../src/js/components/EmailQuery');
+    const {init} = await import('../src/components/EmailQuery');
 
     main();
 
@@ -141,7 +141,7 @@ it('calls generateButton.init', async () => {
   });
 
   it('calls snackbar.init', async () => {
-    const {init} = await import('../src/js/components/Snackbar');
+    const {init} = await import('../src/components/Snackbar');
 
     main();
 
@@ -149,25 +149,25 @@ it('calls generateButton.init', async () => {
   });
 
   it('calls initDragDrop', async () => {
-    const {initDragDrop} = await import('../src/js/dragDrop');
+    const {initDragDrop} = await import('../src/dragDrop');
     main();
     expect(initDragDrop).toHaveBeenCalledTimes(1);
   });
 
   it('calls all initialization functions in order', async () => {
-    const snackbar = await import('../src/js/components/Snackbar');
-    const house = await import('../src/js/components/House');
-    const name = await import('../src/js/components/Name');
-    const select = await import('../src/js/components/Select');
-    const resultsTable = await import('../src/js/components/ResultsTable');
-    const controlStrip = await import('../src/js/components/ControlStrip/ControlStrip');
-    const nextStepButton = await import('../src/js/components/ControlStrip/NextStepButton');
-    const addHouseButton = await import('../src/js/components/ControlStrip/AddHouseButton');
-    const generateButton = await import('../src/js/components/ControlStrip/GenerateButton');
-    const emailTable = await import('../src/js/components/EmailTable/EmailTable');
-    const emailQuery = await import('../src/js/components/EmailQuery');
-    const sendEmails = await import('../src/js/components/EmailTable/SendEmails');
-    const {initDragDrop} = await import('../src/js/dragDrop');
+    const snackbar = await import('../src/components/Snackbar');
+    const house = await import('../src/components/House');
+    const name = await import('../src/components/Name');
+    const select = await import('../src/components/Select');
+    const resultsTable = await import('../src/components/ResultsTable');
+    const controlStrip = await import('../src/components/ControlStrip/ControlStrip');
+    const nextStepButton = await import('../src/components/ControlStrip/NextStepButton');
+    const addHouseButton = await import('../src/components/ControlStrip/AddHouseButton');
+    const generateButton = await import('../src/components/ControlStrip/GenerateButton');
+    const emailTable = await import('../src/components/EmailTable/EmailTable');
+    const emailQuery = await import('../src/components/EmailQuery');
+    const sendEmails = await import('../src/components/EmailTable/SendEmails');
+    const {initDragDrop} = await import('../src/dragDrop');
 
     main();
 

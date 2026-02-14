@@ -14,9 +14,9 @@ import {
   removeGiver,
   removeHouseFromState,
   removeNameFromHouse
-} from '/src/js/state.js'
+} from '/src/state.js'
 import {alex, whitney, hunter} from "./testData";
-import {Events, stateEvents} from '/src/js/Events.js'
+import {Events, stateEvents} from '/src/Events.js'
 import {installGiverNames} from "./specHelper";
 
 test('state is undefined before exchange starts', () => {

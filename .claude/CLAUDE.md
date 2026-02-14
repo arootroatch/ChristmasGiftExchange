@@ -41,7 +41,7 @@ Container components (like `house.js` and `nameList.js`) follow a consistent str
 
 ### File Structure
 ```
-src/js/
+src/
   main.js              # Entry point, initializes all components, landing page buttons
   state.js             # State management + event emission
   Events.js            # EventEmitter class

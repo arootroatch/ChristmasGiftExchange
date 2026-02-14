@@ -14,13 +14,13 @@ import {
   shouldSelect,
   stubProperty
 } from "../specHelper";
-import {addEventListener} from "../../src/js/utils";
-import {insertNameFromSelect} from "../../src/js/components/Select";
-import {addHouseToState, state} from "../../src/js/state";
-import * as stateModule from "../../src/js/state";
+import {addEventListener} from "../../src/utils";
+import {insertNameFromSelect} from "../../src/components/Select";
+import {addHouseToState, state} from "../../src/state";
+import * as stateModule from "../../src/state";
 
 describe('addHouse', () => {
-  vi.mock(import("/src/js/utils.js"), async (importOriginal) => {
+  vi.mock(import("/src/utils.js"), async (importOriginal) => {
     const original = await importOriginal();
     return {
       ...original,

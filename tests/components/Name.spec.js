@@ -11,7 +11,7 @@ import {
   shouldSelect,
   stubProperty
 } from "../specHelper";
-import {state} from "../../src/js/state";
+import {state} from "../../src/state";
 import {alex, whitney} from "../testData";
 
 describe('addName', () => {

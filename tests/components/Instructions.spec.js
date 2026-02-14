@@ -1,6 +1,6 @@
 import {beforeAll, beforeEach, describe, expect, it} from "vitest";
-import {init as initInstructions} from "../../src/js/components/Instructions";
-import {nextStep} from "../../src/js/state";
+import {init as initInstructions} from "../../src/components/Instructions";
+import {nextStep} from "../../src/state";
 import {resetDOM, resetState} from "../specHelper";
 
 describe("instructions", () => {
