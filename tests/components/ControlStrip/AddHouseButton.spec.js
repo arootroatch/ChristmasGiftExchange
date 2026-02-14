@@ -1,10 +1,10 @@
 import {afterEach, beforeAll, beforeEach, describe, expect, it, vi} from "vitest";
-import {click, resetDOM, resetState} from "../../specHelper";
+import {click, installGiverNames, resetDOM, resetState} from "../../specHelper";
 import * as stateModule from "../../../src/state";
 import {init as initControlStrip} from "../../../src/components/ControlStrip/ControlStrip";
 import {init as initNextStepButton} from "../../../src/components/ControlStrip/NextStepButton";
 import {init as initAddHouseButton} from "../../../src/components/ControlStrip/AddHouseButton";
-import {state} from "../../../src/state";
+import {assignRecipients, state} from "../../../src/state";
 import {selectElement} from "../../../src/utils";
 import {alex} from "../../testData";
 
@@ -36,13 +36,17 @@ describe("addHouseButton", () => {
     expect(selectElement("#addHouse")).not.toBeNull();
   });
 
-  it("is removed at step 3", () => {
+  it("is removed at step 4", () => {
     resetState();
     state.givers = [{...alex}];
-    click("#nextStep"); // step 2
+    click("#nextStep");
     expect(selectElement("#addHouse")).not.toBeNull();
-    click("#nextStep"); // step 3
+    click("#nextStep");
     expect(state.step).toBe(3);
+    expect(selectElement("#addHouse")).not.toBeNull();
+    state.givers[0].recipient = "Whitney";
+    click("#nextStep");
+    expect(state.step).toBe(4);
     expect(selectElement("#addHouse")).toBeNull();
   });
 
@@ -53,6 +57,27 @@ describe("addHouseButton", () => {
     click("#nextStep"); // step 2
     click("#addHouse");
     expect(spy).toHaveBeenCalledTimes(1);
+  });
+
+  it("is removed when recipients assigned in non-secret-santa mode", () => {
+    resetState();
+    state.givers = [{...alex}];
+    click("#nextStep"); // step 2
+    expect(selectElement("#addHouse")).not.toBeNull();
+    installGiverNames("Alex", "Whitney");
+    assignRecipients(["Whitney", "Alex"]);
+    expect(selectElement("#addHouse")).toBeNull();
+  });
+
+  it("is not removed when recipients assigned in secret santa mode", () => {
+    resetState();
+    state.isSecretSanta = true;
+    state.givers = [{...alex}];
+    click("#nextStep"); // step 2
+    expect(selectElement("#addHouse")).not.toBeNull();
+    installGiverNames("Alex", "Whitney");
+    assignRecipients(["Whitney", "Alex"]);
+    expect(selectElement("#addHouse")).not.toBeNull();
   });
 
   describe("Shift+Enter keybinding", () => {
@@ -83,12 +108,14 @@ describe("addHouseButton", () => {
       expect(spy).not.toHaveBeenCalled();
     });
 
-    it("does not trigger at step 3 (button removed)", () => {
+    it("does not trigger at step 4 (button removed)", () => {
       const spy = vi.spyOn(stateModule, "addHouseToState");
       resetState();
       state.givers = [{...alex}];
       click("#nextStep"); // step 2
       click("#nextStep"); // step 3
+      state.givers[0].recipient = "Whitney";
+      click("#nextStep"); // step 4
       dispatchShiftEnter();
       expect(spy).not.toHaveBeenCalled();
     });

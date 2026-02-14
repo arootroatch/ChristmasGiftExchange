@@ -13,10 +13,18 @@ function enterAddHouse(evt) {
 }
 
 export function init() {
+  stateEvents.on(Events.EXCHANGE_STARTED, () => {
+    remove();
+  });
   stateEvents.on(Events.NEXT_STEP, () => {
-    if (state.step === 2) {
+    if (state.step === 2 || state.step === 3) {
       render();
     } else {
+      remove();
+    }
+  });
+  stateEvents.on(Events.RECIPIENTS_ASSIGNED, ({isSecretSanta}) => {
+    if (!isSecretSanta) {
       remove();
     }
   });
