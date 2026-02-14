@@ -169,9 +169,15 @@ describe('emailTable', () => {
       })
     })
 
-    it("invokes postToServer", async () => {
+    it("invokes postToServer", () => {
+      const expectedBody = JSON.stringify([
+        {name: "Alex", recipient: "", email: "", date: "", id: ""},
+        {name: "Whitney", recipient: "", email: "", date: "", id: ""},
+        {name: "Hunter", recipient: "", email: "", date: "", id: ""},
+        {name: "Megan", recipient: "", email: "", date: "", id: ""},
+      ]);
       expect(global.fetch).toHaveBeenCalledWith("/.netlify/functions/postToDb",
-        {"body": JSON.stringify(state.givers), "method": "POST", "mode": "cors"});
+        {"body": expectedBody, "method": "POST", "mode": "cors"});
     })
 
     it("hides email table on EMAILS_ADDED", async () => {
