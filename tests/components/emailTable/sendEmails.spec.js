@@ -105,9 +105,7 @@ describe("sendEmails", () => {
         expect(sendEmails.classList).toContain("hide");
       });
       vi.advanceTimersByTime(500);
-      expect(sendEmails.classList).not.toContain("hide");
-      expect(sendEmails.classList).not.toContain("show");
-      expect(sendEmails.classList).toContain("hidden");
+      expect(document.querySelector("#sendEmails")).toBeNull();
     });
 
     it("displays success snackbar with number of emails sent", () => {

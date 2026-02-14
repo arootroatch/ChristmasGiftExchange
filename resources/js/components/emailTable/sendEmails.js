@@ -36,8 +36,7 @@ function hideElement() {
   const el = selectElement(`#${sendEmailsId}`);
   el.classList.add("hide");
   setTimeout(() => {
-    el.classList.replace("show", "hidden");
-    el.classList.remove("hide");
+    el.remove();
   }, 500);
 }
 

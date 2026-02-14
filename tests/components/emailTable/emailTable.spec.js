@@ -183,9 +183,7 @@ describe('emailTable', () => {
 
       vi.advanceTimersByTime(500);
 
-      expect(table.classList).not.toContain("hide");
-      expect(table.classList).not.toContain("show");
-      expect(table.classList).toContain("hidden");
+      expect(document.querySelector("#emailTable")).toBeNull();
     })
 
   })
@@ -255,7 +253,6 @@ describe('emailTable', () => {
 
     vi.advanceTimersByTime(500);
 
-    expect(table.classList).toContain("hidden");
-    expect(table.classList).not.toContain("hide");
+    expect(document.querySelector("#emailTable")).toBeNull();
   });
 })

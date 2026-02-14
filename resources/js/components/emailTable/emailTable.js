@@ -71,7 +71,7 @@ function hideEmailTable() {
   selectElement(`#${hideEmailsId}`).style.display = "none";
   table.classList.replace("show", "hide");
   setTimeout(() => {
-    table.classList.replace("hide", "hidden");
+    table.remove();
   }, 500);
 }
 
