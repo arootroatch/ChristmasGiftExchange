@@ -1,4 +1,4 @@
-import {addEventListener, fetchWithErrorHandling, removeEventListener, selectElement, setLoadingState, escapeHTML} from "../utils";
+import {addEventListener, removeEventListener, selectElement, setLoadingState, escapeHTML} from "../utils";
 
 const emailQueryId = "emailQuery";
 const emailQueryBtnId = "emailQueryBtn";
@@ -76,7 +76,7 @@ async function getName(e) {
   };
 
   try {
-    const response = await fetchWithErrorHandling("/.netlify/functions/get_name", options);
+    const response = await fetch("/.netlify/functions/get_name", options);
     const results = await response.json();
     renderResult(results);
   } catch (error) {

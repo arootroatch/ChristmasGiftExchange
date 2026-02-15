@@ -61,12 +61,3 @@ export function escapeHTML(str) {
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
 }
-
-export async function fetchWithErrorHandling(url, options = {}) {
-    try {
-        return await fetch(url, options);
-    } catch (error) {
-        console.error('Fetch error:', error);
-        throw error;
-    }
-}

@@ -1,5 +1,5 @@
 import {state} from "../../state.js";
-import {addEventListener, fetchWithErrorHandling, pushHTML, selectElement, setLoadingState} from "../../utils.js";
+import {addEventListener, pushHTML, selectElement, setLoadingState} from "../../utils.js";
 import {showSuccess} from "../Snackbar.js";
 import {Events, stateEvents} from "../../Events.js";
 
@@ -58,7 +58,7 @@ async function batchEmails() {
   let count = 0;
   let promises = state.givers.map(async (giver) => {
     try {
-      const response = await fetchWithErrorHandling("/.netlify/functions/dispatchEmail", dispatchEmailOptions(giver));
+      const response = await fetch("/.netlify/functions/dispatchEmail", dispatchEmailOptions(giver));
       if (response.status === 200) count++;
     } catch (error) {
       console.error(`Failed to send email to ${giver.email}:`, error);

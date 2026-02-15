@@ -1,5 +1,5 @@
 import {addEmailsToGivers, state} from "../../state.js";
-import {addEventListener, fetchWithErrorHandling, pushHTML, selectElement, setLoadingState, escapeHTML} from "../../utils.js";
+import {addEventListener, pushHTML, selectElement, setLoadingState, escapeHTML} from "../../utils.js";
 import {showError} from "../Snackbar.js";
 import {Events, stateEvents} from "../../Events.js";
 
@@ -110,7 +110,7 @@ async function postToServer() {
     mode: "cors",
     body: JSON.stringify(state.givers),
   };
-  return fetchWithErrorHandling("/.netlify/functions/postToDb", options);
+  return fetch("/.netlify/functions/postToDb", options);
 }
 
 function handleEmailSubmitError() {
