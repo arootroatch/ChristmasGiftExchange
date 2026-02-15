@@ -1,13 +1,10 @@
 const { MongoClient } = require("mongodb");
-console.log("server!");
 const mongoClient = new MongoClient(process.env.MONGO_DB_URI);
 
 const clientPromise = mongoClient.connect();
-console.log("connected!");
 
 const handler = async (event) => {
   let email = String(event.body).trim();
-  console.log(email);
   try {
     const database = (await clientPromise).db(process.env.MONGODB_DATABASE);
     const collection = database.collection(process.env.MONGODB_COLLECTION);

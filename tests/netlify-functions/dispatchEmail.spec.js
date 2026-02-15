@@ -135,26 +135,6 @@ describe('dispatchEmail', () => {
             });
         });
 
-        it('logs giver and recipient names', async () => {
-            const consoleSpy = vi.spyOn(console, 'log');
-            mockFetch.mockResolvedValue({ok: true});
-
-            const giver = {
-                name: 'Hunter',
-                recipient: 'Megan',
-                email: 'hunter@test.com',
-            };
-
-            const event = {
-                body: JSON.stringify(giver),
-            };
-
-            await handler(event);
-
-            expect(consoleSpy).toHaveBeenCalledWith('giver', 'Hunter');
-            expect(consoleSpy).toHaveBeenCalledWith('recipient', 'Megan');
-        });
-
         it('returns 200 after successful email send', async () => {
             mockFetch.mockResolvedValue({ok: true});
 

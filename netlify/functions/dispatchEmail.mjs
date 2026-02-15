@@ -9,9 +9,7 @@ const handler = async (event)=>{
     };
   }
   let giver = JSON.parse(event.body);
-  console.log("giver", giver.name);
-  console.log("recipient", giver.recipient);
-  
+
   await fetch(
     `${process.env.URL}/.netlify/functions/emails/secret-santa`,
     {
