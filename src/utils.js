@@ -53,6 +53,15 @@ export function removeKeybinding(handler) {
     window.removeEventListener("keyup", handler);
 }
 
+export function escapeHTML(str) {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 export async function fetchWithErrorHandling(url, options = {}) {
     try {
         return await fetch(url, options);
