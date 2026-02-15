@@ -2,6 +2,7 @@
 
 [//]: # ([![Netlify Status]&#40;https://api.netlify.com/api/v1/badges/43d35f0f-ec57-49ec-aa21-12994b32c618/deploy-status&#41;]&#40;https://app.netlify.com/projects/giftexchangegenerator/deploys&#41;)
 [![Test and Deploy](https://github.com/arootroatch/ChristmasGiftExchange/actions/workflows/vitest.yml/badge.svg)](https://github.com/arootroatch/ChristmasGiftExchange/actions/workflows/vitest.yml)
+[![codecov](https://codecov.io/gh/arootroatch/ChristmasGiftExchange/branch/main/graph/badge.svg)](https://codecov.io/gh/arootroatch/ChristmasGiftExchange)
 
 Drawing names for the digital age!
 
