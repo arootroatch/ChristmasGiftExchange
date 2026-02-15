@@ -28,16 +28,16 @@ describe('nameList', () => {
     clearNameSelects();
   });
 
-  describe('#b0 click handler', () => {
+  describe('#add-name-btn click handler', () => {
     it('capitalizes first letter, adds giver to state, and clears input', () => {
       enterName("alex");
       expect(state.givers.length).toBe(1);
       expect(state.givers[0].name).toBe("Alex");
-      expect(document.querySelector("#input0").value).toBe("");
+      expect(document.querySelector("#name-input").value).toBe("");
     });
 
     it('adds giver when Enter is pressed in input', () => {
-      const input = document.querySelector("#input0");
+      const input = document.querySelector("#name-input");
       input.value = "alex";
       const event = new KeyboardEvent('keyup', {
         keyCode: 13,
@@ -50,14 +50,14 @@ describe('nameList', () => {
     });
 
     it('does nothing when input is empty', () => {
-      click("#b0");
+      click("#add-name-btn");
       expect(state.givers.length).toBe(0);
     });
 
     it('rejects whitespace-only input', () => {
-      const input = document.querySelector("#input0");
+      const input = document.querySelector("#name-input");
       input.value = "   ";
-      click("#b0");
+      click("#add-name-btn");
       expect(state.givers.length).toBe(0);
     });
   });

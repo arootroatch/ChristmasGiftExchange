@@ -24,7 +24,7 @@ describe('addName', () => {
     resetState();
     clearNameSelects();
     addNamesToDOM("alex");
-    input = document.querySelector("#input0");
+    input = document.querySelector("#name-input");
   })
 
   it('Giver object shape', () => {
@@ -74,7 +74,7 @@ describe('addName', () => {
   it("adds names to dropdown", () => {
     addHouseToDOM();  // Need at least one house to have a select dropdown
     input.value = "whitney";
-    click("#b0");
+    click("#add-name-btn");
     const nameSelects = document.getElementsByClassName("name-select");
     expect(nameSelects[0].innerHTML).toContain("Alex");
     expect(nameSelects[0].innerHTML).toContain("Whitney");
@@ -83,7 +83,7 @@ describe('addName', () => {
   it("clicking delete x removes name from dropdown selects", () => {
     addHouseToDOM();  // Need at least one house to have a select dropdown
     input.value = "whitney";
-    click("#b0");
+    click("#add-name-btn");
     // Get the delete button ID from the DOM (it may have changed due to re-rendering)
     const alexDeleteBtn = document.querySelector('[id^="delete-Alex"]');
     const deleteId = alexDeleteBtn.id;
@@ -114,9 +114,9 @@ describe('addName', () => {
   });
 
   it("escapes HTML in name to prevent XSS", () => {
-    const input = document.querySelector("#input0");
+    const input = document.querySelector("#name-input");
     input.value = '<img src=x onerror=alert(1)>';
-    click("#b0");
+    click("#add-name-btn");
     const nameEl = document.querySelectorAll(".name-entered")[1];
     expect(nameEl.innerHTML).not.toContain("<img");
   });

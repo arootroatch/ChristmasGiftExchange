@@ -134,9 +134,9 @@ export function removeAllHouses() {
 }
 
 export function enterName(name) {
-  const nameInput = selectElement("#input0");
+  const nameInput = selectElement("#name-input");
   nameInput.value = name;
-  click("#b0");
+  click("#add-name-btn");
 }
 
 export function addHouseToDOM() {
@@ -146,10 +146,10 @@ export function addHouseToDOM() {
 }
 
 export function addNamesToDOM(...names){
-  const input = document.querySelector("#input0");
+  const input = document.querySelector("#name-input");
   names.forEach(name => {
     input.value = name;
-    click("#b0");
+    click("#add-name-btn");
   })
 }
 
