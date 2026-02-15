@@ -26,6 +26,7 @@ describe('postToDb', () => {
 
             // Set test environment variables
             process.env.MONGO_DB_URI = uri;
+            process.env.MONGODB_DATABASE = 'test-db';
             process.env.MONGODB_COLLECTION = 'test-collection';
 
             // Create MongoDB client
@@ -43,7 +44,7 @@ describe('postToDb', () => {
     afterEach(async () => {
         if (!mongoAvailable) return;
         // Clean up database between tests
-        const db = client.db('gift-exchange');
+        const db = client.db(process.env.MONGODB_DATABASE);
         await db.collection(process.env.MONGODB_COLLECTION).deleteMany({});
     });
 
@@ -80,7 +81,7 @@ describe('postToDb', () => {
             expect(response.result.insertedCount).toBe(2);
 
             // Verify documents were actually inserted
-            const db = client.db('gift-exchange');
+            const db = client.db(process.env.MONGODB_DATABASE);
             const collection = db.collection(process.env.MONGODB_COLLECTION);
             const insertedDocs = await collection.find({}).toArray();
 
@@ -102,7 +103,7 @@ describe('postToDb', () => {
 
             await handler(event);
 
-            const db = client.db('gift-exchange');
+            const db = client.db(process.env.MONGODB_DATABASE);
             const collection = db.collection(process.env.MONGODB_COLLECTION);
             const insertedDocs = await collection.find({}).toArray();
 
@@ -136,7 +137,7 @@ describe('postToDb', () => {
             expect(response.statusCode).toBe(200);
             expect(response.result.insertedCount).toBe(1);
 
-            const db = client.db('gift-exchange');
+            const db = client.db(process.env.MONGODB_DATABASE);
             const collection = db.collection(process.env.MONGODB_COLLECTION);
             const insertedDocs = await collection.find({}).toArray();
 
@@ -162,7 +163,7 @@ describe('postToDb', () => {
             expect(response.statusCode).toBe(200);
             expect(response.result.insertedCount).toBe(4);
 
-            const db = client.db('gift-exchange');
+            const db = client.db(process.env.MONGODB_DATABASE);
             const collection = db.collection(process.env.MONGODB_COLLECTION);
             const insertedDocs = await collection.find({}).toArray();
 
@@ -184,7 +185,7 @@ describe('postToDb', () => {
 
             await handler(event);
 
-            const db = client.db('gift-exchange');
+            const db = client.db(process.env.MONGODB_DATABASE);
             const collection = db.collection(process.env.MONGODB_COLLECTION);
             const insertedDocs = await collection.find({}).toArray();
 
@@ -211,7 +212,7 @@ describe('postToDb', () => {
 
             expect(response.statusCode).toBe(200);
 
-            const db = client.db('gift-exchange');
+            const db = client.db(process.env.MONGODB_DATABASE);
             const collection = db.collection(process.env.MONGODB_COLLECTION);
             const insertedDocs = await collection.find({}).toArray();
 

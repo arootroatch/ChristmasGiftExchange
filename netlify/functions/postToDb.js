@@ -7,7 +7,7 @@ const clientPromise = mongoClient.connect();
 const handler = async (event) => {
   let docs = JSON.parse(event.body);
   try {
-    const database = (await clientPromise).db('gift-exchange');
+    const database = (await clientPromise).db(process.env.MONGODB_DATABASE);
     const collection = database.collection(process.env.MONGODB_COLLECTION);
 
     return collection.insertMany(docs).then((result) => {
@@ -17,8 +17,7 @@ const handler = async (event) => {
       };
     });
   } catch (error) {
-    console.error(error);
-    return { statusCode: 500, body: String(error) };
+    return { statusCode: 500, body: JSON.stringify({ error: error.message }) };
   }
 };
 

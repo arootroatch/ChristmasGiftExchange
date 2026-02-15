@@ -197,7 +197,7 @@ describe('get_name', () => {
             expect(body.recipient).toBe('Whitney');
         });
 
-        it('returns 500 when no results found', async () => {
+        it('returns 404 when no results found', async () => {
             if (!mongoAvailable) return;
             const event = {
                 body: 'notfound@test.com',
@@ -205,8 +205,9 @@ describe('get_name', () => {
 
             const response = await handler(event);
 
-            // Will throw error accessing results[0] on empty array
-            expect(response.statusCode).toBe(500);
+            expect(response.statusCode).toBe(404);
+            const body = JSON.parse(response.body);
+            expect(body.error).toBe("Email not found");
         });
 
         it('handles malformed email strings', async () => {

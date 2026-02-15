@@ -153,7 +153,7 @@ describe('dispatchEmail', () => {
             expect(response.statusCode).toBe(200);
         });
 
-        it('throws error when fetch fails', async () => {
+        it('returns 500 when fetch fails', async () => {
             mockFetch.mockRejectedValue(new Error('Network error'));
 
             const giver = {
@@ -166,8 +166,10 @@ describe('dispatchEmail', () => {
                 body: JSON.stringify(giver),
             };
 
-            // The function doesn't handle fetch errors, so it should throw
-            await expect(handler(event)).rejects.toThrow('Network error');
+            const response = await handler(event);
+            expect(response.statusCode).toBe(500);
+            const body = JSON.parse(response.body);
+            expect(body.error).toBe("Network error");
         });
 
         it('uses correct URL from environment', async () => {
