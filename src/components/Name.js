@@ -1,5 +1,5 @@
 import {state, removeGiver} from "../state.js";
-import {participantsId, selectElement} from "../utils.js";
+import {participantsId, selectElement, escapeHTML} from "../utils.js";
 import {Events, stateEvents} from "../Events.js";
 
 export function init() {
@@ -39,11 +39,12 @@ function renderIntoSlot(slot, names) {
 
 function template(name) {
   const id = state.nameNumber++;
+  const safe = escapeHTML(name);
   return `
-      <div class="name-wrapper" id="wrapper-${name}" draggable="true">
-        <button id="delete-${name}${id}" class="delete-name">X</button>
-        <p class="name-entered" id="${name}${id}">${name}</p>
-        <br id="br${name}${id}">
+      <div class="name-wrapper" id="wrapper-${safe}" draggable="true">
+        <button id="delete-${safe}${id}" class="delete-name">X</button>
+        <p class="name-entered" id="${safe}${id}">${safe}</p>
+        <br id="br${safe}${id}">
       </div>`;
 }
 

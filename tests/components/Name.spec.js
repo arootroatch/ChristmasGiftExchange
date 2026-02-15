@@ -113,6 +113,14 @@ describe('addName', () => {
     expect(state.houses["house-0"]).not.toContain("Alex");
   });
 
+  it("escapes HTML in name to prevent XSS", () => {
+    const input = document.querySelector("#input0");
+    input.value = '<img src=x onerror=alert(1)>';
+    click("#b0");
+    const nameEl = document.querySelectorAll(".name-entered")[1];
+    expect(nameEl.innerHTML).not.toContain("<img");
+  });
+
   it("clicking delete x on name in main list does not affect state.houses", () => {
     addHouseToDOM();
     const previousHouses = {...state.houses};
