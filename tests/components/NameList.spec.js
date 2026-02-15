@@ -53,6 +53,13 @@ describe('nameList', () => {
       click("#b0");
       expect(state.givers.length).toBe(0);
     });
+
+    it('rejects whitespace-only input', () => {
+      const input = document.querySelector("#input0");
+      input.value = "   ";
+      click("#b0");
+      expect(state.givers.length).toBe(0);
+    });
   });
 
   describe('rendering names in #participants', () => {

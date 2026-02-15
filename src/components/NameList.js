@@ -32,7 +32,7 @@ function template() {
 function attachListeners() {
   addEventListener(`#${b0Id}`, "click", () => {
     const nameInput = selectElement(`#${inputId}`);
-    const name = nameInput.value;
+    const name = nameInput.value.trim();
     if (name !== "") {
       addGiver(name.charAt(0).toUpperCase() + name.slice(1));
       nameInput.value = "";
