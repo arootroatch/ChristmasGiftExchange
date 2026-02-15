@@ -1,5 +1,5 @@
 import {addEmailsToGivers, state} from "../../state.js";
-import {addEventListener, fetchWithErrorHandling, pushHTML, selectElement, setLoadingState} from "../../utils.js";
+import {addEventListener, fetchWithErrorHandling, pushHTML, selectElement, setLoadingState, escapeHTML} from "../../utils.js";
 import {showError} from "../Snackbar.js";
 import {Events, stateEvents} from "../../Events.js";
 
@@ -43,14 +43,15 @@ function template() {
 }
 
 export function emailInput(giver, i) {
+  const safeName = escapeHTML(giver.name);
   return `
     <div class="emailDiv">
-      <label for=${i}>${giver.name}</label>
+      <label for=${i}>${safeName}</label>
       <input type="email"
              class="emailInput"
              maxlength="100"
-             placeholder="${giver.name}@example.com"
-             name=${giver.name}
+             placeholder="${safeName}@example.com"
+             name=${safeName}
              id=${i}
              required/>
     </div>`;

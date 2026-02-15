@@ -1,4 +1,4 @@
-import {addEventListener, fetchWithErrorHandling, removeEventListener, selectElement, setLoadingState} from "../utils";
+import {addEventListener, fetchWithErrorHandling, removeEventListener, selectElement, setLoadingState, escapeHTML} from "../utils";
 
 const emailQueryId = "emailQuery";
 const emailQueryBtnId = "emailQueryBtn";
@@ -35,7 +35,7 @@ export const emailQueryError =
 export function emailQueryResult(date, recipient) {
   return `
     <div>
-        As of ${date.toDateString()}, you're buying a gift for <span>${recipient}!</span>
+        As of ${escapeHTML(date.toDateString())}, you're buying a gift for <span>${escapeHTML(recipient)}!</span>
     </div>
     ${emailQueryInput}`;
 }
