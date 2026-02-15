@@ -1,6 +1,6 @@
-const { MongoClient } = require("mongodb");
-const mongoClient = new MongoClient(process.env.MONGO_DB_URI);
+import {MongoClient} from "mongodb";
 
+const mongoClient = new MongoClient(process.env.MONGO_DB_URI);
 const clientPromise = mongoClient.connect();
 
 const handler = async (event) => {
@@ -36,4 +36,4 @@ const handler = async (event) => {
   }
 };
 
-module.exports = { handler };
+export {handler};

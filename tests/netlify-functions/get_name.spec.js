@@ -38,7 +38,7 @@ describe('get_name', () => {
             collection = db.collection(process.env.MONGODB_COLLECTION);
 
             // Import handler after environment is set up
-            const module = await import('../../netlify/functions/get_name.js');
+            const module = await import('../../netlify/functions/get_name.mjs');
             handler = module.handler;
         } catch (error) {
             mongoAvailable = false;

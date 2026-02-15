@@ -34,7 +34,7 @@ describe('postToDb', () => {
             await client.connect();
 
             // Import handler after environment is set up
-            const module = await import('../../netlify/functions/postToDb.js');
+            const module = await import('../../netlify/functions/postToDb.mjs');
             handler = module.handler;
         } catch (error) {
             mongoAvailable = false;
