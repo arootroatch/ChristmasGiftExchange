@@ -22,7 +22,7 @@ export function addEventListener(selector, event, func) {
 }
 
 export function removeEventListener(selector, event, func) {
-    document.querySelector(selector).removeEventListener(event, func);
+    document.querySelector(selector)?.removeEventListener(event, func);
 }
 
 export function pushHTML(selector, html) {

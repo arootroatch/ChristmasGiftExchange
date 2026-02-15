@@ -1,5 +1,5 @@
 import {describe, expect, it} from "vitest";
-import {escapeHTML} from "../src/utils";
+import {escapeHTML, removeEventListener} from "../src/utils";
 
 describe("escapeHTML", () => {
   it("escapes angle brackets", () => {
@@ -24,5 +24,11 @@ describe("escapeHTML", () => {
 
   it("handles empty string", () => {
     expect(escapeHTML("")).toBe("");
+  });
+});
+
+describe("removeEventListener", () => {
+  it("does not throw when selector matches no element", () => {
+    expect(() => removeEventListener("#nonexistent", "click", () => {})).not.toThrow();
   });
 });
