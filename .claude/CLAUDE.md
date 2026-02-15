@@ -107,9 +107,6 @@ Key functions to reuse:
 - `installGiverNames(...names)` — Directly push givers to state
 - `removeAllNames()` / `removeAllHouses()` — DOM cleanup
 
-### Pre-existing Test Failures
-4 tests in `generate.spec.js` and 2 in `snackbar.spec.js` fail due to CSS color format differences (`#b31e20` vs `rgb(179, 30, 32)`). These are unrelated to feature work.
-
 ## User Preferences
 
 ### Code Style
@@ -119,7 +116,6 @@ Key functions to reuse:
 - Prefer reuse over duplication — Use existing utils.js and specHelper.js functions
 
 ### TDD Workflow
-- Use the TDD agents (tdd-referee, tdd-red, tdd-green, refactor) for Red-Green-Refactor cycle
 - Write one test at a time
 - Check test output between phases
 - Start vitest autorunner in background before TDD work
