@@ -83,9 +83,11 @@ async function submitEmails(event) {
 
   try {
     const response = await postToServer();
-    if (response.status !== 200) {
+    if (!response.ok) {
       handleEmailSubmitError(response);
     } else {
+      const data = await response.json();
+      state._tokenMap = data.participants;
       addEmailsToParticipants(emails);
     }
   } catch (error) {
@@ -105,12 +107,17 @@ function getEmails() {
 }
 
 async function postToServer() {
-  const options = {
+  return fetch("/.netlify/functions/api-exchange-post", {
     method: "POST",
-    mode: "cors",
-    body: JSON.stringify(state.participants),
-  };
-  return fetch("/.netlify/functions/postToDb", options);
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      exchangeId: state.exchangeId,
+      isSecretSanta: state.isSecretSanta,
+      houses: state.houses,
+      participants: state.participants,
+      assignments: state.assignments
+    })
+  });
 }
 
 function handleEmailSubmitError() {

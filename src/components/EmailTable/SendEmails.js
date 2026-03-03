@@ -42,10 +42,12 @@ function hideElement() {
 
 async function batchEmails() {
   setLoadingState(`#${sendEmailsBtnId}`);
+  const tokenMap = state._tokenMap || [];
 
   let count = 0;
   let promises = state.assignments.map(async (assignment) => {
     const participant = state.participants.find(p => p.name === assignment.giver);
+    const giverTokenInfo = tokenMap.find(t => t.name === assignment.giver);
     try {
       const response = await fetch("/.netlify/functions/dispatchEmail", {
         method: "POST",
@@ -54,6 +56,9 @@ async function batchEmails() {
           name: assignment.giver,
           recipient: assignment.recipient,
           email: participant.email,
+          wishlistEditUrl: giverTokenInfo
+            ? `${window.location.origin}/wishlist/edit/${giverTokenInfo.token}`
+            : null
         }),
       });
       if (response.status === 200) count++;
