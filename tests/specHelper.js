@@ -52,13 +52,13 @@ export function stubFetchError(message) {
 
 export function installGiverNames(...giverNames) {
   giverNames.forEach((name) => {
-    state.participants.push({name: name, recipient: "", email: "", date: "", id: ""});
+    state.participants.push({name: name, email: ""});
   })
 }
 
 export function installParticipantNames(...participantNames) {
   participantNames.forEach((name) => {
-    state.participants.push({name: name, recipient: "", email: "", date: "", id: ""});
+    state.participants.push({name: name, email: ""});
   })
 }
 

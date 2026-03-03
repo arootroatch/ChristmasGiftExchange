@@ -279,15 +279,9 @@ describe('state helper functions', () => {
   });
 
   describe('addEmailsToParticipants', () => {
-    let mockDate;
-    let randomSpy;
-
     beforeEach(() => {
       state.participants = [];
       installParticipantNames("Alex", "Whitney", "Hunter");
-      mockDate = new Date('2026-02-13T12:00:00.000Z');
-      vi.setSystemTime(mockDate);
-      randomSpy = vi.spyOn(Math, 'random').mockReturnValue(0.123456789);
     });
 
     it('should set email on each participant by index', () => {
@@ -303,27 +297,6 @@ describe('state helper functions', () => {
       expect(state.participants[2].email).toBe("");
     });
 
-    it('should set date on each participant', () => {
-      const emails = [
-        {name: "Alex", email: "alex@example.com", index: 0}
-      ];
-
-      addEmailsToParticipants(emails);
-
-      expect(state.participants[0].date).toBe("2026-02-13T12:00:00.000Z");
-    });
-
-    it('should generate unique id with format participantCount_random_date', () => {
-      const emails = [
-        {name: "Alex", email: "alex@example.com", index: 0}
-      ];
-
-      addEmailsToParticipants(emails);
-
-      const expectedId = `3_${Math.random().toString(20)}_${mockDate.toISOString()}`;
-      expect(state.participants[0].id).toBe(expectedId);
-    });
-
     it('should handle multiple emails at once', () => {
       const emails = [
         {name: "Alex", email: "alex@example.com", index: 0},
@@ -336,11 +309,6 @@ describe('state helper functions', () => {
       expect(state.participants[0].email).toBe("alex@example.com");
       expect(state.participants[1].email).toBe("whitney@example.com");
       expect(state.participants[2].email).toBe("hunter@example.com");
-
-      state.participants.forEach(participant => {
-        expect(participant.date).toBe("2026-02-13T12:00:00.000Z");
-        expect(participant.id).toContain("3_");
-      });
     });
 
     it('should emit EMAILS_ADDED event', () => {

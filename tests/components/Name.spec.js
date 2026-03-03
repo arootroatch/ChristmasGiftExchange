@@ -28,12 +28,9 @@ describe('addName', () => {
   })
 
   it('Participant object shape', () => {
-    const participant = {...alex, recipient: whitney.name};
+    const participant = {...alex};
     expect(participant.name).toBe("Alex");
     expect(participant.email).toBe("alex@gmail.com");
-    expect(participant.recipient).toBe("Whitney");
-    expect(participant.date).toBe("");
-    expect(participant.id).toBe("");
   });
 
   it('should add name to DOM', () => {

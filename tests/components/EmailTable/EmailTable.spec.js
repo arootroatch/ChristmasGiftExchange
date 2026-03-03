@@ -154,27 +154,24 @@ describe('emailTable', () => {
       expectColor(submitEmailsButton.style.color, "rgb(128, 128, 128)", "#808080");
     })
 
-    it("sets email, id, and date for each participant", async () => {
+    it("sets email for each participant", async () => {
       await vi.waitFor(() => {
         expect(state.participants[0].email).toBe("arootroatch@gmail.com");
       });
 
       const expectedEmails = ["arootroatch@gmail.com", "whitney@gmail.com", "hunter@gmail.com", "megan@gmail.com"];
-      const date = state.participants[0].date;
 
       state.participants.forEach((participant, i) => {
         expect(participant.email).toBe(expectedEmails[i]);
-        expect(participant.date).toBe(date);
-        expect(participant.id).toBe(`4_1ibc1j9_${date}`);
       })
     })
 
     it("invokes postToServer", () => {
       const expectedBody = JSON.stringify([
-        {name: "Alex", recipient: "", email: "", date: "", id: ""},
-        {name: "Whitney", recipient: "", email: "", date: "", id: ""},
-        {name: "Hunter", recipient: "", email: "", date: "", id: ""},
-        {name: "Megan", recipient: "", email: "", date: "", id: ""},
+        {name: "Alex", email: ""},
+        {name: "Whitney", email: ""},
+        {name: "Hunter", email: ""},
+        {name: "Megan", email: ""},
       ]);
       expect(global.fetch).toHaveBeenCalledWith("/.netlify/functions/postToDb",
         {"body": expectedBody, "method": "POST", "mode": "cors"});
