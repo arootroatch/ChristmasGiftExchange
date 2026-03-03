@@ -9,7 +9,7 @@ const handler = async (event) => {
     };
   }
 
-  let giver = JSON.parse(event.body);
+  let data = JSON.parse(event.body);
 
   try {
     await fetch(
@@ -21,11 +21,12 @@ const handler = async (event) => {
         method: "POST",
         body: JSON.stringify({
           from: "alex@soundrootsproductions.com",
-          to: giver.email,
+          to: data.email,
           subject: "Your gift exchange recipient name has arrived!",
           parameters: {
-            name: giver.name,
-            recipient: giver.recipient
+            name: data.name,
+            recipient: data.recipient,
+            wishlistEditUrl: data.wishlistEditUrl || null,
           },
         })
       }

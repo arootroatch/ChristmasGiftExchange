@@ -131,6 +131,7 @@ describe('dispatchEmail', () => {
                 parameters: {
                     name: 'Alex',
                     recipient: 'Whitney',
+                    wishlistEditUrl: null,
                 },
             });
         });
@@ -212,6 +213,49 @@ describe('dispatchEmail', () => {
 
             expect(requestBody.parameters.name).toBe('Test User');
             expect(requestBody.parameters.recipient).toBe('Another User');
+        });
+
+        it('passes wishlistEditUrl to template parameters when provided', async () => {
+            mockFetch.mockResolvedValue({ok: true});
+
+            const payload = {
+                name: 'Alex',
+                recipient: 'Whitney',
+                email: 'alex@test.com',
+                wishlistEditUrl: 'https://example.com/wishlist/edit/abc-123',
+            };
+
+            const event = {
+                body: JSON.stringify(payload),
+            };
+
+            await handler(event);
+
+            const fetchCall = mockFetch.mock.calls[0];
+            const requestBody = JSON.parse(fetchCall[1].body);
+
+            expect(requestBody.parameters.wishlistEditUrl).toBe('https://example.com/wishlist/edit/abc-123');
+        });
+
+        it('passes null wishlistEditUrl when not provided', async () => {
+            mockFetch.mockResolvedValue({ok: true});
+
+            const payload = {
+                name: 'Alex',
+                recipient: 'Whitney',
+                email: 'alex@test.com',
+            };
+
+            const event = {
+                body: JSON.stringify(payload),
+            };
+
+            await handler(event);
+
+            const fetchCall = mockFetch.mock.calls[0];
+            const requestBody = JSON.parse(fetchCall[1].body);
+
+            expect(requestBody.parameters.wishlistEditUrl).toBeNull();
         });
 
         it('handles givers with special characters in names', async () => {
