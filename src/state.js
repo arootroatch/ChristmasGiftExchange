@@ -7,7 +7,7 @@ export function startExchange(isSecretSanta = false) {
     houses: {},
     step: 1,
     isSecretSanta: isSecretSanta,
-    givers: [],
+    participants: [],
     nameNumber: 1,
   }
   stateEvents.emit(Events.EXCHANGE_STARTED);
@@ -23,7 +23,7 @@ export function nextStep(maxSteps = null) {
 }
 
 
-export class Giver {
+export class Participant {
   constructor(name, recipient = "", email = "") {
     this.name = name;
     this.email = email;
@@ -60,20 +60,20 @@ export function removeNameFromHouse(houseID, name) {
   }
 }
 
-export function addGiver(name) {
-  const giver = new Giver(name);
-  state.givers.push(giver);
-  stateEvents.emit(Events.GIVER_ADDED, {name, giver});
+export function addParticipant(name) {
+  const participant = new Participant(name);
+  state.participants.push(participant);
+  stateEvents.emit(Events.PARTICIPANT_ADDED, {name, participant});
 }
 
-export function removeGiver(name) {
+export function removeParticipant(name) {
   Object.keys(state.houses).forEach(houseID => {
     if (state.houses[houseID].includes(name)) {
       removeNameFromHouse(houseID, name);
     }
   });
-  state.givers = state.givers.filter(g => g.name !== name);
-  stateEvents.emit(Events.GIVER_REMOVED, {name});
+  state.participants = state.participants.filter(p => p.name !== name);
+  stateEvents.emit(Events.PARTICIPANT_REMOVED, {name});
 }
 
 export function getHousesArray() {
@@ -82,8 +82,8 @@ export function getHousesArray() {
 
 export function getIndividualParticipants() {
   const allNamesInHouses = Object.values(state.houses).flat();
-  return state.givers
-    .map(g => g.name)
+  return state.participants
+    .map(p => p.name)
     .filter(name => !allNamesInHouses.includes(name))
     .map(name => [name]); // Wrap in array for algorithm compatibility
 }
@@ -94,27 +94,27 @@ export function getHousesForGeneration() {
 
 export function assignRecipients(assignments) {
   assignments.forEach((recipient, index) => {
-    state.givers[index].recipient = recipient;
+    state.participants[index].recipient = recipient;
   });
   stateEvents.emit(Events.RECIPIENTS_ASSIGNED, {
     isGenerated: true,
     isSecretSanta: state.isSecretSanta,
-    givers: state.givers
+    participants: state.participants
   });
 }
 
-export function addEmailsToGivers(emails) {
+export function addEmailsToParticipants(emails) {
   let random = Math.random().toString(20);
   let date = new Date().toISOString();
   emails.forEach((obj) => {
     let i = parseInt(obj.index);
-    state.givers[i].email = obj.email;
-    state.givers[i].id = `${state.givers.length}_${random}_${date}`;
-    state.givers[i].date = date;
+    state.participants[i].email = obj.email;
+    state.participants[i].id = `${state.participants.length}_${random}_${date}`;
+    state.participants[i].date = date;
   });
-  stateEvents.emit(Events.EMAILS_ADDED, {givers: state.givers});
+  stateEvents.emit(Events.EMAILS_ADDED, {participants: state.participants});
 }
 
 export function isGenerated() {
-  return state.givers.every(g => g.recipient && g.recipient !== "");
+  return state.participants.every(p => p.recipient && p.recipient !== "");
 }

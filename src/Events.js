@@ -24,8 +24,8 @@ export const stateEvents = new EventEmitter();
 export const Events = {
   EXCHANGE_STARTED: 'exchange:started',
   NEXT_STEP: 'exchange:nextStep',
-  GIVER_ADDED: 'giver:added',
-  GIVER_REMOVED: 'giver:removed',
+  PARTICIPANT_ADDED: 'participant:added',
+  PARTICIPANT_REMOVED: 'participant:removed',
   HOUSE_ADDED: 'house:added',
   HOUSE_REMOVED: 'house:removed',
   NAME_ADDED_TO_HOUSE: 'name:addedToHouse',

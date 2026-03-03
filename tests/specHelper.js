@@ -32,7 +32,7 @@ export function initReactiveSystem() {
 }
 
 export function installGivers(givers) {
-  state.givers = givers;
+  state.participants = givers;
 }
 
 export function stubFetch(ok, status, body) {
@@ -52,7 +52,13 @@ export function stubFetchError(message) {
 
 export function installGiverNames(...giverNames) {
   giverNames.forEach((name) => {
-    state.givers.push({name: name, recipient: "", email: "", date: "", id: ""});
+    state.participants.push({name: name, recipient: "", email: "", date: "", id: ""});
+  })
+}
+
+export function installParticipantNames(...participantNames) {
+  participantNames.forEach((name) => {
+    state.participants.push({name: name, recipient: "", email: "", date: "", id: ""});
   })
 }
 
@@ -185,7 +191,11 @@ export function shouldDisplayEmailTable(...names) {
 }
 
 export function giverByName(name){
-  return state.givers.filter((giver) => giver.name === name)[0];
+  return state.participants.filter((p) => p.name === name)[0];
+}
+
+export function participantByName(name){
+  return state.participants.filter((p) => p.name === name)[0];
 }
 
 export function expectColor(actual, ...expectedColors) {
