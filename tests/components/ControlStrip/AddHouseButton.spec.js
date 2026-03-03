@@ -44,7 +44,7 @@ describe("addHouseButton", () => {
     click("#nextStep");
     expect(state.step).toBe(3);
     expect(selectElement("#addHouse")).not.toBeNull();
-    state.participants[0].recipient = "Whitney";
+    state.assignments = [{giver: "Alex", recipient: "Whitney"}];
     click("#nextStep");
     expect(state.step).toBe(4);
     expect(selectElement("#addHouse")).toBeNull();
@@ -114,7 +114,7 @@ describe("addHouseButton", () => {
       state.participants = [{...alex}];
       click("#nextStep"); // step 2
       click("#nextStep"); // step 3
-      state.participants[0].recipient = "Whitney";
+      state.assignments = [{giver: "Alex", recipient: "Whitney"}];
       click("#nextStep"); // step 4
       dispatchShiftEnter();
       expect(spy).not.toHaveBeenCalled();

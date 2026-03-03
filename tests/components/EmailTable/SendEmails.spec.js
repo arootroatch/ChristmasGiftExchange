@@ -7,7 +7,7 @@ import {
   shouldDisplaySuccessSnackbar,
   stubFetch,
 } from "../../specHelper";
-import {startExchange, state, addEmailsToParticipants} from "../../../src/state";
+import {startExchange, state, addEmailsToParticipants, assignRecipients} from "../../../src/state";
 import {init} from "../../../src/components/EmailTable/SendEmails";
 import {init as initSnackbar} from "../../../src/components/Snackbar";
 import {alex, hunter, megan, whitney} from "../../testData";
@@ -28,10 +28,8 @@ describe("sendEmails", () => {
   });
 
   function triggerEmailsAdded() {
-    installGivers([
-      {...alex, recipient: whitney.name},
-      {...whitney, recipient: alex.name},
-    ]);
+    installGivers([{...alex}, {...whitney}]);
+    assignRecipients([whitney.name, alex.name]);
     addEmailsToParticipants([
       {name: alex.name, email: alex.email, index: 0},
       {name: whitney.name, email: whitney.email, index: 1},
@@ -64,12 +62,8 @@ describe("sendEmails", () => {
     let sendEmailsButton;
 
     beforeEach(() => {
-      installGivers([
-        {...alex, recipient: whitney.name},
-        {...whitney, recipient: hunter.name},
-        {...hunter, recipient: megan.name},
-        {...megan, recipient: alex.name},
-      ]);
+      installGivers([{...alex}, {...whitney}, {...hunter}, {...megan}]);
+      assignRecipients([whitney.name, hunter.name, megan.name, alex.name]);
       addEmailsToParticipants([
         {name: alex.name, email: alex.email, index: 0},
         {name: whitney.name, email: whitney.email, index: 1},
@@ -85,12 +79,13 @@ describe("sendEmails", () => {
       expectColor(sendEmailsButton.style.color, "rgb(128, 128, 128)", "#808080");
     });
 
-    it("sends emails for each participant", () => {
-      state.participants.forEach((participant) => {
+    it("sends emails for each assignment", () => {
+      state.assignments.forEach((assignment) => {
+        const participant = state.participants.find(p => p.name === assignment.giver);
         expect(global.fetch).toHaveBeenCalledWith("/.netlify/functions/dispatchEmail", {
           body: JSON.stringify({
-            name: participant.name,
-            recipient: participant.recipient,
+            name: assignment.giver,
+            recipient: assignment.recipient,
             email: participant.email,
           }),
           method: "POST",

@@ -39,13 +39,13 @@ function clearTable() {
   }
 }
 
-function renderResults(results) {
+function renderResults(assignments) {
   clearTable();
   let html = '';
-  for (const giver of results) {
+  for (const assignment of assignments) {
     html += `<tr>
-                <td>${giver.name}</td>
-                <td>${giver.recipient}</td>
+                <td>${assignment.giver}</td>
+                <td>${assignment.recipient}</td>
             </tr>`;
   }
   pushHTML(`#${tableBodyId}`, html);
@@ -59,9 +59,9 @@ export function init() {
       render();
     }
   });
-  stateEvents.on(Events.RECIPIENTS_ASSIGNED, ({isGenerated, isSecretSanta, participants}) => {
+  stateEvents.on(Events.RECIPIENTS_ASSIGNED, ({isGenerated, isSecretSanta, assignments}) => {
     if (isGenerated && !isSecretSanta) {
-      renderResults(participants);
+      renderResults(assignments);
     }
   });
 }

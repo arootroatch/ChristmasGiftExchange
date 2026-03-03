@@ -76,7 +76,8 @@ describe("generateButton", () => {
 
   it("is removed at step 4", () => {
     resetState();
-    state.participants = [{...alex, recipient: whitney.name}];
+    state.participants = [{...alex}];
+    state.assignments = [{giver: "Alex", recipient: "Whitney"}];
     state.step = 3;
     click("#nextStep"); // step 4
     expect(state.step).toBe(4);
@@ -186,10 +187,10 @@ describe("generateList", () => {
 
     generateList();
     let tableHTML = '';
-    for (const participant of state.participants) {
+    for (const assignment of state.assignments) {
       tableHTML += `<tr>
-                <td>${participant.name}</td>
-                <td>${participant.recipient}</td>
+                <td>${assignment.giver}</td>
+                <td>${assignment.recipient}</td>
             </tr>`;
     }
     const table = document.querySelector("#table-body");
@@ -205,10 +206,10 @@ describe("generateList", () => {
 
     generateList();
     let tableHTML = '';
-    for (const participant of state.participants) {
+    for (const assignment of state.assignments) {
       tableHTML += `<tr>
-                <td>${participant.name}</td>
-                <td>${participant.recipient}</td>
+                <td>${assignment.giver}</td>
+                <td>${assignment.recipient}</td>
             </tr>`;
     }
     const table = document.querySelector("#table-body");

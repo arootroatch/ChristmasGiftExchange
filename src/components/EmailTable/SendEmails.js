@@ -40,28 +40,25 @@ function hideElement() {
   }, 500);
 }
 
-function dispatchEmailOptions(giver) {
-  return {
-    method: "POST",
-    mode: "cors",
-    body: JSON.stringify({
-      name: giver.name,
-      recipient: giver.recipient,
-      email: giver.email,
-    }),
-  };
-}
-
 async function batchEmails() {
   setLoadingState(`#${sendEmailsBtnId}`);
 
   let count = 0;
-  let promises = state.participants.map(async (giver) => {
+  let promises = state.assignments.map(async (assignment) => {
+    const participant = state.participants.find(p => p.name === assignment.giver);
     try {
-      const response = await fetch("/.netlify/functions/dispatchEmail", dispatchEmailOptions(giver));
+      const response = await fetch("/.netlify/functions/dispatchEmail", {
+        method: "POST",
+        mode: "cors",
+        body: JSON.stringify({
+          name: assignment.giver,
+          recipient: assignment.recipient,
+          email: participant.email,
+        }),
+      });
       if (response.status === 200) count++;
     } catch (error) {
-      console.error(`Failed to send email to ${giver.email}:`, error);
+      console.error(`Failed to send email to ${participant.email}:`, error);
     }
   });
 

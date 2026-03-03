@@ -33,7 +33,7 @@ function renderEmailTableInputs(participants) {
 }
 
 function triggerEmailTableRender() {
-  installGivers([{...alex, recipient: whitney.name}, {...whitney, recipient: alex.name}]);
+  installGivers([{...alex}, {...whitney}]);
   assignRecipients(["Whitney", "Alex"]);
 }
 
@@ -62,7 +62,7 @@ describe('emailTable', () => {
   describe("reactive rendering", () => {
     it("renders on RECIPIENTS_ASSIGNED when isSecretSanta", () => {
       state.isSecretSanta = true;
-      installGivers([{...alex, recipient: whitney.name}, {...whitney, recipient: alex.name}]);
+      installGivers([{...alex}, {...whitney}]);
 
       assignRecipients(["Whitney", "Alex"]);
 
@@ -71,7 +71,7 @@ describe('emailTable', () => {
 
     it("does not render on RECIPIENTS_ASSIGNED when not isSecretSanta", () => {
       state.isSecretSanta = false;
-      installGivers([{...alex, recipient: whitney.name}, {...whitney, recipient: alex.name}]);
+      installGivers([{...alex}, {...whitney}]);
 
       assignRecipients(["Whitney", "Alex"]);
 
@@ -79,7 +79,7 @@ describe('emailTable', () => {
     });
 
     it("renders on NEXT_STEP when step is 4", () => {
-      installGivers([{...alex, recipient: whitney.name}, {...whitney, recipient: alex.name}]);
+      installGivers([{...alex}, {...whitney}]);
       state.step = 3;
 
       nextStep();
@@ -107,7 +107,7 @@ describe('emailTable', () => {
 
     it("displays dismiss button when not secret santa", () => {
       state.isSecretSanta = false;
-      installGivers([{...alex, recipient: whitney.name}, {...whitney, recipient: alex.name}]);
+      installGivers([{...alex}, {...whitney}]);
       state.step = 3;
 
       nextStep();
@@ -118,7 +118,7 @@ describe('emailTable', () => {
 
     it("hides dismiss button in secret santa mode", () => {
       state.isSecretSanta = true;
-      installGivers([{...alex, recipient: whitney.name}, {...whitney, recipient: alex.name}]);
+      installGivers([{...alex}, {...whitney}]);
 
       assignRecipients(["Whitney", "Alex"]);
 

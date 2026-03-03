@@ -55,7 +55,8 @@ describe("nextStepButton", () => {
 
   it("is removed at step 4", () => {
     resetState();
-    state.participants = [{...alex, recipient: whitney.name}];
+    state.participants = [{...alex}];
+    state.assignments = [{giver: "Alex", recipient: "Whitney"}];
     state.step = 3;
     click("#nextStep"); // step 4
     expect(state.step).toBe(4);
@@ -89,7 +90,8 @@ describe("nextStepButton", () => {
   it("advances from step 3 with generated list", () => {
     resetState();
     state.step = 3;
-    state.participants = [{...alex, recipient: whitney.name}];
+    state.participants = [{...alex}];
+    state.assignments = [{giver: "Alex", recipient: "Whitney"}];
     click("#nextStep");
     expect(state.step).toBe(4);
   });

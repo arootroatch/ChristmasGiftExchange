@@ -53,7 +53,7 @@ describe('resultsTable', () => {
     expect(document.querySelector("#results-table")).toBeNull();
   });
 
-  it('renders results from state.participants when assignRecipients is called', () => {
+  it('renders results from state.assignments when assignRecipients is called', () => {
     startExchange(false);
     installParticipantNames("Alex", "Whitney", "Hunter");
 
