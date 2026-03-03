@@ -10,6 +10,7 @@ import {
   getHousesArray,
   getHousesForGeneration,
   getIndividualParticipants,
+  loadExchange,
   nextStep,
   removeParticipant,
   removeHouseFromState,
@@ -405,6 +406,122 @@ describe('state helper functions', () => {
       addEmailsToParticipants([]);
 
       expect(state.participants).toEqual(originalParticipants);
+    });
+  });
+
+  describe('loadExchange', () => {
+    const exchangeData = {
+      isSecretSanta: true,
+      houses: [
+        {name: "Smith Family", members: ["Alex", "Whitney"]},
+        {name: "Jones Family", members: ["Hunter"]}
+      ],
+      participants: [
+        {name: "Alex", email: "alex@gmail.com"},
+        {name: "Whitney", email: "whitney@gmail.com"},
+        {name: "Hunter", email: "hunter@gmail.com"}
+      ]
+    };
+
+    it('populates participants from exchange data', () => {
+      loadExchange(exchangeData);
+
+      expect(state.participants).toHaveLength(3);
+      expect(state.participants[0].name).toBe("Alex");
+      expect(state.participants[1].name).toBe("Whitney");
+      expect(state.participants[2].name).toBe("Hunter");
+    });
+
+    it('sets participant emails from exchange data', () => {
+      loadExchange(exchangeData);
+
+      expect(state.participants[0].email).toBe("alex@gmail.com");
+      expect(state.participants[1].email).toBe("whitney@gmail.com");
+      expect(state.participants[2].email).toBe("hunter@gmail.com");
+    });
+
+    it('populates houses with names and members', () => {
+      loadExchange(exchangeData);
+
+      expect(state.houses).toHaveLength(2);
+      expect(state.houses[0].name).toBe("Smith Family");
+      expect(state.houses[0].members).toEqual(["Alex", "Whitney"]);
+      expect(state.houses[1].name).toBe("Jones Family");
+      expect(state.houses[1].members).toEqual(["Hunter"]);
+    });
+
+    it('sets isSecretSanta from exchange data', () => {
+      loadExchange(exchangeData);
+
+      expect(state.isSecretSanta).toBe(true);
+    });
+
+    it('generates a new exchangeId', () => {
+      loadExchange(exchangeData);
+
+      expect(state.exchangeId).toBeDefined();
+      expect(state.exchangeId).toMatch(
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+      );
+    });
+
+    it('sets assignments to empty array', () => {
+      loadExchange(exchangeData);
+
+      expect(state.assignments).toEqual([]);
+    });
+
+    it('initializes nameNumber to 1', () => {
+      loadExchange(exchangeData);
+
+      expect(state.nameNumber).toBe(1);
+    });
+
+    it('emits EXCHANGE_STARTED event', () => {
+      const spy = vi.fn();
+      const unsubscribe = stateEvents.on(Events.EXCHANGE_STARTED, spy);
+
+      loadExchange(exchangeData);
+
+      expect(spy).toHaveBeenCalled();
+      unsubscribe();
+    });
+
+    it('emits PARTICIPANT_ADDED for each participant', () => {
+      const spy = vi.fn();
+      const unsubscribe = stateEvents.on(Events.PARTICIPANT_ADDED, spy);
+
+      loadExchange(exchangeData);
+
+      expect(spy).toHaveBeenCalledTimes(3);
+      unsubscribe();
+    });
+
+    it('emits HOUSE_ADDED for each house', () => {
+      const spy = vi.fn();
+      const unsubscribe = stateEvents.on(Events.HOUSE_ADDED, spy);
+
+      loadExchange(exchangeData);
+
+      expect(spy).toHaveBeenCalledTimes(2);
+      unsubscribe();
+    });
+
+    it('handles exchange data with no houses', () => {
+      const noHousesData = {
+        isSecretSanta: false,
+        houses: [],
+        participants: [
+          {name: "Alex", email: "alex@gmail.com"},
+          {name: "Whitney", email: "whitney@gmail.com"}
+        ]
+      };
+
+      loadExchange(noHousesData);
+
+      expect(state.participants).toHaveLength(2);
+      expect(state.houses).toHaveLength(0);
+      expect(state.isSecretSanta).toBe(false);
     });
   });
 });

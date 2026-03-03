@@ -1,8 +1,13 @@
-import {beforeEach, describe, expect, it, vi} from 'vitest';
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import main from '../src/main';
 
 vi.mock('../src/dragDrop', () => ({
   initDragDrop: vi.fn(),
+}));
+
+vi.mock('../src/state', () => ({
+  startExchange: vi.fn(),
+  loadExchange: vi.fn(),
 }));
 
 vi.mock('../src/components/House', () => ({
@@ -49,6 +54,7 @@ vi.mock('../src/components/EmailQuery', () => ({
 
 vi.mock('../src/components/Snackbar', () => ({
   init: vi.fn(),
+  showError: vi.fn(),
 }));
 
 vi.mock('../src/components/EmailTable/SendEmails', () => ({
@@ -211,5 +217,59 @@ it('calls generateButton.init', async () => {
     expect(emailTableOrder).toBeLessThan(emailQueryOrder);
     expect(emailQueryOrder).toBeLessThan(sendEmailsOrder);
     expect(sendEmailsOrder).toBeLessThan(dragDropOrder);
+  });
+
+  describe('sessionStorage reuse', () => {
+    afterEach(() => {
+      sessionStorage.clear();
+    });
+
+    it('calls loadExchange when reuseExchange data exists in sessionStorage', async () => {
+      const exchangeData = {
+        isSecretSanta: true,
+        houses: [{name: "Group 1", members: ["Alex"]}],
+        participants: [{name: "Alex", email: "alex@test.com"}]
+      };
+      sessionStorage.setItem("reuseExchange", JSON.stringify(exchangeData));
+      const {loadExchange} = await import('../src/state');
+
+      main();
+
+      expect(loadExchange).toHaveBeenCalledWith(exchangeData);
+    });
+
+    it('removes reuseExchange from sessionStorage after loading', async () => {
+      const exchangeData = {isSecretSanta: false, houses: [], participants: []};
+      sessionStorage.setItem("reuseExchange", JSON.stringify(exchangeData));
+
+      main();
+
+      expect(sessionStorage.getItem("reuseExchange")).toBeNull();
+    });
+
+    it('does not call loadExchange when no reuseExchange in sessionStorage', async () => {
+      const {loadExchange} = await import('../src/state');
+
+      main();
+
+      expect(loadExchange).not.toHaveBeenCalled();
+    });
+
+    it('displays snackbar error from sessionStorage', async () => {
+      sessionStorage.setItem("snackbarError", "Test error message");
+      const snackbar = await import('../src/components/Snackbar');
+
+      main();
+
+      expect(snackbar.showError).toHaveBeenCalledWith("Test error message");
+    });
+
+    it('removes snackbarError from sessionStorage after displaying', () => {
+      sessionStorage.setItem("snackbarError", "Test error message");
+
+      main();
+
+      expect(sessionStorage.getItem("snackbarError")).toBeNull();
+    });
   });
 });

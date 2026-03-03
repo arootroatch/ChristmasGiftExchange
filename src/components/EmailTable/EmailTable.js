@@ -53,6 +53,7 @@ export function emailInput(participant, i) {
              placeholder="${safeName}@example.com"
              name=${safeName}
              id=${i}
+             value="${escapeHTML(participant.email || "")}"
              required/>
     </div>`;
 }

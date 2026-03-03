@@ -254,7 +254,7 @@ describe('emailTable', () => {
   });
 
   it("emailInput returns correct HTML template", () => {
-    state.participants = [{name: "Alex"}, {name: "Whitney"}];
+    state.participants = [{name: "Alex", email: ""}, {name: "Whitney", email: ""}];
     const result = emailInput(state.participants[0], 0);
 
     expect(result).toContain('<div class="emailDiv">');
@@ -266,6 +266,20 @@ describe('emailTable', () => {
     expect(result).toContain('name=Alex');
     expect(result).toContain('id=0');
     expect(result).toContain('required');
+  });
+
+  it("emailInput pre-fills value when participant has email", () => {
+    const participant = {name: "Alex", email: "alex@gmail.com"};
+    const result = emailInput(participant, 0);
+
+    expect(result).toContain('value="alex@gmail.com"');
+  });
+
+  it("emailInput has empty value when participant has no email", () => {
+    const participant = {name: "Alex", email: ""};
+    const result = emailInput(participant, 0);
+
+    expect(result).toContain('value=""');
   });
 
   it("hideEmailTable hides the table and button", () => {

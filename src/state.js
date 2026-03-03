@@ -129,3 +129,21 @@ export function addEmailsToParticipants(emails) {
 export function isGenerated() {
   return state.assignments.length > 0;
 }
+
+export function loadExchange(exchangeData) {
+  startExchange(exchangeData.isSecretSanta);
+
+  exchangeData.participants.forEach(p => {
+    addParticipant(p.name);
+    const participant = state.participants.find(pp => pp.name === p.name);
+    if (participant) participant.email = p.email;
+  });
+
+  exchangeData.houses.forEach(h => {
+    const houseID = `house${state.houses.length + 1}`;
+    addHouseToState(houseID);
+    const house = findHouse(houseID);
+    if (house) house.name = h.name;
+    h.members.forEach(name => addNameToHouse(houseID, name));
+  });
+}
