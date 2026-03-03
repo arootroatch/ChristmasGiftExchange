@@ -1,6 +1,6 @@
 import {beforeAll, beforeEach, describe, expect, it} from 'vitest';
 import {generate, hasDuplicates} from '../src/generate';
-import {state} from '../src/state';
+import {state, addHouseToState, addNameToHouse} from '../src/state';
 import {
   participantByName,
   installParticipantNames,
@@ -51,13 +51,18 @@ describe('generate', () => {
 
     it('should return error if duplicate names', () => {
       installParticipantNames("Alex", "Whitney");
-      state.houses = {"house-0": ["Alex"], "house-1": ["Alex"]}
+      addHouseToState("house-0");
+      addHouseToState("house-1");
+      addNameToHouse("house-0", "Alex");
+      addNameToHouse("house-1", "Alex");
       expect(generate(0, 25)).toStrictEqual({error: "Duplicate name detected! Please delete the duplicate and re-enter it with a last initial or nickname."});
     });
 
     it('should return error if no possible combinations', () => {
       installParticipantNames("Alex", "Whitney");
-      state.houses = {"house-0": ["Alex", "Whitney"]}
+      addHouseToState("house-0");
+      addNameToHouse("house-0", "Alex");
+      addNameToHouse("house-0", "Whitney");
       expect(generate(0, 25)).toStrictEqual({error: noPossibleComboError});
     });
 
@@ -65,7 +70,10 @@ describe('generate', () => {
       installParticipantNames("Alex", "Whitney");
       const alexIndex = state.participants.indexOf(participantByName("Alex"));
       const whitIndex = state.participants.indexOf(participantByName("Whitney"));
-      state.houses = {"house-0": ["Alex"], "house-1": ["Whitney"]}
+      addHouseToState("house-0");
+      addHouseToState("house-1");
+      addNameToHouse("house-0", "Alex");
+      addNameToHouse("house-1", "Whitney");
       const {assignments, error} = generate(0, 25);
       expect(assignments[alexIndex]).toEqual("Whitney");
       expect(assignments[whitIndex]).toEqual("Alex");
@@ -74,7 +82,10 @@ describe('generate', () => {
 
     it('three names in the same house, one name in participant list', () => {
       installParticipantNames("Alex", "Whitney", "Hunter", "Megan");
-      state.houses = {"house-0": ["Alex", "Whitney", "Hunter"]}
+      addHouseToState("house-0");
+      addNameToHouse("house-0", "Alex");
+      addNameToHouse("house-0", "Whitney");
+      addNameToHouse("house-0", "Hunter");
       const results = generate(0, 25);
       expect(results).toStrictEqual({error: noPossibleComboError});
     })

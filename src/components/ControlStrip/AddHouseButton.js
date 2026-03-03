@@ -39,7 +39,7 @@ function template() {
 }
 
 function addHouse() {
-  const houseNumber = Object.keys(state.houses).length;
+  const houseNumber = state.houses.length;
   const houseID = `house-${houseNumber}`;
   addHouseToState(houseID);
 }

@@ -116,10 +116,10 @@ describe('nameList', () => {
       enterName("Alex");
       addHouseToDOM();
       moveNameToHouse("#house-0-select", "Alex");
-      expect(state.houses["house-0"]).toContain("Alex");
+      expect(state.houses.find(h => h.id === "house-0").members).toContain("Alex");
       const deleteBtn = document.querySelector("[id^='delete-Alex']");
       click(`#${deleteBtn.id}`);
-      expect(state.houses["house-0"]).not.toContain("Alex");
+      expect(state.houses.find(h => h.id === "house-0").members).not.toContain("Alex");
     });
   });
 });

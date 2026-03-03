@@ -146,7 +146,7 @@ export function enterName(name) {
 }
 
 export function addHouseToDOM() {
-  const houseNumber = Object.keys(state.houses).length;
+  const houseNumber = state.houses.length;
   const houseID = `house-${houseNumber}`;
   addHouseToState(houseID);
 }

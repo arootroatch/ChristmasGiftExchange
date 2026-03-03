@@ -1,6 +1,6 @@
 import {beforeAll, beforeEach, describe, expect, it, vi} from 'vitest';
 import {allowDrop, drag, dragLeave, drop, initDragDrop} from '../src/dragDrop';
-import {state} from '../src/state';
+import {state, addNameToHouse} from '../src/state';
 import {
   addHouseToDOM,
   enterName,
@@ -117,7 +117,7 @@ describe('dragDrop', () => {
 
       drop(mockEvent);
 
-      expect(state.houses["house-0"]).toContain('Alex');
+      expect(state.houses.find(h => h.id === "house-0").members).toContain('Alex');
       // Check that a name wrapper for Alex exists in the house container (re-rendered)
       shouldSelect('#house-0 .name-container #wrapper-Alex');
     });
@@ -132,7 +132,7 @@ describe('dragDrop', () => {
       const house1Container = document.querySelector('#house-1 .name-container');
 
       house0Container.appendChild(nameWrapper);
-      state.houses["house-0"].push("Alex");
+      addNameToHouse("house-0", "Alex");
 
       const mockEvent = {
         target: house1Container,
@@ -144,8 +144,8 @@ describe('dragDrop', () => {
 
       drop(mockEvent);
 
-      expect(state.houses["house-0"]).not.toContain('Alex');
-      expect(state.houses["house-1"]).toContain('Alex');
+      expect(state.houses.find(h => h.id === "house-0").members).not.toContain('Alex');
+      expect(state.houses.find(h => h.id === "house-1").members).toContain('Alex');
       // Check that a name wrapper for Alex exists in house-1 (re-rendered)
       shouldSelect('#house-1 .name-container #wrapper-Alex');
     });
