@@ -5,7 +5,7 @@ export let state;
 export function startExchange(isSecretSanta = false) {
   state = {
     exchangeId: crypto.randomUUID(),
-    houses: {},
+    houses: [],
     step: 1,
     isSecretSanta: isSecretSanta,
     participants: [],
@@ -31,30 +31,35 @@ export class Participant {
   }
 }
 
+function findHouse(houseID) {
+  return state.houses.find(h => h.id === houseID);
+}
+
 export function addHouseToState(houseID) {
-  state.houses[houseID] = [];
+  const displayNumber = state.houses.length + 1;
+  state.houses.push({id: houseID, name: `Group ${displayNumber}`, members: []});
   stateEvents.emit(Events.HOUSE_ADDED, {houseID});
 }
 
 export function removeHouseFromState(houseID) {
-  delete state.houses[houseID];
+  state.houses = state.houses.filter(h => h.id !== houseID);
   stateEvents.emit(Events.HOUSE_REMOVED, {houseID});
 }
 
 export function addNameToHouse(houseID, name) {
-  if (!state.houses[houseID]) {
-    state.houses[houseID] = [];
-  }
-  if (!state.houses[houseID].includes(name)) {
-    state.houses[houseID].push(name);
-    stateEvents.emit(Events.NAME_ADDED_TO_HOUSE, {houseID, name, members: state.houses[houseID]});
+  const house = findHouse(houseID);
+  if (!house) return;
+  if (!house.members.includes(name)) {
+    house.members.push(name);
+    stateEvents.emit(Events.NAME_ADDED_TO_HOUSE, {houseID, name, members: house.members});
   }
 }
 
 export function removeNameFromHouse(houseID, name) {
-  if (state.houses[houseID]) {
-    state.houses[houseID] = state.houses[houseID].filter(n => n !== name);
-    stateEvents.emit(Events.NAME_REMOVED_FROM_HOUSE, {houseID, name, members: state.houses[houseID]});
+  const house = findHouse(houseID);
+  if (house) {
+    house.members = house.members.filter(n => n !== name);
+    stateEvents.emit(Events.NAME_REMOVED_FROM_HOUSE, {houseID, name, members: house.members});
   }
 }
 
@@ -65,9 +70,9 @@ export function addParticipant(name) {
 }
 
 export function removeParticipant(name) {
-  Object.keys(state.houses).forEach(houseID => {
-    if (state.houses[houseID].includes(name)) {
-      removeNameFromHouse(houseID, name);
+  state.houses.forEach(house => {
+    if (house.members.includes(name)) {
+      removeNameFromHouse(house.id, name);
     }
   });
   state.participants = state.participants.filter(p => p.name !== name);
@@ -75,11 +80,13 @@ export function removeParticipant(name) {
 }
 
 export function getHousesArray() {
-  return Object.values(state.houses).filter(h => h.length > 0);
+  return state.houses
+    .filter(h => h.members.length > 0)
+    .map(h => h.members);
 }
 
 export function getIndividualParticipants() {
-  const allNamesInHouses = Object.values(state.houses).flat();
+  const allNamesInHouses = state.houses.flatMap(h => h.members);
   return state.participants
     .map(p => p.name)
     .filter(name => !allNamesInHouses.includes(name))

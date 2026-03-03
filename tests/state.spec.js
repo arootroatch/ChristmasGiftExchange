@@ -25,7 +25,7 @@ test('state is undefined before exchange starts', () => {
 
 test('startExchange initializes state', () => {
   startExchange();
-  expect(state.houses).toEqual({});
+  expect(state.houses).toEqual([]);
   expect(state.step).toEqual(1);
   expect(state.isSecretSanta).toEqual(false);
   expect(state.participants).toEqual([]);
@@ -60,65 +60,68 @@ describe('state helper functions', () => {
   });
 
   describe('addHouseToState', () => {
-    it('should add empty array with given ID', () => {
+    it('should add house object with id, name, and empty members', () => {
       addHouseToState("house-0");
-      expect(state.houses["house-0"]).toEqual([]);
+      expect(state.houses).toEqual([
+        {id: "house-0", name: "Group 1", members: []}
+      ]);
     });
 
-    it('should add multiple houses with different IDs', () => {
+    it('should assign incrementing display names', () => {
       addHouseToState("house-0");
       addHouseToState("house-5");
-      expect(state.houses["house-0"]).toEqual([]);
-      expect(state.houses["house-5"]).toEqual([]);
+      expect(state.houses[0].name).toBe("Group 1");
+      expect(state.houses[1].name).toBe("Group 2");
     });
   });
 
   describe('removeHouseFromState', () => {
     it('should remove house by ID', () => {
-      state.houses = {"house-0": ["Alex"], "house-1": ["Whitney"]};
+      addHouseToState("house-0");
+      addHouseToState("house-1");
+      addNameToHouse("house-0", "Alex");
+      addNameToHouse("house-1", "Whitney");
       removeHouseFromState("house-0");
-      expect(state.houses["house-0"]).toBeUndefined();
-      expect(state.houses["house-1"]).toEqual(["Whitney"]);
+      expect(state.houses.find(h => h.id === "house-0")).toBeUndefined();
+      expect(state.houses.find(h => h.id === "house-1").members).toEqual(["Whitney"]);
     });
 
     it('should handle removing non-existent house', () => {
-      state.houses = {"house-0": ["Alex"]};
+      addHouseToState("house-0");
       expect(() => removeHouseFromState("house-99")).not.toThrow();
-      expect(state.houses["house-0"]).toEqual(["Alex"]);
+      expect(state.houses.length).toBe(1);
     });
   });
 
   describe('addNameToHouse', () => {
     it('should add name to existing house', () => {
-      state.houses["house-0"] = [];
+      addHouseToState("house-0");
       addNameToHouse("house-0", "Alex");
-      expect(state.houses["house-0"]).toEqual(["Alex"]);
-    });
-
-    it('should create house if it does not exist', () => {
-      addNameToHouse("house-0", "Alex");
-      expect(state.houses["house-0"]).toEqual(["Alex"]);
+      expect(state.houses[0].members).toEqual(["Alex"]);
     });
 
     it('should not add duplicate names', () => {
-      state.houses["house-0"] = ["Alex"];
+      addHouseToState("house-0");
       addNameToHouse("house-0", "Alex");
-      expect(state.houses["house-0"]).toEqual(["Alex"]);
+      addNameToHouse("house-0", "Alex");
+      expect(state.houses[0].members).toEqual(["Alex"]);
     });
 
     it('should add multiple names to same house', () => {
-      state.houses["house-0"] = [];
+      addHouseToState("house-0");
       addNameToHouse("house-0", "Alex");
       addNameToHouse("house-0", "Whitney");
-      expect(state.houses["house-0"]).toEqual(["Alex", "Whitney"]);
+      expect(state.houses[0].members).toEqual(["Alex", "Whitney"]);
     });
   });
 
   describe('removeNameFromHouse', () => {
     it('should remove name from house', () => {
-      state.houses["house-0"] = ["Alex", "Whitney"];
+      addHouseToState("house-0");
+      addNameToHouse("house-0", "Alex");
+      addNameToHouse("house-0", "Whitney");
       removeNameFromHouse("house-0", "Alex");
-      expect(state.houses["house-0"]).toEqual(["Whitney"]);
+      expect(state.houses[0].members).toEqual(["Whitney"]);
     });
 
     it('should handle non-existent house', () => {
@@ -126,9 +129,10 @@ describe('state helper functions', () => {
     });
 
     it('should handle non-existent name', () => {
-      state.houses["house-0"] = ["Alex"];
+      addHouseToState("house-0");
+      addNameToHouse("house-0", "Alex");
       removeNameFromHouse("house-0", "Whitney");
-      expect(state.houses["house-0"]).toEqual(["Alex"]);
+      expect(state.houses[0].members).toEqual(["Alex"]);
     });
   });
 
@@ -148,50 +152,65 @@ describe('state helper functions', () => {
     });
 
     it('should remove participant from house before removing from state', () => {
-      state.houses = {"house-0": ["Alex", "Whitney"]};
+      addHouseToState("house-0");
+      addNameToHouse("house-0", "Alex");
+      addNameToHouse("house-0", "Whitney");
       removeParticipant("Alex");
-      expect(state.houses["house-0"]).toEqual(["Whitney"]);
+      expect(state.houses[0].members).toEqual(["Whitney"]);
       expect(state.participants.map(p => p.name)).toEqual(["Whitney", "Hunter"]);
     });
 
     it('should handle participant not in any house', () => {
-      state.houses = {"house-0": ["Whitney"]};
+      addHouseToState("house-0");
+      addNameToHouse("house-0", "Whitney");
       removeParticipant("Alex");
-      expect(state.houses["house-0"]).toEqual(["Whitney"]);
+      expect(state.houses[0].members).toEqual(["Whitney"]);
       expect(state.participants.map(p => p.name)).toEqual(["Whitney", "Hunter"]);
     });
   });
 
   describe('getHousesArray', () => {
-    it('should return array of house arrays', () => {
-      state.houses = {"house-0": ["Alex"], "house-1": ["Whitney", "Hunter"]};
+    it('should return array of member arrays', () => {
+      addHouseToState("house-0");
+      addHouseToState("house-1");
+      addNameToHouse("house-0", "Alex");
+      addNameToHouse("house-1", "Whitney");
+      addNameToHouse("house-1", "Hunter");
       expect(getHousesArray()).toEqual([["Alex"], ["Whitney", "Hunter"]]);
     });
 
     it('should filter out empty houses', () => {
-      state.houses = {"house-0": ["Alex"], "house-1": [], "house-2": ["Whitney"]};
+      addHouseToState("house-0");
+      addHouseToState("house-1");
+      addHouseToState("house-2");
+      addNameToHouse("house-0", "Alex");
+      addNameToHouse("house-2", "Whitney");
       expect(getHousesArray()).toEqual([["Alex"], ["Whitney"]]);
     });
 
-    it('should handle empty state.houses object', () => {
-      state.houses = {};
+    it('should handle empty state.houses array', () => {
+      state.houses = [];
       expect(getHousesArray()).toEqual([]);
     });
   });
 
   describe('getIndividualParticipants', () => {
     it('should return individuals not in any house', () => {
-      state.houses = {"house-0": ["Alex"]};
+      addHouseToState("house-0");
+      addNameToHouse("house-0", "Alex");
       expect(getIndividualParticipants()).toEqual([["Whitney"], ["Hunter"]]);
     });
 
     it('should return all participants if no houses', () => {
-      state.houses = {};
+      state.houses = [];
       expect(getIndividualParticipants()).toEqual([["Alex"], ["Whitney"], ["Hunter"]]);
     });
 
     it('should return empty array if all participants are in houses', () => {
-      state.houses = {"house-0": ["Alex", "Whitney", "Hunter"]};
+      addHouseToState("house-0");
+      addNameToHouse("house-0", "Alex");
+      addNameToHouse("house-0", "Whitney");
+      addNameToHouse("house-0", "Hunter");
       expect(getIndividualParticipants()).toEqual([]);
     });
   });
@@ -239,22 +258,32 @@ describe('state helper functions', () => {
 
   describe('getHousesForGeneration', () => {
     it('should combine houses and individuals', () => {
-      state.houses = {"house-0": ["Alex", "Whitney"]};
+      addHouseToState("house-0");
+      addNameToHouse("house-0", "Alex");
+      addNameToHouse("house-0", "Whitney");
       expect(getHousesForGeneration()).toEqual([["Alex", "Whitney"], ["Hunter"]]);
     });
 
     it('should filter empty houses', () => {
-      state.houses = {"house-0": ["Alex"], "house-1": [], "house-2": ["Whitney"]};
+      addHouseToState("house-0");
+      addHouseToState("house-1");
+      addHouseToState("house-2");
+      addNameToHouse("house-0", "Alex");
+      addNameToHouse("house-2", "Whitney");
       expect(getHousesForGeneration()).toEqual([["Alex"], ["Whitney"], ["Hunter"]]);
     });
 
     it('should return only individuals when no houses exist', () => {
-      state.houses = {};
+      state.houses = [];
       expect(getHousesForGeneration()).toEqual([["Alex"], ["Whitney"], ["Hunter"]]);
     });
 
     it('should return only houses when all participants are in houses', () => {
-      state.houses = {"house-0": ["Alex", "Whitney"], "house-1": ["Hunter"]};
+      addHouseToState("house-0");
+      addHouseToState("house-1");
+      addNameToHouse("house-0", "Alex");
+      addNameToHouse("house-0", "Whitney");
+      addNameToHouse("house-1", "Hunter");
       expect(getHousesForGeneration()).toEqual([["Alex", "Whitney"], ["Hunter"]]);
     });
   });
