@@ -24,7 +24,7 @@ function renderParticipantsSlot() {
   const slot = selectElement(`[data-slot="names-${participantsId}"]`);
   if (!slot) return;
 
-  const namesInHouses = Object.values(state.houses).flat();
+  const namesInHouses = state.houses.flatMap(h => h.members);
   const names = state.participants
     .map(p => p.name)
     .filter(name => !namesInHouses.includes(name));

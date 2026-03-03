@@ -11,7 +11,7 @@ import {
   shouldSelect,
   stubProperty
 } from "../specHelper";
-import {state} from "../../src/state";
+import {state, addNameToHouse} from "../../src/state";
 import {alex, whitney} from "../testData";
 
 describe('addName', () => {
@@ -91,23 +91,13 @@ describe('addName', () => {
 
   it("clicking delete x removes name from house in state if it's in a house", () => {
     addHouseToDOM();
+    addNameToHouse("house-0", "Alex");
 
-    // Set up: manually put Alex in house-0 (both state and DOM)
-    state.houses["house-0"] = ["Alex"];
-    const nameDiv = document.querySelector("#wrapper-Alex");
-    const nameContainer = document.querySelector("#house-0 .name-container");
-    const house0 = document.querySelector("#house-0");
-
-    // Stub the parentNode and closest methods to simulate Alex being in house-0
-    Object.defineProperty(nameDiv, 'parentNode', {
-      configurable: true,
-      get: () => nameContainer
-    });
-    stubProperty(nameContainer, 'closest', vi.fn(() => house0));
-
-    expect(state.houses["house-0"]).toContain("Alex");
-    click("#delete-Alex1");
-    expect(state.houses["house-0"]).not.toContain("Alex");
+    const house = state.houses.find(h => h.id === "house-0");
+    expect(house.members).toContain("Alex");
+    const deleteBtn = document.querySelector('[id^="delete-Alex"]');
+    click(`#${deleteBtn.id}`);
+    expect(house.members).not.toContain("Alex");
   });
 
   it("escapes HTML in name to prevent XSS", () => {
@@ -120,7 +110,7 @@ describe('addName', () => {
 
   it("clicking delete x on name in main list does not affect state.houses", () => {
     addHouseToDOM();
-    const previousHouses = {...state.houses};
+    const previousHouses = structuredClone(state.houses);
     click("#delete-Alex1");
     expect(state.houses).toEqual(previousHouses);
   });

@@ -44,7 +44,9 @@ describe('addHouse', () => {
   });
 
   it('should add house to state', () => {
-    expect(state.houses["house-0"]).toEqual([]);
+    const house = state.houses.find(h => h.id === "house-0");
+    expect(house).toBeDefined();
+    expect(house.members).toEqual([]);
   });
 
   it('adds click event listener to delete house button', () => {
@@ -74,12 +76,12 @@ describe("deleteHouse", () => {
   it("puts names back in participants list", () => {
     expect(document.querySelectorAll("#house-0 .name-container .name-wrapper").length).toBe(2);
     expect(state.participants.length).toBe(2);
-    expect(state.houses["house-0"].length).toBe(2);
+    expect(state.houses.find(h => h.id === "house-0").members.length).toBe(2);
 
     click("#house-0-delete")
 
     // Verify state is updated
-    expect(state.houses["house-0"]).toBeUndefined();
+    expect(state.houses.find(h => h.id === "house-0")).toBeUndefined();
 
     // Verify names are back in participants list
     const participants = document.querySelector("#participants");
@@ -101,9 +103,9 @@ describe("deleteHouse", () => {
   })
 
   it("removes house from state", () => {
-    expect(state.houses["house-0"]).toBeDefined();
+    expect(state.houses.find(h => h.id === "house-0")).toBeDefined();
     click("#house-0-delete");
-    expect(state.houses["house-0"]).toBeUndefined();
+    expect(state.houses.find(h => h.id === "house-0")).toBeUndefined();
   })
 
 
@@ -141,7 +143,7 @@ describe('insertNameFromSelect', () => {
 
   it("adds name to house in state", () => {
     change("#house-0-select", "Alex");
-    expect(state.houses["house-0"]).toContain("Alex");
+    expect(state.houses.find(h => h.id === "house-0").members).toContain("Alex");
   })
 
   it("adds name to participant list and removes from house div", () => {
