@@ -1,5 +1,5 @@
 import {beforeEach, describe, expect, it, vi, afterAll, beforeAll} from "vitest";
-import {click, expectColor, stubFetch, stubFetchError} from "../specHelper";
+import {click, expectColor, stubFetchError} from "../specHelper";
 import {init} from "../../src/components/EmailQuery";
 import {waitFor} from "@testing-library/dom";
 
@@ -26,22 +26,66 @@ describe("getName", () => {
         emailQueryBtn = document.querySelector("#emailQueryBtn");
     })
 
+    function stubRecipientFetch(body) {
+        global.fetch = vi.fn(() => Promise.resolve({
+            ok: true,
+            status: 200,
+            json: () => Promise.resolve(body)
+        }));
+    }
+
     it("sets button text to Loading...", () => {
-        stubFetch(true, 200, {recipient: "Whitney", date: "2023-06-15T12:00:00.000Z"});
+        stubRecipientFetch({recipient: "Whitney", date: "2023-06-15T12:00:00.000Z"});
         click("#emailQueryBtn");
         expect(emailQueryBtn.innerHTML).toContain('Loading...');
         expectColor(emailQueryBtn.style.color, "rgb(128, 128, 128)", "#808080");
     })
 
+    it("fetches from new API endpoint with GET and email query param", () => {
+        stubRecipientFetch({recipient: "Whitney", date: "2023-06-15T12:00:00.000Z"});
+        const emailInput = document.querySelector("#emailQuery");
+        emailInput.value = "test@example.com";
+        click("#emailQueryBtn");
+        expect(global.fetch).toHaveBeenCalledWith(
+            "/.netlify/functions/api-recipient-get?email=test%40example.com"
+        );
+    })
+
     it("displays recipient and date", () => {
-        stubFetch(true, 200, {recipient: "Whitney", date: "2023-06-15T12:00:00.000Z"});
+        stubRecipientFetch({recipient: "Whitney", date: "2023-06-15T12:00:00.000Z"});
         click("#emailQueryBtn");
         expect(query.innerHTML).toContain("As of Thu Jun 15 2023, you're buying a gift for");
         expect(query.innerHTML).toContain("Whitney!");
     })
 
+    it("displays View Wishlist link when wishlistViewUrl is present", async () => {
+        stubRecipientFetch({
+            recipient: "Whitney",
+            date: "2023-06-15T12:00:00.000Z",
+            wishlistViewUrl: "/wishlist/view/token-abc?exchange=ex123"
+        });
+        click("#emailQueryBtn");
+        await waitFor(() => {
+            expect(query.innerHTML).toContain("Whitney!");
+            expect(query.innerHTML).toContain("View Wishlist");
+            expect(query.innerHTML).toContain('href="/wishlist/view/token-abc?exchange=ex123"');
+        });
+    })
+
+    it("does not display View Wishlist link when wishlistViewUrl is absent", async () => {
+        stubRecipientFetch({
+            recipient: "Whitney",
+            date: "2023-06-15T12:00:00.000Z"
+        });
+        click("#emailQueryBtn");
+        await waitFor(() => {
+            expect(query.innerHTML).toContain("Whitney!");
+            expect(query.innerHTML).not.toContain("View Wishlist");
+        });
+    })
+
     it("allows multiple searches", async () => {
-        stubFetch(true, 200, {recipient: "Whitney", date: "2023-06-15T12:00:00.000Z"});
+        stubRecipientFetch({recipient: "Whitney", date: "2023-06-15T12:00:00.000Z"});
         click("#emailQueryBtn");
         await waitFor(() => {
             expect(query.innerHTML).toContain("Whitney!");
@@ -50,7 +94,7 @@ describe("getName", () => {
         // Wait a tick to ensure event listener is attached to new button
         await new Promise(resolve => setTimeout(resolve, 0));
 
-        stubFetch(true, 200, {recipient: "Hunter", date: "2023-06-15T12:00:00.000Z"});
+        stubRecipientFetch({recipient: "Hunter", date: "2023-06-15T12:00:00.000Z"});
         click("#emailQueryBtn");
         await waitFor(() => {
             expect(query.innerHTML).toContain("Hunter!");
