@@ -46,6 +46,14 @@ export function removeHouseFromState(houseID) {
   stateEvents.emit(Events.HOUSE_REMOVED, {houseID});
 }
 
+export function renameHouse(houseID, name) {
+  const house = findHouse(houseID);
+  if (house) {
+    house.name = name;
+    stateEvents.emit(Events.HOUSE_RENAMED, {houseID, name});
+  }
+}
+
 export function addNameToHouse(houseID, name) {
   const house = findHouse(houseID);
   if (!house) return;

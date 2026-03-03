@@ -13,7 +13,8 @@ import {
   nextStep,
   removeParticipant,
   removeHouseFromState,
-  removeNameFromHouse
+  removeNameFromHouse,
+  renameHouse
 } from '/src/state.js'
 import {alex, whitney, hunter} from "./testData";
 import {Events, stateEvents} from '/src/Events.js'
@@ -133,6 +134,27 @@ describe('state helper functions', () => {
       addNameToHouse("house-0", "Alex");
       removeNameFromHouse("house-0", "Whitney");
       expect(state.houses[0].members).toEqual(["Alex"]);
+    });
+  });
+
+  describe('renameHouse', () => {
+    it('should update house name', () => {
+      addHouseToState("house-0");
+      renameHouse("house-0", "Smith Family");
+      expect(state.houses[0].name).toBe("Smith Family");
+    });
+
+    it('should emit HOUSE_RENAMED event', () => {
+      const spy = vi.fn();
+      const unsubscribe = stateEvents.on(Events.HOUSE_RENAMED, spy);
+      addHouseToState("house-0");
+      renameHouse("house-0", "Smith Family");
+      expect(spy).toHaveBeenCalledWith({houseID: "house-0", name: "Smith Family"});
+      unsubscribe();
+    });
+
+    it('should not throw for non-existent house', () => {
+      expect(() => renameHouse("house-99", "Test")).not.toThrow();
     });
   });
 

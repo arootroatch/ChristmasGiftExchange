@@ -28,6 +28,7 @@ export const Events = {
   PARTICIPANT_REMOVED: 'participant:removed',
   HOUSE_ADDED: 'house:added',
   HOUSE_REMOVED: 'house:removed',
+  HOUSE_RENAMED: 'house:renamed',
   NAME_ADDED_TO_HOUSE: 'name:addedToHouse',
   NAME_REMOVED_FROM_HOUSE: 'name:removedFromHouse',
   RECIPIENTS_ASSIGNED: 'recipients:assigned',
