@@ -14,7 +14,8 @@ import {
   removeParticipant,
   removeHouseFromState,
   removeNameFromHouse,
-  renameHouse
+  renameHouse,
+  isGenerated
 } from '/src/state.js'
 import {alex, whitney, hunter} from "./testData";
 import {Events, stateEvents} from '/src/Events.js'
@@ -30,6 +31,7 @@ test('startExchange initializes state', () => {
   expect(state.step).toEqual(1);
   expect(state.isSecretSanta).toEqual(false);
   expect(state.participants).toEqual([]);
+  expect(state.assignments).toEqual([]);
   expect(state.nameNumber).toEqual(1);
 })
 
@@ -238,16 +240,18 @@ describe('state helper functions', () => {
   });
 
   describe('assignRecipients', () => {
-    it('updates participants with recipients', () => {
+    it('populates state.assignments array', () => {
       installParticipantNames("Alex", "Whitney", "Hunter");
       assignRecipients(["Whitney", "Hunter", "Alex"]);
 
-      expect(state.participants[0].recipient).toBe("Whitney");
-      expect(state.participants[1].recipient).toBe("Hunter");
-      expect(state.participants[2].recipient).toBe("Alex");
+      expect(state.assignments).toEqual([
+        {giver: "Alex", recipient: "Whitney"},
+        {giver: "Whitney", recipient: "Hunter"},
+        {giver: "Hunter", recipient: "Alex"}
+      ]);
     });
 
-    it('emits RECIPIENTS_ASSIGNED event', () => {
+    it('emits RECIPIENTS_ASSIGNED event with assignments', () => {
       const spy = vi.fn();
       const unsubscribe = stateEvents.on(Events.RECIPIENTS_ASSIGNED, spy);
       installParticipantNames("Alex", "Whitney", "Hunter");
@@ -256,7 +260,13 @@ describe('state helper functions', () => {
       assignRecipients(["Whitney", "Hunter", "Alex"]);
 
       expect(spy).toHaveBeenCalledWith({
-        isGenerated: true, isSecretSanta: false, participants: state.participants
+        isGenerated: true,
+        isSecretSanta: false,
+        assignments: [
+          {giver: "Alex", recipient: "Whitney"},
+          {giver: "Whitney", recipient: "Hunter"},
+          {giver: "Hunter", recipient: "Alex"}
+        ]
       });
 
       unsubscribe();
@@ -271,10 +281,24 @@ describe('state helper functions', () => {
       assignRecipients(["Whitney", "Hunter", "Alex"]);
 
       expect(spy).toHaveBeenCalledWith({
-        isGenerated: true, isSecretSanta: true, participants: state.participants,
+        isGenerated: true,
+        isSecretSanta: true,
+        assignments: state.assignments,
       });
 
       unsubscribe();
+    });
+  });
+
+  describe('isGenerated', () => {
+    it('returns false when assignments is empty', () => {
+      expect(isGenerated()).toBe(false);
+    });
+
+    it('returns true when assignments has entries', () => {
+      installParticipantNames("Alex", "Whitney");
+      assignRecipients(["Whitney", "Alex"]);
+      expect(isGenerated()).toBe(true);
     });
   });
 

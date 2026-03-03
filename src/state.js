@@ -9,6 +9,7 @@ export function startExchange(isSecretSanta = false) {
     step: 1,
     isSecretSanta: isSecretSanta,
     participants: [],
+    assignments: [],
     nameNumber: 1,
   }
   stateEvents.emit(Events.EXCHANGE_STARTED);
@@ -105,14 +106,15 @@ export function getHousesForGeneration() {
   return getHousesArray().concat(getIndividualParticipants());
 }
 
-export function assignRecipients(assignments) {
-  assignments.forEach((recipient, index) => {
-    state.participants[index].recipient = recipient;
-  });
+export function assignRecipients(recipientNames) {
+  state.assignments = recipientNames.map((recipient, index) => ({
+    giver: state.participants[index].name,
+    recipient
+  }));
   stateEvents.emit(Events.RECIPIENTS_ASSIGNED, {
     isGenerated: true,
     isSecretSanta: state.isSecretSanta,
-    participants: state.participants
+    assignments: state.assignments
   });
 }
 
@@ -125,5 +127,5 @@ export function addEmailsToParticipants(emails) {
 }
 
 export function isGenerated() {
-  return state.participants.every(p => p.recipient && p.recipient !== "");
+  return state.assignments.length > 0;
 }
