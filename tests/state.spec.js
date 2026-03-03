@@ -32,6 +32,23 @@ test('startExchange initializes state', () => {
   expect(state.nameNumber).toEqual(1);
 })
 
+describe('exchangeId', () => {
+  it('generates a UUID when exchange starts', () => {
+    startExchange();
+    expect(state.exchangeId).toBeDefined();
+    expect(state.exchangeId).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+    );
+  });
+
+  it('generates a different UUID each time', () => {
+    startExchange();
+    const first = state.exchangeId;
+    startExchange();
+    expect(state.exchangeId).not.toBe(first);
+  });
+});
+
 describe('state helper functions', () => {
   beforeEach(() => {
     startExchange();

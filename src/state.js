@@ -4,6 +4,7 @@ export let state;
 
 export function startExchange(isSecretSanta = false) {
   state = {
+    exchangeId: crypto.randomUUID(),
     houses: {},
     step: 1,
     isSecretSanta: isSecretSanta,
@@ -24,12 +25,9 @@ export function nextStep(maxSteps = null) {
 
 
 export class Participant {
-  constructor(name, recipient = "", email = "") {
+  constructor(name, email = "") {
     this.name = name;
     this.email = email;
-    this.recipient = recipient;
-    this.date = "";
-    this.id = "";
   }
 }
 
@@ -104,13 +102,9 @@ export function assignRecipients(assignments) {
 }
 
 export function addEmailsToParticipants(emails) {
-  let random = Math.random().toString(20);
-  let date = new Date().toISOString();
   emails.forEach((obj) => {
     let i = parseInt(obj.index);
     state.participants[i].email = obj.email;
-    state.participants[i].id = `${state.participants.length}_${random}_${date}`;
-    state.participants[i].date = date;
   });
   stateEvents.emit(Events.EMAILS_ADDED, {participants: state.participants});
 }
