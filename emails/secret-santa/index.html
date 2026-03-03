@@ -41,6 +41,20 @@
             {{recipient}}!
         </td>
     </tr>
+    {{#if wishlistEditUrl}}
+    <tr>
+        <td align="center" style="padding: 20px 30px; text-align: center;">
+            <p style="font-size: 18px; color: #333;">
+                Want to share your wishlist with your Secret Santa?
+            </p>
+            <a href="{{wishlistEditUrl}}"
+               style="display: inline-block; padding: 12px 24px; background-color: #2e7d32;
+                      color: white; text-decoration: none; border-radius: 4px; font-size: 16px;">
+                Add Your Wishlist
+            </a>
+        </td>
+    </tr>
+    {{/if}}
     <tr>
         <td align="center" style="padding: 50px; font-size: 20px">
             If you lose this email, you can retrieve the name of your recipient at
