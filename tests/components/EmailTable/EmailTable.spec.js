@@ -7,7 +7,6 @@ import {
   resetState,
   shouldDisplayEmailTable,
   shouldDisplayErrorSnackbar,
-  stubFetch
 } from "../../specHelper";
 import "../../../src/components/Name";
 import {assignRecipients, nextStep, startExchange, state} from "../../../src/state";
@@ -17,6 +16,24 @@ import {
   init,
 } from "../../../src/components/EmailTable/EmailTable";
 import {init as initSnackbar} from "../../../src/components/Snackbar";
+
+const apiTokenResponse = {
+  exchangeId: "test-exchange-id",
+  participants: [
+    {name: "Alex", email: "arootroatch@gmail.com", token: "token-alex"},
+    {name: "Whitney", email: "whitney@gmail.com", token: "token-whitney"},
+    {name: "Hunter", email: "hunter@gmail.com", token: "token-hunter"},
+    {name: "Megan", email: "megan@gmail.com", token: "token-megan"},
+  ]
+};
+
+function stubExchangeApiFetch() {
+  global.fetch = vi.fn(() => Promise.resolve({
+    ok: true,
+    status: 200,
+    json: () => Promise.resolve(apiTokenResponse)
+  }));
+}
 
 function renderEmailTableInputs(participants) {
   const body = document.querySelector("#emailTableBody");
@@ -44,8 +61,6 @@ function submitEmailForm() {
 }
 
 describe('emailTable', () => {
-  stubFetch(true, 200, {});
-  Math.random = vi.fn(() => 123456789);
   vi.useFakeTimers();
   vi.setSystemTime(new Date(2023, 0, 1));
 
@@ -55,6 +70,7 @@ describe('emailTable', () => {
   });
 
   beforeEach(() => {
+    stubExchangeApiFetch();
     resetState();
     state.isSecretSanta = true;
   });
@@ -166,15 +182,24 @@ describe('emailTable', () => {
       })
     })
 
-    it("invokes postToServer", () => {
-      const expectedBody = JSON.stringify([
-        {name: "Alex", email: ""},
-        {name: "Whitney", email: ""},
-        {name: "Hunter", email: ""},
-        {name: "Megan", email: ""},
-      ]);
-      expect(global.fetch).toHaveBeenCalledWith("/.netlify/functions/postToDb",
-        {"body": expectedBody, "method": "POST", "mode": "cors"});
+    it("posts exchange data to new API endpoint", () => {
+      expect(global.fetch).toHaveBeenCalledWith("/.netlify/functions/api-exchange-post", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+          exchangeId: state.exchangeId,
+          isSecretSanta: state.isSecretSanta,
+          houses: state.houses,
+          participants: state.participants,
+          assignments: state.assignments
+        })
+      });
+    })
+
+    it("stores token map from API response on state", async () => {
+      await vi.waitFor(() => {
+        expect(state._tokenMap).toEqual(apiTokenResponse.participants);
+      });
     })
 
     it("hides email table on EMAILS_ADDED", async () => {
@@ -194,8 +219,9 @@ describe('emailTable', () => {
   describe("submitEmails error handling", () => {
     beforeEach(() => {
       global.fetch = vi.fn(() => Promise.resolve({
+        ok: false,
         status: 500,
-        body: "Database connection failed"
+        json: () => Promise.resolve({error: "Database connection failed"})
       }));
       triggerEmailTableRender();
       renderEmailTableInputs([

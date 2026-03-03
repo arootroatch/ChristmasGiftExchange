@@ -5,15 +5,21 @@ import {
   installGivers,
   resetState,
   shouldDisplaySuccessSnackbar,
-  stubFetch,
 } from "../../specHelper";
 import {startExchange, state, addEmailsToParticipants, assignRecipients} from "../../../src/state";
 import {init} from "../../../src/components/EmailTable/SendEmails";
 import {init as initSnackbar} from "../../../src/components/Snackbar";
 import {alex, hunter, megan, whitney} from "../../testData";
 
+function stubDispatchEmailFetch() {
+  global.fetch = vi.fn(() => Promise.resolve({
+    ok: true,
+    status: 200,
+    json: () => Promise.resolve({})
+  }));
+}
+
 describe("sendEmails", () => {
-  stubFetch(true, 200, {});
   vi.useFakeTimers();
 
   beforeAll(() => {
@@ -22,6 +28,7 @@ describe("sendEmails", () => {
   });
 
   beforeEach(() => {
+    stubDispatchEmailFetch();
     resetState();
     const existing = document.querySelector("#sendEmails");
     if (existing) existing.remove();
@@ -64,6 +71,12 @@ describe("sendEmails", () => {
     beforeEach(() => {
       installGivers([{...alex}, {...whitney}, {...hunter}, {...megan}]);
       assignRecipients([whitney.name, hunter.name, megan.name, alex.name]);
+      state._tokenMap = [
+        {name: "Alex", email: alex.email, token: "token-alex"},
+        {name: "Whitney", email: whitney.email, token: "token-whitney"},
+        {name: "Hunter", email: hunter.email, token: "token-hunter"},
+        {name: "Megan", email: megan.email, token: "token-megan"},
+      ];
       addEmailsToParticipants([
         {name: alex.name, email: alex.email, index: 0},
         {name: whitney.name, email: whitney.email, index: 1},
@@ -79,7 +92,38 @@ describe("sendEmails", () => {
       expectColor(sendEmailsButton.style.color, "rgb(128, 128, 128)", "#808080");
     });
 
-    it("sends emails for each assignment", () => {
+    it("sends emails for each assignment with wishlistEditUrl", () => {
+      state.assignments.forEach((assignment) => {
+        const participant = state.participants.find(p => p.name === assignment.giver);
+        const tokenInfo = state._tokenMap.find(t => t.name === assignment.giver);
+        expect(global.fetch).toHaveBeenCalledWith("/.netlify/functions/dispatchEmail", {
+          body: JSON.stringify({
+            name: assignment.giver,
+            recipient: assignment.recipient,
+            email: participant.email,
+            wishlistEditUrl: `${window.location.origin}/wishlist/edit/${tokenInfo.token}`
+          }),
+          method: "POST",
+          mode: "cors",
+        });
+      });
+    });
+
+    it("sends emails without wishlistEditUrl when no token map", () => {
+      // Reset and trigger without token map
+      resetState();
+      const existing = document.querySelector("#sendEmails");
+      if (existing) existing.remove();
+      installGivers([{...alex}, {...whitney}]);
+      assignRecipients([whitney.name, alex.name]);
+      state._tokenMap = undefined;
+      addEmailsToParticipants([
+        {name: alex.name, email: alex.email, index: 0},
+        {name: whitney.name, email: whitney.email, index: 1},
+      ]);
+      global.fetch.mockClear();
+      click("#sendEmailsBtn");
+
       state.assignments.forEach((assignment) => {
         const participant = state.participants.find(p => p.name === assignment.giver);
         expect(global.fetch).toHaveBeenCalledWith("/.netlify/functions/dispatchEmail", {
@@ -87,6 +131,7 @@ describe("sendEmails", () => {
             name: assignment.giver,
             recipient: assignment.recipient,
             email: participant.email,
+            wishlistEditUrl: null
           }),
           method: "POST",
           mode: "cors",
