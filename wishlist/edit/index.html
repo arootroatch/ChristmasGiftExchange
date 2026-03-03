@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Your Wishlist</title>
+    <link rel="stylesheet" href="/css/main.css" type="text/css"/>
+</head>
+<body>
+<div id="snackbar" class="hidden"></div>
+<div id="container">
+    <h1 id="greeting">Loading...</h1>
+
+    <section id="wishlists-section">
+        <h2>External Wishlists</h2>
+        <p class="helper-text">Add links to your Amazon, Wishlist.com, or other wishlists</p>
+        <div id="wishlists-list"></div>
+        <div id="add-wishlist-form">
+            <input type="url" id="wishlist-url" placeholder="Wishlist URL"/>
+            <input type="text" id="wishlist-title" placeholder="Title (optional)"/>
+            <button id="add-wishlist-btn" class="button">Add Wishlist</button>
+        </div>
+    </section>
+
+    <section id="items-section">
+        <h2>Individual Items</h2>
+        <p class="helper-text">Add links to specific products you'd like</p>
+        <div id="items-list"></div>
+        <div id="add-item-form">
+            <input type="url" id="item-url" placeholder="Product URL"/>
+            <input type="text" id="item-title" placeholder="Title (optional)"/>
+            <button id="add-item-btn" class="button">Add Item</button>
+        </div>
+    </section>
+
+    <button id="save-wishlist-btn" class="button primary">Save Wishlist</button>
+
+    <hr/>
+
+    <section id="contact-section">
+        <h2>Send Contact Info to Your Secret Santa</h2>
+        <p class="helper-text">This information will be emailed directly to your Secret Santa and will NOT be
+            stored.</p>
+        <label for="contact-address">Shipping Address</label>
+        <textarea id="contact-address" rows="3" placeholder="Your shipping address"></textarea>
+        <label for="contact-phone">Phone Number</label>
+        <input type="tel" id="contact-phone" placeholder="Your phone number"/>
+        <label for="contact-notes">Notes</label>
+        <textarea id="contact-notes" rows="2" placeholder="Anything else they should know"></textarea>
+        <button id="send-contact-btn" class="button">Send to My Secret Santa</button>
+    </section>
+</div>
+<script type="module" src="/src/wishlistEdit.js"></script>
+</body>
+</html>
