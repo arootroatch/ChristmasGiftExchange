@@ -27,13 +27,13 @@ describe('addName', () => {
     input = document.querySelector("#name-input");
   })
 
-  it('Giver object shape', () => {
-    const giver = {...alex, recipient: whitney.name};
-    expect(giver.name).toBe("Alex");
-    expect(giver.email).toBe("alex@gmail.com");
-    expect(giver.recipient).toBe("Whitney");
-    expect(giver.date).toBe("");
-    expect(giver.id).toBe("");
+  it('Participant object shape', () => {
+    const participant = {...alex, recipient: whitney.name};
+    expect(participant.name).toBe("Alex");
+    expect(participant.email).toBe("alex@gmail.com");
+    expect(participant.recipient).toBe("Whitney");
+    expect(participant.date).toBe("");
+    expect(participant.id).toBe("");
   });
 
   it('should add name to DOM', () => {
@@ -45,8 +45,8 @@ describe('addName', () => {
   });
 
   it('should add name to state', () => {
-    expect(state.givers[0].name).toBe("Alex");
-    expect(state.givers.length).toBe(1);
+    expect(state.participants[0].name).toBe("Alex");
+    expect(state.participants.length).toBe(1);
     expect(state.nameNumber).toBe(2);
   });
 
@@ -55,20 +55,20 @@ describe('addName', () => {
   })
 
   it("clicking delete x removes name from state", () => {
-    expect(state.givers[0].name).toEqual("Alex");
-    state.givers.push({...whitney});
-    expect(state.givers.length).toBe(2);
+    expect(state.participants[0].name).toEqual("Alex");
+    state.participants.push({...whitney});
+    expect(state.participants.length).toBe(2);
     click("#delete-Alex1");
-    expect(state.givers.length).toBe(1);
-    expect(state.givers[0].name).toEqual("Whitney");
+    expect(state.participants.length).toBe(1);
+    expect(state.participants[0].name).toEqual("Whitney");
   })
 
   it("clicking delete x removes name from DOM", () => {
-    expect(state.givers[0].name).toEqual("Alex");
+    expect(state.participants[0].name).toEqual("Alex");
     click("#delete-Alex1");
     // In reactive architecture, element is re-rendered, so check it no longer exists
     shouldNotSelect("#wrapper-Alex");
-    expect(state.givers).toEqual([]);
+    expect(state.participants).toEqual([]);
   });
 
   it("adds names to dropdown", () => {

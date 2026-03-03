@@ -40,7 +40,7 @@ function template() {
 }
 
 function introNext() {
-  if (state.givers.length < 1 && state.step === 1) {
+  if (state.participants.length < 1 && state.step === 1) {
     showError("Please add participant names");
     return;
   }

@@ -1,6 +1,6 @@
 import {beforeAll, beforeEach, describe, expect, it} from "vitest";
 import {init} from "../../src/components/ResultsTable";
-import {initReactiveSystem, installGiverNames, resetDOM, resetState} from "../specHelper";
+import {initReactiveSystem, installParticipantNames, resetDOM, resetState} from "../specHelper";
 import {assignRecipients, startExchange, state} from "../../src/state";
 
 describe('resultsTable', () => {
@@ -53,9 +53,9 @@ describe('resultsTable', () => {
     expect(document.querySelector("#results-table")).toBeNull();
   });
 
-  it('renders results from state.givers when assignRecipients is called', () => {
+  it('renders results from state.participants when assignRecipients is called', () => {
     startExchange(false);
-    installGiverNames("Alex", "Whitney", "Hunter");
+    installParticipantNames("Alex", "Whitney", "Hunter");
 
     assignRecipients(["Whitney", "Hunter", "Alex"]);
 
@@ -79,7 +79,7 @@ describe('resultsTable', () => {
 
   it('does not render results when isSecretSanta=true', () => {
     startExchange(true);
-    installGiverNames("Alex", "Whitney");
+    installParticipantNames("Alex", "Whitney");
 
     assignRecipients(["Whitney", "Alex"]);
 

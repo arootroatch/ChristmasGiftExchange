@@ -59,9 +59,9 @@ export function init() {
       render();
     }
   });
-  stateEvents.on(Events.RECIPIENTS_ASSIGNED, ({isGenerated, isSecretSanta, givers}) => {
+  stateEvents.on(Events.RECIPIENTS_ASSIGNED, ({isGenerated, isSecretSanta, participants}) => {
     if (isGenerated && !isSecretSanta) {
-      renderResults(givers);
+      renderResults(participants);
     }
   });
 }

@@ -19,7 +19,7 @@ export function init() {
 function template() {
   return `
     <div id="${sendEmailsId}" class="sendEmails show">
-      <p>${state.givers.length} email addresses added successfully!</p>
+      <p>${state.participants.length} email addresses added successfully!</p>
       <p>Now let's send out those emails:</p>
       <button class="button" id="${sendEmailsBtnId}">Send Emails</button>
     </div>`;
@@ -56,7 +56,7 @@ async function batchEmails() {
   setLoadingState(`#${sendEmailsBtnId}`);
 
   let count = 0;
-  let promises = state.givers.map(async (giver) => {
+  let promises = state.participants.map(async (giver) => {
     try {
       const response = await fetch("/.netlify/functions/dispatchEmail", dispatchEmailOptions(giver));
       if (response.status === 200) count++;
@@ -67,5 +67,5 @@ async function batchEmails() {
 
   await Promise.all(promises);
   hideElement();
-  showSuccess(`Sent ${count} of ${state.givers.length} emails successfully!`);
+  showSuccess(`Sent ${count} of ${state.participants.length} emails successfully!`);
 }

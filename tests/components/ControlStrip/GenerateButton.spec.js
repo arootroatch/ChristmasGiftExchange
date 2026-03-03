@@ -49,7 +49,7 @@ describe("generateButton", () => {
 
   it("is not rendered at step 2", () => {
     resetState();
-    state.givers = [{...alex}];
+    state.participants = [{...alex}];
     click("#nextStep"); // step 2
     expect(state.step).toBe(2);
     expect(selectElement("#generate")).toBeNull();
@@ -57,7 +57,7 @@ describe("generateButton", () => {
 
   it("renders at step 3", () => {
     resetState();
-    state.givers = [{...alex}];
+    state.participants = [{...alex}];
     click("#nextStep"); // step 2
     click("#nextStep"); // step 3
     expect(state.step).toBe(3);
@@ -67,7 +67,7 @@ describe("generateButton", () => {
   it("click calls generateList", () => {
     const spy = vi.spyOn(generateButtonModule, "generateList").mockImplementation(() => {});
     resetState();
-    state.givers = [{...alex}];
+    state.participants = [{...alex}];
     click("#nextStep"); // step 2
     click("#nextStep"); // step 3
     click("#generate");
@@ -76,7 +76,7 @@ describe("generateButton", () => {
 
   it("is removed at step 4", () => {
     resetState();
-    state.givers = [{...alex, recipient: whitney.name}];
+    state.participants = [{...alex, recipient: whitney.name}];
     state.step = 3;
     click("#nextStep"); // step 4
     expect(state.step).toBe(4);
@@ -98,7 +98,7 @@ describe("generateButton", () => {
     it("triggers at step 3 (button rendered)", () => {
       const spy = vi.spyOn(generateButtonModule, "generateList").mockImplementation(() => {});
       resetState();
-      state.givers = [{...alex}];
+      state.participants = [{...alex}];
       click("#nextStep"); // step 2
       click("#nextStep"); // step 3
       dispatchCtrlEnter();
@@ -108,7 +108,7 @@ describe("generateButton", () => {
     it("does not trigger at step 2 (button not rendered)", () => {
       const spy = vi.spyOn(generateButtonModule, "generateList");
       resetState();
-      state.givers = [{...alex}];
+      state.participants = [{...alex}];
       click("#nextStep"); // step 2
       dispatchCtrlEnter();
       expect(spy).not.toHaveBeenCalled();
@@ -122,7 +122,7 @@ describe("generateButton", () => {
       const spy = vi.spyOn(generateButtonModule, "generateList").mockImplementation(() => {});
       resetDOM();
       resetState();
-      state.givers = [{...alex}];
+      state.participants = [{...alex}];
       click("#nextStep"); // step 2
       click("#nextStep"); // step 3
       dispatchCtrlEnter();
@@ -186,10 +186,10 @@ describe("generateList", () => {
 
     generateList();
     let tableHTML = '';
-    for (const giver of state.givers) {
+    for (const participant of state.participants) {
       tableHTML += `<tr>
-                <td>${giver.name}</td>
-                <td>${giver.recipient}</td>
+                <td>${participant.name}</td>
+                <td>${participant.recipient}</td>
             </tr>`;
     }
     const table = document.querySelector("#table-body");
@@ -205,10 +205,10 @@ describe("generateList", () => {
 
     generateList();
     let tableHTML = '';
-    for (const giver of state.givers) {
+    for (const participant of state.participants) {
       tableHTML += `<tr>
-                <td>${giver.name}</td>
-                <td>${giver.recipient}</td>
+                <td>${participant.name}</td>
+                <td>${participant.recipient}</td>
             </tr>`;
     }
     const table = document.querySelector("#table-body");

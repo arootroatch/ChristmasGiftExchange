@@ -1,4 +1,4 @@
-import {addGiver} from "../state.js";
+import {addParticipant} from "../state.js";
 import {addEventListener, leftContainerId, nameListId, participantsId, selectElement, unshiftHTML} from "../utils.js";
 import {insertNameFromSelect} from "./Select.js";
 import {Events, stateEvents} from "../Events.js";
@@ -34,7 +34,7 @@ function attachListeners() {
     const nameInput = selectElement(`#${nameInputId}`);
     const name = nameInput.value.trim();
     if (name !== "") {
-      addGiver(name.charAt(0).toUpperCase() + name.slice(1));
+      addParticipant(name.charAt(0).toUpperCase() + name.slice(1));
       nameInput.value = "";
     }
   });

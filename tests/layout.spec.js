@@ -69,7 +69,7 @@ describe('layout', () => {
       startExchange(false);
       const nextStepBtn = document.querySelector("#nextStep");
       state.step = 0;
-      state.givers = [{...alex}];
+      state.participants = [{...alex}];
 
       nextStepBtn.click();
 

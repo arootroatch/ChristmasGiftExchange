@@ -30,7 +30,7 @@ function checkForImpossible() {
 
 function buildRecipientAssignment() {
   const houses = getHousesForGeneration();
-  const giverNames = state.givers.map(giver => giver.name);
+  const giverNames = state.participants.map(p => p.name);
 
   if (giverNames.length === 0) return null;
 

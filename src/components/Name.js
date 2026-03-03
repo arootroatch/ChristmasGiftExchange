@@ -1,10 +1,10 @@
-import {state, removeGiver} from "../state.js";
+import {state, removeParticipant} from "../state.js";
 import {participantsId, selectElement, escapeHTML} from "../utils.js";
 import {Events, stateEvents} from "../Events.js";
 
 export function init() {
-  stateEvents.on(Events.GIVER_ADDED, () => renderParticipantsSlot());
-  stateEvents.on(Events.GIVER_REMOVED, () => renderParticipantsSlot());
+  stateEvents.on(Events.PARTICIPANT_ADDED, () => renderParticipantsSlot());
+  stateEvents.on(Events.PARTICIPANT_REMOVED, () => renderParticipantsSlot());
   stateEvents.on(Events.NAME_ADDED_TO_HOUSE, ({houseID, members}) => {
     renderHouseSlot(houseID, members);
     renderParticipantsSlot();
@@ -25,8 +25,8 @@ function renderParticipantsSlot() {
   if (!slot) return;
 
   const namesInHouses = Object.values(state.houses).flat();
-  const names = state.givers
-    .map(g => g.name)
+  const names = state.participants
+    .map(p => p.name)
     .filter(name => !namesInHouses.includes(name));
 
   renderIntoSlot(slot, names);
@@ -52,7 +52,7 @@ function attachListeners(container) {
   container.querySelectorAll('.delete-name').forEach(btn => {
     btn.addEventListener('click', (event) => {
       const name = event.currentTarget.nextElementSibling.innerHTML;
-      removeGiver(name);
+      removeParticipant(name);
     });
   });
 }

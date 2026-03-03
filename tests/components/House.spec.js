@@ -73,7 +73,7 @@ describe("deleteHouse", () => {
 
   it("puts names back in participants list", () => {
     expect(document.querySelectorAll("#house-0 .name-container .name-wrapper").length).toBe(2);
-    expect(state.givers.length).toBe(2);
+    expect(state.participants.length).toBe(2);
     expect(state.houses["house-0"].length).toBe(2);
 
     click("#house-0-delete")

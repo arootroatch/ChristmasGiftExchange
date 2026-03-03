@@ -7,7 +7,7 @@ import {
   shouldDisplaySuccessSnackbar,
   stubFetch,
 } from "../../specHelper";
-import {startExchange, state, addEmailsToGivers} from "../../../src/state";
+import {startExchange, state, addEmailsToParticipants} from "../../../src/state";
 import {init} from "../../../src/components/EmailTable/SendEmails";
 import {init as initSnackbar} from "../../../src/components/Snackbar";
 import {alex, hunter, megan, whitney} from "../../testData";
@@ -32,7 +32,7 @@ describe("sendEmails", () => {
       {...alex, recipient: whitney.name},
       {...whitney, recipient: alex.name},
     ]);
-    addEmailsToGivers([
+    addEmailsToParticipants([
       {name: alex.name, email: alex.email, index: 0},
       {name: whitney.name, email: whitney.email, index: 1},
     ]);
@@ -70,7 +70,7 @@ describe("sendEmails", () => {
         {...hunter, recipient: megan.name},
         {...megan, recipient: alex.name},
       ]);
-      addEmailsToGivers([
+      addEmailsToParticipants([
         {name: alex.name, email: alex.email, index: 0},
         {name: whitney.name, email: whitney.email, index: 1},
         {name: hunter.name, email: hunter.email, index: 2},
@@ -85,13 +85,13 @@ describe("sendEmails", () => {
       expectColor(sendEmailsButton.style.color, "rgb(128, 128, 128)", "#808080");
     });
 
-    it("sends emails for each giver", () => {
-      state.givers.forEach((giver) => {
+    it("sends emails for each participant", () => {
+      state.participants.forEach((participant) => {
         expect(global.fetch).toHaveBeenCalledWith("/.netlify/functions/dispatchEmail", {
           body: JSON.stringify({
-            name: giver.name,
-            recipient: giver.recipient,
-            email: giver.email,
+            name: participant.name,
+            recipient: participant.recipient,
+            email: participant.email,
           }),
           method: "POST",
           mode: "cors",

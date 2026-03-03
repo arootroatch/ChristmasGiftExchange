@@ -3,19 +3,19 @@ import {addNameToHouse, removeNameFromHouse, state} from "../state.js";
 import {Events, stateEvents} from "../Events.js";
 
 export function init() {
-  stateEvents.on(Events.GIVER_ADDED, () => updateAllSelects());
-  stateEvents.on(Events.GIVER_REMOVED, () => updateAllSelects());
+  stateEvents.on(Events.PARTICIPANT_ADDED, () => updateAllSelects());
+  stateEvents.on(Events.PARTICIPANT_REMOVED, () => updateAllSelects());
   stateEvents.on(Events.HOUSE_ADDED, ({houseID}) => {
     const slot = document.querySelector(`[data-slot="select-${houseID}"]`);
-    if (slot) renderIntoSlot(slot, state.givers);
+    if (slot) renderIntoSlot(slot, state.participants);
   });
   stateEvents.on(Events.NAME_ADDED_TO_HOUSE, ({houseID}) => {
     const slot = document.querySelector(`[data-slot="select-${houseID}"]`);
-    if (slot) renderIntoSlot(slot, state.givers);
+    if (slot) renderIntoSlot(slot, state.participants);
   });
   stateEvents.on(Events.NAME_REMOVED_FROM_HOUSE, ({houseID}) => {
     const slot = document.querySelector(`[data-slot="select-${houseID}"]`);
-    if (slot) renderIntoSlot(slot, state.givers);
+    if (slot) renderIntoSlot(slot, state.participants);
   });
 }
 
@@ -43,7 +43,7 @@ export function insertNameFromSelect() {
 
 function updateAllSelects() {
   const slots = document.querySelectorAll('[data-slot^="select-"]');
-  slots.forEach(slot => renderIntoSlot(slot, state.givers));
+  slots.forEach(slot => renderIntoSlot(slot, state.participants));
   updateNameListSelect();
 }
 
@@ -53,34 +53,34 @@ function updateNameListSelect() {
 
   nameListSelect.innerHTML = `
       ${defaultOption()}
-      ${allNameOptions(state.givers)}`;
+      ${allNameOptions(state.participants)}`;
 }
 
-function renderIntoSlot(slot, givers) {
+function renderIntoSlot(slot, participants) {
   const slotId = slot.getAttribute('data-slot');
   const houseID = slotId.replace('select-', '');
   let select = slot.querySelector(`#${houseID}-select`);
 
   if (!select) {
-    slot.innerHTML = template(houseID, givers);
+    slot.innerHTML = template(houseID, participants);
     addEventListener(`#${houseID}-select`, 'change', insertNameFromSelect);
   } else {
     select.innerHTML = `
         ${defaultOption()}
-        ${allNameOptions(givers)}`;
+        ${allNameOptions(participants)}`;
   }
 }
 
-function template(houseID, givers) {
+function template(houseID, participants) {
   return `
       <select class="name-select" id="${houseID}-select">
         ${defaultOption()}
-        ${allNameOptions(givers)}
+        ${allNameOptions(participants)}
       </select>`;
 }
 
-function allNameOptions(givers) {
-  return givers.map(g => `<option value="${g.name}">${g.name}</option>`).join('');
+function allNameOptions(participants) {
+  return participants.map(p => `<option value="${p.name}">${p.name}</option>`).join('');
 }
 
 function defaultOption() {

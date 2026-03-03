@@ -2,8 +2,8 @@ import {beforeAll, beforeEach, describe, expect, it} from 'vitest';
 import {generate, hasDuplicates} from '../src/generate';
 import {state} from '../src/state';
 import {
-  giverByName,
-  installGiverNames,
+  participantByName,
+  installParticipantNames,
   resetState,
   initReactiveSystem
 } from "./specHelper";
@@ -50,21 +50,21 @@ describe('generate', () => {
     });
 
     it('should return error if duplicate names', () => {
-      installGiverNames("Alex", "Whitney");
+      installParticipantNames("Alex", "Whitney");
       state.houses = {"house-0": ["Alex"], "house-1": ["Alex"]}
       expect(generate(0, 25)).toStrictEqual({error: "Duplicate name detected! Please delete the duplicate and re-enter it with a last initial or nickname."});
     });
 
     it('should return error if no possible combinations', () => {
-      installGiverNames("Alex", "Whitney");
+      installParticipantNames("Alex", "Whitney");
       state.houses = {"house-0": ["Alex", "Whitney"]}
       expect(generate(0, 25)).toStrictEqual({error: noPossibleComboError});
     });
 
     it('two names in separate houses', () => {
-      installGiverNames("Alex", "Whitney");
-      const alexIndex = state.givers.indexOf(giverByName("Alex"));
-      const whitIndex = state.givers.indexOf(giverByName("Whitney"));
+      installParticipantNames("Alex", "Whitney");
+      const alexIndex = state.participants.indexOf(participantByName("Alex"));
+      const whitIndex = state.participants.indexOf(participantByName("Whitney"));
       state.houses = {"house-0": ["Alex"], "house-1": ["Whitney"]}
       const {assignments, error} = generate(0, 25);
       expect(assignments[alexIndex]).toEqual("Whitney");
@@ -73,7 +73,7 @@ describe('generate', () => {
     })
 
     it('three names in the same house, one name in participant list', () => {
-      installGiverNames("Alex", "Whitney", "Hunter", "Megan");
+      installParticipantNames("Alex", "Whitney", "Hunter", "Megan");
       state.houses = {"house-0": ["Alex", "Whitney", "Hunter"]}
       const results = generate(0, 25);
       expect(results).toStrictEqual({error: noPossibleComboError});

@@ -1,4 +1,4 @@
-import {addEmailsToGivers, state} from "../../state.js";
+import {addEmailsToParticipants, state} from "../../state.js";
 import {addEventListener, pushHTML, selectElement, setLoadingState, escapeHTML} from "../../utils.js";
 import {showError} from "../Snackbar.js";
 import {Events, stateEvents} from "../../Events.js";
@@ -33,7 +33,7 @@ function template() {
     <div id="${emailTableId}" class="show">
       <h3>Please enter each participant's email address</h3>
       <form id="${emailTableBodyId}">
-      ${state.givers.map((giver, i) => emailInput(giver, i)).join("")}
+      ${state.participants.map((participant, i) => emailInput(participant, i)).join("")}
         <div id="emailBtnDiv">
           <button class="button" id="${hideEmailsId}" style="display: none;">Dismiss</button>
           <button type="submit" class="button" id="${submitEmailsId}">Submit Emails</button>
@@ -42,8 +42,8 @@ function template() {
     </div>`;
 }
 
-export function emailInput(giver, i) {
-  const safeName = escapeHTML(giver.name);
+export function emailInput(participant, i) {
+  const safeName = escapeHTML(participant.name);
   return `
     <div class="emailDiv">
       <label for=${i}>${safeName}</label>
@@ -86,7 +86,7 @@ async function submitEmails(event) {
     if (response.status !== 200) {
       handleEmailSubmitError(response);
     } else {
-      addEmailsToGivers(emails);
+      addEmailsToParticipants(emails);
     }
   } catch (error) {
     showError("Something went wrong");
@@ -108,7 +108,7 @@ async function postToServer() {
   const options = {
     method: "POST",
     mode: "cors",
-    body: JSON.stringify(state.givers),
+    body: JSON.stringify(state.participants),
   };
   return fetch("/.netlify/functions/postToDb", options);
 }

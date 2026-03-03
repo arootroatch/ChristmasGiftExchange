@@ -2,7 +2,7 @@ import {beforeAll, beforeEach, describe, expect, it, vi} from "vitest";
 import {
   click,
   expectColor,
-  installGiverNames,
+  installParticipantNames,
   installGivers,
   resetState,
   shouldDisplayEmailTable,
@@ -18,14 +18,14 @@ import {
 } from "../../../src/components/EmailTable/EmailTable";
 import {init as initSnackbar} from "../../../src/components/Snackbar";
 
-function renderEmailTableInputs(givers) {
+function renderEmailTableInputs(participants) {
   const body = document.querySelector("#emailTableBody");
-  for (let i = 0; i < givers.length; i++) {
+  for (let i = 0; i < participants.length; i++) {
     body.insertAdjacentHTML(
       "afterbegin",
       `<div class="emailDiv">
-          <label for=${i}>${givers[i].name}</label>
-          <input type="email" class="emailInput" maxlength="100" name=${givers[i].name} id=${i} value=${givers[i].email} required/>
+          <label for=${i}>${participants[i].name}</label>
+          <input type="email" class="emailInput" maxlength="100" name=${participants[i].name} id=${i} value=${participants[i].email} required/>
         </div>
         `
     );
@@ -133,8 +133,8 @@ describe('emailTable', () => {
       // Clear render-generated inputs and givers, replace with test data
       const body = document.querySelector("#emailTableBody");
       body.querySelectorAll(".emailDiv").forEach(el => el.remove());
-      state.givers = [];
-      installGiverNames("Alex", "Whitney", "Hunter", "Megan");
+      state.participants = [];
+      installParticipantNames("Alex", "Whitney", "Hunter", "Megan");
       renderEmailTableInputs([
         {name: "Alex", email: "arootroatch@gmail.com"},
         {name: "Whitney", email: "whitney@gmail.com"},
@@ -154,18 +154,18 @@ describe('emailTable', () => {
       expectColor(submitEmailsButton.style.color, "rgb(128, 128, 128)", "#808080");
     })
 
-    it("sets email, id, and date for each giver", async () => {
+    it("sets email, id, and date for each participant", async () => {
       await vi.waitFor(() => {
-        expect(state.givers[0].email).toBe("arootroatch@gmail.com");
+        expect(state.participants[0].email).toBe("arootroatch@gmail.com");
       });
 
       const expectedEmails = ["arootroatch@gmail.com", "whitney@gmail.com", "hunter@gmail.com", "megan@gmail.com"];
-      const date = state.givers[0].date;
+      const date = state.participants[0].date;
 
-      state.givers.forEach((giver, i) => {
-        expect(giver.email).toBe(expectedEmails[i]);
-        expect(giver.date).toBe(date);
-        expect(giver.id).toBe(`4_1ibc1j9_${date}`);
+      state.participants.forEach((participant, i) => {
+        expect(participant.email).toBe(expectedEmails[i]);
+        expect(participant.date).toBe(date);
+        expect(participant.id).toBe(`4_1ibc1j9_${date}`);
       })
     })
 
@@ -205,20 +205,20 @@ describe('emailTable', () => {
         {name: "Alex", email: "alex@test.com"},
         {name: "Whitney", email: "whitney@test.com"}
       ]);
-      installGiverNames("Alex", "Whitney");
+      installParticipantNames("Alex", "Whitney");
     });
 
-    it("does not add emails to givers when postToServer returns non-200 status", async () => {
-      const initialEmail0 = state.givers[0].email;
-      const initialEmail1 = state.givers[1].email;
+    it("does not add emails to participants when postToServer returns non-200 status", async () => {
+      const initialEmail0 = state.participants[0].email;
+      const initialEmail1 = state.participants[1].email;
 
       submitEmailForm();
 
       await vi.waitFor(() => {
         expect(global.fetch).toHaveBeenCalled();
       });
-      expect(state.givers[0].email).toBe(initialEmail0);
-      expect(state.givers[1].email).toBe(initialEmail1);
+      expect(state.participants[0].email).toBe(initialEmail0);
+      expect(state.participants[1].email).toBe(initialEmail1);
     });
 
     it("displays error snackbar when postToServer returns non-200 status", async () => {
@@ -231,8 +231,8 @@ describe('emailTable', () => {
   });
 
   it("emailInput returns correct HTML template", () => {
-    state.givers = [{name: "Alex"}, {name: "Whitney"}];
-    const result = emailInput(state.givers[0], 0);
+    state.participants = [{name: "Alex"}, {name: "Whitney"}];
+    const result = emailInput(state.participants[0], 0);
 
     expect(result).toContain('<div class="emailDiv">');
     expect(result).toContain('<label for=0>Alex</label>');
