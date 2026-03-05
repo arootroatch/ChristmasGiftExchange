@@ -65,4 +65,68 @@ describe('migrateLegacyData', () => {
         );
         expect(alexToWhitney.recipientId.equals(userMap['Whitney'])).toBe(true);
     });
+
+    it('handles multiple exchanges across different dates', async () => {
+        await db.collection('names').insertMany([
+            {name: 'Alex', email: 'alex@test.com', recipient: 'Whitney', date: '2024-12-01T00:00:00Z', id: 'ex-2024'},
+            {name: 'Whitney', email: 'whitney@test.com', recipient: 'Alex', date: '2024-12-01T00:00:00Z', id: 'ex-2024'},
+            {name: 'Alex', email: 'alex@test.com', recipient: 'Hunter', date: '2023-12-01T00:00:00Z', id: 'ex-2023'},
+            {name: 'Hunter', email: 'hunter@test.com', recipient: 'Alex', date: '2023-12-01T00:00:00Z', id: 'ex-2023'},
+        ]);
+
+        const result = await migrateLegacyData(db, 'names');
+
+        expect(result.usersCreated).toBe(3);
+        expect(result.exchangesCreated).toBe(2);
+
+        const exchanges = await db.collection('exchanges').find().sort({createdAt: -1}).toArray();
+        expect(exchanges).toHaveLength(2);
+        expect(exchanges[0].exchangeId).toBe('ex-2024');
+        expect(exchanges[0].participants).toHaveLength(2);
+        expect(exchanges[1].exchangeId).toBe('ex-2023');
+        expect(exchanges[1].participants).toHaveLength(2);
+    });
+
+    it('is idempotent — running twice does not create duplicates', async () => {
+        await db.collection('names').insertMany([
+            {name: 'Alex', email: 'alex@test.com', recipient: 'Whitney', date: '2024-12-01T00:00:00Z', id: 'ex-2024'},
+            {name: 'Whitney', email: 'whitney@test.com', recipient: 'Alex', date: '2024-12-01T00:00:00Z', id: 'ex-2024'},
+        ]);
+
+        await migrateLegacyData(db, 'names');
+        const result = await migrateLegacyData(db, 'names');
+
+        expect(result.usersSkipped).toBe(2);
+        expect(result.exchangesSkipped).toBe(1);
+        expect(result.usersCreated).toBe(0);
+        expect(result.exchangesCreated).toBe(0);
+
+        const users = await db.collection('users').find().toArray();
+        expect(users).toHaveLength(2);
+
+        const exchanges = await db.collection('exchanges').find().toArray();
+        expect(exchanges).toHaveLength(1);
+    });
+
+    it('preserves existing user wishlists and tokens', async () => {
+        await db.collection('users').insertOne({
+            name: 'Alex',
+            email: 'alex@test.com',
+            token: 'existing-token-123',
+            wishlists: [{url: 'https://amazon.com/list', title: 'My List'}],
+            wishItems: [{url: 'https://amazon.com/item', title: 'Cool Thing'}],
+        });
+
+        await db.collection('names').insertMany([
+            {name: 'Alex', email: 'alex@test.com', recipient: 'Whitney', date: '2024-12-01T00:00:00Z', id: 'ex-2024'},
+            {name: 'Whitney', email: 'whitney@test.com', recipient: 'Alex', date: '2024-12-01T00:00:00Z', id: 'ex-2024'},
+        ]);
+
+        await migrateLegacyData(db, 'names');
+
+        const alex = await db.collection('users').findOne({email: 'alex@test.com'});
+        expect(alex.token).toBe('existing-token-123');
+        expect(alex.wishlists).toHaveLength(1);
+        expect(alex.wishItems).toHaveLength(1);
+    });
 });
