@@ -4,7 +4,7 @@ import path from "path";
 import {JSDOM} from "jsdom";
 
 const html = fs.readFileSync(
-    path.resolve(__dirname, "../reuse/index.html"),
+    path.resolve(__dirname, "../pages/reuse/index.html"),
     "utf8"
 );
 
