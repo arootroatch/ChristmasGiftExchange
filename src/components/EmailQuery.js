@@ -45,12 +45,7 @@ function renderResult(results) {
   const date = new Date(timestamp);
   const queryDiv = selectElement(`#${queryDivId}`);
 
-  let html = emailQueryResult(date, results.recipient);
-  if (results.wishlistViewUrl) {
-    html += `<a href="${escapeHTML(results.wishlistViewUrl)}" class="button" style="margin-top: 10px; display: inline-block;">View Wishlist</a>`;
-  }
-
-  queryDiv.innerHTML = html;
+  queryDiv.innerHTML = emailQueryResult(date, results.recipient);
   addEventListener(`#${emailQueryBtnId}`, "click", getName);
 }
 
@@ -75,9 +70,11 @@ async function getName(e) {
   renderLoadingState();
 
   try {
-    const response = await fetch(
-      `/.netlify/functions/api-recipient-get?email=${encodeURIComponent(email)}`
-    );
+    const response = await fetch("/.netlify/functions/get_name", {
+      method: "POST",
+      mode: "cors",
+      body: email,
+    });
     const results = await response.json();
     renderResult(results);
   } catch (error) {
