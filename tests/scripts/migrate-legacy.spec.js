@@ -129,4 +129,23 @@ describe('migrateLegacyData', () => {
         expect(alex.wishlists).toHaveLength(1);
         expect(alex.wishItems).toHaveLength(1);
     });
+
+    it('dry run reports counts without writing data', async () => {
+        await db.collection('names').insertMany([
+            {name: 'Alex', email: 'alex@test.com', recipient: 'Whitney', date: '2024-12-01T00:00:00Z', id: 'ex-2024'},
+            {name: 'Whitney', email: 'whitney@test.com', recipient: 'Alex', date: '2024-12-01T00:00:00Z', id: 'ex-2024'},
+        ]);
+
+        const result = await migrateLegacyData(db, 'names', {dryRun: true});
+
+        expect(result.usersCreated).toBe(2);
+        expect(result.exchangesCreated).toBe(1);
+        expect(result.dryRun).toBe(true);
+
+        const users = await db.collection('users').find().toArray();
+        expect(users).toHaveLength(0);
+
+        const exchanges = await db.collection('exchanges').find().toArray();
+        expect(exchanges).toHaveLength(0);
+    });
 });

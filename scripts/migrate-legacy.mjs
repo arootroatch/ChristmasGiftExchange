@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 
-export async function migrateLegacyData(db, legacyCollectionName) {
+export async function migrateLegacyData(db, legacyCollectionName, options = {}) {
+    const {dryRun = false} = options;
     const legacyCol = db.collection(legacyCollectionName);
     const usersCol = db.collection('users');
     const exchangesCol = db.collection('exchanges');
@@ -23,6 +24,19 @@ export async function migrateLegacyData(db, legacyCollectionName) {
 
     for (const doc of allDocs) {
         if (emailToUser[doc.email]) continue;
+
+        if (dryRun) {
+            const existing = await usersCol.findOne({email: doc.email});
+            if (existing) {
+                emailToUser[doc.email] = existing;
+                usersSkipped++;
+            } else {
+                emailToUser[doc.email] = {_id: `dry-run-${doc.email}`, name: doc.name, email: doc.email};
+                usersCreated++;
+            }
+            continue;
+        }
+
         const existing = await usersCol.findOne({email: doc.email});
         const result = await usersCol.findOneAndUpdate(
             {email: doc.email},
@@ -68,6 +82,11 @@ export async function migrateLegacyData(db, legacyCollectionName) {
             recipientId: emailToUser[nameToEmail[doc.recipient]]._id,
         }));
 
+        if (dryRun) {
+            exchangesCreated++;
+            continue;
+        }
+
         await exchangesCol.insertOne({
             exchangeId,
             createdAt: new Date(docs[0].date),
@@ -79,7 +98,7 @@ export async function migrateLegacyData(db, legacyCollectionName) {
         exchangesCreated++;
     }
 
-    const summary = {usersCreated, usersSkipped, exchangesCreated, exchangesSkipped};
+    const summary = {usersCreated, usersSkipped, exchangesCreated, exchangesSkipped, dryRun};
     console.log('Migration complete:', summary);
     return summary;
 }
