@@ -1,4 +1,5 @@
-import 'dotenv/config';
+import dotenv from 'dotenv';
+dotenv.config({path: '.env.local'});
 import {MongoClient} from 'mongodb';
 import {migrateLegacyData} from './migrate-legacy.mjs';
 

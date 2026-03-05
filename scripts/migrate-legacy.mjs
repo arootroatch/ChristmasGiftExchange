@@ -21,9 +21,13 @@ export async function migrateLegacyData(db, legacyCollectionName, options = {}) 
     const emailToUser = {};
     let usersCreated = 0;
     let usersSkipped = 0;
+    const uniqueEmails = [...new Set(allDocs.map(d => d.email))];
+    let userIndex = 0;
 
     for (const doc of allDocs) {
         if (emailToUser[doc.email]) continue;
+        userIndex++;
+        console.log(`Processing user ${userIndex}/${uniqueEmails.length}: ${doc.name} (${doc.email})`);
 
         if (dryRun) {
             const existing = await usersCol.findOne({email: doc.email});
@@ -62,11 +66,16 @@ export async function migrateLegacyData(db, legacyCollectionName, options = {}) 
     let exchangesCreated = 0;
     let exchangesSkipped = 0;
 
+    const exchangeIds = Object.keys(exchangeGroups);
+    let exchangeIndex = 0;
+
     for (const [exchangeId, docs] of Object.entries(exchangeGroups)) {
+        exchangeIndex++;
+        console.log(`Processing exchange ${exchangeIndex}/${exchangeIds.length}: ${exchangeId} (${docs.length} participants)`);
         const existing = await exchangesCol.findOne({exchangeId});
         if (existing) {
             exchangesSkipped++;
-            console.log(`Skipping exchange ${exchangeId} (already exists)`);
+            console.log(`  Skipping (already exists)`);
             continue;
         }
 
