@@ -1,10 +1,20 @@
-const token = window.location.pathname.split("/").pop();
+const tokenMatch = window.location.pathname.match(/\/wishlist\/edit\/([^/]+)/);
+const token = tokenMatch ? tokenMatch[1] : "";
 let userData = {wishlists: [], wishItems: []};
 
+function redirectWithError() {
+    sessionStorage.setItem("snackbarError", "Invalid wishlist link");
+    try { window.location.href = "/"; } catch (_) { /* JSDOM */ }
+}
+
 async function loadUser() {
+    if (!token) {
+        redirectWithError();
+        return;
+    }
     const response = await fetch(`/.netlify/functions/api-user-get/${token}`);
     if (!response.ok) {
-        document.getElementById("greeting").textContent = "Invalid link";
+        redirectWithError();
         return;
     }
     userData = await response.json();

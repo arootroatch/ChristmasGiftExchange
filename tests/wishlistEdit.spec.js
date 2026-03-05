@@ -4,7 +4,7 @@ import path from "path";
 import {JSDOM} from "jsdom";
 
 const html = fs.readFileSync(
-    path.resolve(__dirname, "../wishlist/edit/index.html"),
+    path.resolve(__dirname, "../pages/wishlist/edit/index.html"),
     "utf8"
 );
 
@@ -19,6 +19,7 @@ function setupDOM() {
     window = dom.window;
     globalThis.document = document;
     globalThis.window = window;
+    globalThis.sessionStorage = window.sessionStorage;
 }
 
 function mockFetch(response) {
@@ -69,12 +70,13 @@ describe("Wishlist Edit Page", () => {
             });
         });
 
-        it("displays 'Invalid link' when user not found", async () => {
+        it("sets snackbar error and redirects when user not found", async () => {
+            window.sessionStorage.clear();
             mockFetch({ok: false, status: 404, body: {error: "User not found"}});
             await loadModule();
             await vi.waitFor(() => {
-                expect(document.getElementById("greeting").textContent).toBe(
-                    "Invalid link"
+                expect(window.sessionStorage.getItem("snackbarError")).toBe(
+                    "Invalid wishlist link"
                 );
             });
         });
@@ -438,6 +440,48 @@ describe("Wishlist Edit Page", () => {
             const snackbar = document.getElementById("snackbar");
             expect(snackbar.textContent).toBe("Please fill in at least one field");
             expect(snackbar.className).toBe("error");
+        });
+    });
+
+    describe("missing token", () => {
+        function setupNoTokenDOM(url) {
+            vi.resetModules();
+            dom = new JSDOM(html, {url});
+            document = dom.window.document;
+            window = dom.window;
+            globalThis.document = document;
+            globalThis.window = window;
+            globalThis.sessionStorage = window.sessionStorage;
+            window.fetch = vi.fn();
+            globalThis.fetch = window.fetch;
+            window.sessionStorage.clear();
+        }
+
+        it("sets snackbar error and does not fetch when URL is /wishlist/edit/", async () => {
+            setupNoTokenDOM("http://localhost/wishlist/edit/");
+            await import("../src/wishlistEdit.js");
+            expect(window.fetch).not.toHaveBeenCalled();
+            expect(window.sessionStorage.getItem("snackbarError")).toBe("Invalid wishlist link");
+        });
+
+        it("sets snackbar error and does not fetch when URL is /wishlist/edit", async () => {
+            setupNoTokenDOM("http://localhost/wishlist/edit");
+            await import("../src/wishlistEdit.js");
+            expect(window.fetch).not.toHaveBeenCalled();
+            expect(window.sessionStorage.getItem("snackbarError")).toBe("Invalid wishlist link");
+        });
+
+        it("sets snackbar error when API returns 404", async () => {
+            setupNoTokenDOM("http://localhost/wishlist/edit/bad-token");
+            window.fetch = vi.fn(() => Promise.resolve({
+                ok: false, status: 404,
+                json: () => Promise.resolve({error: "User not found"}),
+            }));
+            globalThis.fetch = window.fetch;
+            await import("../src/wishlistEdit.js");
+            await vi.waitFor(() => {
+                expect(window.sessionStorage.getItem("snackbarError")).toBe("Invalid wishlist link");
+            });
         });
     });
 
