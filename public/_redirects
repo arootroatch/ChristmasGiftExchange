@@ -1,0 +1,5 @@
+/wishlist/edit    /pages/wishlist/edit/index.html    200
+/wishlist/edit/*  /pages/wishlist/edit/index.html    200
+/wishlist/view    /pages/wishlist/view/index.html    200
+/wishlist/view/*  /pages/wishlist/view/index.html    200
+/reuse            /pages/reuse/index.html            200

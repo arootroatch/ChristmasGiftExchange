@@ -68,10 +68,10 @@ describe('api-user-contact-post', () => {
         expect(response.statusCode).toBe(405);
     });
 
-    it('returns 404 for unknown token', async () => {
+    it('returns 401 for unknown token', async () => {
         const event = buildEvent('nonexistent-token', {address: '123 Main St'});
         const response = await handler(event);
-        expect(response.statusCode).toBe(404);
+        expect(response.statusCode).toBe(401);
     });
 
     it('emails givers with contact info', async () => {

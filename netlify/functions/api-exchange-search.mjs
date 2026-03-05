@@ -1,4 +1,4 @@
-import {getUsersCollection, getExchangesCollection} from "./db.mjs";
+import {getUsersCollection, getExchangesCollection} from "../shared/db.mjs";
 
 export const handler = async (event) => {
     if (event.httpMethod !== "GET") {
@@ -16,7 +16,7 @@ export const handler = async (event) => {
 
         const user = await usersCol.findOne({email: email.trim()});
         if (!user) {
-            return {statusCode: 404, body: JSON.stringify({error: "No exchanges found"})};
+            return {statusCode: 200, body: JSON.stringify([])};
         }
 
         const exchanges = await exchangesCol
@@ -25,7 +25,7 @@ export const handler = async (event) => {
             .toArray();
 
         if (exchanges.length === 0) {
-            return {statusCode: 404, body: JSON.stringify({error: "No exchanges found"})};
+            return {statusCode: 200, body: JSON.stringify([])};
         }
 
         const results = await Promise.all(exchanges.map(async (exchange) => {

@@ -1,4 +1,4 @@
-import {getUsersCollection, getExchangesCollection} from "./db.mjs";
+import {getUsersCollection, getExchangesCollection} from "../shared/db.mjs";
 
 export const handler = async (event) => {
     if (event.httpMethod !== "POST") {
@@ -16,7 +16,7 @@ export const handler = async (event) => {
 
         const user = await usersCol.findOne({token});
         if (!user) {
-            return {statusCode: 404, body: JSON.stringify({error: "User not found"})};
+            return {statusCode: 401, body: JSON.stringify({error: "User not found"})};
         }
 
         // Find all exchanges where this user is a recipient

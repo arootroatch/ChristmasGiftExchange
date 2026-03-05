@@ -95,14 +95,14 @@ describe('api-user-get', () => {
         expect(body.wishItems).toEqual([]);
     });
 
-    it('returns 404 for unknown token', async () => {
+    it('returns 401 for unknown token', async () => {
         const event = {
             httpMethod: 'GET',
             path: '/api/user/nonexistent-token',
         };
 
         const response = await handler(event);
-        expect(response.statusCode).toBe(404);
+        expect(response.statusCode).toBe(401);
 
         const body = JSON.parse(response.body);
         expect(body.error).toBe('User not found');

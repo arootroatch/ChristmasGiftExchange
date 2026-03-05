@@ -6,20 +6,5 @@
 [functions.emails]
   included_files = ["./emails/**"]
 
-[[redirects]]
-  from = "/wishlist/edit/*"
-  to = "/pages/wishlist/edit/index.html"
-  status = 200
-
-[[redirects]]
-  from = "/wishlist/view/*"
-  to = "/pages/wishlist/view/index.html"
-  status = 200
-
-[[redirects]]
-  from = "/reuse"
-  to = "/pages/reuse/index.html"
-  status = 200
-
 [[plugins]]
   package = "@netlify/plugin-emails"

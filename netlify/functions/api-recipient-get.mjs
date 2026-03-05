@@ -1,4 +1,4 @@
-import {getUsersCollection, getExchangesCollection, getLegacyCollection} from "./db.mjs";
+import {getUsersCollection, getExchangesCollection, getLegacyCollection} from "../shared/db.mjs";
 
 export const handler = async (event) => {
     if (event.httpMethod !== "GET") {

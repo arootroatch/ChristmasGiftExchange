@@ -21,7 +21,7 @@ describe('db utility', () => {
         process.env.MONGODB_DATABASE = 'test-db';
         process.env.MONGODB_COLLECTION = 'legacy-names';
 
-        const module = await import('../../netlify/functions/db.mjs');
+        const module = await import('../../netlify/shared/db.mjs');
         getDb = module.getDb;
         getUsersCollection = module.getUsersCollection;
         getExchangesCollection = module.getExchangesCollection;

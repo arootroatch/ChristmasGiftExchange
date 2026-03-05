@@ -41,14 +41,13 @@ describe("getName", () => {
         expectColor(emailQueryBtn.style.color, "rgb(128, 128, 128)", "#808080");
     })
 
-    it("fetches from get_name endpoint with POST", () => {
+    it("fetches from api-recipient-get with email query param", () => {
         stubRecipientFetch({recipient: "Whitney", date: "2023-06-15T12:00:00.000Z"});
         const emailInput = document.querySelector("#emailQuery");
         emailInput.value = "test@example.com";
         click("#emailQueryBtn");
         expect(global.fetch).toHaveBeenCalledWith(
-            "/.netlify/functions/get_name",
-            {method: "POST", mode: "cors", body: "test@example.com"}
+            "/.netlify/functions/api-recipient-get?email=test%40example.com"
         );
     })
 
@@ -57,6 +56,32 @@ describe("getName", () => {
         click("#emailQueryBtn");
         expect(query.innerHTML).toContain("As of Thu Jun 15 2023, you're buying a gift for");
         expect(query.innerHTML).toContain("Whitney!");
+    })
+
+    it("displays View Wishlist link when wishlistViewUrl is present", async () => {
+        stubRecipientFetch({
+            recipient: "Whitney",
+            date: "2023-06-15T12:00:00.000Z",
+            wishlistViewUrl: "/wishlist/view/token-abc?exchange=ex123"
+        });
+        click("#emailQueryBtn");
+        await waitFor(() => {
+            expect(query.innerHTML).toContain("Whitney!");
+            expect(query.innerHTML).toContain("View Wishlist");
+            expect(query.innerHTML).toContain('href="/wishlist/view/token-abc?exchange=ex123"');
+        });
+    })
+
+    it("does not display View Wishlist link when wishlistViewUrl is absent", async () => {
+        stubRecipientFetch({
+            recipient: "Whitney",
+            date: "2023-06-15T12:00:00.000Z"
+        });
+        click("#emailQueryBtn");
+        await waitFor(() => {
+            expect(query.innerHTML).toContain("Whitney!");
+            expect(query.innerHTML).not.toContain("View Wishlist");
+        });
     })
 
     it("allows multiple searches", async () => {

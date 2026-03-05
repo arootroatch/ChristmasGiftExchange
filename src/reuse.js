@@ -12,16 +12,18 @@ async function searchExchanges() {
         );
 
         if (!response.ok) {
-            document.getElementById("results-section").innerHTML =
-                "<p>No past exchanges found for that email.</p>";
+            showSnackbar("Something went wrong. Please try again.", "error");
             return;
         }
 
         const exchanges = await response.json();
+        if (exchanges.length === 0) {
+            showSnackbar("No past exchanges found for that email", "error");
+            return;
+        }
         renderResults(exchanges);
     } catch (error) {
-        document.getElementById("results-section").innerHTML =
-            "<p>Something went wrong. Please try again.</p>";
+        showSnackbar("Something went wrong. Please try again.", "error");
     } finally {
         btn.textContent = "Search";
         btn.disabled = false;
@@ -50,6 +52,13 @@ function useExchange(event) {
     const exchangeData = JSON.parse(event.currentTarget.dataset.exchange);
     sessionStorage.setItem("reuseExchange", JSON.stringify(exchangeData));
     window.location.href = "/";
+}
+
+function showSnackbar(message, type) {
+    const bar = document.getElementById("snackbar");
+    bar.textContent = message;
+    bar.className = type;
+    setTimeout(() => { bar.className = "hidden"; }, 3000);
 }
 
 function escape(str) {

@@ -133,16 +133,31 @@ describe("Reuse Exchange Page", () => {
             expect(window.fetch).not.toHaveBeenCalled();
         });
 
-        it("shows no results message when search fails", async () => {
-            mockFetch({ok: false, status: 404, body: {error: "Not found"}});
+        it("shows snackbar error when no exchanges found", async () => {
+            mockFetch({body: []});
             await loadModule();
 
             document.getElementById("reuse-email").value = "nobody@test.com";
             document.getElementById("reuse-search-btn").click();
 
             await vi.waitFor(() => {
-                const results = document.getElementById("results-section");
-                expect(results.innerHTML).toContain("No past exchanges found");
+                const snackbar = document.getElementById("snackbar");
+                expect(snackbar.textContent).toBe("No past exchanges found for that email");
+                expect(snackbar.className).toBe("error");
+            });
+        });
+
+        it("shows snackbar error when fetch fails", async () => {
+            mockFetch({ok: false, status: 500, body: {error: "Server error"}});
+            await loadModule();
+
+            document.getElementById("reuse-email").value = "nobody@test.com";
+            document.getElementById("reuse-search-btn").click();
+
+            await vi.waitFor(() => {
+                const snackbar = document.getElementById("snackbar");
+                expect(snackbar.textContent).toBe("Something went wrong. Please try again.");
+                expect(snackbar.className).toBe("error");
             });
         });
     });

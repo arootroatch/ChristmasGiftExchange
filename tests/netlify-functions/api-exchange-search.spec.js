@@ -143,17 +143,17 @@ describe('api-exchange-search', () => {
         expect(body[0].houses[0].members).toContain('Whitney');
     });
 
-    it('returns 404 for email with no exchanges', async () => {
+    it('returns 200 with empty array for email with no exchanges', async () => {
         const event = {
             httpMethod: 'GET',
             queryStringParameters: {email: 'nobody@test.com'},
         };
 
         const response = await handler(event);
-        expect(response.statusCode).toBe(404);
+        expect(response.statusCode).toBe(200);
 
         const body = JSON.parse(response.body);
-        expect(body.error).toBe('No exchanges found');
+        expect(body).toEqual([]);
     });
 
     it('returns 400 when email is missing', async () => {
