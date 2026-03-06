@@ -1,82 +1,47 @@
-import {getUsersCollection, getExchangesCollection} from "../shared/db.mjs";
+import {getUsersCollection} from "../shared/db.mjs";
+import {apiHandler} from "../shared/middleware.mjs";
+import {extractTokenFromPath, getUserByToken} from "../shared/auth.mjs";
+import {ok, badRequest, unauthorized} from "../shared/responses.mjs";
+import {forEachGiverOf, sendNotificationEmail} from "../shared/giverNotification.mjs";
 
-export const handler = async (event) => {
-    if (event.httpMethod !== "PUT") {
-        return {statusCode: 405, body: "Method Not Allowed"};
-    }
-
-    const pathParts = event.path.split("/");
-    const tokenIndex = pathParts.indexOf("user") + 1;
-    const token = pathParts[tokenIndex];
-
+export const handler = apiHandler("PUT", async (event) => {
+    const token = extractTokenFromPath(event, "user");
     if (!token) {
-        return {statusCode: 400, body: JSON.stringify({error: "Token required"})};
+        return badRequest("Token required");
     }
 
-    try {
-        const usersCol = await getUsersCollection();
-        const {wishlists, wishItems} = JSON.parse(event.body);
+    const {wishlists, wishItems} = JSON.parse(event.body);
 
-        const user = await usersCol.findOne({token});
-        if (!user) {
-            return {statusCode: 401, body: JSON.stringify({error: "User not found"})};
-        }
-
-        const wasEmpty = (!user.wishlists || user.wishlists.length === 0)
-            && (!user.wishItems || user.wishItems.length === 0);
-
-        await usersCol.updateOne(
-            {token},
-            {$set: {wishlists, wishItems}}
-        );
-
-        let notifiedGivers = false;
-        if (wasEmpty && (wishlists.length > 0 || wishItems.length > 0)) {
-            notifiedGivers = await notifyGivers(user);
-        }
-
-        return {
-            statusCode: 200,
-            body: JSON.stringify({success: true, notifiedGivers}),
-        };
-    } catch (error) {
-        return {statusCode: 500, body: JSON.stringify({error: error.message})};
+    const user = await getUserByToken(token);
+    if (!user) {
+        return unauthorized("User not found");
     }
-};
 
-async function notifyGivers(recipientUser) {
-    const exchangesCol = await getExchangesCollection();
+    const wasEmpty = (!user.wishlists || user.wishlists.length === 0)
+        && (!user.wishItems || user.wishItems.length === 0);
+
     const usersCol = await getUsersCollection();
+    await usersCol.updateOne(
+        {token},
+        {$set: {wishlists, wishItems}}
+    );
 
-    const exchanges = await exchangesCol.find({
-        "assignments.recipientId": recipientUser._id,
-    }).toArray();
-
-    for (const exchange of exchanges) {
-        for (const assignment of exchange.assignments) {
-            if (assignment.recipientId.equals(recipientUser._id)) {
-                const giver = await usersCol.findOne({_id: assignment.giverId});
-                if (giver) {
-                    const viewUrl = `${process.env.URL}/wishlist/view/${giver.token}?exchange=${exchange.exchangeId}`;
-                    await fetch(
-                        `${process.env.URL}/.netlify/functions/emails/wishlist-notification`,
-                        {
-                            headers: {"netlify-emails-secret": process.env.NETLIFY_EMAILS_SECRET},
-                            method: "POST",
-                            body: JSON.stringify({
-                                from: "alex@soundrootsproductions.com",
-                                to: giver.email,
-                                subject: `${recipientUser.name} has added a wishlist!`,
-                                parameters: {
-                                    recipientName: recipientUser.name,
-                                    wishlistViewUrl: viewUrl,
-                                },
-                            }),
-                        }
-                    );
+    let notifiedGivers = false;
+    if (wasEmpty && (wishlists.length > 0 || wishItems.length > 0)) {
+        await forEachGiverOf(user, async ({giver, exchange}) => {
+            const viewUrl = `${process.env.URL}/wishlist/view/${giver.token}?exchange=${exchange.exchangeId}`;
+            await sendNotificationEmail(
+                "wishlist-notification",
+                giver.email,
+                `${user.name} has added a wishlist!`,
+                {
+                    recipientName: user.name,
+                    wishlistViewUrl: viewUrl,
                 }
-            }
-        }
+            );
+        });
+        notifiedGivers = true;
     }
-    return true;
-}
+
+    return ok({success: true, notifiedGivers});
+});
