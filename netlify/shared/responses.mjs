@@ -1,4 +1,4 @@
-export function ok(data) {
+export function ok(data = {}) {
     return {statusCode: 200, body: JSON.stringify(data)};
 }
 
