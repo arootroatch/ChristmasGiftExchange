@@ -3,7 +3,7 @@ import {apiHandler, validateBody} from "../shared/middleware.mjs";
 import {ok, badRequest} from "../shared/responses.mjs";
 import {sendNotificationEmail} from "../shared/giverNotification.mjs";
 
-const dispatchEmailBody = z.object({
+const dispatchEmailRequestSchema = z.object({
     email: z.string(),
     name: z.string(),
     recipient: z.string(),
@@ -11,7 +11,7 @@ const dispatchEmailBody = z.object({
 });
 
 export const handler = apiHandler("POST", async (event) => {
-    const {data, error} = validateBody(dispatchEmailBody, event);
+    const {data, error} = validateBody(dispatchEmailRequestSchema, event);
     if (error) return badRequest(error);
 
     await sendNotificationEmail(

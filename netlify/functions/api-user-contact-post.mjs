@@ -4,7 +4,7 @@ import {extractTokenFromPath, getUserByToken} from "../shared/auth.mjs";
 import {ok, badRequest, unauthorized} from "../shared/responses.mjs";
 import {forEachGiverOf, sendNotificationEmail} from "../shared/giverNotification.mjs";
 
-const contactPostBody = z.object({
+const contactPostRequestSchema = z.object({
     address: z.string().default("Not provided"),
     phone: z.string().default("Not provided"),
     notes: z.string().default("None"),
@@ -14,7 +14,7 @@ export const handler = apiHandler("POST", async (event) => {
     const token = extractTokenFromPath(event, "user");
     if (!token) return badRequest("Token required");
 
-    const {data, error} = validateBody(contactPostBody, event);
+    const {data, error} = validateBody(contactPostRequestSchema, event);
     if (error) return badRequest(error);
 
     const user = await getUserByToken(token);

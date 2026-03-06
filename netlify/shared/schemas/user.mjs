@@ -1,4 +1,5 @@
 import {z} from "zod";
+import {ObjectId} from "mongodb";
 
 export const wishlistSchema = z.object({
     url: z.string(),
@@ -11,7 +12,7 @@ export const wishItemSchema = z.object({
 });
 
 export const userSchema = z.object({
-    _id: z.any().optional(),
+    _id: z.instanceof(ObjectId).optional(),
     name: z.string(),
     email: z.string(),
     token: z.string(),

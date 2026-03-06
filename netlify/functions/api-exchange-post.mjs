@@ -20,7 +20,7 @@ const houseInputSchema = z.object({
     members: z.array(z.string()),
 });
 
-const exchangePostBody = z.object({
+const exchangePostRequestSchema = z.object({
     exchangeId: z.string(),
     isSecretSanta: z.boolean(),
     houses: z.array(houseInputSchema),
@@ -77,7 +77,7 @@ function buildResponse(exchangeId, participants, userMap) {
 }
 
 export const handler = apiHandler("POST", async (event) => {
-    const {data, error} = validateBody(exchangePostBody, event);
+    const {data, error} = validateBody(exchangePostRequestSchema, event);
     if (error) return badRequest(error);
 
     const usersCol = await getUsersCollection();

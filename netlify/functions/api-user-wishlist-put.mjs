@@ -1,21 +1,17 @@
-import {z} from "zod";
 import {getUsersCollection} from "../shared/db.mjs";
 import {apiHandler, validateBody} from "../shared/middleware.mjs";
 import {extractTokenFromPath, getUserByToken} from "../shared/auth.mjs";
 import {ok, badRequest, unauthorized} from "../shared/responses.mjs";
 import {forEachGiverOf, sendNotificationEmail} from "../shared/giverNotification.mjs";
-import {wishlistSchema, wishItemSchema} from "../shared/schemas/user.mjs";
+import {userSchema} from "../shared/schemas/user.mjs";
 
-const wishlistPutBody = z.object({
-    wishlists: z.array(wishlistSchema),
-    wishItems: z.array(wishItemSchema),
-});
+const wishlistPutRequestSchema = userSchema.pick({wishlists: true, wishItems: true});
 
 export const handler = apiHandler("PUT", async (event) => {
     const token = extractTokenFromPath(event, "user");
     if (!token) return badRequest("Token required");
 
-    const {data, error} = validateBody(wishlistPutBody, event);
+    const {data, error} = validateBody(wishlistPutRequestSchema, event);
     if (error) return badRequest(error);
 
     const user = await getUserByToken(token);
