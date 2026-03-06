@@ -1,6 +1,7 @@
 import {getUsersCollection, getExchangesCollection, getLegacyCollection} from "../shared/db.mjs";
 import {apiHandler} from "../shared/middleware.mjs";
 import {ok, badRequest, notFound} from "../shared/responses.mjs";
+import {userSchema} from "../shared/schemas/user.mjs";
 
 async function lookupFromNewCollections(email) {
     const usersCol = await getUsersCollection();
@@ -21,11 +22,11 @@ async function lookupFromNewCollections(email) {
     const assignment = latestExchange.assignments.find(a => a.giverId.equals(user._id));
     if (!assignment) return null;
 
-    const recipient = await usersCol.findOne({_id: assignment.recipientId});
+    const doc = await usersCol.findOne({_id: assignment.recipientId});
+    const recipient = doc ? userSchema.parse(doc) : null;
 
     const hasWishlist = recipient &&
-        ((recipient.wishlists && recipient.wishlists.length > 0) ||
-            (recipient.wishItems && recipient.wishItems.length > 0));
+        (recipient.wishlists.length > 0 || recipient.wishItems.length > 0);
 
     const result = {
         recipient: recipient.name,
@@ -56,9 +57,7 @@ async function lookupFromLegacy(email) {
 
 export const handler = apiHandler("GET", async (event) => {
     const email = event.queryStringParameters?.email;
-    if (!email) {
-        return badRequest("Email required");
-    }
+    if (!email) return badRequest("Email required");
 
     const newResult = await lookupFromNewCollections(email);
     if (newResult) return newResult;
