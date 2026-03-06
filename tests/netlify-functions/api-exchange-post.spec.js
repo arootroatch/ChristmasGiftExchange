@@ -160,6 +160,14 @@ describe('api-exchange-post', () => {
         expect(alexAssignment.recipientId.equals(whitney._id)).toBe(true);
     });
 
+    it('returns 400 for missing required fields', async () => {
+        const event = buildEvent({isSecretSanta: true});
+        const response = await handler(event);
+        expect(response.statusCode).toBe(400);
+        const body = JSON.parse(response.body);
+        expect(body.error).toContain('Missing required field');
+    });
+
     it('updates user name on upsert if different', async () => {
         const db = client.db('test-db');
         await db.collection('users').insertOne({

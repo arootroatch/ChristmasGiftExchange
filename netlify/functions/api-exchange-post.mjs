@@ -1,24 +1,48 @@
-import {getUsersCollection, getExchangesCollection} from "../shared/db.mjs";
-import {apiHandler} from "../shared/middleware.mjs";
-import {ok} from "../shared/responses.mjs";
+import {getExchangesCollection, getUsersCollection} from "../shared/db.mjs";
+import {apiHandler, validateBody} from "../shared/middleware.mjs";
+import {badRequest, ok} from "../shared/responses.mjs";
+import {z} from "zod";
 import crypto from "crypto";
+
+const participantInputSchema = z.object({
+    name: z.string(),
+    email: z.string(),
+});
+
+const assignmentInputSchema = z.object({
+    giver: z.string(),
+    recipient: z.string(),
+});
+
+const houseInputSchema = z.object({
+    id: z.string().optional(),
+    name: z.string(),
+    members: z.array(z.string()),
+});
+
+const exchangePostBody = z.object({
+    exchangeId: z.string(),
+    isSecretSanta: z.boolean(),
+    houses: z.array(houseInputSchema),
+    participants: z.array(participantInputSchema),
+    assignments: z.array(assignmentInputSchema),
+});
 
 async function upsertParticipants(usersCol, participants) {
     const userMap = {};
     for (const participant of participants) {
-        const result = await usersCol.findOneAndUpdate(
-            {email: participant.email},
-            {
-                $set: {name: participant.name, email: participant.email},
-                $setOnInsert: {
-                    token: crypto.randomUUID(),
-                    wishlists: [],
-                    wishItems: [],
-                },
-            },
-            {upsert: true, returnDocument: "after"}
+        userMap[participant.name] = await usersCol.findOneAndUpdate(
+          {email: participant.email},
+          {
+              $set: {name: participant.name, email: participant.email},
+              $setOnInsert: {
+                  token: crypto.randomUUID(),
+                  wishlists: [],
+                  wishItems: [],
+              },
+          },
+          {upsert: true, returnDocument: "after"}
         );
-        userMap[participant.name] = result;
     }
     return userMap;
 }
@@ -53,13 +77,15 @@ function buildResponse(exchangeId, participants, userMap) {
 }
 
 export const handler = apiHandler("POST", async (event) => {
-    const {exchangeId, isSecretSanta, houses, participants, assignments} = JSON.parse(event.body);
+    const {data, error} = validateBody(exchangePostBody, event);
+    if (error) return badRequest(error);
+
     const usersCol = await getUsersCollection();
     const exchangesCol = await getExchangesCollection();
 
-    const userMap = await upsertParticipants(usersCol, participants);
-    const exchangeDoc = buildExchangeDoc(exchangeId, isSecretSanta, houses, participants, assignments, userMap);
+    const userMap = await upsertParticipants(usersCol, data.participants);
+    const exchangeDoc = buildExchangeDoc(data.exchangeId, data.isSecretSanta, data.houses, data.participants, data.assignments, userMap);
     await exchangesCol.insertOne(exchangeDoc);
 
-    return ok(buildResponse(exchangeId, participants, userMap));
+    return ok(buildResponse(data.exchangeId, data.participants, userMap));
 });

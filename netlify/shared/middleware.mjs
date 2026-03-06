@@ -3,7 +3,7 @@ import {methodNotAllowed, serverError} from "./responses.mjs";
 export function formatZodError(zodError) {
     const issue = zodError.issues[0];
     const path = issue.path.join(".");
-    if (issue.code === "invalid_type" && issue.received === "undefined") {
+    if (issue.code === "invalid_type" && (!issue.received || issue.received === "undefined")) {
         return `Missing required field: ${path}`;
     }
     if (issue.code === "invalid_type") {
