@@ -1,6 +1,7 @@
 import {getUsersCollection, getExchangesCollection} from "../shared/db.mjs";
 import {apiHandler} from "../shared/middleware.mjs";
 import {ok, badRequest} from "../shared/responses.mjs";
+import {exchangeSchema} from "../shared/schemas/exchange.mjs";
 
 async function enrichExchange(exchange, usersCol) {
     const participantUsers = await usersCol
@@ -34,27 +35,21 @@ async function enrichExchange(exchange, usersCol) {
 
 export const handler = apiHandler("GET", async (event) => {
     const email = event.queryStringParameters?.email;
-    if (!email) {
-        return badRequest("Email required");
-    }
+    if (!email) return badRequest("Email required");
 
     const usersCol = await getUsersCollection();
     const exchangesCol = await getExchangesCollection();
 
     const user = await usersCol.findOne({email: email.trim()});
-    if (!user) {
-        return ok([]);
-    }
+    if (!user) return ok([]);
 
     const exchanges = await exchangesCol
         .find({participants: user._id})
         .sort({createdAt: -1})
         .toArray();
 
-    if (exchanges.length === 0) {
-        return ok([]);
-    }
+    if (exchanges.length === 0) return ok([]);
 
-    const results = await Promise.all(exchanges.map(ex => enrichExchange(ex, usersCol)));
+    const results = await Promise.all(exchanges.map(ex => enrichExchange(exchangeSchema.parse(ex), usersCol)));
     return ok(results);
 });

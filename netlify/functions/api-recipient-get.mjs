@@ -23,10 +23,10 @@ async function lookupFromNewCollections(email) {
     if (!assignment) return null;
 
     const doc = await usersCol.findOne({_id: assignment.recipientId});
-    const recipient = doc ? userSchema.parse(doc) : null;
+    if (!doc) return null;
+    const recipient = userSchema.parse(doc);
 
-    const hasWishlist = recipient &&
-        (recipient.wishlists.length > 0 || recipient.wishItems.length > 0);
+    const hasWishlist = recipient.wishlists.length > 0 || recipient.wishItems.length > 0;
 
     const result = {
         recipient: recipient.name,
