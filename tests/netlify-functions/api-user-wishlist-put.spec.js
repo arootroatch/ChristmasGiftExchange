@@ -156,6 +156,28 @@ describe('api-user-wishlist-put', () => {
         expect(emailBody.parameters.recipientName).toBe('Whitney');
     });
 
+    it('returns 400 for invalid body', async () => {
+        const db = client.db('test-db');
+        await db.collection('users').insertOne({
+            email: 'alex@test.com',
+            name: 'Alex',
+            token: 'validation-token',
+            wishlists: [],
+            wishItems: [],
+        });
+
+        const event = {
+            httpMethod: 'PUT',
+            path: '/api/user/validation-token/wishlist',
+            body: JSON.stringify({wishlists: "not-an-array"}),
+        };
+
+        const response = await handler(event);
+        expect(response.statusCode).toBe(400);
+        const body = JSON.parse(response.body);
+        expect(body.error).toBeDefined();
+    });
+
     it('does not notify givers on subsequent wishlist updates', async () => {
         const db = client.db('test-db');
         const recipientId = new ObjectId();
