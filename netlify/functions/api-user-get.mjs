@@ -1,32 +1,21 @@
-import {getUsersCollection} from "../shared/db.mjs";
+import {apiHandler} from "../shared/middleware.mjs";
+import {getUserByToken} from "../shared/auth.mjs";
+import {ok, badRequest, unauthorized} from "../shared/responses.mjs";
 
-export const handler = async (event) => {
-    if (event.httpMethod !== "GET") {
-        return {statusCode: 405, body: "Method Not Allowed"};
-    }
-
+export const handler = apiHandler("GET", async (event) => {
     const token = event.path.split("/").pop();
     if (!token) {
-        return {statusCode: 400, body: JSON.stringify({error: "Token required"})};
+        return badRequest("Token required");
     }
 
-    try {
-        const usersCol = await getUsersCollection();
-        const user = await usersCol.findOne({token});
-
-        if (!user) {
-            return {statusCode: 401, body: JSON.stringify({error: "User not found"})};
-        }
-
-        return {
-            statusCode: 200,
-            body: JSON.stringify({
-                name: user.name,
-                wishlists: user.wishlists || [],
-                wishItems: user.wishItems || [],
-            }),
-        };
-    } catch (error) {
-        return {statusCode: 500, body: JSON.stringify({error: error.message})};
+    const user = await getUserByToken(token);
+    if (!user) {
+        return unauthorized("User not found");
     }
-};
+
+    return ok({
+        name: user.name,
+        wishlists: user.wishlists || [],
+        wishItems: user.wishItems || [],
+    });
+});
