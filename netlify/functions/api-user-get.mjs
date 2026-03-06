@@ -1,9 +1,9 @@
 import {apiHandler} from "../shared/middleware.mjs";
-import {getUserByToken} from "../shared/auth.mjs";
+import {extractTokenFromPath, getUserByToken} from "../shared/auth.mjs";
 import {ok, badRequest, unauthorized} from "../shared/responses.mjs";
 
 export const handler = apiHandler("GET", async (event) => {
-    const token = event.path.split("/").pop();
+    const token = extractTokenFromPath(event, "user");
     if (!token) {
         return badRequest("Token required");
     }
