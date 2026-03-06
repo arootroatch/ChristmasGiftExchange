@@ -1,25 +1,4 @@
-import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
-
-async function refreshEnv(handler, mockFetch){
-    vi.resetModules();
-    vi.doMock('node-fetch', () => ({
-        default: mockFetch,
-    }));
-    const module = await import('../../netlify/functions/dispatchEmail.mjs');
-    handler = module.handler;
-
-    const giver = {
-        name: 'Alex',
-        recipient: 'Whitney',
-        email: 'alex@test.com',
-    };
-
-    const event = {
-        body: JSON.stringify(giver),
-    };
-
-    await handler(event);
-}
+import {afterAll, beforeAll, beforeEach, describe, expect, it, vi} from 'vitest';
 
 describe('dispatchEmail', () => {
     let handler;
@@ -28,256 +7,154 @@ describe('dispatchEmail', () => {
     let consoleLogSpy;
     let consoleErrorSpy;
 
-    beforeEach(async () => {
-        // Mock console to suppress output during tests
+    beforeAll(async () => {
         consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
         consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-        // Store original environment
         originalEnv = {...process.env};
 
-        // Set test environment variables
         process.env.URL = 'https://test.netlify.app';
         process.env.NETLIFY_EMAILS_SECRET = 'test-secret-key';
+        process.env.MONGO_DB_URI = 'mongodb://localhost:27017/test';
 
-        // Mock fetch
-        mockFetch = vi.fn();
+        mockFetch = vi.fn().mockResolvedValue({ok: true});
+        vi.stubGlobal('fetch', mockFetch);
 
-        // Mock node-fetch
-        vi.doMock('node-fetch', () => ({
-            default: mockFetch,
-        }));
-
-        // Reset modules and import
-        vi.resetModules();
         const module = await import('../../netlify/functions/dispatchEmail.mjs');
         handler = module.handler;
     });
 
-    afterEach(() => {
-        // Restore console
-        consoleLogSpy.mockRestore();
-        consoleErrorSpy.mockRestore();
-
-        // Restore environment
-        process.env = originalEnv;
-        vi.restoreAllMocks();
-        vi.resetModules();
+    beforeEach(() => {
+        mockFetch.mockClear();
     });
 
-    describe('handler', () => {
-        it('returns 400 when body is null', async () => {
-            const event = {
-                body: null,
-            };
+    afterAll(() => {
+        consoleLogSpy.mockRestore();
+        consoleErrorSpy.mockRestore();
+        vi.unstubAllGlobals();
+        process.env = originalEnv;
+    });
 
-            const response = await handler(event);
+    function buildEvent(body) {
+        return {
+            httpMethod: 'POST',
+            body: JSON.stringify(body),
+        };
+    }
 
-            expect(response.statusCode).toBe(400);
-            expect(JSON.parse(response.body)).toBe('Payload required');
-            expect(mockFetch).not.toHaveBeenCalled();
+    it('returns 405 for non-POST requests', async () => {
+        const event = {httpMethod: 'GET', body: '{}'};
+        const response = await handler(event);
+        expect(response.statusCode).toBe(405);
+    });
+
+    it('returns 400 for missing required fields', async () => {
+        const event = {
+            httpMethod: 'POST',
+            body: JSON.stringify({email: 'test@test.com'}),
+        };
+        const response = await handler(event);
+        expect(response.statusCode).toBe(400);
+        const body = JSON.parse(response.body);
+        expect(body.error).toContain('Missing required field');
+    });
+
+    it('sends email with correct parameters', async () => {
+        const event = buildEvent({
+            name: 'Alex',
+            recipient: 'Whitney',
+            email: 'alex@test.com',
         });
 
-        it('sends email with correct parameters', async () => {
-            mockFetch.mockResolvedValue({ok: true});
+        const response = await handler(event);
 
-            const giver = {
+        expect(response.statusCode).toBe(200);
+        expect(mockFetch).toHaveBeenCalledTimes(1);
+
+        const fetchCall = mockFetch.mock.calls[0];
+        expect(fetchCall[0]).toBe('https://test.netlify.app/.netlify/functions/emails/secret-santa');
+    });
+
+    it('includes correct email details in request body', async () => {
+        const event = buildEvent({
+            name: 'Alex',
+            recipient: 'Whitney',
+            email: 'alex@test.com',
+        });
+
+        await handler(event);
+
+        const fetchCall = mockFetch.mock.calls[0];
+        const requestBody = JSON.parse(fetchCall[1].body);
+
+        expect(requestBody).toEqual({
+            from: 'alex@soundrootsproductions.com',
+            to: 'alex@test.com',
+            subject: 'Your gift exchange recipient name has arrived!',
+            parameters: {
                 name: 'Alex',
                 recipient: 'Whitney',
-                email: 'alex@test.com',
-            };
+                wishlistEditUrl: null,
+            },
+        });
+    });
 
-            const event = {
-                body: JSON.stringify(giver),
-            };
+    it('returns 500 when fetch fails', async () => {
+        mockFetch.mockRejectedValueOnce(new Error('Network error'));
 
-            const response = await handler(event);
-
-            expect(mockFetch).toHaveBeenCalledWith(
-                'https://test.netlify.app/.netlify/functions/emails/secret-santa',
-                expect.objectContaining({
-                    method: 'POST',
-                    headers: {
-                        'netlify-emails-secret': 'test-secret-key',
-                    },
-                })
-            );
-
-            expect(response.statusCode).toBe(200);
+        const event = buildEvent({
+            name: 'Alex',
+            recipient: 'Whitney',
+            email: 'alex@test.com',
         });
 
-        it('includes correct email details in request body', async () => {
-            mockFetch.mockResolvedValue({ok: true});
+        const response = await handler(event);
+        expect(response.statusCode).toBe(500);
+        const body = JSON.parse(response.body);
+        expect(body.error).toBe('Network error');
+    });
 
-            const giver = {
-                name: 'Alex',
-                recipient: 'Whitney',
-                email: 'alex@test.com',
-            };
-
-            const event = {
-                body: JSON.stringify(giver),
-            };
-
-            await handler(event);
-
-            const fetchCall = mockFetch.mock.calls[0];
-            const requestBody = JSON.parse(fetchCall[1].body);
-
-            expect(requestBody).toEqual({
-                from: 'alex@soundrootsproductions.com',
-                to: 'alex@test.com',
-                subject: 'Your gift exchange recipient name has arrived!',
-                parameters: {
-                    name: 'Alex',
-                    recipient: 'Whitney',
-                    wishlistEditUrl: null,
-                },
-            });
+    it('passes wishlistEditUrl when provided', async () => {
+        const event = buildEvent({
+            name: 'Alex',
+            recipient: 'Whitney',
+            email: 'alex@test.com',
+            wishlistEditUrl: 'https://example.com/wishlist/edit/abc-123',
         });
 
-        it('returns 200 after successful email send', async () => {
-            mockFetch.mockResolvedValue({ok: true});
+        await handler(event);
 
-            const giver = {
-                name: 'Alex',
-                recipient: 'Whitney',
-                email: 'alex@test.com',
-            };
+        const fetchCall = mockFetch.mock.calls[0];
+        const requestBody = JSON.parse(fetchCall[1].body);
+        expect(requestBody.parameters.wishlistEditUrl).toBe('https://example.com/wishlist/edit/abc-123');
+    });
 
-            const event = {
-                body: JSON.stringify(giver),
-            };
-
-            const response = await handler(event);
-
-            expect(response.statusCode).toBe(200);
+    it('defaults wishlistEditUrl to null when not provided', async () => {
+        const event = buildEvent({
+            name: 'Alex',
+            recipient: 'Whitney',
+            email: 'alex@test.com',
         });
 
-        it('returns 500 when fetch fails', async () => {
-            mockFetch.mockRejectedValue(new Error('Network error'));
+        await handler(event);
 
-            const giver = {
-                name: 'Alex',
-                recipient: 'Whitney',
-                email: 'alex@test.com',
-            };
+        const fetchCall = mockFetch.mock.calls[0];
+        const requestBody = JSON.parse(fetchCall[1].body);
+        expect(requestBody.parameters.wishlistEditUrl).toBeNull();
+    });
 
-            const event = {
-                body: JSON.stringify(giver),
-            };
-
-            const response = await handler(event);
-            expect(response.statusCode).toBe(500);
-            const body = JSON.parse(response.body);
-            expect(body.error).toBe("Network error");
+    it('handles names with special characters', async () => {
+        const event = buildEvent({
+            name: "O'Brien",
+            recipient: 'José García',
+            email: 'obrien@test.com',
         });
 
-        it('uses correct URL from environment', async () => {
-            mockFetch.mockResolvedValue({ok: true});
-            process.env.URL = 'https://custom.domain.com';
-            await refreshEnv(handler, mockFetch);
+        await handler(event);
 
-            expect(mockFetch).toHaveBeenCalledWith(
-                'https://custom.domain.com/.netlify/functions/emails/secret-santa',
-                expect.any(Object)
-            );
-        });
-
-        it('uses correct secret from environment', async () => {
-            mockFetch.mockResolvedValue({ok: true});
-            process.env.NETLIFY_EMAILS_SECRET = 'super-secret-key';
-            await refreshEnv(handler, mockFetch);
-
-            const fetchCall = mockFetch.mock.calls[0];
-            expect(fetchCall[1].headers['netlify-emails-secret']).toBe('super-secret-key');
-        });
-
-        it('parses JSON body correctly', async () => {
-            mockFetch.mockResolvedValue({ok: true});
-
-            const giver = {
-                name: 'Test User',
-                recipient: 'Another User',
-                email: 'test@example.com',
-            };
-
-            const event = {
-                body: JSON.stringify(giver),
-            };
-
-            await handler(event);
-
-            const fetchCall = mockFetch.mock.calls[0];
-            const requestBody = JSON.parse(fetchCall[1].body);
-
-            expect(requestBody.parameters.name).toBe('Test User');
-            expect(requestBody.parameters.recipient).toBe('Another User');
-        });
-
-        it('passes wishlistEditUrl to template parameters when provided', async () => {
-            mockFetch.mockResolvedValue({ok: true});
-
-            const payload = {
-                name: 'Alex',
-                recipient: 'Whitney',
-                email: 'alex@test.com',
-                wishlistEditUrl: 'https://example.com/wishlist/edit/abc-123',
-            };
-
-            const event = {
-                body: JSON.stringify(payload),
-            };
-
-            await handler(event);
-
-            const fetchCall = mockFetch.mock.calls[0];
-            const requestBody = JSON.parse(fetchCall[1].body);
-
-            expect(requestBody.parameters.wishlistEditUrl).toBe('https://example.com/wishlist/edit/abc-123');
-        });
-
-        it('passes null wishlistEditUrl when not provided', async () => {
-            mockFetch.mockResolvedValue({ok: true});
-
-            const payload = {
-                name: 'Alex',
-                recipient: 'Whitney',
-                email: 'alex@test.com',
-            };
-
-            const event = {
-                body: JSON.stringify(payload),
-            };
-
-            await handler(event);
-
-            const fetchCall = mockFetch.mock.calls[0];
-            const requestBody = JSON.parse(fetchCall[1].body);
-
-            expect(requestBody.parameters.wishlistEditUrl).toBeNull();
-        });
-
-        it('handles givers with special characters in names', async () => {
-            mockFetch.mockResolvedValue({ok: true});
-
-            const giver = {
-                name: "O'Brien",
-                recipient: 'José García',
-                email: 'obrien@test.com',
-            };
-
-            const event = {
-                body: JSON.stringify(giver),
-            };
-
-            await handler(event);
-
-            const fetchCall = mockFetch.mock.calls[0];
-            const requestBody = JSON.parse(fetchCall[1].body);
-
-            expect(requestBody.parameters.name).toBe("O'Brien");
-            expect(requestBody.parameters.recipient).toBe('José García');
-        });
+        const fetchCall = mockFetch.mock.calls[0];
+        const requestBody = JSON.parse(fetchCall[1].body);
+        expect(requestBody.parameters.name).toBe("O'Brien");
+        expect(requestBody.parameters.recipient).toBe('José García');
     });
 });

@@ -1,43 +1,29 @@
+import {z} from "zod";
+import {apiHandler, validateBody} from "../shared/middleware.mjs";
+import {ok, badRequest} from "../shared/responses.mjs";
+import {sendNotificationEmail} from "../shared/giverNotification.mjs";
 
-import fetch from "node-fetch";
+const dispatchEmailBody = z.object({
+    email: z.string(),
+    name: z.string(),
+    recipient: z.string(),
+    wishlistEditUrl: z.string().nullable().default(null),
+});
 
-const handler = async (event) => {
-  if (event.body === null) {
-    return {
-      statusCode: 400,
-      body: JSON.stringify("Payload required"),
-    };
-  }
+export const handler = apiHandler("POST", async (event) => {
+    const {data, error} = validateBody(dispatchEmailBody, event);
+    if (error) return badRequest(error);
 
-  let data = JSON.parse(event.body);
-
-  try {
-    await fetch(
-      `${process.env.URL}/.netlify/functions/emails/secret-santa`,
-      {
-        headers: {
-          "netlify-emails-secret": process.env.NETLIFY_EMAILS_SECRET,
-        },
-        method: "POST",
-        body: JSON.stringify({
-          from: "alex@soundrootsproductions.com",
-          to: data.email,
-          subject: "Your gift exchange recipient name has arrived!",
-          parameters: {
+    await sendNotificationEmail(
+        "secret-santa",
+        data.email,
+        "Your gift exchange recipient name has arrived!",
+        {
             name: data.name,
             recipient: data.recipient,
-            wishlistEditUrl: data.wishlistEditUrl || null,
-          },
-        })
-      }
+            wishlistEditUrl: data.wishlistEditUrl,
+        }
     );
-    return { statusCode: 200 };
-  } catch (error) {
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: error.message }),
-    };
-  }
-};
 
-export { handler };
+    return ok({});
+});
