@@ -24,7 +24,8 @@
     "dotenv": "^16.3.2",
     "mongodb": "^6.3.0",
     "n": "^10.1.0",
-    "node-fetch": "^3.3.2"
+    "node-fetch": "^3.3.2",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@testing-library/dom": "^10.4.0",
