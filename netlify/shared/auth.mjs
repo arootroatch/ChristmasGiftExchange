@@ -1,8 +1,10 @@
 import {getUsersCollection} from "./db.mjs";
+import {userSchema} from "./schemas/user.mjs";
 
 export async function getUserByToken(token) {
     const usersCol = await getUsersCollection();
-    return usersCol.findOne({token});
+    const doc = await usersCol.findOne({token});
+    return doc ? userSchema.parse(doc) : null;
 }
 
 export function extractTokenFromPath(event, afterSegment) {
