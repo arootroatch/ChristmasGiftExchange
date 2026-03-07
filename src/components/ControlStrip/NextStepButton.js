@@ -1,6 +1,6 @@
 import {addKeybinding, addEventListener, click, removeKeybinding, selectElement} from "../../utils.js";
 import {ExchangeEvents as Events, exchangeEvents as stateEvents, isGenerated, nextStep} from "../../exchangeState.js";
-import {showError} from "../Snackbar.js";
+import {showError} from "../../Snackbar.js";
 
 const nextStepId = "nextStep";
 const slotSelector = '[data-slot="nextStep"]';

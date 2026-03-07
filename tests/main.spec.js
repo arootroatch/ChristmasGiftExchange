@@ -56,7 +56,7 @@ vi.mock('../src/components/EmailQuery', () => ({
   init: vi.fn(),
 }));
 
-vi.mock('../src/components/Snackbar', () => ({
+vi.mock('../src/Snackbar', () => ({
   init: vi.fn(),
   showError: vi.fn(),
 }));
@@ -151,7 +151,7 @@ it('calls generateButton.init', async () => {
   });
 
   it('calls snackbar.init', async () => {
-    const {init} = await import('../src/components/Snackbar');
+    const {init} = await import('../src/Snackbar');
 
     main();
 
@@ -165,7 +165,7 @@ it('calls generateButton.init', async () => {
   });
 
   it('calls all initialization functions in order', async () => {
-    const snackbar = await import('../src/components/Snackbar');
+    const snackbar = await import('../src/Snackbar');
     const house = await import('../src/components/House');
     const name = await import('../src/components/Name');
     const select = await import('../src/components/Select');
@@ -261,7 +261,7 @@ it('calls generateButton.init', async () => {
 
     it('displays snackbar error from sessionStorage', async () => {
       sessionStorage.setItem("snackbarError", "Test error message");
-      const snackbar = await import('../src/components/Snackbar');
+      const snackbar = await import('../src/Snackbar');
 
       main();
 

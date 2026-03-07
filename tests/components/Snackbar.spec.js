@@ -1,5 +1,5 @@
 import {afterEach, beforeAll, beforeEach, describe, expect, it, vi} from "vitest";
-import * as snackbar from "../../src/components/Snackbar";
+import * as snackbar from "../../src/Snackbar";
 import {shouldDisplayErrorSnackbar, shouldDisplaySuccessSnackbar} from "../specHelper";
 
 describe("snackbar", () => {

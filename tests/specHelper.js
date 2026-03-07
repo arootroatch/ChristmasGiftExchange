@@ -11,7 +11,7 @@ import * as nextStepButton from "../src/components/ControlStrip/NextStepButton";
 import * as addHouseButton from "../src/components/ControlStrip/AddHouseButton";
 import * as generateButton from "../src/components/ControlStrip/GenerateButton";
 import * as instructions from "../src/components/Instructions";
-import * as snackbar from "../src/components/Snackbar";
+import * as snackbar from "../src/Snackbar";
 
 let isReactiveSystemInitialized = false;
 

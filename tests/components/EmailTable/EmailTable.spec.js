@@ -15,7 +15,7 @@ import {
   emailInput,
   init,
 } from "../../../src/components/EmailTable/EmailTable";
-import {init as initSnackbar} from "../../../src/components/Snackbar";
+import {init as initSnackbar} from "../../../src/Snackbar";
 
 function stubExchangeApiFetch() {
   global.fetch = vi.fn(() => Promise.resolve({

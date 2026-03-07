@@ -1,5 +1,5 @@
 import {escape, escapeAttr} from './utils.js';
-import * as snackbar from './components/Snackbar.js';
+import * as snackbar from './Snackbar.js';
 
 async function searchExchanges() {
     const email = document.getElementById("reuse-email").value.trim();

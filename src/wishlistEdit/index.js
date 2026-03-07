@@ -1,4 +1,4 @@
-import * as snackbar from '../components/Snackbar.js';
+import * as snackbar from '../Snackbar.js';
 import * as greeting from './Greeting.js';
 import * as wishlistList from './WishlistList.js';
 import * as itemList from './ItemList.js';

@@ -1,6 +1,6 @@
 import {ExchangeEvents as Events, exchangeEvents as stateEvents, addEmailsToParticipants, getExchangePayload} from "../../exchangeState.js";
 import {addEventListener, pushHTML, selectElement, setLoadingState, escapeAttr} from "../../utils.js";
-import {showError} from "../Snackbar.js";
+import {showError} from "../../Snackbar.js";
 
 const emailTableId = "emailTable";
 const emailTableBodyId = "emailTableBody";
