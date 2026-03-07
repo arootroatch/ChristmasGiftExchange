@@ -1,10 +1,10 @@
-# WishlistEdit Components Own Their Markup
+# WishlistEdit Components Own Their Markup + EmailQuery Slot + Test Restructure
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
-**Goal:** Move section HTML out of `pages/wishlist/edit/index.html` and into the components that manage them, so each component owns its rendering like React components.
+**Goal:** Move section HTML out of page HTML files and into the components that manage them, then restructure and rename `tests/` to `spec/` mirroring `src/` layout.
 
-**Architecture:** Each component gets a `template()` function returning its HTML string. `init()` renders the template into a `data-slot` div in index.html, then subscribes to events and attaches listeners. index.html becomes a minimal shell with slot divs defining layout order.
+**Architecture:** Each component gets a `template()` function returning its HTML string. `init()` renders the template into a `data-slot` div in the page HTML, then subscribes to events and attaches listeners. Page HTML files become minimal shells with slot divs defining layout order.
 
 **Tech Stack:** Vanilla JS, Vitest + jsdom
 
@@ -371,9 +371,9 @@ Replace the entire `<section id="contact-section">...</section>` block with:
 <div data-slot="contact"></div>
 ```
 
-**Step 3: Verify final index.html**
+**Step 3: Verify final pages/wishlist/edit/index.html**
 
-At this point `index.html` should look like:
+At this point `pages/wishlist/edit/index.html` should look like:
 
 ```html
 <!DOCTYPE html>
@@ -411,4 +411,432 @@ Expected: All 25 tests pass, no stderr errors
 
 ```
 refactor: ContactForm component owns its markup
+```
+
+---
+
+### Task 6: EmailQuery.js owns its markup
+
+**Files:**
+- Modify: `src/exchange/components/EmailQuery.js`
+- Modify: `index.html`
+- Modify: `tests/components/EmailQuery.spec.js`
+
+**Step 1: Update EmailQuery.js — render into slot on init**
+
+Update `init()` to render the `#query` container into the slot. The component already has `emailQueryInit` as a template. Add a `template()` that wraps it in the `#query` div:
+
+```js
+import {addEventListener, removeEventListener, selectElement, setLoadingState, escapeAttr} from "../../utils";
+
+const emailQueryId = "emailQuery";
+const emailQueryBtnId = "emailQueryBtn";
+const queryDivId = "query";
+
+export const emailQueryInput =
+  `<div>
+        <input
+            type="email"
+            maxlength="100"
+            id="${emailQueryId}"
+            placeholder="Enter your email to search"
+        />
+        <button
+            type="submit"
+            class="button queryBtn"
+            id="${emailQueryBtnId}"
+        >
+        Search it!
+        </button>
+    </div>`
+
+export const emailQueryInit =
+  `<label for="${emailQueryId}">
+        Need to know who you're buying a gift for?
+    </label>
+    ${emailQueryInput}`
+
+export const emailQueryError =
+  `<div style="color:#b31e20">
+        Email address not found!
+    </div>`
+
+function template() {
+    return `<div id="${queryDivId}" class="emailQuery">${emailQueryInit}</div>`;
+}
+
+export function emailQueryResult(date, recipient) {
+  return `
+    <div>
+        As of ${escapeAttr(date.toDateString())}, you're buying a gift for <span>${escapeAttr(recipient)}!</span>
+    </div>
+    ${emailQueryInput}`;
+}
+
+function renderResult(results) {
+  const timestamp = Date.parse(results.date);
+  const date = new Date(timestamp);
+  const queryDiv = selectElement(`#${queryDivId}`);
+
+  let html = emailQueryResult(date, results.recipient);
+  if (results.wishlistViewUrl) {
+    html += `<a href="${escapeAttr(results.wishlistViewUrl)}" class="button" style="margin-top: 10px; display: inline-block;">View Wishlist</a>`;
+  }
+
+  queryDiv.innerHTML = html;
+  addEventListener(`#${emailQueryBtnId}`, "click", getName);
+}
+
+function renderError() {
+  const queryDiv = selectElement(`#${queryDivId}`);
+
+  queryDiv.innerHTML = emailQueryError;
+  setTimeout(() => {
+    queryDiv.innerHTML = emailQueryInit;
+    addEventListener(`#${emailQueryBtnId}`, "click", getName);
+  }, 2000);
+}
+
+function renderLoadingState() {
+  setLoadingState(`#${emailQueryBtnId}`);
+  removeEventListener(`#${emailQueryBtnId}`, "click", getName);
+}
+
+async function getName(e) {
+  e.preventDefault();
+  const email = selectElement(`#${emailQueryId}`).value;
+  renderLoadingState();
+
+  try {
+    const response = await fetch(
+      `/.netlify/functions/api-recipient-get?email=${encodeURIComponent(email)}`
+    );
+    const results = await response.json();
+    renderResult(results);
+  } catch (error) {
+    console.error('Error fetching name:', error);
+    renderError();
+  }
+}
+
+export function init() {
+  selectElement('[data-slot="email-query"]').innerHTML = template();
+  addEventListener(`#${emailQueryBtnId}`, "click", getName);
+}
+```
+
+**Step 2: Update index.html — replace #query div with slot**
+
+Replace the entire `<div id="query" class="emailQuery">...</div>` block (lines 61-80) with:
+```html
+<div data-slot="email-query"></div>
+```
+
+**Step 3: Update EmailQuery.spec.js — move query lookup after init()**
+
+The test currently does `const query = document.querySelector("#query")` at describe scope (before `init()` creates `#query`). Move it into `beforeAll` after `init()`:
+
+Change:
+```js
+describe("getName", () => {
+    let emailQueryBtn;
+    const query = document.querySelector("#query");
+    let consoleLogSpy;
+    let consoleErrorSpy;
+
+    beforeAll(() => {
+        // Mock console to suppress output during tests
+        consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+        consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+        init();
+    });
+```
+
+To:
+```js
+describe("getName", () => {
+    let emailQueryBtn;
+    let query;
+    let consoleLogSpy;
+    let consoleErrorSpy;
+
+    beforeAll(() => {
+        // Mock console to suppress output during tests
+        consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+        consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+        init();
+        query = document.querySelector("#query");
+    });
+```
+
+**Step 4: Run tests to verify**
+
+Run: `npx vitest run tests/components/EmailQuery.spec.js`
+Expected: All 7 tests pass
+
+Also run full suite: `npx vitest run`
+Expected: All tests pass
+
+**Step 5: Commit**
+
+```
+refactor: EmailQuery component owns its markup
+```
+
+---
+
+### Task 7: Rename tests/ to spec/ and restructure to mirror src/
+
+This is a bulk move operation. All tests must move at once since partial moves break imports.
+
+**Files:**
+- Rename: `tests/` → `spec/`
+- Modify: `vitest.config.ts` (if needed)
+- Modify: all import paths within spec files
+
+**Step 1: Move and restructure directories**
+
+File mapping (old → new):
+
+```
+# Shared test utilities
+tests/specHelper.js              → spec/specHelper.js
+tests/testData.js                → spec/testData.js
+
+# Top-level src/ modules
+tests/utils.spec.js              → spec/utils.spec.js
+tests/viteMultiPagePlugin.spec.js → spec/viteMultiPagePlugin.spec.js
+
+# src/Snackbar.js (top-level shared)
+tests/components/Snackbar.spec.js → spec/Snackbar.spec.js
+
+# src/exchange/
+tests/exchangeState.spec.js      → spec/exchange/state.spec.js
+tests/generate.spec.js           → spec/exchange/generate.spec.js
+tests/dragDrop.spec.js           → spec/exchange/dragDrop.spec.js
+tests/main.spec.js               → spec/exchange/index.spec.js
+tests/layout.spec.js             → spec/exchange/layout.spec.js
+
+# src/exchange/components/
+tests/components/ControlStrip/ControlStrip.spec.js     → spec/exchange/components/ControlStrip/ControlStrip.spec.js
+tests/components/ControlStrip/NextStepButton.spec.js   → spec/exchange/components/ControlStrip/NextStepButton.spec.js
+tests/components/ControlStrip/AddHouseButton.spec.js   → spec/exchange/components/ControlStrip/AddHouseButton.spec.js
+tests/components/ControlStrip/GenerateButton.spec.js   → spec/exchange/components/ControlStrip/GenerateButton.spec.js
+tests/components/EmailQuery.spec.js                    → spec/exchange/components/EmailQuery.spec.js
+tests/components/EmailTable/EmailTable.spec.js         → spec/exchange/components/EmailTable/EmailTable.spec.js
+tests/components/EmailTable/SendEmails.spec.js         → spec/exchange/components/EmailTable/SendEmails.spec.js
+tests/components/House.spec.js                         → spec/exchange/components/House.spec.js
+tests/components/Instructions.spec.js                  → spec/exchange/components/Instructions.spec.js
+tests/components/Name.spec.js                          → spec/exchange/components/Name.spec.js
+tests/components/NameList.spec.js                      → spec/exchange/components/NameList.spec.js
+tests/components/ResultsTable.spec.js                  → spec/exchange/components/ResultsTable.spec.js
+
+# src/wishlistEdit/
+tests/wishlistEdit.spec.js       → spec/wishlistEdit/index.spec.js
+tests/wishlistEditState.spec.js  → spec/wishlistEdit/state.spec.js
+
+# src/wishlistView.js, src/reuse.js
+tests/wishlistView.spec.js       → spec/wishlistView.spec.js
+tests/reuse.spec.js              → spec/reuse.spec.js
+
+# Backend (structure unchanged, just under spec/)
+tests/netlify-functions/*        → spec/netlify-functions/*
+
+# Scripts
+tests/scripts/*                  → spec/scripts/*
+```
+
+Execute with:
+```bash
+# Create new directory structure
+mkdir -p spec/exchange/components/ControlStrip
+mkdir -p spec/exchange/components/EmailTable
+mkdir -p spec/wishlistEdit
+mkdir -p spec/netlify-functions/schemas
+mkdir -p spec/scripts
+
+# Move shared utilities
+mv tests/specHelper.js spec/specHelper.js
+mv tests/testData.js spec/testData.js
+
+# Move top-level specs
+mv tests/utils.spec.js spec/utils.spec.js
+mv tests/viteMultiPagePlugin.spec.js spec/viteMultiPagePlugin.spec.js
+mv tests/components/Snackbar.spec.js spec/Snackbar.spec.js
+mv tests/wishlistView.spec.js spec/wishlistView.spec.js
+mv tests/reuse.spec.js spec/reuse.spec.js
+
+# Move exchange specs (with renames)
+mv tests/exchangeState.spec.js spec/exchange/state.spec.js
+mv tests/generate.spec.js spec/exchange/generate.spec.js
+mv tests/dragDrop.spec.js spec/exchange/dragDrop.spec.js
+mv tests/main.spec.js spec/exchange/index.spec.js
+mv tests/layout.spec.js spec/exchange/layout.spec.js
+
+# Move exchange component specs
+mv tests/components/ControlStrip/ControlStrip.spec.js spec/exchange/components/ControlStrip/ControlStrip.spec.js
+mv tests/components/ControlStrip/NextStepButton.spec.js spec/exchange/components/ControlStrip/NextStepButton.spec.js
+mv tests/components/ControlStrip/AddHouseButton.spec.js spec/exchange/components/ControlStrip/AddHouseButton.spec.js
+mv tests/components/ControlStrip/GenerateButton.spec.js spec/exchange/components/ControlStrip/GenerateButton.spec.js
+mv tests/components/EmailQuery.spec.js spec/exchange/components/EmailQuery.spec.js
+mv tests/components/EmailTable/EmailTable.spec.js spec/exchange/components/EmailTable/EmailTable.spec.js
+mv tests/components/EmailTable/SendEmails.spec.js spec/exchange/components/EmailTable/SendEmails.spec.js
+mv tests/components/House.spec.js spec/exchange/components/House.spec.js
+mv tests/components/Instructions.spec.js spec/exchange/components/Instructions.spec.js
+mv tests/components/Name.spec.js spec/exchange/components/Name.spec.js
+mv tests/components/NameList.spec.js spec/exchange/components/NameList.spec.js
+mv tests/components/ResultsTable.spec.js spec/exchange/components/ResultsTable.spec.js
+
+# Move wishlistEdit specs (with renames)
+mv tests/wishlistEdit.spec.js spec/wishlistEdit/index.spec.js
+mv tests/wishlistEditState.spec.js spec/wishlistEdit/state.spec.js
+
+# Move backend specs
+mv tests/netlify-functions/* spec/netlify-functions/
+
+# Move scripts specs
+mv tests/scripts/* spec/scripts/
+
+# Remove empty tests/ directory
+rm -rf tests/
+```
+
+**Step 2: Update all import paths**
+
+Every spec file has relative imports to `specHelper`, `testData`, and `src/` files. These must be updated based on each file's new depth.
+
+**Import path changes by file location:**
+
+Files in `spec/` (depth 1 — same as before for specHelper/testData):
+- `spec/utils.spec.js`: `../src/utils` (unchanged)
+- `spec/viteMultiPagePlugin.spec.js`: `../src/viteMultiPagePlugin` (unchanged)
+- `spec/Snackbar.spec.js`: was `../specHelper` → `./specHelper`; was `../../src/Snackbar` → `../src/Snackbar`
+- `spec/wishlistView.spec.js`: `../pages/...` (unchanged)
+- `spec/reuse.spec.js`: `../pages/...` (unchanged)
+
+Files in `spec/exchange/` (depth 2):
+- `spec/exchange/state.spec.js`: was `../src/exchange/state` → `../../src/exchange/state`; was `./testData` → `../testData`; was `./specHelper` → `../specHelper`
+- `spec/exchange/generate.spec.js`: was `./specHelper` → `../specHelper`; was `../src/exchange/generate` → `../../src/exchange/generate`
+- `spec/exchange/dragDrop.spec.js`: was `./specHelper` → `../specHelper`; was `../src/exchange/...` → `../../src/exchange/...`
+- `spec/exchange/index.spec.js`: was `../src/exchange/index` → `../../src/exchange/index`; was `../src/exchange/...` → `../../src/exchange/...`
+- `spec/exchange/layout.spec.js`: was `../src/exchange/state` → `../../src/exchange/state`; was `./specHelper` → `../specHelper`; was `../src/exchange/index` → `../../src/exchange/index`
+
+Files in `spec/exchange/components/` (depth 3):
+- was `../specHelper` → `../../specHelper`
+- was `../../src/exchange/components/X` → `../../../src/exchange/components/X`
+- was `../testData` → `../../testData`
+- was `../../src/exchange/state` → `../../../src/exchange/state`
+
+Files in `spec/exchange/components/ControlStrip/` (depth 4):
+- was `../../specHelper` → `../../../specHelper`
+- was `../../../src/exchange/components/ControlStrip/X` → `../../../../src/exchange/components/ControlStrip/X`
+
+Files in `spec/exchange/components/EmailTable/` (depth 4):
+- was `../../specHelper` → `../../../specHelper`
+- was `../../testData` → `../../../testData`
+- was `../../../src/exchange/components/EmailTable/X` → `../../../../src/exchange/components/EmailTable/X`
+- was `../../../src/exchange/state` → `../../../../src/exchange/state`
+
+Files in `spec/wishlistEdit/` (depth 2):
+- `spec/wishlistEdit/index.spec.js`: was `../pages/wishlist/edit/index.html` → `../../pages/wishlist/edit/index.html`; was `../src/wishlistEdit/index.js` → `../../src/wishlistEdit/index.js`
+- `spec/wishlistEdit/state.spec.js`: was `../src/wishlistEdit/state` → `../../src/wishlistEdit/state`
+
+Files in `spec/netlify-functions/` (depth 2 — unchanged from before):
+- All imports use `../../netlify/...` (unchanged)
+
+Files in `spec/scripts/` (depth 2 — unchanged from before):
+- Imports unchanged
+
+**Step 3: Move setupTests.js into spec/**
+
+Move `setupTests.js` from root to `spec/setupTests.js` and update `vitest.config.ts`:
+
+```js
+export default defineConfig({
+  test: {
+    environment: 'jsdom',
+    setupFiles: ['spec/setupTests.js'],
+  },
+});
+```
+
+**Step 4: Run full test suite**
+
+Run: `npx vitest run`
+Expected: All tests pass
+
+**Step 5: Commit**
+
+```
+refactor: rename tests/ to spec/ and restructure to mirror src/ layout
+```
+
+---
+
+### Task 8: Update CLAUDE.md and MEMORY.md
+
+**Files:**
+- Modify: `.claude/CLAUDE.md` — update file structure section
+- Modify: auto-memory `MEMORY.md` — update test file references
+
+**Step 1: Update file structure in CLAUDE.md**
+
+Replace the `tests/` tree in the File Structure section with:
+
+```
+spec/
+  specHelper.js          # Test utilities (initReactiveSystem, resetState, enterName, click, etc.)
+  setupTests.js          # JSDOM initialization from index.html
+  testData.js
+  utils.spec.js
+  viteMultiPagePlugin.spec.js
+  Snackbar.spec.js
+  wishlistView.spec.js
+  reuse.spec.js
+  exchange/
+    state.spec.js
+    generate.spec.js
+    dragDrop.spec.js
+    index.spec.js
+    layout.spec.js
+    components/
+      ControlStrip/
+        ControlStrip.spec.js
+        NextStepButton.spec.js
+        AddHouseButton.spec.js
+        GenerateButton.spec.js
+      EmailQuery.spec.js
+      EmailTable/
+        EmailTable.spec.js
+        SendEmails.spec.js
+      ResultsTable.spec.js
+      House.spec.js
+      NameList.spec.js
+      Name.spec.js
+      Instructions.spec.js
+  wishlistEdit/
+    index.spec.js
+    state.spec.js
+  netlify-functions/
+    api-exchange-post.spec.js
+    api-exchange-get.spec.js
+    api-exchange-search.spec.js
+    api-user-get.spec.js
+    api-user-wishlist-put.spec.js
+    api-user-contact-post.spec.js
+    api-giver-notify-post.spec.js
+    api-recipient-get.spec.js
+    db.spec.js
+    get_name.spec.js
+    postToDb.spec.js
+    schemas/
+      user.spec.js
+  scripts/
+    migrate-legacy.spec.js
+```
+
+**Step 2: Commit**
+
+```
+docs: update CLAUDE.md and MEMORY.md for spec/ directory structure
 ```
