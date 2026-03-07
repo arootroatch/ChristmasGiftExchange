@@ -1,50 +1,27 @@
-import {afterAll, afterEach, beforeAll, describe, expect, it, vi} from 'vitest';
-import {MongoClient, ObjectId} from 'mongodb';
-import {MongoMemoryServer} from 'mongodb-memory-server';
+import {afterAll, afterEach, beforeAll, describe, expect, it} from 'vitest';
+import {ObjectId} from 'mongodb';
+import {setupMongo, teardownMongo, cleanCollections} from './mongoHelper.js';
 
 describe('api-exchange-search', () => {
-    let mongoServer;
-    let client;
-    let handler;
-    let originalEnv;
-    let consoleLogSpy;
-    let consoleErrorSpy;
+    let client, db, handler;
+    let mongo;
 
     beforeAll(async () => {
-        consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-        consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-
-        originalEnv = {...process.env};
-
-        mongoServer = await MongoMemoryServer.create();
-        const uri = mongoServer.getUri();
-
-        process.env.MONGO_DB_URI = uri;
-        process.env.MONGODB_DATABASE = 'test-db';
-
-        client = new MongoClient(uri);
-        await client.connect();
-
+        mongo = await setupMongo();
+        ({client, db} = mongo);
         const module = await import('../../netlify/functions/api-exchange-search.mjs');
         handler = module.handler;
     });
 
     afterEach(async () => {
-        const db = client.db('test-db');
-        await db.collection('users').deleteMany({});
-        await db.collection('exchanges').deleteMany({});
+        await cleanCollections(db, 'users', 'exchanges');
     });
 
     afterAll(async () => {
-        consoleLogSpy.mockRestore();
-        consoleErrorSpy.mockRestore();
-        process.env = originalEnv;
-        await client.close();
-        await mongoServer.stop();
+        await teardownMongo(mongo);
     });
 
     async function setupExchanges() {
-        const db = client.db('test-db');
         const alexId = new ObjectId();
         const whitneyId = new ObjectId();
         const hunterId = new ObjectId();

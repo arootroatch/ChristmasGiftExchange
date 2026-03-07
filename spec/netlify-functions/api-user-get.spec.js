@@ -1,45 +1,23 @@
-import {afterAll, afterEach, beforeAll, describe, expect, it, vi} from 'vitest';
-import {MongoClient} from 'mongodb';
-import {MongoMemoryServer} from 'mongodb-memory-server';
+import {afterAll, afterEach, beforeAll, describe, expect, it} from 'vitest';
+import {setupMongo, teardownMongo, cleanCollections} from './mongoHelper.js';
 
 describe('api-user-get', () => {
-    let mongoServer;
-    let client;
-    let handler;
-    let originalEnv;
-    let consoleLogSpy;
-    let consoleErrorSpy;
+    let client, db, handler;
+    let mongo;
 
     beforeAll(async () => {
-        consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-        consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-
-        originalEnv = {...process.env};
-
-        mongoServer = await MongoMemoryServer.create();
-        const uri = mongoServer.getUri();
-
-        process.env.MONGO_DB_URI = uri;
-        process.env.MONGODB_DATABASE = 'test-db';
-
-        client = new MongoClient(uri);
-        await client.connect();
-
+        mongo = await setupMongo();
+        ({client, db} = mongo);
         const module = await import('../../netlify/functions/api-user-get.mjs');
         handler = module.handler;
     });
 
     afterEach(async () => {
-        const db = client.db('test-db');
-        await db.collection('users').deleteMany({});
+        await cleanCollections(db, 'users');
     });
 
     afterAll(async () => {
-        consoleLogSpy.mockRestore();
-        consoleErrorSpy.mockRestore();
-        process.env = originalEnv;
-        await client.close();
-        await mongoServer.stop();
+        await teardownMongo(mongo);
     });
 
     it('returns 405 for non-GET requests', async () => {
@@ -49,7 +27,6 @@ describe('api-user-get', () => {
     });
 
     it('returns user data by token', async () => {
-        const db = client.db('test-db');
         const alexToken = crypto.randomUUID();
         await db.collection('users').insertOne({
             email: 'alex@test.com',
@@ -76,7 +53,6 @@ describe('api-user-get', () => {
     });
 
     it('returns empty arrays when user has no wishlists', async () => {
-        const db = client.db('test-db');
         const alexToken = crypto.randomUUID();
         await db.collection('users').insertOne({
             email: 'alex@test.com',

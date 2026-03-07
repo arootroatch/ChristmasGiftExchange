@@ -5,5 +5,6 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['spec/setupTests.js'],
     globalSetup: ['spec/netlify-functions/mongoSetup.js'],
+    fileParallelism: false,
   },
 });

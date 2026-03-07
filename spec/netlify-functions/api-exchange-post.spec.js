@@ -1,47 +1,23 @@
-import {afterAll, afterEach, beforeAll, describe, expect, it, vi} from 'vitest';
-import {MongoClient} from 'mongodb';
-import {MongoMemoryServer} from 'mongodb-memory-server';
+import {afterAll, afterEach, beforeAll, describe, expect, it} from 'vitest';
+import {setupMongo, teardownMongo, cleanCollections} from './mongoHelper.js';
 
 describe('api-exchange-post', () => {
-    let mongoServer;
-    let client;
-    let handler;
-    let originalEnv;
-    let consoleLogSpy;
-    let consoleErrorSpy;
+    let client, db, handler;
+    let mongo;
 
     beforeAll(async () => {
-        consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-        consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-
-        originalEnv = {...process.env};
-
-        mongoServer = await MongoMemoryServer.create();
-        const uri = mongoServer.getUri();
-
-        process.env.MONGO_DB_URI = uri;
-        process.env.MONGODB_DATABASE = 'test-db';
-        process.env.MONGODB_COLLECTION = 'legacy-names';
-
-        client = new MongoClient(uri);
-        await client.connect();
-
+        mongo = await setupMongo();
+        ({client, db} = mongo);
         const module = await import('../../netlify/functions/api-exchange-post.mjs');
         handler = module.handler;
     });
 
     afterEach(async () => {
-        const db = client.db('test-db');
-        await db.collection('users').deleteMany({});
-        await db.collection('exchanges').deleteMany({});
+        await cleanCollections(db, 'users', 'exchanges');
     });
 
     afterAll(async () => {
-        consoleLogSpy.mockRestore();
-        consoleErrorSpy.mockRestore();
-        process.env = originalEnv;
-        await client.close();
-        await mongoServer.stop();
+        await teardownMongo(mongo);
     });
 
     function buildEvent(body) {
@@ -86,7 +62,6 @@ describe('api-exchange-post', () => {
         expect(body.participants).toHaveLength(3);
 
         // Verify users were created
-        const db = client.db('test-db');
         const users = await db.collection('users').find({}).toArray();
         expect(users).toHaveLength(3);
         expect(users.find(u => u.email === 'alex@test.com').name).toBe('Alex');
@@ -103,7 +78,6 @@ describe('api-exchange-post', () => {
     });
 
     it('preserves existing user data on upsert', async () => {
-        const db = client.db('test-db');
         const existingToken = crypto.randomUUID();
         await db.collection('users').insertOne({
             email: 'alex@test.com',
@@ -127,7 +101,6 @@ describe('api-exchange-post', () => {
         const event = buildEvent(exchangePayload);
         await handler(event);
 
-        const db = client.db('test-db');
         const exchange = await db.collection('exchanges').findOne({exchangeId: 'test-exchange-123'});
 
         expect(exchange).toBeDefined();
@@ -144,7 +117,6 @@ describe('api-exchange-post', () => {
         const event = buildEvent(exchangePayload);
         await handler(event);
 
-        const db = client.db('test-db');
         const exchange = await db.collection('exchanges').findOne({exchangeId: 'test-exchange-123'});
         const users = await db.collection('users').find({}).toArray();
 
@@ -203,7 +175,6 @@ describe('api-exchange-post', () => {
     });
 
     it('updates user name on upsert if different', async () => {
-        const db = client.db('test-db');
         const existingToken = crypto.randomUUID();
         await db.collection('users').insertOne({
             email: 'alex@test.com',

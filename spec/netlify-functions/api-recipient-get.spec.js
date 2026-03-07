@@ -1,48 +1,24 @@
-import {afterAll, afterEach, beforeAll, describe, expect, it, vi} from 'vitest';
-import {MongoClient, ObjectId} from 'mongodb';
-import {MongoMemoryServer} from 'mongodb-memory-server';
+import {afterAll, afterEach, beforeAll, describe, expect, it} from 'vitest';
+import {ObjectId} from 'mongodb';
+import {setupMongo, teardownMongo, cleanCollections} from './mongoHelper.js';
 
 describe('api-recipient-get', () => {
-    let mongoServer;
-    let client;
-    let handler;
-    let originalEnv;
-    let consoleLogSpy;
-    let consoleErrorSpy;
+    let client, db, handler;
+    let mongo;
 
     beforeAll(async () => {
-        consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-        consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-
-        originalEnv = {...process.env};
-
-        mongoServer = await MongoMemoryServer.create();
-        const uri = mongoServer.getUri();
-
-        process.env.MONGO_DB_URI = uri;
-        process.env.MONGODB_DATABASE = 'test-db';
-        process.env.MONGODB_COLLECTION = 'legacy-names';
-
-        client = new MongoClient(uri);
-        await client.connect();
-
+        mongo = await setupMongo();
+        ({client, db} = mongo);
         const module = await import('../../netlify/functions/api-recipient-get.mjs');
         handler = module.handler;
     });
 
     afterEach(async () => {
-        const db = client.db('test-db');
-        await db.collection('users').deleteMany({});
-        await db.collection('exchanges').deleteMany({});
-        await db.collection('legacy-names').deleteMany({});
+        await cleanCollections(db, 'users', 'exchanges', 'legacy-names');
     });
 
     afterAll(async () => {
-        consoleLogSpy.mockRestore();
-        consoleErrorSpy.mockRestore();
-        process.env = originalEnv;
-        await client.close();
-        await mongoServer.stop();
+        await teardownMongo(mongo);
     });
 
     it('returns 405 for non-GET requests', async () => {
@@ -58,7 +34,6 @@ describe('api-recipient-get', () => {
     });
 
     it('queries new collections and returns recipient with wishlist URL', async () => {
-        const db = client.db('test-db');
         const giverId = new ObjectId();
         const recipientId = new ObjectId();
         const giverToken = crypto.randomUUID();
@@ -110,7 +85,6 @@ describe('api-recipient-get', () => {
     });
 
     it('does not include wishlist URL when recipient has no wishlist', async () => {
-        const db = client.db('test-db');
         const giverId = new ObjectId();
         const recipientId = new ObjectId();
         const giverToken = crypto.randomUUID();
@@ -157,7 +131,6 @@ describe('api-recipient-get', () => {
     });
 
     it('falls back to legacy collection when not in new collections', async () => {
-        const db = client.db('test-db');
         await db.collection('legacy-names').insertOne({
             email: 'old@test.com',
             recipient: 'Legacy Recipient',
@@ -192,7 +165,6 @@ describe('api-recipient-get', () => {
     });
 
     it('returns most recent exchange from new collections', async () => {
-        const db = client.db('test-db');
         const giverId = new ObjectId();
         const recipientId1 = new ObjectId();
         const recipientId2 = new ObjectId();
