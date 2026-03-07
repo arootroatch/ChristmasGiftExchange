@@ -52,10 +52,12 @@ function findHouse(houseID) {
   return state.houses.find(h => h.id === houseID);
 }
 
-export function addHouseToState(houseID) {
+export function addHouseToState() {
+  const houseID = `house-${state.houses.length}`;
   const displayNumber = state.houses.length + 1;
   state.houses.push({id: houseID, name: `Group ${displayNumber}`, members: []});
   exchangeEvents.emit(ExchangeEvents.HOUSE_ADDED, {houseID, ...state});
+  return houseID;
 }
 
 export function removeHouseFromState(houseID) {
@@ -157,8 +159,7 @@ export function loadExchange(exchangeData) {
   });
 
   exchangeData.houses.forEach(h => {
-    const houseID = `house${state.houses.length + 1}`;
-    addHouseToState(houseID);
+    const houseID = addHouseToState();
     const house = findHouse(houseID);
     if (house) house.name = h.name;
     h.members.forEach(name => addNameToHouse(houseID, name));
