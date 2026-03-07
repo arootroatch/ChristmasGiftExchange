@@ -3,17 +3,8 @@ import * as snackbar from '../components/Snackbar.js';
 import * as greeting from './Greeting.js';
 import * as wishlistList from './WishlistList.js';
 import * as itemList from './ItemList.js';
-import {
-  wishlistEditEvents,
-  WishlistEditEvents,
-  setUserData,
-} from '../wishlistEditState.js';
-
-let cachedUserData;
-
-function cacheUserData({userData}) {
-    cachedUserData = userData;
-}
+import * as saveButton from './SaveButton.js';
+import {setUserData} from '../wishlistEditState.js';
 
 function extractToken() {
     const match = window.location.pathname.match(/\/wishlist\/edit\/([^/]+)/);
@@ -37,22 +28,6 @@ async function loadUser(token) {
     }
     const data = await response.json();
     setUserData(data);
-}
-
-async function saveWishlist(token) {
-    const response = await fetch(`/.netlify/functions/api-user-wishlist-put/${token}`, {
-        method: "PUT",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({
-            wishlists: cachedUserData.wishlists,
-            wishItems: cachedUserData.wishItems,
-        }),
-    });
-    if (response.ok) {
-        snackbar.showSuccess("Wishlist saved!");
-    } else {
-        snackbar.showError("Failed to save wishlist");
-    }
 }
 
 async function sendContactInfo(token) {
@@ -90,12 +65,9 @@ export function main() {
     wishlistList.init();
     itemList.init();
 
-    wishlistEditEvents.on(WishlistEditEvents.USER_LOADED, cacheUserData);
-    wishlistEditEvents.on(WishlistEditEvents.WISHLISTS_CHANGED, cacheUserData);
-    wishlistEditEvents.on(WishlistEditEvents.ITEMS_CHANGED, cacheUserData);
+    saveButton.init(token);
 
     // Wire up DOM event listeners
-    addEventListener("#save-wishlist-btn", "click", () => saveWishlist(token));
     addEventListener("#send-contact-btn", "click", () => sendContactInfo(token));
 
     loadUser(token);
