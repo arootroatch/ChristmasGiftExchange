@@ -13,10 +13,25 @@ let document;
 let window;
 let module;
 
+function proxyWindow(domWindow) {
+    const loc = domWindow.location;
+    const locationMock = {
+        pathname: loc.pathname,
+        search: loc.search,
+        href: loc.href,
+    };
+    return new Proxy(domWindow, {
+        get(target, prop) {
+            if (prop === "location") return locationMock;
+            return Reflect.get(target, prop);
+        },
+    });
+}
+
 function setupDOM() {
     dom = new JSDOM(html, {url: "http://localhost/wishlist/edit/abc-123-token"});
     document = dom.window.document;
-    window = dom.window;
+    window = proxyWindow(dom.window);
     globalThis.document = document;
     globalThis.window = window;
     globalThis.sessionStorage = window.sessionStorage;
@@ -452,7 +467,7 @@ describe("Wishlist Edit Page", () => {
             vi.resetModules();
             dom = new JSDOM(html, {url});
             document = dom.window.document;
-            window = dom.window;
+            window = proxyWindow(dom.window);
             globalThis.document = document;
             globalThis.window = window;
             globalThis.sessionStorage = window.sessionStorage;

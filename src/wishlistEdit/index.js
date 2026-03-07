@@ -13,7 +13,7 @@ function extractToken() {
 
 function redirectWithError() {
     sessionStorage.setItem("snackbarError", "Invalid wishlist link");
-    try { window.location.href = "/"; } catch (_) { /* JSDOM */ }
+    window.location.href = "/";
 }
 
 async function loadUser(token) {
@@ -26,8 +26,7 @@ async function loadUser(token) {
         redirectWithError();
         return;
     }
-    const data = await response.json();
-    setUserData(data);
+    return await response.json();
 }
 
 export function main() {
@@ -38,5 +37,5 @@ export function main() {
     itemList.init();
     saveButton.init(token);
     contactForm.init(token);
-    loadUser(token);
+    loadUser(token).then(r => (r && setUserData(r)));
 }

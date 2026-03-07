@@ -15,7 +15,21 @@ let window;
 function setupDOM() {
     dom = new JSDOM(html, {url: "http://localhost/reuse"});
     document = dom.window.document;
-    window = dom.window;
+
+    const loc = dom.window.location;
+    const locationMock = {
+        pathname: loc.pathname,
+        search: loc.search,
+        href: loc.href,
+    };
+
+    window = new Proxy(dom.window, {
+        get(target, prop) {
+            if (prop === "location") return locationMock;
+            return Reflect.get(target, prop);
+        },
+    });
+
     globalThis.document = document;
     globalThis.window = window;
 }
