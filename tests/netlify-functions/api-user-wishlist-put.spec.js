@@ -76,15 +76,16 @@ describe('api-user-wishlist-put', () => {
 
     it('updates wishlist data for existing user', async () => {
         const db = client.db('test-db');
+        const alexToken = crypto.randomUUID();
         await db.collection('users').insertOne({
             email: 'alex@test.com',
             name: 'Alex',
-            token: '71e95b93-6a56-4113-98fb-efdd6718a756',
+            token: alexToken,
             wishlists: [],
             wishItems: [],
         });
 
-        const event = buildEvent('71e95b93-6a56-4113-98fb-efdd6718a756', {
+        const event = buildEvent(alexToken, {
             wishlists: [{url: 'https://amazon.com/list', title: 'My Amazon List'}],
             wishItems: [{url: 'https://amazon.com/item', title: 'Cool Gadget'}],
         });
@@ -96,7 +97,7 @@ describe('api-user-wishlist-put', () => {
         expect(body.success).toBe(true);
 
         // Verify data was persisted
-        const user = await db.collection('users').findOne({token: '71e95b93-6a56-4113-98fb-efdd6718a756'});
+        const user = await db.collection('users').findOne({token: alexToken});
         expect(user.wishlists).toHaveLength(1);
         expect(user.wishlists[0].url).toBe('https://amazon.com/list');
         expect(user.wishItems).toHaveLength(1);
@@ -106,13 +107,15 @@ describe('api-user-wishlist-put', () => {
         const db = client.db('test-db');
         const recipientId = new ObjectId();
         const giverId = new ObjectId();
+        const recipientToken = crypto.randomUUID();
+        const giverToken = crypto.randomUUID();
 
         await db.collection('users').insertMany([
             {
                 _id: recipientId,
                 email: 'recipient@test.com',
                 name: 'Whitney',
-                token: 'f75cde68-a270-4578-acdc-2033b361dd44',
+                token: recipientToken,
                 wishlists: [],
                 wishItems: [],
             },
@@ -120,7 +123,7 @@ describe('api-user-wishlist-put', () => {
                 _id: giverId,
                 email: 'giver@test.com',
                 name: 'Alex',
-                token: '4965243d-ed7a-41c7-849d-2f7737c945f1',
+                token: giverToken,
                 wishlists: [],
                 wishItems: [],
             },
@@ -137,7 +140,7 @@ describe('api-user-wishlist-put', () => {
             houses: [],
         });
 
-        const event = buildEvent('f75cde68-a270-4578-acdc-2033b361dd44', {
+        const event = buildEvent(recipientToken, {
             wishlists: [{url: 'https://amazon.com/list', title: 'My List'}],
             wishItems: [],
         });
@@ -158,17 +161,18 @@ describe('api-user-wishlist-put', () => {
 
     it('returns 400 for invalid body', async () => {
         const db = client.db('test-db');
+        const alexToken = crypto.randomUUID();
         await db.collection('users').insertOne({
             email: 'alex@test.com',
             name: 'Alex',
-            token: '320ab4d9-1f67-4288-aa87-51790d2a87cb',
+            token: alexToken,
             wishlists: [],
             wishItems: [],
         });
 
         const event = {
             httpMethod: 'PUT',
-            path: '/api/user/320ab4d9-1f67-4288-aa87-51790d2a87cb/wishlist',
+            path: `/api/user/${alexToken}/wishlist`,
             body: JSON.stringify({wishlists: "not-an-array"}),
         };
 
@@ -182,13 +186,15 @@ describe('api-user-wishlist-put', () => {
         const db = client.db('test-db');
         const recipientId = new ObjectId();
         const giverId = new ObjectId();
+        const recipientToken = crypto.randomUUID();
+        const giverToken = crypto.randomUUID();
 
         await db.collection('users').insertMany([
             {
                 _id: recipientId,
                 email: 'recipient@test.com',
                 name: 'Whitney',
-                token: '2a6f0c41-4bc9-4e77-adbf-6fea2d35d029',
+                token: recipientToken,
                 wishlists: [{url: 'https://existing.com', title: 'Existing'}],
                 wishItems: [],
             },
@@ -196,7 +202,7 @@ describe('api-user-wishlist-put', () => {
                 _id: giverId,
                 email: 'giver@test.com',
                 name: 'Alex',
-                token: 'b5ac2ac8-3251-4308-b9f0-10de8aaff1c8',
+                token: giverToken,
                 wishlists: [],
                 wishItems: [],
             },
@@ -211,7 +217,7 @@ describe('api-user-wishlist-put', () => {
             houses: [],
         });
 
-        const event = buildEvent('2a6f0c41-4bc9-4e77-adbf-6fea2d35d029', {
+        const event = buildEvent(recipientToken, {
             wishlists: [
                 {url: 'https://existing.com', title: 'Existing'},
                 {url: 'https://new.com', title: 'New List'},

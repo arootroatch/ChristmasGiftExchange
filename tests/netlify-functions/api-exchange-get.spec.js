@@ -49,13 +49,16 @@ describe('api-exchange-get', () => {
         const giverId = new ObjectId();
         const recipientId = new ObjectId();
         const outsiderId = new ObjectId();
+        const giverToken = crypto.randomUUID();
+        const recipientToken = crypto.randomUUID();
+        const outsiderToken = crypto.randomUUID();
 
         await db.collection('users').insertMany([
             {
                 _id: giverId,
                 email: 'giver@test.com',
                 name: 'Alex',
-                token: 'dcb7622e-56a5-4f0c-a991-8644b5539e8d',
+                token: giverToken,
                 wishlists: [],
                 wishItems: [],
             },
@@ -63,7 +66,7 @@ describe('api-exchange-get', () => {
                 _id: recipientId,
                 email: 'recipient@test.com',
                 name: 'Whitney',
-                token: '985dec2e-d843-418d-bf64-897de3444a3a',
+                token: recipientToken,
                 wishlists: [{url: 'https://amazon.com/list', title: 'My List'}],
                 wishItems: [{url: 'https://amazon.com/item', title: 'Cool Thing'}],
             },
@@ -71,7 +74,7 @@ describe('api-exchange-get', () => {
                 _id: outsiderId,
                 email: 'outsider@test.com',
                 name: 'Outsider',
-                token: '71e95b93-6a56-4113-98fb-efdd6718a756',
+                token: outsiderToken,
                 wishlists: [],
                 wishItems: [],
             },
@@ -86,7 +89,7 @@ describe('api-exchange-get', () => {
             houses: [],
         });
 
-        return {giverId, recipientId, outsiderId};
+        return {giverId, recipientId, outsiderId, giverToken, recipientToken, outsiderToken};
     }
 
     it('returns 405 for non-GET requests', async () => {
@@ -96,12 +99,12 @@ describe('api-exchange-get', () => {
     });
 
     it('returns recipient wishlist data for valid giver', async () => {
-        await setupExchange();
+        const {giverToken} = await setupExchange();
 
         const event = {
             httpMethod: 'GET',
             path: '/api/exchange/exchange-view',
-            queryStringParameters: {token: 'dcb7622e-56a5-4f0c-a991-8644b5539e8d'},
+            queryStringParameters: {token: giverToken},
         };
 
         const response = await handler(event);
@@ -115,12 +118,12 @@ describe('api-exchange-get', () => {
     });
 
     it('returns 403 for non-giver in exchange', async () => {
-        await setupExchange();
+        const {outsiderToken} = await setupExchange();
 
         const event = {
             httpMethod: 'GET',
             path: '/api/exchange/exchange-view',
-            queryStringParameters: {token: '71e95b93-6a56-4113-98fb-efdd6718a756'},
+            queryStringParameters: {token: outsiderToken},
         };
 
         const response = await handler(event);
@@ -144,12 +147,12 @@ describe('api-exchange-get', () => {
     });
 
     it('returns 404 for missing exchange', async () => {
-        await setupExchange();
+        const {giverToken} = await setupExchange();
 
         const event = {
             httpMethod: 'GET',
             path: '/api/exchange/nonexistent-exchange',
-            queryStringParameters: {token: 'dcb7622e-56a5-4f0c-a991-8644b5539e8d'},
+            queryStringParameters: {token: giverToken},
         };
 
         const response = await handler(event);

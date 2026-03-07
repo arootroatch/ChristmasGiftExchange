@@ -26,11 +26,13 @@ describe('wishItemSchema', () => {
 });
 
 describe('userSchema', () => {
+    const validToken = crypto.randomUUID();
+
     it('rejects invalid email', () => {
         const result = userSchema.safeParse({
             name: 'Alex',
             email: 'not-an-email',
-            token: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+            token: validToken,
         });
         expect(result.success).toBe(false);
     });
@@ -39,7 +41,7 @@ describe('userSchema', () => {
         const result = userSchema.safeParse({
             name: 'Alex',
             email: 'alex@test.com',
-            token: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+            token: validToken,
         });
         expect(result.success).toBe(true);
     });
@@ -57,7 +59,7 @@ describe('userSchema', () => {
         const result = userSchema.safeParse({
             name: 'Alex',
             email: 'alex@test.com',
-            token: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+            token: validToken,
         });
         expect(result.success).toBe(true);
     });

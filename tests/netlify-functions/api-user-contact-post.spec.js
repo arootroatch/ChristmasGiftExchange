@@ -78,13 +78,15 @@ describe('api-user-contact-post', () => {
         const db = client.db('test-db');
         const recipientId = new ObjectId();
         const giverId = new ObjectId();
+        const recipientToken = crypto.randomUUID();
+        const giverToken = crypto.randomUUID();
 
         await db.collection('users').insertMany([
             {
                 _id: recipientId,
                 email: 'recipient@test.com',
                 name: 'Whitney',
-                token: 'dcb7622e-56a5-4f0c-a991-8644b5539e8d',
+                token: recipientToken,
                 wishlists: [],
                 wishItems: [],
             },
@@ -92,7 +94,7 @@ describe('api-user-contact-post', () => {
                 _id: giverId,
                 email: 'giver@test.com',
                 name: 'Alex',
-                token: '985dec2e-d843-418d-bf64-897de3444a3a',
+                token: giverToken,
                 wishlists: [],
                 wishItems: [],
             },
@@ -107,7 +109,7 @@ describe('api-user-contact-post', () => {
             houses: [],
         });
 
-        const event = buildEvent('dcb7622e-56a5-4f0c-a991-8644b5539e8d', {
+        const event = buildEvent(recipientToken, {
             address: '123 Main St, Springfield',
             phone: '555-1234',
             notes: 'Leave at front door',
@@ -136,12 +138,14 @@ describe('api-user-contact-post', () => {
         const db = client.db('test-db');
         const recipientId = new ObjectId();
         const giverId = new ObjectId();
+        const recipientToken = crypto.randomUUID();
+        const giverToken = crypto.randomUUID();
 
         const originalRecipient = {
             _id: recipientId,
             email: 'recipient@test.com',
             name: 'Whitney',
-            token: '71e95b93-6a56-4113-98fb-efdd6718a756',
+            token: recipientToken,
             wishlists: [],
             wishItems: [],
         };
@@ -152,7 +156,7 @@ describe('api-user-contact-post', () => {
                 _id: giverId,
                 email: 'giver@test.com',
                 name: 'Alex',
-                token: 'f75cde68-a270-4578-acdc-2033b361dd44',
+                token: giverToken,
                 wishlists: [],
                 wishItems: [],
             },
@@ -167,14 +171,14 @@ describe('api-user-contact-post', () => {
             houses: [],
         });
 
-        await handler(buildEvent('71e95b93-6a56-4113-98fb-efdd6718a756', {
+        await handler(buildEvent(recipientToken, {
             address: '123 Main St',
             phone: '555-0000',
             notes: 'Secret info',
         }));
 
         // Verify user document was NOT modified
-        const user = await db.collection('users').findOne({token: '71e95b93-6a56-4113-98fb-efdd6718a756'});
+        const user = await db.collection('users').findOne({token: recipientToken});
         expect(user.address).toBeUndefined();
         expect(user.phone).toBeUndefined();
         expect(user.notes).toBeUndefined();
@@ -185,13 +189,15 @@ describe('api-user-contact-post', () => {
         const db = client.db('test-db');
         const recipientId = new ObjectId();
         const giverId = new ObjectId();
+        const recipientToken = crypto.randomUUID();
+        const giverToken = crypto.randomUUID();
 
         await db.collection('users').insertMany([
             {
                 _id: recipientId,
                 email: 'recipient@test.com',
                 name: 'Whitney',
-                token: '4965243d-ed7a-41c7-849d-2f7737c945f1',
+                token: recipientToken,
                 wishlists: [],
                 wishItems: [],
             },
@@ -199,7 +205,7 @@ describe('api-user-contact-post', () => {
                 _id: giverId,
                 email: 'giver@test.com',
                 name: 'Alex',
-                token: '2a6f0c41-4bc9-4e77-adbf-6fea2d35d029',
+                token: giverToken,
                 wishlists: [],
                 wishItems: [],
             },
@@ -215,7 +221,7 @@ describe('api-user-contact-post', () => {
         });
 
         // Send with no fields
-        const event = buildEvent('4965243d-ed7a-41c7-849d-2f7737c945f1', {});
+        const event = buildEvent(recipientToken, {});
         await handler(event);
 
         const fetchCall = mockFetch.mock.calls[0];

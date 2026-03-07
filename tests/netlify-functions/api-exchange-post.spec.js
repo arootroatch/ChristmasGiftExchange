@@ -107,10 +107,11 @@ describe('api-exchange-post', () => {
 
     it('preserves existing user token on upsert', async () => {
         const db = client.db('test-db');
+        const existingToken = crypto.randomUUID();
         await db.collection('users').insertOne({
             email: 'alex@test.com',
             name: 'Alex',
-            token: '320ab4d9-1f67-4288-aa87-51790d2a87cb',
+            token: existingToken,
             wishlists: [{url: 'https://amazon.com/wishlist', title: 'My List'}],
             wishItems: [],
         });
@@ -120,7 +121,7 @@ describe('api-exchange-post', () => {
         const body = JSON.parse(response.body);
 
         const alexParticipant = body.participants.find(p => p.name === 'Alex');
-        expect(alexParticipant.token).toBe('320ab4d9-1f67-4288-aa87-51790d2a87cb');
+        expect(alexParticipant.token).toBe(existingToken);
 
         // Verify wishlists were preserved
         const user = await db.collection('users').findOne({email: 'alex@test.com'});
@@ -209,10 +210,11 @@ describe('api-exchange-post', () => {
 
     it('updates user name on upsert if different', async () => {
         const db = client.db('test-db');
+        const existingToken = crypto.randomUUID();
         await db.collection('users').insertOne({
             email: 'alex@test.com',
             name: 'Old Name',
-            token: '1baedbd5-ef8e-40c8-a2d8-3e4555064e2a',
+            token: existingToken,
             wishlists: [],
             wishItems: [],
         });

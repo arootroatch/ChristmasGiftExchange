@@ -50,17 +50,18 @@ describe('api-user-get', () => {
 
     it('returns user data by token', async () => {
         const db = client.db('test-db');
+        const alexToken = crypto.randomUUID();
         await db.collection('users').insertOne({
             email: 'alex@test.com',
             name: 'Alex',
-            token: 'dcb7622e-56a5-4f0c-a991-8644b5539e8d',
+            token: alexToken,
             wishlists: [{url: 'https://amazon.com/list', title: 'My List'}],
             wishItems: [{url: 'https://amazon.com/item', title: 'Cool Thing'}],
         });
 
         const event = {
             httpMethod: 'GET',
-            path: '/api/user/dcb7622e-56a5-4f0c-a991-8644b5539e8d',
+            path: `/api/user/${alexToken}`,
         };
 
         const response = await handler(event);
@@ -76,15 +77,16 @@ describe('api-user-get', () => {
 
     it('returns empty arrays when user has no wishlists', async () => {
         const db = client.db('test-db');
+        const alexToken = crypto.randomUUID();
         await db.collection('users').insertOne({
             email: 'alex@test.com',
             name: 'Alex',
-            token: '985dec2e-d843-418d-bf64-897de3444a3a',
+            token: alexToken,
         });
 
         const event = {
             httpMethod: 'GET',
-            path: '/api/user/985dec2e-d843-418d-bf64-897de3444a3a',
+            path: `/api/user/${alexToken}`,
         };
 
         const response = await handler(event);
