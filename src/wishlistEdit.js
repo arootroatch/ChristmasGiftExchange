@@ -1,9 +1,18 @@
 import {escape, escapeAttr} from './utils.js';
 import * as snackbar from './components/Snackbar.js';
+import {
+  wishlistEditEvents,
+  WishlistEditEvents,
+  wishlistEditState,
+  setUserData,
+  addWishlist,
+  deleteWishlist,
+  addItem,
+  deleteItem,
+} from './wishlistEditState.js';
 
 const tokenMatch = window.location.pathname.match(/\/wishlist\/edit\/([^/]+)/);
 const token = tokenMatch ? tokenMatch[1] : "";
-let userData = {wishlists: [], wishItems: []};
 
 function redirectWithError() {
     sessionStorage.setItem("snackbarError", "Invalid wishlist link");
@@ -20,15 +29,13 @@ async function loadUser() {
         redirectWithError();
         return;
     }
-    userData = await response.json();
-    document.getElementById("greeting").textContent = `Hi ${userData.name}, add your wishlist!`;
-    renderWishlists();
-    renderItems();
+    const data = await response.json();
+    setUserData(data);
 }
 
 function renderWishlists() {
     const container = document.getElementById("wishlists-list");
-    container.innerHTML = userData.wishlists.map((w, i) => `
+    container.innerHTML = wishlistEditState.userData.wishlists.map((w, i) => `
         <div class="wishlist-entry">
             <a href="${escapeAttr(w.url)}" target="_blank">${escape(w.title || w.url)}</a>
             <button class="delete-btn" data-type="wishlists" data-index="${i}">X</button>
@@ -38,7 +45,7 @@ function renderWishlists() {
 
 function renderItems() {
     const container = document.getElementById("items-list");
-    container.innerHTML = userData.wishItems.map((item, i) => `
+    container.innerHTML = wishlistEditState.userData.wishItems.map((item, i) => `
         <div class="wishlist-entry">
             <a href="${escapeAttr(item.url)}" target="_blank">${escape(item.title || item.url)}</a>
             <button class="delete-btn" data-type="wishItems" data-index="${i}">X</button>
@@ -46,33 +53,36 @@ function renderItems() {
     `).join("");
 }
 
-function addWishlist() {
-    const url = document.getElementById("wishlist-url").value.trim();
-    const title = document.getElementById("wishlist-title").value.trim();
-    if (!url) return;
-    userData.wishlists.push({url, title: title || url});
-    document.getElementById("wishlist-url").value = "";
-    document.getElementById("wishlist-title").value = "";
+function onUserLoaded() {
+    document.getElementById("greeting").textContent = `Hi ${wishlistEditState.userName}, add your wishlist!`;
     renderWishlists();
-}
-
-function addItem() {
-    const url = document.getElementById("item-url").value.trim();
-    const title = document.getElementById("item-title").value.trim();
-    if (!url) return;
-    userData.wishItems.push({url, title: title || url});
-    document.getElementById("item-url").value = "";
-    document.getElementById("item-title").value = "";
     renderItems();
 }
 
-function deleteEntry(event) {
+function handleAddWishlist() {
+    const url = document.getElementById("wishlist-url").value.trim();
+    const title = document.getElementById("wishlist-title").value.trim();
+    if (!url) return;
+    addWishlist({url, title: title || url});
+    document.getElementById("wishlist-url").value = "";
+    document.getElementById("wishlist-title").value = "";
+}
+
+function handleAddItem() {
+    const url = document.getElementById("item-url").value.trim();
+    const title = document.getElementById("item-title").value.trim();
+    if (!url) return;
+    addItem({url, title: title || url});
+    document.getElementById("item-url").value = "";
+    document.getElementById("item-title").value = "";
+}
+
+function handleDeleteEntry(event) {
     const btn = event.target.closest(".delete-btn");
     if (!btn) return;
     const type = btn.dataset.type;
     const index = parseInt(btn.dataset.index);
-    userData[type].splice(index, 1);
-    type === "wishlists" ? renderWishlists() : renderItems();
+    type === "wishlists" ? deleteWishlist(index) : deleteItem(index);
 }
 
 async function saveWishlist() {
@@ -80,8 +90,8 @@ async function saveWishlist() {
         method: "PUT",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({
-            wishlists: userData.wishlists,
-            wishItems: userData.wishItems,
+            wishlists: wishlistEditState.userData.wishlists,
+            wishItems: wishlistEditState.userData.wishItems,
         }),
     });
     if (response.ok) {
@@ -117,12 +127,18 @@ async function sendContactInfo() {
     }
 }
 
+// Subscribe to state events
+wishlistEditEvents.on(WishlistEditEvents.USER_LOADED, onUserLoaded);
+wishlistEditEvents.on(WishlistEditEvents.WISHLISTS_CHANGED, renderWishlists);
+wishlistEditEvents.on(WishlistEditEvents.ITEMS_CHANGED, renderItems);
+
+// Wire up DOM event listeners
 snackbar.init();
-document.getElementById("add-wishlist-btn").addEventListener("click", addWishlist);
-document.getElementById("add-item-btn").addEventListener("click", addItem);
+document.getElementById("add-wishlist-btn").addEventListener("click", handleAddWishlist);
+document.getElementById("add-item-btn").addEventListener("click", handleAddItem);
 document.getElementById("save-wishlist-btn").addEventListener("click", saveWishlist);
 document.getElementById("send-contact-btn").addEventListener("click", sendContactInfo);
-document.getElementById("wishlists-list").addEventListener("click", deleteEntry);
-document.getElementById("items-list").addEventListener("click", deleteEntry);
+document.getElementById("wishlists-list").addEventListener("click", handleDeleteEntry);
+document.getElementById("items-list").addEventListener("click", handleDeleteEntry);
 
 loadUser();
