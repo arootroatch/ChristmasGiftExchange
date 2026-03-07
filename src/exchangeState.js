@@ -28,7 +28,7 @@ export function startExchange(isSecretSanta = false) {
     assignments: [],
     nameNumber: 1,
   }
-  exchangeEvents.emit(ExchangeEvents.EXCHANGE_STARTED);
+  exchangeEvents.emit(ExchangeEvents.EXCHANGE_STARTED, {...state});
 }
 
 export function nextStep(maxSteps = null) {
@@ -37,7 +37,7 @@ export function nextStep(maxSteps = null) {
   } else {
     state.step++;
   }
-  exchangeEvents.emit(ExchangeEvents.NEXT_STEP, {step: state.step});
+  exchangeEvents.emit(ExchangeEvents.NEXT_STEP, {...state});
 }
 
 
@@ -55,19 +55,19 @@ function findHouse(houseID) {
 export function addHouseToState(houseID) {
   const displayNumber = state.houses.length + 1;
   state.houses.push({id: houseID, name: `Group ${displayNumber}`, members: []});
-  exchangeEvents.emit(ExchangeEvents.HOUSE_ADDED, {houseID});
+  exchangeEvents.emit(ExchangeEvents.HOUSE_ADDED, {houseID, ...state});
 }
 
 export function removeHouseFromState(houseID) {
   state.houses = state.houses.filter(h => h.id !== houseID);
-  exchangeEvents.emit(ExchangeEvents.HOUSE_REMOVED, {houseID});
+  exchangeEvents.emit(ExchangeEvents.HOUSE_REMOVED, {houseID, ...state});
 }
 
 export function renameHouse(houseID, name) {
   const house = findHouse(houseID);
   if (house) {
     house.name = name;
-    exchangeEvents.emit(ExchangeEvents.HOUSE_RENAMED, {houseID, name});
+    exchangeEvents.emit(ExchangeEvents.HOUSE_RENAMED, {houseID, name, ...state});
   }
 }
 
@@ -76,7 +76,7 @@ export function addNameToHouse(houseID, name) {
   if (!house) return;
   if (!house.members.includes(name)) {
     house.members.push(name);
-    exchangeEvents.emit(ExchangeEvents.NAME_ADDED_TO_HOUSE, {houseID, name, members: house.members});
+    exchangeEvents.emit(ExchangeEvents.NAME_ADDED_TO_HOUSE, {houseID, name, members: house.members, ...state});
   }
 }
 
@@ -84,14 +84,14 @@ export function removeNameFromHouse(houseID, name) {
   const house = findHouse(houseID);
   if (house) {
     house.members = house.members.filter(n => n !== name);
-    exchangeEvents.emit(ExchangeEvents.NAME_REMOVED_FROM_HOUSE, {houseID, name, members: house.members});
+    exchangeEvents.emit(ExchangeEvents.NAME_REMOVED_FROM_HOUSE, {houseID, name, members: house.members, ...state});
   }
 }
 
 export function addParticipant(name) {
   const participant = new Participant(name);
   state.participants.push(participant);
-  exchangeEvents.emit(ExchangeEvents.PARTICIPANT_ADDED, {name, participant});
+  exchangeEvents.emit(ExchangeEvents.PARTICIPANT_ADDED, {name, participant, ...state});
 }
 
 export function removeParticipant(name) {
@@ -101,7 +101,7 @@ export function removeParticipant(name) {
     }
   });
   state.participants = state.participants.filter(p => p.name !== name);
-  exchangeEvents.emit(ExchangeEvents.PARTICIPANT_REMOVED, {name});
+  exchangeEvents.emit(ExchangeEvents.PARTICIPANT_REMOVED, {name, ...state});
 }
 
 export function getHousesArray() {
@@ -127,11 +127,7 @@ export function assignRecipients(recipientNames) {
     giver: state.participants[index].name,
     recipient
   }));
-  exchangeEvents.emit(ExchangeEvents.RECIPIENTS_ASSIGNED, {
-    isGenerated: true,
-    isSecretSanta: state.isSecretSanta,
-    assignments: state.assignments
-  });
+  exchangeEvents.emit(ExchangeEvents.RECIPIENTS_ASSIGNED, {...state, isGenerated: true});
 }
 
 export function addEmailsToParticipants(emails) {
@@ -139,7 +135,7 @@ export function addEmailsToParticipants(emails) {
     let i = parseInt(obj.index);
     state.participants[i].email = obj.email;
   });
-  exchangeEvents.emit(ExchangeEvents.EMAILS_ADDED, {participants: state.participants});
+  exchangeEvents.emit(ExchangeEvents.EMAILS_ADDED, {...state});
 }
 
 export function isGenerated() {

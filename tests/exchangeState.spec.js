@@ -152,7 +152,7 @@ describe('state helper functions', () => {
       const unsubscribe = stateEvents.on(Events.HOUSE_RENAMED, spy);
       addHouseToState("house-0");
       renameHouse("house-0", "Smith Family");
-      expect(spy).toHaveBeenCalledWith({houseID: "house-0", name: "Smith Family"});
+      expect(spy).toHaveBeenCalledWith(expect.objectContaining({houseID: "house-0", name: "Smith Family"}));
       unsubscribe();
     });
 
@@ -260,7 +260,7 @@ describe('state helper functions', () => {
 
       assignRecipients(["Whitney", "Hunter", "Alex"]);
 
-      expect(spy).toHaveBeenCalledWith({
+      expect(spy).toHaveBeenCalledWith(expect.objectContaining({
         isGenerated: true,
         isSecretSanta: false,
         assignments: [
@@ -268,7 +268,7 @@ describe('state helper functions', () => {
           {giver: "Whitney", recipient: "Hunter"},
           {giver: "Hunter", recipient: "Alex"}
         ]
-      });
+      }));
 
       unsubscribe();
     });
@@ -281,11 +281,11 @@ describe('state helper functions', () => {
 
       assignRecipients(["Whitney", "Hunter", "Alex"]);
 
-      expect(spy).toHaveBeenCalledWith({
+      expect(spy).toHaveBeenCalledWith(expect.objectContaining({
         isGenerated: true,
         isSecretSanta: true,
         assignments: state.assignments,
-      });
+      }));
 
       unsubscribe();
     });
@@ -343,7 +343,7 @@ describe('state helper functions', () => {
       nextStep();
 
       expect(state.step).toBe(2);
-      expect(spy).toHaveBeenCalledWith({step: 2});
+      expect(spy).toHaveBeenCalledWith(expect.objectContaining({step: 2}));
       unsubscribe();
     });
 
@@ -396,7 +396,7 @@ describe('state helper functions', () => {
 
       addEmailsToParticipants(emails);
 
-      expect(spy).toHaveBeenCalledWith({participants: state.participants});
+      expect(spy).toHaveBeenCalledWith(expect.objectContaining({participants: state.participants}));
       unsubscribe();
     });
 
