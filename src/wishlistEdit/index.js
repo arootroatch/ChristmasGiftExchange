@@ -1,5 +1,6 @@
 import {escape, escapeAttr, selectElement, addEventListener} from '../utils.js';
 import * as snackbar from '../components/Snackbar.js';
+import * as greeting from './Greeting.js';
 import {
   wishlistEditEvents,
   WishlistEditEvents,
@@ -56,12 +57,6 @@ function renderItems({userData}) {
             <button class="delete-btn" data-type="wishItems" data-index="${i}">X</button>
         </div>
     `).join("");
-}
-
-function onUserLoaded({userName, userData}) {
-    selectElement("#greeting").textContent = `Hi ${userName}, add your wishlist!`;
-    renderWishlists({userData});
-    renderItems({userData});
 }
 
 function handleAddWishlist() {
@@ -137,7 +132,10 @@ export function main() {
     snackbar.init();
 
     // Subscribe to state events
-    wishlistEditEvents.on(WishlistEditEvents.USER_LOADED, onUserLoaded);
+    greeting.init();
+
+    wishlistEditEvents.on(WishlistEditEvents.USER_LOADED, renderWishlists);
+    wishlistEditEvents.on(WishlistEditEvents.USER_LOADED, renderItems);
     wishlistEditEvents.on(WishlistEditEvents.USER_LOADED, cacheUserData);
     wishlistEditEvents.on(WishlistEditEvents.WISHLISTS_CHANGED, renderWishlists);
     wishlistEditEvents.on(WishlistEditEvents.WISHLISTS_CHANGED, cacheUserData);
