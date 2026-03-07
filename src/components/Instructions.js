@@ -1,4 +1,4 @@
-import {ExchangeEvents as Events, exchangeEvents as stateEvents, state} from "../exchangeState.js";
+import {ExchangeEvents as Events, exchangeEvents as stateEvents} from "../exchangeState.js";
 import {selectElement} from "../utils.js";
 
 export const instructions = [
@@ -9,11 +9,11 @@ export const instructions = [
 
 const introId = "intro";
 
-function renderInstructions() {
-  if (!state || state.step < 1 || state.step > instructions.length) return;
+function renderInstructions({step}) {
+  if (!step || step < 1 || step > instructions.length) return;
   const introDiv = selectElement(`#${introId}`);
   if (!introDiv) return;
-  introDiv.innerHTML = `<p>${instructions[state.step - 1]}</p>`;
+  introDiv.innerHTML = `<p>${instructions[step - 1]}</p>`;
 }
 
 export function init() {

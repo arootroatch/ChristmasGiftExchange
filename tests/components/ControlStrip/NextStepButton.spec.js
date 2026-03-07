@@ -3,9 +3,8 @@ import {click, resetDOM, resetState} from "../../specHelper";
 import * as stateModule from "../../../src/exchangeState";
 import {init as initControlStrip} from "../../../src/components/ControlStrip/ControlStrip";
 import {init as initNextStepButton} from "../../../src/components/ControlStrip/NextStepButton";
-import {state} from "../../../src/exchangeState";
+import {addParticipant, assignRecipients, state} from "../../../src/exchangeState";
 import {selectElement} from "../../../src/utils";
-import {alex, whitney} from "../../testData";
 
 describe("nextStepButton", () => {
   beforeAll(() => {
@@ -28,7 +27,7 @@ describe("nextStepButton", () => {
 
   it("stays rendered at step 2", () => {
     resetState();
-    state.participants = [{...alex}];
+    addParticipant("Alex");
     click("#nextStep");
     expect(state.step).toBe(2);
     expect(selectElement("#nextStep")).not.toBeNull();
@@ -36,7 +35,7 @@ describe("nextStepButton", () => {
 
   it("stays rendered at step 3 (non-secret-santa)", () => {
     resetState();
-    state.participants = [{...alex}];
+    addParticipant("Alex");
     click("#nextStep"); // step 2
     click("#nextStep"); // step 3
     expect(state.step).toBe(3);
@@ -45,7 +44,7 @@ describe("nextStepButton", () => {
 
   it("is removed at step 3 with isSecretSanta", () => {
     resetState();
-    state.participants = [{...alex}];
+    addParticipant("Alex");
     state.isSecretSanta = true;
     click("#nextStep"); // step 2
     click("#nextStep"); // step 3
@@ -55,9 +54,10 @@ describe("nextStepButton", () => {
 
   it("is removed at step 4", () => {
     resetState();
-    state.participants = [{...alex}];
-    state.assignments = [{giver: "Alex", recipient: "Whitney"}];
-    state.step = 3;
+    addParticipant("Alex");
+    click("#nextStep"); // step 2
+    click("#nextStep"); // step 3
+    assignRecipients(["Whitney"]);
     click("#nextStep"); // step 4
     expect(state.step).toBe(4);
     expect(selectElement("#nextStep")).toBeNull();
@@ -65,34 +65,33 @@ describe("nextStepButton", () => {
 
   it("does not advance from step 1 without participants", () => {
     resetState();
-    state.step = 1;
-    state.participants = [];
     click("#nextStep");
     expect(state.step).toBe(1);
   });
 
   it("advances from step 1 with participants", () => {
     resetState();
-    state.step = 1;
-    state.participants = [{...alex}];
+    addParticipant("Alex");
     click("#nextStep");
     expect(state.step).toBe(2);
   });
 
   it("does not advance from step 3 without generation", () => {
     resetState();
-    state.step = 3;
-    state.participants = [{...alex}];
-    click("#nextStep");
+    addParticipant("Alex");
+    click("#nextStep"); // step 2
+    click("#nextStep"); // step 3
+    click("#nextStep"); // should not advance
     expect(state.step).toBe(3);
   });
 
   it("advances from step 3 with generated list", () => {
     resetState();
-    state.step = 3;
-    state.participants = [{...alex}];
-    state.assignments = [{giver: "Alex", recipient: "Whitney"}];
-    click("#nextStep");
+    addParticipant("Alex");
+    click("#nextStep"); // step 2
+    click("#nextStep"); // step 3
+    assignRecipients(["Whitney"]);
+    click("#nextStep"); // step 4
     expect(state.step).toBe(4);
   });
 
@@ -111,15 +110,17 @@ describe("nextStepButton", () => {
     it("triggers at step 1 (button rendered)", () => {
       const spy = vi.spyOn(stateModule, "nextStep").mockImplementation(() => {});
       resetState();
-      state.participants = [{...alex}];
+      addParticipant("Alex");
       dispatchAltEnter();
       expect(spy).toHaveBeenCalledTimes(1);
     });
 
     it("does not trigger at step 4 (button removed)", () => {
       resetState();
-      state.participants = [{...alex, recipient: whitney.name}];
-      state.step = 3;
+      addParticipant("Alex");
+      click("#nextStep"); // step 2
+      click("#nextStep"); // step 3
+      assignRecipients(["Whitney"]);
       click("#nextStep"); // step 4
       const spy = vi.spyOn(stateModule, "nextStep");
       dispatchAltEnter();
@@ -134,7 +135,7 @@ describe("nextStepButton", () => {
       const spy = vi.spyOn(stateModule, "nextStep");
       resetDOM();
       resetState();
-      state.participants = [{...alex}];
+      addParticipant("Alex");
       dispatchAltEnter();
       expect(spy).not.toHaveBeenCalled();
       Object.defineProperty(navigator, "userAgent", { value: originalUA, configurable: true });

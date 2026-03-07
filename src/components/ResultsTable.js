@@ -1,5 +1,5 @@
 import {pushHTML, selectElement} from "../utils.js";
-import {ExchangeEvents as Events, exchangeEvents as stateEvents, state} from "../exchangeState.js";
+import {ExchangeEvents as Events, exchangeEvents as stateEvents} from "../exchangeState.js";
 
 const tableId = "results-table";
 const tableBodyId = "table-body";
@@ -51,8 +51,8 @@ function renderResults(assignments) {
 }
 
 export function init() {
-  stateEvents.on(Events.EXCHANGE_STARTED, () => {
-    if (state.isSecretSanta) {
+  stateEvents.on(Events.EXCHANGE_STARTED, ({isSecretSanta}) => {
+    if (isSecretSanta) {
       remove();
     } else {
       render();

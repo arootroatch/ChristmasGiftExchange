@@ -1,5 +1,5 @@
 import {addKeybinding, addEventListener, click, removeKeybinding, selectElement} from "../../utils.js";
-import {ExchangeEvents as Events, exchangeEvents as stateEvents, addHouseToState, state} from "../../exchangeState.js";
+import {ExchangeEvents as Events, exchangeEvents as stateEvents, addHouseToState} from "../../exchangeState.js";
 
 const addHouseId = "addHouse";
 const slotSelector = '[data-slot="addHouse"]';
@@ -15,8 +15,8 @@ export function init() {
   stateEvents.on(Events.EXCHANGE_STARTED, () => {
     remove();
   });
-  stateEvents.on(Events.NEXT_STEP, () => {
-    if (state.step === 2 || state.step === 3) {
+  stateEvents.on(Events.NEXT_STEP, ({step}) => {
+    if (step === 2 || step === 3) {
       render();
     } else {
       remove();

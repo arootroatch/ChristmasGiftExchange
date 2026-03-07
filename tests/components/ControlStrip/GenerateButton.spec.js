@@ -19,9 +19,8 @@ import {init as initNextStepButton} from "../../../src/components/ControlStrip/N
 import {init as initGenerateButton, generateList} from "../../../src/components/ControlStrip/GenerateButton";
 import {init as initResultsTable} from "../../../src/components/ResultsTable";
 import {init as initEmailTable} from "../../../src/components/EmailTable/EmailTable";
-import {state} from "../../../src/exchangeState";
+import {addParticipant, assignRecipients, state} from "../../../src/exchangeState";
 import {selectElement} from "../../../src/utils";
-import {alex, whitney} from "../../testData";
 
 const noPossibleComboError = "No possible combinations! Please try a different configuration/number of names."
 
@@ -49,7 +48,7 @@ describe("generateButton", () => {
 
   it("is not rendered at step 2", () => {
     resetState();
-    state.participants = [{...alex}];
+    addParticipant("Alex");
     click("#nextStep"); // step 2
     expect(state.step).toBe(2);
     expect(selectElement("#generate")).toBeNull();
@@ -57,7 +56,7 @@ describe("generateButton", () => {
 
   it("renders at step 3", () => {
     resetState();
-    state.participants = [{...alex}];
+    addParticipant("Alex");
     click("#nextStep"); // step 2
     click("#nextStep"); // step 3
     expect(state.step).toBe(3);
@@ -67,7 +66,7 @@ describe("generateButton", () => {
   it("click calls generateList", () => {
     const spy = vi.spyOn(generateButtonModule, "generateList").mockImplementation(() => {});
     resetState();
-    state.participants = [{...alex}];
+    addParticipant("Alex");
     click("#nextStep"); // step 2
     click("#nextStep"); // step 3
     click("#generate");
@@ -76,9 +75,10 @@ describe("generateButton", () => {
 
   it("is removed at step 4", () => {
     resetState();
-    state.participants = [{...alex}];
-    state.assignments = [{giver: "Alex", recipient: "Whitney"}];
-    state.step = 3;
+    addParticipant("Alex");
+    click("#nextStep"); // step 2
+    click("#nextStep"); // step 3
+    assignRecipients(["Whitney"]);
     click("#nextStep"); // step 4
     expect(state.step).toBe(4);
     expect(selectElement("#generate")).toBeNull();
@@ -99,7 +99,7 @@ describe("generateButton", () => {
     it("triggers at step 3 (button rendered)", () => {
       const spy = vi.spyOn(generateButtonModule, "generateList").mockImplementation(() => {});
       resetState();
-      state.participants = [{...alex}];
+      addParticipant("Alex");
       click("#nextStep"); // step 2
       click("#nextStep"); // step 3
       dispatchCtrlEnter();
@@ -109,7 +109,7 @@ describe("generateButton", () => {
     it("does not trigger at step 2 (button not rendered)", () => {
       const spy = vi.spyOn(generateButtonModule, "generateList");
       resetState();
-      state.participants = [{...alex}];
+      addParticipant("Alex");
       click("#nextStep"); // step 2
       dispatchCtrlEnter();
       expect(spy).not.toHaveBeenCalled();
@@ -123,7 +123,7 @@ describe("generateButton", () => {
       const spy = vi.spyOn(generateButtonModule, "generateList").mockImplementation(() => {});
       resetDOM();
       resetState();
-      state.participants = [{...alex}];
+      addParticipant("Alex");
       click("#nextStep"); // step 2
       click("#nextStep"); // step 3
       dispatchCtrlEnter();

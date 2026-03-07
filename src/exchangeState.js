@@ -145,6 +145,10 @@ export function addEmailsToParticipants(emails) {
   exchangeEvents.emit(ExchangeEvents.EMAILS_ADDED, {...state});
 }
 
+export function nextNameNumber() {
+  return state.nameNumber++;
+}
+
 export function isGenerated() {
   return state.assignments.length > 0;
 }

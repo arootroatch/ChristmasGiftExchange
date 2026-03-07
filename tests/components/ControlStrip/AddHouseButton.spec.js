@@ -4,9 +4,8 @@ import * as stateModule from "../../../src/exchangeState";
 import {init as initControlStrip} from "../../../src/components/ControlStrip/ControlStrip";
 import {init as initNextStepButton} from "../../../src/components/ControlStrip/NextStepButton";
 import {init as initAddHouseButton} from "../../../src/components/ControlStrip/AddHouseButton";
-import {assignRecipients, state} from "../../../src/exchangeState";
+import {addParticipant, assignRecipients, state} from "../../../src/exchangeState";
 import {selectElement} from "../../../src/utils";
-import {alex} from "../../testData";
 
 describe("addHouseButton", () => {
   beforeAll(() => {
@@ -30,7 +29,7 @@ describe("addHouseButton", () => {
 
   it("renders at step 2", () => {
     resetState();
-    state.participants = [{...alex}];
+    addParticipant("Alex");
     click("#nextStep"); // step 2
     expect(state.step).toBe(2);
     expect(selectElement("#addHouse")).not.toBeNull();
@@ -38,13 +37,13 @@ describe("addHouseButton", () => {
 
   it("is removed at step 4", () => {
     resetState();
-    state.participants = [{...alex}];
+    addParticipant("Alex");
     click("#nextStep");
     expect(selectElement("#addHouse")).not.toBeNull();
     click("#nextStep");
     expect(state.step).toBe(3);
     expect(selectElement("#addHouse")).not.toBeNull();
-    state.assignments = [{giver: "Alex", recipient: "Whitney"}];
+    assignRecipients(["Whitney"]);
     click("#nextStep");
     expect(state.step).toBe(4);
     expect(selectElement("#addHouse")).toBeNull();
@@ -53,7 +52,7 @@ describe("addHouseButton", () => {
   it("click calls addHouseToState", () => {
     const spy = vi.spyOn(stateModule, "addHouseToState").mockImplementation(() => {});
     resetState();
-    state.participants = [{...alex}];
+    addParticipant("Alex");
     click("#nextStep"); // step 2
     click("#addHouse");
     expect(spy).toHaveBeenCalledTimes(1);
@@ -61,7 +60,7 @@ describe("addHouseButton", () => {
 
   it("is not removed when recipients assigned in non-secret-santa mode", () => {
     resetState();
-    state.participants = [{...alex}];
+    addParticipant("Alex");
     click("#nextStep"); // step 2
     expect(selectElement("#addHouse")).not.toBeNull();
     installParticipantNames("Alex", "Whitney");
@@ -72,7 +71,7 @@ describe("addHouseButton", () => {
   it("is removed when recipients assigned in secret santa mode", () => {
     resetState();
     state.isSecretSanta = true;
-    state.participants = [{...alex}];
+    addParticipant("Alex");
     click("#nextStep"); // step 2
     expect(selectElement("#addHouse")).not.toBeNull();
     installParticipantNames("Alex", "Whitney");
@@ -95,7 +94,7 @@ describe("addHouseButton", () => {
     it("triggers at step 2 (button rendered)", () => {
       const spy = vi.spyOn(stateModule, "addHouseToState").mockImplementation(() => {});
       resetState();
-      state.participants = [{...alex}];
+      addParticipant("Alex");
       click("#nextStep"); // step 2
       dispatchShiftEnter();
       expect(spy).toHaveBeenCalledTimes(1);
@@ -111,10 +110,10 @@ describe("addHouseButton", () => {
     it("does not trigger at step 4 (button removed)", () => {
       const spy = vi.spyOn(stateModule, "addHouseToState");
       resetState();
-      state.participants = [{...alex}];
+      addParticipant("Alex");
       click("#nextStep"); // step 2
       click("#nextStep"); // step 3
-      state.assignments = [{giver: "Alex", recipient: "Whitney"}];
+      assignRecipients(["Whitney"]);
       click("#nextStep"); // step 4
       dispatchShiftEnter();
       expect(spy).not.toHaveBeenCalled();
@@ -128,7 +127,7 @@ describe("addHouseButton", () => {
       const spy = vi.spyOn(stateModule, "addHouseToState");
       resetDOM();
       resetState();
-      state.participants = [{...alex}];
+      addParticipant("Alex");
       click("#nextStep"); // step 2
       dispatchShiftEnter();
       expect(spy).not.toHaveBeenCalled();

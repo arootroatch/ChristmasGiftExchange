@@ -1,8 +1,6 @@
 import {
   ExchangeEvents as Events,
   exchangeEvents as stateEvents,
-  state,
-  addHouseToState,
   removeHouseFromState,
   renameHouse
 } from "../exchangeState.js";
@@ -13,11 +11,10 @@ export function init() {
   stateEvents.on(Events.HOUSE_REMOVED, onHouseRemoved);
 }
 
-function onHouseAdded({houseID}) {
+function onHouseAdded({houseID, houses}) {
   const container = selectElement(`#${leftContainerId}`);
   if (!container) return;
-
-  const house = state.houses.find(h => h.id === houseID);
+  const house = houses.find(h => h.id === houseID);
   const html = template(houseID, house.name);
   container.insertAdjacentHTML('beforeend', html);
   attachListeners(houseID);

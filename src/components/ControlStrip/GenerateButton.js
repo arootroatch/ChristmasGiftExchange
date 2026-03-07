@@ -1,5 +1,5 @@
 import {addKeybinding, addEventListener, click, removeKeybinding, selectElement} from "../../utils.js";
-import {ExchangeEvents as Events, exchangeEvents as stateEvents, assignRecipients, state} from "../../exchangeState.js";
+import {ExchangeEvents as Events, exchangeEvents as stateEvents, assignRecipients} from "../../exchangeState.js";
 import {generate} from "../../generate.js";
 import {showError} from "../Snackbar.js";
 import * as self from "./GenerateButton.js";
@@ -15,8 +15,8 @@ function enterGenerate(evt) {
 }
 
 export function init() {
-  stateEvents.on(Events.NEXT_STEP, () => {
-    if (state.step === 3) {
+  stateEvents.on(Events.NEXT_STEP, ({step}) => {
+    if (step === 3) {
       render();
     } else {
       remove();

@@ -1,9 +1,12 @@
 import {addKeybinding, addEventListener, click, removeKeybinding, selectElement} from "../../utils.js";
-import {ExchangeEvents as Events, exchangeEvents as stateEvents, isGenerated, nextStep, state} from "../../exchangeState.js";
+import {ExchangeEvents as Events, exchangeEvents as stateEvents, isGenerated, nextStep} from "../../exchangeState.js";
 import {showError} from "../Snackbar.js";
 
 const nextStepId = "nextStep";
 const slotSelector = '[data-slot="nextStep"]';
+
+let currentStep;
+let currentParticipantsLength;
 
 function enterNextStep(evt) {
   if (evt.altKey && evt.keyCode === 13) {
@@ -13,15 +16,25 @@ function enterNextStep(evt) {
 }
 
 export function init() {
-  stateEvents.on(Events.EXCHANGE_STARTED, () => {
+  stateEvents.on(Events.EXCHANGE_STARTED, ({step, participants}) => {
+    currentStep = step;
+    currentParticipantsLength = participants.length;
     render();
   });
-  stateEvents.on(Events.NEXT_STEP, () => {
-    if (state.step >= 1 && state.step <= 3 && !(state.step === 3 && state.isSecretSanta)) {
+  stateEvents.on(Events.NEXT_STEP, ({step, isSecretSanta, participants}) => {
+    currentStep = step;
+    currentParticipantsLength = participants.length;
+    if (step >= 1 && step <= 3 && !(step === 3 && isSecretSanta)) {
       render();
     } else {
       remove();
     }
+  });
+  stateEvents.on(Events.PARTICIPANT_ADDED, ({participants}) => {
+    currentParticipantsLength = participants.length;
+  });
+  stateEvents.on(Events.PARTICIPANT_REMOVED, ({participants}) => {
+    currentParticipantsLength = participants.length;
   });
   stateEvents.on(Events.RECIPIENTS_ASSIGNED, ({isSecretSanta}) => {
     if (isSecretSanta) {
@@ -39,11 +52,11 @@ function template() {
 }
 
 function introNext() {
-  if (state.participants.length < 1 && state.step === 1) {
+  if (currentParticipantsLength < 1 && currentStep === 1) {
     showError("Please add participant names");
     return;
   }
-  if (state.step === 3 && !isGenerated()) {
+  if (currentStep === 3 && !isGenerated()) {
     showError('Please click "Generate List"');
     return;
   }

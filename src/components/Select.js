@@ -1,20 +1,20 @@
 import {addEventListener, nameListId, selectElement} from "../utils.js";
-import {ExchangeEvents as Events, exchangeEvents as stateEvents, addNameToHouse, removeNameFromHouse, state} from "../exchangeState.js";
+import {ExchangeEvents as Events, exchangeEvents as stateEvents, addNameToHouse, removeNameFromHouse} from "../exchangeState.js";
 
 export function init() {
-  stateEvents.on(Events.PARTICIPANT_ADDED, () => updateAllSelects());
-  stateEvents.on(Events.PARTICIPANT_REMOVED, () => updateAllSelects());
-  stateEvents.on(Events.HOUSE_ADDED, ({houseID}) => {
+  stateEvents.on(Events.PARTICIPANT_ADDED, ({participants}) => updateAllSelects(participants));
+  stateEvents.on(Events.PARTICIPANT_REMOVED, ({participants}) => updateAllSelects(participants));
+  stateEvents.on(Events.HOUSE_ADDED, ({houseID, participants}) => {
     const slot = document.querySelector(`[data-slot="select-${houseID}"]`);
-    if (slot) renderIntoSlot(slot, state.participants);
+    if (slot) renderIntoSlot(slot, participants);
   });
-  stateEvents.on(Events.NAME_ADDED_TO_HOUSE, ({houseID}) => {
+  stateEvents.on(Events.NAME_ADDED_TO_HOUSE, ({houseID, participants}) => {
     const slot = document.querySelector(`[data-slot="select-${houseID}"]`);
-    if (slot) renderIntoSlot(slot, state.participants);
+    if (slot) renderIntoSlot(slot, participants);
   });
-  stateEvents.on(Events.NAME_REMOVED_FROM_HOUSE, ({houseID}) => {
+  stateEvents.on(Events.NAME_REMOVED_FROM_HOUSE, ({houseID, participants}) => {
     const slot = document.querySelector(`[data-slot="select-${houseID}"]`);
-    if (slot) renderIntoSlot(slot, state.participants);
+    if (slot) renderIntoSlot(slot, participants);
   });
 }
 
@@ -40,19 +40,19 @@ export function insertNameFromSelect() {
   this.value = "default";
 }
 
-function updateAllSelects() {
+function updateAllSelects(participants) {
   const slots = document.querySelectorAll('[data-slot^="select-"]');
-  slots.forEach(slot => renderIntoSlot(slot, state.participants));
-  updateNameListSelect();
+  slots.forEach(slot => renderIntoSlot(slot, participants));
+  updateNameListSelect(participants);
 }
 
-function updateNameListSelect() {
+function updateNameListSelect(participants) {
   const nameListSelect = document.querySelector('#name-list-select');
   if (!nameListSelect) return;
 
   nameListSelect.innerHTML = `
       ${defaultOption()}
-      ${allNameOptions(state.participants)}`;
+      ${allNameOptions(participants)}`;
 }
 
 function renderIntoSlot(slot, participants) {

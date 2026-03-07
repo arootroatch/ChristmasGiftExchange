@@ -1,16 +1,16 @@
-import {ExchangeEvents as Events, exchangeEvents as stateEvents, state, removeParticipant} from "../exchangeState.js";
+import {ExchangeEvents as Events, exchangeEvents as stateEvents, removeParticipant, nextNameNumber} from "../exchangeState.js";
 import {participantsId, selectElement, escapeAttr} from "../utils.js";
 
 export function init() {
-  stateEvents.on(Events.PARTICIPANT_ADDED, () => renderParticipantsSlot());
-  stateEvents.on(Events.PARTICIPANT_REMOVED, () => renderParticipantsSlot());
-  stateEvents.on(Events.NAME_ADDED_TO_HOUSE, ({houseID, members}) => {
+  stateEvents.on(Events.PARTICIPANT_ADDED, ({houses, participants}) => renderParticipantsSlot(houses, participants));
+  stateEvents.on(Events.PARTICIPANT_REMOVED, ({houses, participants}) => renderParticipantsSlot(houses, participants));
+  stateEvents.on(Events.NAME_ADDED_TO_HOUSE, ({houseID, members, houses, participants}) => {
     renderHouseSlot(houseID, members);
-    renderParticipantsSlot();
+    renderParticipantsSlot(houses, participants);
   });
-  stateEvents.on(Events.NAME_REMOVED_FROM_HOUSE, ({houseID, members}) => {
+  stateEvents.on(Events.NAME_REMOVED_FROM_HOUSE, ({houseID, members, houses, participants}) => {
     renderHouseSlot(houseID, members);
-    renderParticipantsSlot();
+    renderParticipantsSlot(houses, participants);
   });
 }
 
@@ -19,15 +19,13 @@ function renderHouseSlot(houseID, members) {
   if (slot) renderIntoSlot(slot, members);
 }
 
-function renderParticipantsSlot() {
+function renderParticipantsSlot(houses, participants) {
   const slot = selectElement(`[data-slot="names-${participantsId}"]`);
   if (!slot) return;
-
-  const namesInHouses = state.houses.flatMap(h => h.members);
-  const names = state.participants
+  const namesInHouses = houses.flatMap(h => h.members);
+  const names = participants
     .map(p => p.name)
     .filter(name => !namesInHouses.includes(name));
-
   renderIntoSlot(slot, names);
 }
 
@@ -37,7 +35,7 @@ function renderIntoSlot(slot, names) {
 }
 
 function template(name) {
-  const id = state.nameNumber++;
+  const id = nextNameNumber();
   const safe = escapeAttr(name);
   return `
       <div class="name-wrapper" id="wrapper-${safe}" draggable="true">
