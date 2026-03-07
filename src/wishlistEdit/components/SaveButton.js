@@ -1,6 +1,6 @@
-import {wishlistEditEvents, WishlistEditEvents} from './state.js';
-import {addEventListener} from '../utils.js';
-import * as snackbar from '../Snackbar.js';
+import {wishlistEditEvents, WishlistEditEvents} from '../state.js';
+import {addEventListener} from '../../utils.js';
+import * as snackbar from '../../Snackbar.js';
 
 let cachedUserData;
 

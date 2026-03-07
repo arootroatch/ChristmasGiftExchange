@@ -1,9 +1,9 @@
 import * as snackbar from '../Snackbar.js';
-import * as greeting from './Greeting.js';
-import * as wishlistList from './WishlistList.js';
-import * as itemList from './ItemList.js';
-import * as saveButton from './SaveButton.js';
-import * as contactForm from './ContactForm.js';
+import * as greeting from './components/Greeting.js';
+import * as wishlistList from './components/WishlistList.js';
+import * as itemList from './components/ItemList.js';
+import * as saveButton from './components/SaveButton.js';
+import * as contactForm from './components/ContactForm.js';
 import {setUserData} from './state.js';
 
 function extractToken() {

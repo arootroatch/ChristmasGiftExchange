@@ -1,5 +1,5 @@
-import {wishlistEditEvents, WishlistEditEvents} from './state.js';
-import {selectElement} from '../utils.js';
+import {wishlistEditEvents, WishlistEditEvents} from '../state.js';
+import {selectElement} from '../../utils.js';
 
 export function init() {
     wishlistEditEvents.on(WishlistEditEvents.USER_LOADED, render);

@@ -1,5 +1,5 @@
-import {addEventListener, selectElement} from '../utils.js';
-import * as snackbar from '../Snackbar.js';
+import {addEventListener, selectElement} from '../../utils.js';
+import * as snackbar from '../../Snackbar.js';
 
 export function init(token) {
     addEventListener("#send-contact-btn", "click", () => send(token));
