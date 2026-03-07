@@ -5,11 +5,11 @@ import {
   installGivers,
   resetState,
   shouldDisplaySuccessSnackbar,
-} from "../../specHelper";
-import {startExchange, getState, addEmailsToParticipants, assignRecipients} from "../../../src/exchange/state";
-import {init} from "../../../src/exchange/components/EmailTable/SendEmails";
-import {init as initSnackbar} from "../../../src/Snackbar";
-import {alex, hunter, megan, whitney} from "../../testData";
+} from "../../../specHelper";
+import {startExchange, getState, addEmailsToParticipants, assignRecipients} from "../../../../src/exchange/state";
+import {init} from "../../../../src/exchange/components/EmailTable/SendEmails";
+import {init as initSnackbar} from "../../../../src/Snackbar";
+import {alex, hunter, megan, whitney} from "../../../testData";
 
 function stubDispatchEmailFetch(sent, total) {
   global.fetch = vi.fn(() => Promise.resolve({
@@ -126,7 +126,7 @@ describe("sendEmails", () => {
 
       click("#sendEmailsBtn");
 
-      const {shouldDisplayErrorSnackbar} = await import("../../specHelper");
+      const {shouldDisplayErrorSnackbar} = await import("../../../specHelper");
       await vi.waitFor(() => {
         shouldDisplayErrorSnackbar("Something went wrong sending emails");
       });

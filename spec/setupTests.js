@@ -2,7 +2,7 @@ import { JSDOM } from 'jsdom';
 import fs from 'fs';
 import path from 'path';
 
-const indexPath = path.resolve(__dirname, 'index.html');
+const indexPath = path.resolve(__dirname, '../index.html');
 export const indexHtml = fs.readFileSync(indexPath, 'utf8');
 
 export const dom = new JSDOM(indexHtml, {

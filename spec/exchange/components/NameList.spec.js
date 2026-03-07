@@ -12,8 +12,8 @@ import {
   enterName,
   addHouseToDOM,
   moveNameToHouse,
-} from "../specHelper";
-import {getState} from "../../src/exchange/state";
+} from "../../specHelper";
+import {getState} from "../../../src/exchange/state";
 
 describe('nameList', () => {
 

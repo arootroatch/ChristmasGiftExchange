@@ -1,6 +1,6 @@
 import {addHouseToState, getState, startExchange} from "../src/exchange/state";
 import {expect, vi} from "vitest";
-import {indexHtml} from "../setupTests";
+import {indexHtml} from "./setupTests";
 import {selectElement} from "../src/utils";
 import * as house from "../src/exchange/components/House";
 import * as name from "../src/exchange/components/Name";

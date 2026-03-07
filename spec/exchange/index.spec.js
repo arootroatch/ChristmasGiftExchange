@@ -1,11 +1,11 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
-import main from '../src/exchange/index';
+import main from '../../src/exchange/index';
 
-vi.mock('../src/exchange/dragDrop', () => ({
+vi.mock('../../src/exchange/dragDrop', () => ({
   initDragDrop: vi.fn(),
 }));
 
-vi.mock('../src/exchange/state', async (importOriginal) => {
+vi.mock('../../src/exchange/state', async (importOriginal) => {
   const actual = await importOriginal();
   return {
     ...actual,
@@ -14,54 +14,54 @@ vi.mock('../src/exchange/state', async (importOriginal) => {
   };
 });
 
-vi.mock('../src/exchange/components/House', () => ({
+vi.mock('../../src/exchange/components/House', () => ({
   init: vi.fn(),
   initEventListeners: vi.fn(),
 }));
 
-vi.mock('../src/exchange/components/Name', () => ({
+vi.mock('../../src/exchange/components/Name', () => ({
   init: vi.fn(),
   initEventListeners: vi.fn(),
 }));
 
-vi.mock('../src/exchange/components/Select', () => ({
+vi.mock('../../src/exchange/components/Select', () => ({
   init: vi.fn(),
 }));
 
-vi.mock('../src/exchange/components/ResultsTable', () => ({
+vi.mock('../../src/exchange/components/ResultsTable', () => ({
   init: vi.fn(),
 }));
 
-vi.mock('../src/exchange/components/ControlStrip/ControlStrip', () => ({
+vi.mock('../../src/exchange/components/ControlStrip/ControlStrip', () => ({
   init: vi.fn(),
 }));
 
-vi.mock('../src/exchange/components/ControlStrip/NextStepButton', () => ({
+vi.mock('../../src/exchange/components/ControlStrip/NextStepButton', () => ({
   init: vi.fn(),
 }));
 
-vi.mock('../src/exchange/components/ControlStrip/AddHouseButton', () => ({
+vi.mock('../../src/exchange/components/ControlStrip/AddHouseButton', () => ({
   init: vi.fn(),
 }));
 
-vi.mock('../src/exchange/components/ControlStrip/GenerateButton', () => ({
+vi.mock('../../src/exchange/components/ControlStrip/GenerateButton', () => ({
   init: vi.fn(),
 }));
 
-vi.mock('../src/exchange/components/EmailTable/EmailTable', () => ({
+vi.mock('../../src/exchange/components/EmailTable/EmailTable', () => ({
   init: vi.fn(),
 }));
 
-vi.mock('../src/exchange/components/EmailQuery', () => ({
+vi.mock('../../src/exchange/components/EmailQuery', () => ({
   init: vi.fn(),
 }));
 
-vi.mock('../src/Snackbar', () => ({
+vi.mock('../../src/Snackbar', () => ({
   init: vi.fn(),
   showError: vi.fn(),
 }));
 
-vi.mock('../src/exchange/components/EmailTable/SendEmails', () => ({
+vi.mock('../../src/exchange/components/EmailTable/SendEmails', () => ({
   init: vi.fn(),
 }));
 
@@ -71,7 +71,7 @@ describe('main', () => {
   });
 
   it('calls house.init', async () => {
-    const {init} = await import('../src/exchange/components/House');
+    const {init} = await import('../../src/exchange/components/House');
 
     main();
 
@@ -79,7 +79,7 @@ describe('main', () => {
   });
 
   it('calls name.init', async () => {
-    const {init} = await import('../src/exchange/components/Name');
+    const {init} = await import('../../src/exchange/components/Name');
 
     main();
 
@@ -87,7 +87,7 @@ describe('main', () => {
   });
 
   it('calls select.init', async () => {
-    const {init} = await import('../src/exchange/components/Select');
+    const {init} = await import('../../src/exchange/components/Select');
 
     main();
 
@@ -95,7 +95,7 @@ describe('main', () => {
   });
 
   it('calls resultsTable.init', async () => {
-    const {init} = await import('../src/exchange/components/ResultsTable');
+    const {init} = await import('../../src/exchange/components/ResultsTable');
 
     main();
 
@@ -103,7 +103,7 @@ describe('main', () => {
   });
 
 it('calls controlStrip.init', async () => {
-  const {init} = await import('../src/exchange/components/ControlStrip/ControlStrip');
+  const {init} = await import('../../src/exchange/components/ControlStrip/ControlStrip');
 
   main();
 
@@ -111,7 +111,7 @@ it('calls controlStrip.init', async () => {
 });
 
 it('calls nextStepButton.init', async () => {
-  const {init} = await import('../src/exchange/components/ControlStrip/NextStepButton');
+  const {init} = await import('../../src/exchange/components/ControlStrip/NextStepButton');
 
   main();
 
@@ -119,7 +119,7 @@ it('calls nextStepButton.init', async () => {
 });
 
 it('calls addHouseButton.init', async () => {
-  const {init} = await import('../src/exchange/components/ControlStrip/AddHouseButton');
+  const {init} = await import('../../src/exchange/components/ControlStrip/AddHouseButton');
 
   main();
 
@@ -127,7 +127,7 @@ it('calls addHouseButton.init', async () => {
 });
 
 it('calls generateButton.init', async () => {
-  const {init} = await import('../src/exchange/components/ControlStrip/GenerateButton');
+  const {init} = await import('../../src/exchange/components/ControlStrip/GenerateButton');
 
   main();
 
@@ -135,7 +135,7 @@ it('calls generateButton.init', async () => {
 });
 
   it('calls emailTable.init', async () => {
-    const {init} = await import('../src/exchange/components/EmailTable/EmailTable');
+    const {init} = await import('../../src/exchange/components/EmailTable/EmailTable');
 
     main();
 
@@ -143,7 +143,7 @@ it('calls generateButton.init', async () => {
   });
 
   it('calls emailQuery.init', async () => {
-    const {init} = await import('../src/exchange/components/EmailQuery');
+    const {init} = await import('../../src/exchange/components/EmailQuery');
 
     main();
 
@@ -151,7 +151,7 @@ it('calls generateButton.init', async () => {
   });
 
   it('calls snackbar.init', async () => {
-    const {init} = await import('../src/Snackbar');
+    const {init} = await import('../../src/Snackbar');
 
     main();
 
@@ -159,25 +159,25 @@ it('calls generateButton.init', async () => {
   });
 
   it('calls initDragDrop', async () => {
-    const {initDragDrop} = await import('../src/exchange/dragDrop');
+    const {initDragDrop} = await import('../../src/exchange/dragDrop');
     main();
     expect(initDragDrop).toHaveBeenCalledTimes(1);
   });
 
   it('calls all initialization functions in order', async () => {
-    const snackbar = await import('../src/Snackbar');
-    const house = await import('../src/exchange/components/House');
-    const name = await import('../src/exchange/components/Name');
-    const select = await import('../src/exchange/components/Select');
-    const resultsTable = await import('../src/exchange/components/ResultsTable');
-    const controlStrip = await import('../src/exchange/components/ControlStrip/ControlStrip');
-    const nextStepButton = await import('../src/exchange/components/ControlStrip/NextStepButton');
-    const addHouseButton = await import('../src/exchange/components/ControlStrip/AddHouseButton');
-    const generateButton = await import('../src/exchange/components/ControlStrip/GenerateButton');
-    const emailTable = await import('../src/exchange/components/EmailTable/EmailTable');
-    const emailQuery = await import('../src/exchange/components/EmailQuery');
-    const sendEmails = await import('../src/exchange/components/EmailTable/SendEmails');
-    const {initDragDrop} = await import('../src/exchange/dragDrop');
+    const snackbar = await import('../../src/Snackbar');
+    const house = await import('../../src/exchange/components/House');
+    const name = await import('../../src/exchange/components/Name');
+    const select = await import('../../src/exchange/components/Select');
+    const resultsTable = await import('../../src/exchange/components/ResultsTable');
+    const controlStrip = await import('../../src/exchange/components/ControlStrip/ControlStrip');
+    const nextStepButton = await import('../../src/exchange/components/ControlStrip/NextStepButton');
+    const addHouseButton = await import('../../src/exchange/components/ControlStrip/AddHouseButton');
+    const generateButton = await import('../../src/exchange/components/ControlStrip/GenerateButton');
+    const emailTable = await import('../../src/exchange/components/EmailTable/EmailTable');
+    const emailQuery = await import('../../src/exchange/components/EmailQuery');
+    const sendEmails = await import('../../src/exchange/components/EmailTable/SendEmails');
+    const {initDragDrop} = await import('../../src/exchange/dragDrop');
 
     main();
 
@@ -235,7 +235,7 @@ it('calls generateButton.init', async () => {
         participants: [{name: "Alex", email: "alex@test.com"}]
       };
       sessionStorage.setItem("reuseExchange", JSON.stringify(exchangeData));
-      const {loadExchange} = await import('../src/exchange/state');
+      const {loadExchange} = await import('../../src/exchange/state');
 
       main();
 
@@ -252,7 +252,7 @@ it('calls generateButton.init', async () => {
     });
 
     it('does not call loadExchange when no reuseExchange in sessionStorage', async () => {
-      const {loadExchange} = await import('../src/exchange/state');
+      const {loadExchange} = await import('../../src/exchange/state');
 
       main();
 
@@ -261,7 +261,7 @@ it('calls generateButton.init', async () => {
 
     it('displays snackbar error from sessionStorage', async () => {
       sessionStorage.setItem("snackbarError", "Test error message");
-      const snackbar = await import('../src/Snackbar');
+      const snackbar = await import('../../src/Snackbar');
 
       main();
 

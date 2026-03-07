@@ -12,15 +12,15 @@ import {
   shouldDisplayEmailTable,
   shouldDisplayErrorSnackbar,
   shouldNotSelect
-} from "../../specHelper";
-import * as generateButtonModule from "../../../src/exchange/components/ControlStrip/GenerateButton";
-import {init as initControlStrip} from "../../../src/exchange/components/ControlStrip/ControlStrip";
-import {init as initNextStepButton} from "../../../src/exchange/components/ControlStrip/NextStepButton";
-import {init as initGenerateButton, generateList} from "../../../src/exchange/components/ControlStrip/GenerateButton";
-import {init as initResultsTable} from "../../../src/exchange/components/ResultsTable";
-import {init as initEmailTable} from "../../../src/exchange/components/EmailTable/EmailTable";
-import {addParticipant, assignRecipients, getState} from "../../../src/exchange/state";
-import {selectElement} from "../../../src/utils";
+} from "../../../specHelper";
+import * as generateButtonModule from "../../../../src/exchange/components/ControlStrip/GenerateButton";
+import {init as initControlStrip} from "../../../../src/exchange/components/ControlStrip/ControlStrip";
+import {init as initNextStepButton} from "../../../../src/exchange/components/ControlStrip/NextStepButton";
+import {init as initGenerateButton, generateList} from "../../../../src/exchange/components/ControlStrip/GenerateButton";
+import {init as initResultsTable} from "../../../../src/exchange/components/ResultsTable";
+import {init as initEmailTable} from "../../../../src/exchange/components/EmailTable/EmailTable";
+import {addParticipant, assignRecipients, getState} from "../../../../src/exchange/state";
+import {selectElement} from "../../../../src/utils";
 
 const noPossibleComboError = "No possible combinations! Please try a different configuration/number of names."
 
@@ -237,7 +237,7 @@ describe("generateList", () => {
   });
 
   it('calls assignRecipients when not secret santa', async () => {
-    const stateModule = await import('../../../src/exchange/state.js');
+    const stateModule = await import('../../../../src/exchange/state.js');
     const spy = vi.spyOn(stateModule, 'assignRecipients');
 
     enterName("Alex");

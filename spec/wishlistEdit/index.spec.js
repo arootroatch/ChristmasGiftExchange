@@ -4,7 +4,7 @@ import path from "path";
 import {JSDOM} from "jsdom";
 
 const html = fs.readFileSync(
-    path.resolve(__dirname, "../pages/wishlist/edit/index.html"),
+    path.resolve(__dirname, "../../pages/wishlist/edit/index.html"),
     "utf8"
 );
 
@@ -47,7 +47,7 @@ function mockFetch(response) {
 }
 
 async function loadModule() {
-    const {main} = await import("../src/wishlistEdit/index.js");
+    const {main} = await import("../../src/wishlistEdit/index.js");
     main();
 }
 
@@ -478,7 +478,7 @@ describe("Wishlist Edit Page", () => {
 
         it("sets snackbar error and does not fetch when URL is /wishlist/edit/", async () => {
             setupNoTokenDOM("http://localhost/wishlist/edit/");
-            const {main} = await import("../src/wishlistEdit/index.js");
+            const {main} = await import("../../src/wishlistEdit/index.js");
             main();
             expect(window.fetch).not.toHaveBeenCalled();
             expect(window.sessionStorage.getItem("snackbarError")).toBe("Invalid wishlist link");
@@ -486,7 +486,7 @@ describe("Wishlist Edit Page", () => {
 
         it("sets snackbar error and does not fetch when URL is /wishlist/edit", async () => {
             setupNoTokenDOM("http://localhost/wishlist/edit");
-            const {main} = await import("../src/wishlistEdit/index.js");
+            const {main} = await import("../../src/wishlistEdit/index.js");
             main();
             expect(window.fetch).not.toHaveBeenCalled();
             expect(window.sessionStorage.getItem("snackbarError")).toBe("Invalid wishlist link");
@@ -499,7 +499,7 @@ describe("Wishlist Edit Page", () => {
                 json: () => Promise.resolve({error: "User not found"}),
             }));
             globalThis.fetch = window.fetch;
-            const {main} = await import("../src/wishlistEdit/index.js");
+            const {main} = await import("../../src/wishlistEdit/index.js");
             main();
             await vi.waitFor(() => {
                 expect(window.sessionStorage.getItem("snackbarError")).toBe("Invalid wishlist link");

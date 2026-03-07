@@ -8,7 +8,7 @@ import {
   deleteWishlist,
   addItem,
   deleteItem,
-} from '../src/wishlistEdit/state.js';
+} from '../../src/wishlistEdit/state.js';
 
 describe('wishlistEditState', () => {
   beforeEach(() => {

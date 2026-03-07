@@ -1,7 +1,7 @@
 import {afterEach, beforeAll, beforeEach, describe, expect, it, vi} from 'vitest';
-import {addParticipant, getState, startExchange} from '../src/exchange/state';
-import {initReactiveSystem, resetDOM} from "./specHelper";
-import {secretSantaMode} from "../src/exchange/index";
+import {addParticipant, getState, startExchange} from '../../src/exchange/state';
+import {initReactiveSystem, resetDOM} from "../specHelper";
+import {secretSantaMode} from "../../src/exchange/index";
 
 describe('layout', () => {
   let letsGoBtn, secretSantaBtn, leftContainer;

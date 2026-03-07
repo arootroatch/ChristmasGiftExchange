@@ -7,15 +7,15 @@ import {
   resetState,
   shouldDisplayEmailTable,
   shouldDisplayErrorSnackbar,
-} from "../../specHelper";
-import "../../../src/exchange/components/Name";
-import {assignRecipients, nextStep, startExchange, getState} from "../../../src/exchange/state";
-import {alex, whitney} from "../../testData";
+} from "../../../specHelper";
+import "../../../../src/exchange/components/Name";
+import {assignRecipients, nextStep, startExchange, getState} from "../../../../src/exchange/state";
+import {alex, whitney} from "../../../testData";
 import {
   emailInput,
   init,
-} from "../../../src/exchange/components/EmailTable/EmailTable";
-import {init as initSnackbar} from "../../../src/Snackbar";
+} from "../../../../src/exchange/components/EmailTable/EmailTable";
+import {init as initSnackbar} from "../../../../src/Snackbar";
 
 function stubExchangeApiFetch() {
   global.fetch = vi.fn(() => Promise.resolve({

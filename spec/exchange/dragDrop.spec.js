@@ -1,6 +1,6 @@
 import {beforeAll, beforeEach, describe, expect, it, vi} from 'vitest';
-import {allowDrop, drag, dragLeave, drop, initDragDrop} from '../src/exchange/dragDrop';
-import {getState, addNameToHouse} from '../src/exchange/state';
+import {allowDrop, drag, dragLeave, drop, initDragDrop} from '../../src/exchange/dragDrop';
+import {getState, addNameToHouse} from '../../src/exchange/state';
 import {
   addHouseToDOM,
   enterName,
@@ -10,7 +10,7 @@ import {
   removeAllNames,
   resetState,
   shouldSelect
-} from './specHelper';
+} from '../specHelper';
 
 
 describe('dragDrop', () => {

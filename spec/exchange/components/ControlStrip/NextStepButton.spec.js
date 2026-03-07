@@ -1,10 +1,10 @@
 import {afterEach, beforeAll, beforeEach, describe, expect, it, vi} from "vitest";
-import {click, resetDOM, resetState} from "../../specHelper";
-import * as stateModule from "../../../src/exchange/state";
-import {init as initControlStrip} from "../../../src/exchange/components/ControlStrip/ControlStrip";
-import {init as initNextStepButton} from "../../../src/exchange/components/ControlStrip/NextStepButton";
-import {addParticipant, assignRecipients, getState} from "../../../src/exchange/state";
-import {selectElement} from "../../../src/utils";
+import {click, resetDOM, resetState} from "../../../specHelper";
+import * as stateModule from "../../../../src/exchange/state";
+import {init as initControlStrip} from "../../../../src/exchange/components/ControlStrip/ControlStrip";
+import {init as initNextStepButton} from "../../../../src/exchange/components/ControlStrip/NextStepButton";
+import {addParticipant, assignRecipients, getState} from "../../../../src/exchange/state";
+import {selectElement} from "../../../../src/utils";
 
 describe("nextStepButton", () => {
   beforeAll(() => {

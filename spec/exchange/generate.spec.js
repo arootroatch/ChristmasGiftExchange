@@ -1,12 +1,12 @@
 import {beforeAll, beforeEach, describe, expect, it} from 'vitest';
-import {generate, hasDuplicates} from '../src/exchange/generate';
-import {getState, addHouseToState, addNameToHouse} from '../src/exchange/state';
+import {generate, hasDuplicates} from '../../src/exchange/generate';
+import {getState, addHouseToState, addNameToHouse} from '../../src/exchange/state';
 import {
   participantByName,
   installParticipantNames,
   resetState,
   initReactiveSystem
-} from "./specHelper";
+} from "../specHelper";
 
 const noPossibleComboError = "No possible combinations! Please try a different configuration/number of names."
 

@@ -13,11 +13,11 @@ import {
   shouldNotSelect,
   shouldSelect,
   stubProperty
-} from "../specHelper";
-import {addEventListener} from "../../src/utils";
-import {insertNameFromSelect} from "../../src/exchange/components/Select";
-import {addHouseToState, getState} from "../../src/exchange/state";
-import * as stateModule from "../../src/exchange/state";
+} from "../../specHelper";
+import {addEventListener} from "../../../src/utils";
+import {insertNameFromSelect} from "../../../src/exchange/components/Select";
+import {addHouseToState, getState} from "../../../src/exchange/state";
+import * as stateModule from "../../../src/exchange/state";
 
 describe('addHouse', () => {
   vi.mock(import("/src/utils.js"), async (importOriginal) => {
