@@ -1,4 +1,4 @@
-import {wishlistEditEvents, WishlistEditEvents} from '../wishlistEditState.js';
+import {wishlistEditEvents, WishlistEditEvents} from './state.js';
 import {selectElement} from '../utils.js';
 
 export function init() {

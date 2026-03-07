@@ -1,4 +1,4 @@
-import {wishlistEditEvents, WishlistEditEvents, addItem, deleteItem} from '../wishlistEditState.js';
+import {wishlistEditEvents, WishlistEditEvents, addItem, deleteItem} from './state.js';
 import {escape, escapeAttr, selectElement, addEventListener} from '../utils.js';
 
 const entryTemplate = (url, title, index) => `

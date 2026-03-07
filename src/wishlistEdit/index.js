@@ -4,7 +4,7 @@ import * as wishlistList from './WishlistList.js';
 import * as itemList from './ItemList.js';
 import * as saveButton from './SaveButton.js';
 import * as contactForm from './ContactForm.js';
-import {setUserData} from '../wishlistEditState.js';
+import {setUserData} from './state.js';
 
 function extractToken() {
     const match = window.location.pathname.match(/\/wishlist\/edit\/([^/]+)/);

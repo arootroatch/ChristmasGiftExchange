@@ -1,4 +1,4 @@
-import {wishlistEditEvents, WishlistEditEvents} from '../wishlistEditState.js';
+import {wishlistEditEvents, WishlistEditEvents} from './state.js';
 import {addEventListener} from '../utils.js';
 import * as snackbar from '../components/Snackbar.js';
 
