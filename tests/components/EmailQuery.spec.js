@@ -5,7 +5,7 @@ import {waitFor} from "@testing-library/dom";
 
 describe("getName", () => {
     let emailQueryBtn;
-    const query = document.querySelector("#query");
+    let query;
     let consoleLogSpy;
     let consoleErrorSpy;
 
@@ -14,6 +14,7 @@ describe("getName", () => {
         consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
         consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
         init();
+        query = document.querySelector("#query");
     });
 
     afterAll(() => {

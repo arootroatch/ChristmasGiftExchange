@@ -58,33 +58,13 @@
                 Secret Santa Mode
             </button>
         </div>
-        <div id="query" class="emailQuery">
-            <label for="emailQuery">
-                Need to know who you're buying a gift for?
-            </label>
-            <div>
-                <input
-                        type="email"
-                        maxlength="100"
-                        id="emailQuery"
-                        placeholder="Enter your email to search"
-                />
-                <button
-                        type="submit"
-                        class="button queryBtn"
-                        id="emailQueryBtn"
-                >
-                    Search it!
-                </button>
-            </div>
-        </div>
+        <div data-slot="email-query"></div>
         <div style="margin-top: 20px;">
             <a href="/reuse" class="btn-bottom" id="reuse-link">Reuse a Previous Exchange</a>
         </div>
     </div>
     <div id="flex-div">
-        <div id="left-container">
-        </div>
+        <div id="left-container"></div>
     </div>
 </div>
 <div style="display: none">Powered by Verifalia <a href="https://verifalia.com/">email verifier</a></div>

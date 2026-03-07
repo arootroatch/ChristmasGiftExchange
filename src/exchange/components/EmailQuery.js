@@ -86,6 +86,11 @@ async function getName(e) {
   }
 }
 
+function template() {
+  return `<div id="${queryDivId}" class="emailQuery">${emailQueryInit}</div>`;
+}
+
 export function init() {
+  selectElement('[data-slot="email-query"]').innerHTML = template();
   addEventListener(`#${emailQueryBtnId}`, "click", getName);
 }
