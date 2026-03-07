@@ -8,15 +8,18 @@ import {
   addEmailsToParticipants,
   assignRecipients,
   getHousesArray,
+  getExchangePayload,
   getHousesForGeneration,
   getIndividualParticipants,
+  getParticipantNames,
   loadExchange,
   nextStep,
   removeParticipant,
   removeHouseFromState,
   removeNameFromHouse,
   renameHouse,
-  isGenerated
+  isGenerated,
+  setTokenMap
 } from '/src/exchangeState.js'
 import {alex, whitney, hunter} from "./testData";
 import {ExchangeEvents as Events, exchangeEvents as stateEvents} from '/src/exchangeState.js'
@@ -426,6 +429,35 @@ describe('state helper functions', () => {
       addEmailsToParticipants([]);
 
       expect(state.participants).toEqual(originalParticipants);
+    });
+  });
+
+  describe('getExchangePayload', () => {
+    it('returns exchange data for POST body', () => {
+      installParticipantNames("Alex", "Whitney");
+      assignRecipients(["Whitney", "Alex"]);
+      const payload = getExchangePayload();
+      expect(payload.exchangeId).toBe(state.exchangeId);
+      expect(payload.isSecretSanta).toBe(state.isSecretSanta);
+      expect(payload.houses).toBe(state.houses);
+      expect(payload.participants).toBe(state.participants);
+      expect(payload.assignments).toBe(state.assignments);
+    });
+  });
+
+  describe('setTokenMap', () => {
+    it('stores token map on state', () => {
+      const tokens = [{name: "Alex", token: "abc"}];
+      setTokenMap(tokens);
+      expect(state._tokenMap).toEqual(tokens);
+    });
+  });
+
+  describe('getParticipantNames', () => {
+    it('returns array of participant name strings', () => {
+      state.participants = [];
+      installParticipantNames("Alex", "Whitney");
+      expect(getParticipantNames()).toEqual(["Alex", "Whitney"]);
     });
   });
 

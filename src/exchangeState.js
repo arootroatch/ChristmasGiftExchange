@@ -153,6 +153,24 @@ export function isGenerated() {
   return state.assignments.length > 0;
 }
 
+export function getExchangePayload() {
+  return {
+    exchangeId: state.exchangeId,
+    isSecretSanta: state.isSecretSanta,
+    houses: state.houses,
+    participants: state.participants,
+    assignments: state.assignments,
+  };
+}
+
+export function setTokenMap(tokenMap) {
+  state._tokenMap = tokenMap;
+}
+
+export function getParticipantNames() {
+  return state.participants.map(p => p.name);
+}
+
 export function loadExchange(exchangeData) {
   startExchange(exchangeData.isSecretSanta);
 

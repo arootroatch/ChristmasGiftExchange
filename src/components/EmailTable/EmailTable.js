@@ -1,4 +1,4 @@
-import {ExchangeEvents as Events, exchangeEvents as stateEvents, addEmailsToParticipants, state} from "../../exchangeState.js";
+import {ExchangeEvents as Events, exchangeEvents as stateEvents, addEmailsToParticipants, getExchangePayload, setTokenMap} from "../../exchangeState.js";
 import {addEventListener, pushHTML, selectElement, setLoadingState, escapeAttr} from "../../utils.js";
 import {showError} from "../Snackbar.js";
 
@@ -7,13 +7,20 @@ const emailTableBodyId = "emailTableBody";
 const hideEmailsId = "hideEmails";
 const submitEmailsId = "submitEmails";
 
+let cachedParticipants;
+let cachedIsSecretSanta;
+
 export function init() {
-  stateEvents.on(Events.RECIPIENTS_ASSIGNED, ({isSecretSanta}) => {
+  stateEvents.on(Events.RECIPIENTS_ASSIGNED, ({isSecretSanta, participants}) => {
+    cachedParticipants = participants;
+    cachedIsSecretSanta = isSecretSanta;
     if (isSecretSanta) {
       render();
     }
   });
-  stateEvents.on(Events.NEXT_STEP, ({step}) => {
+  stateEvents.on(Events.NEXT_STEP, ({step, participants, isSecretSanta}) => {
+    cachedParticipants = participants;
+    cachedIsSecretSanta = isSecretSanta;
     if (step === 4) {
       render();
     }
@@ -32,7 +39,7 @@ function template() {
     <div id="${emailTableId}" class="show">
       <h3>Please enter each participant's email address</h3>
       <form id="${emailTableBodyId}">
-      ${state.participants.map((participant, i) => emailInput(participant, i)).join("")}
+      ${cachedParticipants.map((participant, i) => emailInput(participant, i)).join("")}
         <div id="emailBtnDiv">
           <button class="button" id="${hideEmailsId}" style="display: none;">Dismiss</button>
           <button type="submit" class="button" id="${submitEmailsId}">Submit Emails</button>
@@ -61,7 +68,7 @@ function render() {
   const existing = selectElement(`#${emailTableId}`);
   if (existing) existing.remove();
   pushHTML("body", template());
-  if (!state.isSecretSanta) selectElement(`#${hideEmailsId}`).style.display = "block";
+  if (!cachedIsSecretSanta) selectElement(`#${hideEmailsId}`).style.display = "block";
   addEventListener(`#${emailTableBodyId}`, "submit", submitEmails);
   addEventListener(`#${hideEmailsId}`, "click", hideEmailTable);
 }
@@ -87,7 +94,7 @@ async function submitEmails(event) {
       handleEmailSubmitError(response);
     } else {
       const data = await response.json();
-      state._tokenMap = data.participants;
+      setTokenMap(data.participants);
       addEmailsToParticipants(emails);
     }
   } catch (error) {
@@ -110,13 +117,7 @@ async function postToServer() {
   return fetch("/.netlify/functions/api-exchange-post", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({
-      exchangeId: state.exchangeId,
-      isSecretSanta: state.isSecretSanta,
-      houses: state.houses,
-      participants: state.participants,
-      assignments: state.assignments
-    })
+    body: JSON.stringify(getExchangePayload())
   });
 }
 

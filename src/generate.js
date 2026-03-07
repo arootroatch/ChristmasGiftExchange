@@ -1,4 +1,4 @@
-import {state, getHousesForGeneration} from "./exchangeState.js";
+import {getHousesForGeneration, getParticipantNames} from "./exchangeState.js";
 
 export function hasDuplicates(arr) {
   let flattened = arr.flat();
@@ -30,7 +30,7 @@ function checkForImpossible() {
 
 function buildRecipientAssignment() {
   const houses = getHousesForGeneration();
-  const giverNames = state.participants.map(p => p.name);
+  const giverNames = getParticipantNames();
 
   if (giverNames.length === 0) return null;
 
