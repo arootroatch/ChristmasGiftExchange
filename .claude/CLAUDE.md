@@ -6,10 +6,12 @@ A vanilla JavaScript web app for drawing names in a gift exchange or Secret Sant
 ## Architecture
 
 ### Frontend: Event-Driven Component System
-- **Events.js** — Reusable `EventEmitter` class (no page-specific code)
-- **exchangeState.js** — Private state object + mutation functions that emit events via `exchangeEvents` singleton. Components never import state directly.
-- **wishlistEditState.js** — Encapsulated state for wishlist edit page with getter functions
+- **EventEmitter.js** — Reusable `EventEmitter` class (no page-specific code)
+- **exchange/state.js** — Private state object + mutation functions that emit events via `exchangeEvents` singleton. Components never import state directly.
+- **wishlistEdit/state.js** — Encapsulated state for wishlist edit page with getter functions
+- **Snackbar.js** — Shared toast notification component (used by all pages)
 - **Components** subscribe via `init()` → `stateEvents.on()` and destructure what they need from event payloads
+- **Multi-page app** — `pages/` directory has HTML entry points; `viteMultiPagePlugin.js` handles the build
 
 ### Exchange State Architecture
 The exchange state object is **private** (not exported). Components access data through:
@@ -89,34 +91,47 @@ Legacy endpoints (not refactored): `get_name.mjs`, `postToDb.mjs`
 ### File Structure
 ```
 src/
-  main.js              # Entry point, initializes all components, landing page buttons
-  exchangeState.js     # Private state + mutation functions + event emission (state NOT exported)
-  wishlistEditState.js # Encapsulated state for wishlist edit page
-  Events.js            # Reusable EventEmitter class
-  generate.js          # Name drawing algorithm (uses accessor functions, not state)
-  utils.js             # DOM helpers (selectElement, click, addEventListener, pushHTML, unshiftHTML, escape, escapeAttr)
-  dragDrop.js          # Drag and drop name reassignment
-  reuse.js             # Reuse previous exchange page
-  wishlistEdit.js      # Wishlist editing page
-  wishlistView.js      # Wishlist viewing page
+  EventEmitter.js        # Reusable EventEmitter class
+  Snackbar.js            # Shared toast notification component
+  utils.js               # DOM helpers (selectElement, click, addEventListener, pushHTML, unshiftHTML, escape, escapeAttr)
   viteMultiPagePlugin.js # Vite plugin for multi-page build
-  components/
-    ControlStrip/
-      ControlStrip.js    # Container shell with slots + keybinding helpers
-      NextStepButton.js  # Next Step button component
-      AddHouseButton.js  # Add Group button component
-      GenerateButton.js  # Generate List button component
-    House.js           # House/group container component
-    NameList.js        # Name list container component
-    Name.js            # Participant name management
-    Select.js          # Dropdown rendering
-    ResultsTable.js    # Results display (event-driven)
-    Instructions.js    # Intro instructions component
-    EmailTable/
-      EmailTable.js    # Email collection UI
-      SendEmails.js    # Email dispatch logic
-    EmailQuery.js      # Email lookup
-    Snackbar.js        # Toast notifications
+  reuse.js               # Reuse previous exchange page
+  wishlistView.js        # Wishlist viewing page
+  exchange/
+    index.js             # Entry point, initializes all exchange components
+    state.js             # Private state + mutation functions + event emission (state NOT exported)
+    generate.js          # Name drawing algorithm (uses accessor functions, not state)
+    dragDrop.js          # Drag and drop name reassignment
+    components/
+      ControlStrip/
+        ControlStrip.js    # Container shell with slots + keybinding helpers
+        NextStepButton.js  # Next Step button component
+        AddHouseButton.js  # Add Group button component
+        GenerateButton.js  # Generate List button component
+      House.js           # House/group container component
+      NameList.js        # Name list container component
+      Name.js            # Participant name management
+      Select.js          # Dropdown rendering
+      ResultsTable.js    # Results display (event-driven)
+      Instructions.js    # Intro instructions component
+      EmailTable/
+        EmailTable.js    # Email collection UI
+        SendEmails.js    # Email dispatch logic
+      EmailQuery.js      # Email lookup
+  wishlistEdit/
+    index.js             # Entry point, initializes wishlist edit components
+    state.js             # Encapsulated state for wishlist edit page
+    components/
+      Greeting.js        # User greeting display
+      WishlistList.js    # Wishlist URL management
+      ItemList.js        # Individual item management
+      SaveButton.js      # Save wishlist button + API call
+      ContactForm.js     # Contact info form + API call
+
+pages/
+  reuse/index.html         # Reuse exchange page
+  wishlist/edit/index.html # Wishlist editing page
+  wishlist/view/index.html # Wishlist viewing page
 
 netlify/
   shared/
@@ -140,36 +155,39 @@ netlify/
     get_name.mjs             # Legacy: get recipient name
     postToDb.mjs             # Legacy: store exchange data
 
-tests/
-  specHelper.js        # Test utilities (initReactiveSystem, resetState, enterName, click, etc.)
-  setupTests.js        # JSDOM initialization from index.html
+spec/
+  specHelper.js          # Test utilities (initReactiveSystem, resetState, enterName, click, etc.)
+  setupTests.js          # JSDOM initialization from index.html
   testData.js
-  exchangeState.spec.js
-  generate.spec.js
-  layout.spec.js
-  dragDrop.spec.js
-  main.spec.js
-  reuse.spec.js
-  wishlistEdit.spec.js
-  wishlistView.spec.js
   utils.spec.js
   viteMultiPagePlugin.spec.js
-  components/
-    ControlStrip/
-      ControlStrip.spec.js
-      NextStepButton.spec.js
-      AddHouseButton.spec.js
-      GenerateButton.spec.js
-    ResultsTable.spec.js
-    House.spec.js
-    NameList.spec.js
-    Name.spec.js
-    Instructions.spec.js
-    EmailTable/
-      EmailTable.spec.js
-      SendEmails.spec.js
-    EmailQuery.spec.js
-    Snackbar.spec.js
+  Snackbar.spec.js
+  wishlistView.spec.js
+  reuse.spec.js
+  exchange/
+    state.spec.js
+    generate.spec.js
+    dragDrop.spec.js
+    index.spec.js
+    layout.spec.js
+    components/
+      ControlStrip/
+        ControlStrip.spec.js
+        NextStepButton.spec.js
+        AddHouseButton.spec.js
+        GenerateButton.spec.js
+      EmailQuery.spec.js
+      EmailTable/
+        EmailTable.spec.js
+        SendEmails.spec.js
+      ResultsTable.spec.js
+      House.spec.js
+      NameList.spec.js
+      Name.spec.js
+      Instructions.spec.js
+  wishlistEdit/
+    index.spec.js
+    state.spec.js
   netlify-functions/
     api-exchange-post.spec.js
     api-exchange-get.spec.js
