@@ -1,13 +1,12 @@
-import {escape, escapeAttr, selectElement, addEventListener} from '../utils.js';
+import {selectElement, addEventListener} from '../utils.js';
 import * as snackbar from '../components/Snackbar.js';
 import * as greeting from './Greeting.js';
 import * as wishlistList from './WishlistList.js';
+import * as itemList from './ItemList.js';
 import {
   wishlistEditEvents,
   WishlistEditEvents,
   setUserData,
-  addItem,
-  deleteItem,
 } from '../wishlistEditState.js';
 
 let cachedUserData;
@@ -38,30 +37,6 @@ async function loadUser(token) {
     }
     const data = await response.json();
     setUserData(data);
-}
-
-function renderItems({userData}) {
-    selectElement("#items-list").innerHTML = userData.wishItems.map((item, i) => `
-        <div class="wishlist-entry">
-            <a href="${escapeAttr(item.url)}" target="_blank">${escape(item.title || item.url)}</a>
-            <button class="delete-btn" data-type="wishItems" data-index="${i}">X</button>
-        </div>
-    `).join("");
-}
-
-function handleAddItem() {
-    const url = selectElement("#item-url").value.trim();
-    const title = selectElement("#item-title").value.trim();
-    if (!url) return;
-    addItem({url, title: title || url});
-    selectElement("#item-url").value = "";
-    selectElement("#item-title").value = "";
-}
-
-function handleDeleteEntry(event) {
-    const btn = event.target.closest(".delete-btn");
-    if (!btn) return;
-    deleteItem(parseInt(btn.dataset.index));
 }
 
 async function saveWishlist(token) {
@@ -113,18 +88,15 @@ export function main() {
     // Subscribe to state events
     greeting.init();
     wishlistList.init();
+    itemList.init();
 
-    wishlistEditEvents.on(WishlistEditEvents.USER_LOADED, renderItems);
     wishlistEditEvents.on(WishlistEditEvents.USER_LOADED, cacheUserData);
     wishlistEditEvents.on(WishlistEditEvents.WISHLISTS_CHANGED, cacheUserData);
-    wishlistEditEvents.on(WishlistEditEvents.ITEMS_CHANGED, renderItems);
     wishlistEditEvents.on(WishlistEditEvents.ITEMS_CHANGED, cacheUserData);
 
     // Wire up DOM event listeners
-    addEventListener("#add-item-btn", "click", handleAddItem);
     addEventListener("#save-wishlist-btn", "click", () => saveWishlist(token));
     addEventListener("#send-contact-btn", "click", () => sendContactInfo(token));
-    addEventListener("#items-list", "click", handleDeleteEntry);
 
     loadUser(token);
 }
