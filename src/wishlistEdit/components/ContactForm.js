@@ -1,7 +1,22 @@
 import {addEventListener, selectElement} from '../../utils.js';
 import * as snackbar from '../../Snackbar.js';
 
+function template() {
+    return `<section id="contact-section">
+        <h2>Send Contact Info to Your Secret Santa</h2>
+        <p class="helper-text">This information will be emailed directly to your Secret Santa and will NOT be stored.</p>
+        <label for="contact-address">Shipping Address</label>
+        <textarea id="contact-address" rows="3" placeholder="Your shipping address"></textarea>
+        <label for="contact-phone">Phone Number</label>
+        <input type="tel" id="contact-phone" placeholder="Your phone number"/>
+        <label for="contact-notes">Notes</label>
+        <textarea id="contact-notes" rows="2" placeholder="Anything else they should know"></textarea>
+        <button id="send-contact-btn" class="button">Send to My Secret Santa</button>
+    </section>`;
+}
+
 export function init(token) {
+    selectElement('[data-slot="contact"]').innerHTML = template();
     addEventListener("#send-contact-btn", "click", () => send(token));
 }
 
