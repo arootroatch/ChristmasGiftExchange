@@ -339,7 +339,8 @@ describe("Wishlist Edit Page", () => {
             await vi.waitFor(() => {
                 const snackbar = document.getElementById("snackbar");
                 expect(snackbar.textContent).toBe("Wishlist saved!");
-                expect(snackbar.className).toBe("success");
+                expect(snackbar.classList.contains("show")).toBe(true);
+                expect(snackbar.style.color).toBe("rgb(25, 140, 10)");
             });
         });
 
@@ -358,7 +359,8 @@ describe("Wishlist Edit Page", () => {
             await vi.waitFor(() => {
                 const snackbar = document.getElementById("snackbar");
                 expect(snackbar.textContent).toBe("Failed to save wishlist");
-                expect(snackbar.className).toBe("error");
+                expect(snackbar.classList.contains("show")).toBe(true);
+                expect(snackbar.style.color).toBe("rgb(179, 30, 32)");
             });
         });
     });
@@ -439,7 +441,8 @@ describe("Wishlist Edit Page", () => {
 
             const snackbar = document.getElementById("snackbar");
             expect(snackbar.textContent).toBe("Please fill in at least one field");
-            expect(snackbar.className).toBe("error");
+            expect(snackbar.classList.contains("show")).toBe(true);
+            expect(snackbar.style.color).toBe("rgb(179, 30, 32)");
         });
     });
 

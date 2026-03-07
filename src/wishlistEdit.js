@@ -1,4 +1,5 @@
 import {escape, escapeAttr} from './utils.js';
+import * as snackbar from './components/Snackbar.js';
 
 const tokenMatch = window.location.pathname.match(/\/wishlist\/edit\/([^/]+)/);
 const token = tokenMatch ? tokenMatch[1] : "";
@@ -84,9 +85,9 @@ async function saveWishlist() {
         }),
     });
     if (response.ok) {
-        showSnackbar("Wishlist saved!", "success");
+        snackbar.showSuccess("Wishlist saved!");
     } else {
-        showSnackbar("Failed to save wishlist", "error");
+        snackbar.showError("Failed to save wishlist");
     }
 }
 
@@ -96,7 +97,7 @@ async function sendContactInfo() {
     const notes = document.getElementById("contact-notes").value.trim();
 
     if (!address && !phone && !notes) {
-        showSnackbar("Please fill in at least one field", "error");
+        snackbar.showError("Please fill in at least one field");
         return;
     }
 
@@ -107,24 +108,16 @@ async function sendContactInfo() {
     });
 
     if (response.ok) {
-        showSnackbar("Contact info sent to your Secret Santa!", "success");
+        snackbar.showSuccess("Contact info sent to your Secret Santa!");
         document.getElementById("contact-address").value = "";
         document.getElementById("contact-phone").value = "";
         document.getElementById("contact-notes").value = "";
     } else {
-        showSnackbar("Failed to send contact info", "error");
+        snackbar.showError("Failed to send contact info");
     }
 }
 
-function showSnackbar(message, type) {
-    const bar = document.getElementById("snackbar");
-    bar.textContent = message;
-    bar.className = type === "success" ? "success" : "error";
-    setTimeout(() => {
-        bar.className = "hidden";
-    }, 3000);
-}
-
+snackbar.init();
 document.getElementById("add-wishlist-btn").addEventListener("click", addWishlist);
 document.getElementById("add-item-btn").addEventListener("click", addItem);
 document.getElementById("save-wishlist-btn").addEventListener("click", saveWishlist);
