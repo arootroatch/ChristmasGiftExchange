@@ -2,8 +2,10 @@ import {describe, it, expect, vi, beforeEach} from 'vitest';
 import {
   wishlistEditEvents,
   WishlistEditEvents,
-  wishlistEditState,
+  getUserName,
+  getUserData,
   setUserData,
+  resetState,
   addWishlist,
   deleteWishlist,
   addItem,
@@ -12,7 +14,17 @@ import {
 
 describe('wishlistEditState', () => {
   beforeEach(() => {
-    setUserData({name: '', wishlists: [], wishItems: []});
+    resetState();
+  });
+
+  describe('resetState', () => {
+    it('resets state to defaults', () => {
+      setUserData({name: 'John', wishlists: [{url: 'https://a.com', title: 'A'}], wishItems: [{url: 'https://b.com', title: 'B'}]});
+      resetState();
+      expect(getUserName()).toBe('');
+      expect(getUserData().wishlists).toEqual([]);
+      expect(getUserData().wishItems).toEqual([]);
+    });
   });
 
   describe('setUserData', () => {
@@ -22,8 +34,8 @@ describe('wishlistEditState', () => {
 
       setUserData({name: 'John', wishlists: [{url: 'https://a.com', title: 'A'}], wishItems: []});
 
-      expect(wishlistEditState.userName).toBe('John');
-      expect(wishlistEditState.userData.wishlists).toEqual([{url: 'https://a.com', title: 'A'}]);
+      expect(getUserName()).toBe('John');
+      expect(getUserData().wishlists).toEqual([{url: 'https://a.com', title: 'A'}]);
       expect(spy).toHaveBeenCalled();
       unsub();
     });
@@ -36,7 +48,7 @@ describe('wishlistEditState', () => {
 
       addWishlist({url: 'https://amazon.com', title: 'My List'});
 
-      expect(wishlistEditState.userData.wishlists).toEqual([{url: 'https://amazon.com', title: 'My List'}]);
+      expect(getUserData().wishlists).toEqual([{url: 'https://amazon.com', title: 'My List'}]);
       expect(spy).toHaveBeenCalled();
       unsub();
     });
@@ -51,7 +63,7 @@ describe('wishlistEditState', () => {
       const unsub = wishlistEditEvents.on(WishlistEditEvents.WISHLISTS_CHANGED, spy);
       deleteWishlist(0);
 
-      expect(wishlistEditState.userData.wishlists).toEqual([{url: 'https://b.com', title: 'B'}]);
+      expect(getUserData().wishlists).toEqual([{url: 'https://b.com', title: 'B'}]);
       expect(spy).toHaveBeenCalled();
       unsub();
     });
@@ -64,7 +76,7 @@ describe('wishlistEditState', () => {
 
       addItem({url: 'https://example.com/thing', title: 'Thing'});
 
-      expect(wishlistEditState.userData.wishItems).toEqual([{url: 'https://example.com/thing', title: 'Thing'}]);
+      expect(getUserData().wishItems).toEqual([{url: 'https://example.com/thing', title: 'Thing'}]);
       expect(spy).toHaveBeenCalled();
       unsub();
     });
@@ -79,7 +91,7 @@ describe('wishlistEditState', () => {
       const unsub = wishlistEditEvents.on(WishlistEditEvents.ITEMS_CHANGED, spy);
       deleteItem(0);
 
-      expect(wishlistEditState.userData.wishItems).toEqual([{url: 'https://b.com', title: 'B'}]);
+      expect(getUserData().wishItems).toEqual([{url: 'https://b.com', title: 'B'}]);
       expect(spy).toHaveBeenCalled();
       unsub();
     });

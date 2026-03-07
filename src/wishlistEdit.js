@@ -3,7 +3,8 @@ import * as snackbar from './components/Snackbar.js';
 import {
   wishlistEditEvents,
   WishlistEditEvents,
-  wishlistEditState,
+  getUserName,
+  getUserData,
   setUserData,
   addWishlist,
   deleteWishlist,
@@ -35,7 +36,7 @@ async function loadUser() {
 
 function renderWishlists() {
     const container = document.getElementById("wishlists-list");
-    container.innerHTML = wishlistEditState.userData.wishlists.map((w, i) => `
+    container.innerHTML = getUserData().wishlists.map((w, i) => `
         <div class="wishlist-entry">
             <a href="${escapeAttr(w.url)}" target="_blank">${escape(w.title || w.url)}</a>
             <button class="delete-btn" data-type="wishlists" data-index="${i}">X</button>
@@ -45,7 +46,7 @@ function renderWishlists() {
 
 function renderItems() {
     const container = document.getElementById("items-list");
-    container.innerHTML = wishlistEditState.userData.wishItems.map((item, i) => `
+    container.innerHTML = getUserData().wishItems.map((item, i) => `
         <div class="wishlist-entry">
             <a href="${escapeAttr(item.url)}" target="_blank">${escape(item.title || item.url)}</a>
             <button class="delete-btn" data-type="wishItems" data-index="${i}">X</button>
@@ -54,7 +55,7 @@ function renderItems() {
 }
 
 function onUserLoaded() {
-    document.getElementById("greeting").textContent = `Hi ${wishlistEditState.userName}, add your wishlist!`;
+    document.getElementById("greeting").textContent = `Hi ${getUserName()}, add your wishlist!`;
     renderWishlists();
     renderItems();
 }
@@ -90,8 +91,8 @@ async function saveWishlist() {
         method: "PUT",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({
-            wishlists: wishlistEditState.userData.wishlists,
-            wishItems: wishlistEditState.userData.wishItems,
+            wishlists: getUserData().wishlists,
+            wishItems: getUserData().wishItems,
         }),
     });
     if (response.ok) {

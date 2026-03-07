@@ -8,10 +8,23 @@ export const WishlistEditEvents = {
   ITEMS_CHANGED: 'items:changed',
 };
 
-export const wishlistEditState = {
+const wishlistEditState = {
   userName: '',
   userData: {wishlists: [], wishItems: []},
 };
+
+export function getUserName() {
+  return wishlistEditState.userName;
+}
+
+export function getUserData() {
+  return wishlistEditState.userData;
+}
+
+export function resetState() {
+  wishlistEditState.userName = '';
+  wishlistEditState.userData = {wishlists: [], wishItems: []};
+}
 
 export function setUserData(data) {
   wishlistEditState.userName = data.name;
