@@ -1,3 +1,5 @@
+import {escape, escapeAttr} from './utils.js';
+
 const token = window.location.pathname.split("/").pop();
 const params = new URLSearchParams(window.location.search);
 const exchangeId = params.get("exchange");
@@ -56,16 +58,6 @@ async function loadWishlist() {
 function redirectWithError(message) {
     sessionStorage.setItem("snackbarError", message);
     window.location.href = "/";
-}
-
-function escape(str) {
-    const div = document.createElement("div");
-    div.textContent = str;
-    return div.innerHTML;
-}
-
-function escapeAttr(str) {
-    return str.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/'/g, "&#39;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
 loadWishlist();
