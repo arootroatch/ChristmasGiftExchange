@@ -84,7 +84,7 @@ describe('api-user-contact-post', () => {
                 _id: recipientId,
                 email: 'recipient@test.com',
                 name: 'Whitney',
-                token: 'recipient-contact-token',
+                token: 'dcb7622e-56a5-4f0c-a991-8644b5539e8d',
                 wishlists: [],
                 wishItems: [],
             },
@@ -92,7 +92,7 @@ describe('api-user-contact-post', () => {
                 _id: giverId,
                 email: 'giver@test.com',
                 name: 'Alex',
-                token: 'giver-contact-token',
+                token: '985dec2e-d843-418d-bf64-897de3444a3a',
                 wishlists: [],
                 wishItems: [],
             },
@@ -107,7 +107,7 @@ describe('api-user-contact-post', () => {
             houses: [],
         });
 
-        const event = buildEvent('recipient-contact-token', {
+        const event = buildEvent('dcb7622e-56a5-4f0c-a991-8644b5539e8d', {
             address: '123 Main St, Springfield',
             phone: '555-1234',
             notes: 'Leave at front door',
@@ -141,7 +141,7 @@ describe('api-user-contact-post', () => {
             _id: recipientId,
             email: 'recipient@test.com',
             name: 'Whitney',
-            token: 'recipient-no-store-token',
+            token: '71e95b93-6a56-4113-98fb-efdd6718a756',
             wishlists: [],
             wishItems: [],
         };
@@ -152,7 +152,7 @@ describe('api-user-contact-post', () => {
                 _id: giverId,
                 email: 'giver@test.com',
                 name: 'Alex',
-                token: 'giver-no-store-token',
+                token: 'f75cde68-a270-4578-acdc-2033b361dd44',
                 wishlists: [],
                 wishItems: [],
             },
@@ -167,14 +167,14 @@ describe('api-user-contact-post', () => {
             houses: [],
         });
 
-        await handler(buildEvent('recipient-no-store-token', {
+        await handler(buildEvent('71e95b93-6a56-4113-98fb-efdd6718a756', {
             address: '123 Main St',
             phone: '555-0000',
             notes: 'Secret info',
         }));
 
         // Verify user document was NOT modified
-        const user = await db.collection('users').findOne({token: 'recipient-no-store-token'});
+        const user = await db.collection('users').findOne({token: '71e95b93-6a56-4113-98fb-efdd6718a756'});
         expect(user.address).toBeUndefined();
         expect(user.phone).toBeUndefined();
         expect(user.notes).toBeUndefined();
@@ -191,7 +191,7 @@ describe('api-user-contact-post', () => {
                 _id: recipientId,
                 email: 'recipient@test.com',
                 name: 'Whitney',
-                token: 'recipient-defaults-token',
+                token: '4965243d-ed7a-41c7-849d-2f7737c945f1',
                 wishlists: [],
                 wishItems: [],
             },
@@ -199,7 +199,7 @@ describe('api-user-contact-post', () => {
                 _id: giverId,
                 email: 'giver@test.com',
                 name: 'Alex',
-                token: 'giver-defaults-token',
+                token: '2a6f0c41-4bc9-4e77-adbf-6fea2d35d029',
                 wishlists: [],
                 wishItems: [],
             },
@@ -215,7 +215,7 @@ describe('api-user-contact-post', () => {
         });
 
         // Send with no fields
-        const event = buildEvent('recipient-defaults-token', {});
+        const event = buildEvent('4965243d-ed7a-41c7-849d-2f7737c945f1', {});
         await handler(event);
 
         const fetchCall = mockFetch.mock.calls[0];

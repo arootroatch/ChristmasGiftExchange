@@ -96,7 +96,7 @@ describe("sendEmails", () => {
       state.assignments.forEach((assignment) => {
         const participant = state.participants.find(p => p.name === assignment.giver);
         const tokenInfo = state._tokenMap.find(t => t.name === assignment.giver);
-        expect(global.fetch).toHaveBeenCalledWith("/.netlify/functions/dispatchEmail", {
+        expect(global.fetch).toHaveBeenCalledWith("/.netlify/functions/api-giver-notify-post", {
           body: JSON.stringify({
             name: assignment.giver,
             recipient: assignment.recipient,
@@ -126,7 +126,7 @@ describe("sendEmails", () => {
 
       state.assignments.forEach((assignment) => {
         const participant = state.participants.find(p => p.name === assignment.giver);
-        expect(global.fetch).toHaveBeenCalledWith("/.netlify/functions/dispatchEmail", {
+        expect(global.fetch).toHaveBeenCalledWith("/.netlify/functions/api-giver-notify-post", {
           body: JSON.stringify({
             name: assignment.giver,
             recipient: assignment.recipient,

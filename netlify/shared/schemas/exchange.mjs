@@ -21,4 +21,4 @@ export const exchangeSchema = z.object({
     houses: z.array(houseSchema),
     participants: z.array(objectIdSchema),
     assignments: z.array(assignmentSchema),
-}).passthrough();
+});

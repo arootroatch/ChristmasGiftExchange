@@ -49,7 +49,7 @@ async function batchEmails() {
     const participant = state.participants.find(p => p.name === assignment.giver);
     const giverTokenInfo = tokenMap.find(t => t.name === assignment.giver);
     try {
-      const response = await fetch("/.netlify/functions/dispatchEmail", {
+      const response = await fetch("/.netlify/functions/api-giver-notify-post", {
         method: "POST",
         mode: "cors",
         body: JSON.stringify({

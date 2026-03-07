@@ -79,12 +79,12 @@ describe('api-user-wishlist-put', () => {
         await db.collection('users').insertOne({
             email: 'alex@test.com',
             name: 'Alex',
-            token: 'wishlist-token',
+            token: '71e95b93-6a56-4113-98fb-efdd6718a756',
             wishlists: [],
             wishItems: [],
         });
 
-        const event = buildEvent('wishlist-token', {
+        const event = buildEvent('71e95b93-6a56-4113-98fb-efdd6718a756', {
             wishlists: [{url: 'https://amazon.com/list', title: 'My Amazon List'}],
             wishItems: [{url: 'https://amazon.com/item', title: 'Cool Gadget'}],
         });
@@ -96,7 +96,7 @@ describe('api-user-wishlist-put', () => {
         expect(body.success).toBe(true);
 
         // Verify data was persisted
-        const user = await db.collection('users').findOne({token: 'wishlist-token'});
+        const user = await db.collection('users').findOne({token: '71e95b93-6a56-4113-98fb-efdd6718a756'});
         expect(user.wishlists).toHaveLength(1);
         expect(user.wishlists[0].url).toBe('https://amazon.com/list');
         expect(user.wishItems).toHaveLength(1);
@@ -112,7 +112,7 @@ describe('api-user-wishlist-put', () => {
                 _id: recipientId,
                 email: 'recipient@test.com',
                 name: 'Whitney',
-                token: 'recipient-token',
+                token: 'f75cde68-a270-4578-acdc-2033b361dd44',
                 wishlists: [],
                 wishItems: [],
             },
@@ -120,7 +120,7 @@ describe('api-user-wishlist-put', () => {
                 _id: giverId,
                 email: 'giver@test.com',
                 name: 'Alex',
-                token: 'giver-token',
+                token: '4965243d-ed7a-41c7-849d-2f7737c945f1',
                 wishlists: [],
                 wishItems: [],
             },
@@ -137,7 +137,7 @@ describe('api-user-wishlist-put', () => {
             houses: [],
         });
 
-        const event = buildEvent('recipient-token', {
+        const event = buildEvent('f75cde68-a270-4578-acdc-2033b361dd44', {
             wishlists: [{url: 'https://amazon.com/list', title: 'My List'}],
             wishItems: [],
         });
@@ -161,14 +161,14 @@ describe('api-user-wishlist-put', () => {
         await db.collection('users').insertOne({
             email: 'alex@test.com',
             name: 'Alex',
-            token: 'validation-token',
+            token: '320ab4d9-1f67-4288-aa87-51790d2a87cb',
             wishlists: [],
             wishItems: [],
         });
 
         const event = {
             httpMethod: 'PUT',
-            path: '/api/user/validation-token/wishlist',
+            path: '/api/user/320ab4d9-1f67-4288-aa87-51790d2a87cb/wishlist',
             body: JSON.stringify({wishlists: "not-an-array"}),
         };
 
@@ -188,7 +188,7 @@ describe('api-user-wishlist-put', () => {
                 _id: recipientId,
                 email: 'recipient@test.com',
                 name: 'Whitney',
-                token: 'recipient-token-2',
+                token: '2a6f0c41-4bc9-4e77-adbf-6fea2d35d029',
                 wishlists: [{url: 'https://existing.com', title: 'Existing'}],
                 wishItems: [],
             },
@@ -196,7 +196,7 @@ describe('api-user-wishlist-put', () => {
                 _id: giverId,
                 email: 'giver@test.com',
                 name: 'Alex',
-                token: 'giver-token-2',
+                token: 'b5ac2ac8-3251-4308-b9f0-10de8aaff1c8',
                 wishlists: [],
                 wishItems: [],
             },
@@ -211,7 +211,7 @@ describe('api-user-wishlist-put', () => {
             houses: [],
         });
 
-        const event = buildEvent('recipient-token-2', {
+        const event = buildEvent('2a6f0c41-4bc9-4e77-adbf-6fea2d35d029', {
             wishlists: [
                 {url: 'https://existing.com', title: 'Existing'},
                 {url: 'https://new.com', title: 'New List'},

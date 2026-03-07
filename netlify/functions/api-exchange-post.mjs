@@ -6,7 +6,7 @@ import crypto from "crypto";
 
 const participantInputSchema = z.object({
     name: z.string(),
-    email: z.string(),
+    email: z.email(),
 });
 
 const assignmentInputSchema = z.object({
@@ -26,6 +26,24 @@ const exchangePostRequestSchema = z.object({
     houses: z.array(houseInputSchema),
     participants: z.array(participantInputSchema),
     assignments: z.array(assignmentInputSchema),
+}).check(ctx => {
+    const names = new Set(ctx.value.participants.map(p => p.name));
+    ctx.value.assignments.forEach((a, i) => {
+        if (!names.has(a.giver)) {
+            ctx.issues.push({
+                code: "custom",
+                message: `Assignment giver "${a.giver}" is not in participants`,
+                path: ["assignments", i, "giver"],
+            });
+        }
+        if (!names.has(a.recipient)) {
+            ctx.issues.push({
+                code: "custom",
+                message: `Assignment recipient "${a.recipient}" is not in participants`,
+                path: ["assignments", i, "recipient"],
+            });
+        }
+    });
 });
 
 async function upsertParticipants(usersCol, participants) {

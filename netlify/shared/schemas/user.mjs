@@ -2,20 +2,20 @@ import {z} from "zod";
 import {ObjectId} from "mongodb";
 
 export const wishlistSchema = z.object({
-    url: z.string(),
+    url: z.url(),
     title: z.string(),
 });
 
 export const wishItemSchema = z.object({
-    url: z.string(),
+    url: z.url(),
     title: z.string(),
 });
 
 export const userSchema = z.object({
     _id: z.instanceof(ObjectId).optional(),
     name: z.string(),
-    email: z.string(),
-    token: z.string(),
+    email: z.email(),
+    token: z.uuid(),
     wishlists: z.array(wishlistSchema).default([]),
     wishItems: z.array(wishItemSchema).default([]),
-}).passthrough();
+});

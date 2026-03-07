@@ -53,14 +53,14 @@ describe('api-user-get', () => {
         await db.collection('users').insertOne({
             email: 'alex@test.com',
             name: 'Alex',
-            token: 'test-token-abc',
+            token: 'dcb7622e-56a5-4f0c-a991-8644b5539e8d',
             wishlists: [{url: 'https://amazon.com/list', title: 'My List'}],
             wishItems: [{url: 'https://amazon.com/item', title: 'Cool Thing'}],
         });
 
         const event = {
             httpMethod: 'GET',
-            path: '/api/user/test-token-abc',
+            path: '/api/user/dcb7622e-56a5-4f0c-a991-8644b5539e8d',
         };
 
         const response = await handler(event);
@@ -79,12 +79,12 @@ describe('api-user-get', () => {
         await db.collection('users').insertOne({
             email: 'alex@test.com',
             name: 'Alex',
-            token: 'test-token-empty',
+            token: '985dec2e-d843-418d-bf64-897de3444a3a',
         });
 
         const event = {
             httpMethod: 'GET',
-            path: '/api/user/test-token-empty',
+            path: '/api/user/985dec2e-d843-418d-bf64-897de3444a3a',
         };
 
         const response = await handler(event);

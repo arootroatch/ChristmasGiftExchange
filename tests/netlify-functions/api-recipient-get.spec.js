@@ -67,7 +67,7 @@ describe('api-recipient-get', () => {
                 _id: giverId,
                 email: 'alex@test.com',
                 name: 'Alex',
-                token: 'giver-token',
+                token: 'dcb7622e-56a5-4f0c-a991-8644b5539e8d',
                 wishlists: [],
                 wishItems: [],
             },
@@ -75,7 +75,7 @@ describe('api-recipient-get', () => {
                 _id: recipientId,
                 email: 'whitney@test.com',
                 name: 'Whitney',
-                token: 'recipient-token',
+                token: '985dec2e-d843-418d-bf64-897de3444a3a',
                 wishlists: [{url: 'https://amazon.com/list', title: 'My List'}],
                 wishItems: [],
             },
@@ -104,7 +104,7 @@ describe('api-recipient-get', () => {
         const body = JSON.parse(response.body);
         expect(body.recipient).toBe('Whitney');
         expect(body.date).toBeDefined();
-        expect(body.wishlistViewUrl).toBe('/wishlist/view/giver-token?exchange=exchange-new');
+        expect(body.wishlistViewUrl).toBe('/wishlist/view/dcb7622e-56a5-4f0c-a991-8644b5539e8d?exchange=exchange-new');
     });
 
     it('does not include wishlist URL when recipient has no wishlist', async () => {
@@ -117,7 +117,7 @@ describe('api-recipient-get', () => {
                 _id: giverId,
                 email: 'alex@test.com',
                 name: 'Alex',
-                token: 'giver-token-2',
+                token: '71e95b93-6a56-4113-98fb-efdd6718a756',
                 wishlists: [],
                 wishItems: [],
             },
@@ -125,7 +125,7 @@ describe('api-recipient-get', () => {
                 _id: recipientId,
                 email: 'whitney@test.com',
                 name: 'Whitney',
-                token: 'recipient-token-2',
+                token: 'f75cde68-a270-4578-acdc-2033b361dd44',
                 wishlists: [],
                 wishItems: [],
             },
@@ -194,9 +194,9 @@ describe('api-recipient-get', () => {
         const recipientId2 = new ObjectId();
 
         await db.collection('users').insertMany([
-            {_id: giverId, email: 'alex@test.com', name: 'Alex', token: 'giver-multi', wishlists: [], wishItems: []},
-            {_id: recipientId1, email: 'old@test.com', name: 'Old Recipient', token: 'r1', wishlists: [], wishItems: []},
-            {_id: recipientId2, email: 'new@test.com', name: 'New Recipient', token: 'r2', wishlists: [], wishItems: []},
+            {_id: giverId, email: 'alex@test.com', name: 'Alex', token: '4965243d-ed7a-41c7-849d-2f7737c945f1', wishlists: [], wishItems: []},
+            {_id: recipientId1, email: 'old@test.com', name: 'Old Recipient', token: '2a6f0c41-4bc9-4e77-adbf-6fea2d35d029', wishlists: [], wishItems: []},
+            {_id: recipientId2, email: 'new@test.com', name: 'New Recipient', token: 'b5ac2ac8-3251-4308-b9f0-10de8aaff1c8', wishlists: [], wishItems: []},
         ]);
 
         await db.collection('exchanges').insertMany([

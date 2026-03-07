@@ -110,7 +110,7 @@ describe('api-exchange-post', () => {
         await db.collection('users').insertOne({
             email: 'alex@test.com',
             name: 'Alex',
-            token: 'existing-token-uuid',
+            token: '320ab4d9-1f67-4288-aa87-51790d2a87cb',
             wishlists: [{url: 'https://amazon.com/wishlist', title: 'My List'}],
             wishItems: [],
         });
@@ -120,7 +120,7 @@ describe('api-exchange-post', () => {
         const body = JSON.parse(response.body);
 
         const alexParticipant = body.participants.find(p => p.name === 'Alex');
-        expect(alexParticipant.token).toBe('existing-token-uuid');
+        expect(alexParticipant.token).toBe('320ab4d9-1f67-4288-aa87-51790d2a87cb');
 
         // Verify wishlists were preserved
         const user = await db.collection('users').findOne({email: 'alex@test.com'});
@@ -160,6 +160,45 @@ describe('api-exchange-post', () => {
         expect(alexAssignment.recipientId.equals(whitney._id)).toBe(true);
     });
 
+    it('returns 400 for invalid participant email', async () => {
+        const event = buildEvent({
+            ...exchangePayload,
+            participants: [
+                {name: 'Alex', email: 'not-an-email'},
+                {name: 'Whitney', email: 'whitney@test.com'},
+                {name: 'Hunter', email: 'hunter@test.com'},
+            ],
+        });
+        const response = await handler(event);
+        expect(response.statusCode).toBe(400);
+    });
+
+    it('returns 400 when assignment giver is not in participants', async () => {
+        const event = buildEvent({
+            ...exchangePayload,
+            assignments: [
+                {giver: 'Nobody', recipient: 'Whitney'},
+                {giver: 'Whitney', recipient: 'Hunter'},
+                {giver: 'Hunter', recipient: 'Alex'},
+            ],
+        });
+        const response = await handler(event);
+        expect(response.statusCode).toBe(400);
+    });
+
+    it('returns 400 when assignment recipient is not in participants', async () => {
+        const event = buildEvent({
+            ...exchangePayload,
+            assignments: [
+                {giver: 'Alex', recipient: 'Ghost'},
+                {giver: 'Whitney', recipient: 'Hunter'},
+                {giver: 'Hunter', recipient: 'Alex'},
+            ],
+        });
+        const response = await handler(event);
+        expect(response.statusCode).toBe(400);
+    });
+
     it('returns 400 for missing required fields', async () => {
         const event = buildEvent({isSecretSanta: true});
         const response = await handler(event);
@@ -173,7 +212,7 @@ describe('api-exchange-post', () => {
         await db.collection('users').insertOne({
             email: 'alex@test.com',
             name: 'Old Name',
-            token: 'existing-token',
+            token: '1baedbd5-ef8e-40c8-a2d8-3e4555064e2a',
             wishlists: [],
             wishItems: [],
         });

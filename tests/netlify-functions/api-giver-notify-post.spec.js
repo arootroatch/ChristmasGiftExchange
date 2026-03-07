@@ -1,6 +1,6 @@
 import {afterAll, beforeAll, beforeEach, describe, expect, it, vi} from 'vitest';
 
-describe('dispatchEmail', () => {
+describe('api-giver-notify-post', () => {
     let handler;
     let mockFetch;
     let originalEnv;
@@ -20,7 +20,7 @@ describe('dispatchEmail', () => {
         mockFetch = vi.fn().mockResolvedValue({ok: true});
         vi.stubGlobal('fetch', mockFetch);
 
-        const module = await import('../../netlify/functions/dispatchEmail.mjs');
+        const module = await import('../../netlify/functions/api-giver-notify-post.mjs');
         handler = module.handler;
     });
 
@@ -141,6 +141,27 @@ describe('dispatchEmail', () => {
         const fetchCall = mockFetch.mock.calls[0];
         const requestBody = JSON.parse(fetchCall[1].body);
         expect(requestBody.parameters.wishlistEditUrl).toBeNull();
+    });
+
+    it('returns 400 for invalid email', async () => {
+        const event = buildEvent({
+            name: 'Alex',
+            recipient: 'Whitney',
+            email: 'not-an-email',
+        });
+        const response = await handler(event);
+        expect(response.statusCode).toBe(400);
+    });
+
+    it('returns 400 for invalid wishlistEditUrl', async () => {
+        const event = buildEvent({
+            name: 'Alex',
+            recipient: 'Whitney',
+            email: 'alex@test.com',
+            wishlistEditUrl: 'not-a-url',
+        });
+        const response = await handler(event);
+        expect(response.statusCode).toBe(400);
     });
 
     it('handles names with special characters', async () => {

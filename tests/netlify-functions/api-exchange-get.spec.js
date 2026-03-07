@@ -55,7 +55,7 @@ describe('api-exchange-get', () => {
                 _id: giverId,
                 email: 'giver@test.com',
                 name: 'Alex',
-                token: 'giver-token',
+                token: 'dcb7622e-56a5-4f0c-a991-8644b5539e8d',
                 wishlists: [],
                 wishItems: [],
             },
@@ -63,7 +63,7 @@ describe('api-exchange-get', () => {
                 _id: recipientId,
                 email: 'recipient@test.com',
                 name: 'Whitney',
-                token: 'recipient-token',
+                token: '985dec2e-d843-418d-bf64-897de3444a3a',
                 wishlists: [{url: 'https://amazon.com/list', title: 'My List'}],
                 wishItems: [{url: 'https://amazon.com/item', title: 'Cool Thing'}],
             },
@@ -71,7 +71,7 @@ describe('api-exchange-get', () => {
                 _id: outsiderId,
                 email: 'outsider@test.com',
                 name: 'Outsider',
-                token: 'outsider-token',
+                token: '71e95b93-6a56-4113-98fb-efdd6718a756',
                 wishlists: [],
                 wishItems: [],
             },
@@ -101,7 +101,7 @@ describe('api-exchange-get', () => {
         const event = {
             httpMethod: 'GET',
             path: '/api/exchange/exchange-view',
-            queryStringParameters: {token: 'giver-token'},
+            queryStringParameters: {token: 'dcb7622e-56a5-4f0c-a991-8644b5539e8d'},
         };
 
         const response = await handler(event);
@@ -120,7 +120,7 @@ describe('api-exchange-get', () => {
         const event = {
             httpMethod: 'GET',
             path: '/api/exchange/exchange-view',
-            queryStringParameters: {token: 'outsider-token'},
+            queryStringParameters: {token: '71e95b93-6a56-4113-98fb-efdd6718a756'},
         };
 
         const response = await handler(event);
@@ -149,7 +149,7 @@ describe('api-exchange-get', () => {
         const event = {
             httpMethod: 'GET',
             path: '/api/exchange/nonexistent-exchange',
-            queryStringParameters: {token: 'giver-token'},
+            queryStringParameters: {token: 'dcb7622e-56a5-4f0c-a991-8644b5539e8d'},
         };
 
         const response = await handler(event);
