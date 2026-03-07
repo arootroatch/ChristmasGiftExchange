@@ -17,21 +17,11 @@ import {
 } from "../../../src/components/EmailTable/EmailTable";
 import {init as initSnackbar} from "../../../src/components/Snackbar";
 
-const apiTokenResponse = {
-  exchangeId: "test-exchange-id",
-  participants: [
-    {name: "Alex", email: "arootroatch@gmail.com", token: "token-alex"},
-    {name: "Whitney", email: "whitney@gmail.com", token: "token-whitney"},
-    {name: "Hunter", email: "hunter@gmail.com", token: "token-hunter"},
-    {name: "Megan", email: "megan@gmail.com", token: "token-megan"},
-  ]
-};
-
 function stubExchangeApiFetch() {
   global.fetch = vi.fn(() => Promise.resolve({
     ok: true,
     status: 200,
-    json: () => Promise.resolve(apiTokenResponse)
+    json: () => Promise.resolve({exchangeId: "test-exchange-id"})
   }));
 }
 
@@ -193,12 +183,6 @@ describe('emailTable', () => {
           participants: getState().participants,
           assignments: getState().assignments
         })
-      });
-    })
-
-    it("stores token map from API response on state", async () => {
-      await vi.waitFor(() => {
-        expect(getState()._tokenMap).toEqual(apiTokenResponse.participants);
       });
     })
 

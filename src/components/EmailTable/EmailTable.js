@@ -1,4 +1,4 @@
-import {ExchangeEvents as Events, exchangeEvents as stateEvents, addEmailsToParticipants, getExchangePayload, setTokenMap} from "../../exchangeState.js";
+import {ExchangeEvents as Events, exchangeEvents as stateEvents, addEmailsToParticipants, getExchangePayload} from "../../exchangeState.js";
 import {addEventListener, pushHTML, selectElement, setLoadingState, escapeAttr} from "../../utils.js";
 import {showError} from "../Snackbar.js";
 
@@ -94,7 +94,6 @@ async function submitEmails(event) {
       handleEmailSubmitError(response);
     } else {
       const data = await response.json();
-      setTokenMap(data.participants);
       addEmailsToParticipants(emails);
     }
   } catch (error) {
