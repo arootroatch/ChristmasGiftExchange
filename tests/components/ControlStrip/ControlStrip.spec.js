@@ -1,6 +1,6 @@
 import {beforeAll, beforeEach, describe, expect, it} from "vitest";
 import {resetDOM, resetState} from "../../specHelper";
-import {init as initControlStrip} from "../../../src/components/ControlStrip/ControlStrip";
+import {init as initControlStrip} from "../../../src/exchange/components/ControlStrip/ControlStrip";
 import {isMobileDevice, selectElement, selectElements} from "../../../src/utils";
 
 describe("controlStrip", () => {

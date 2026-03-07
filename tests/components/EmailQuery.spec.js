@@ -1,6 +1,6 @@
 import {beforeEach, describe, expect, it, vi, afterAll, beforeAll} from "vitest";
 import {click, expectColor, stubFetchError} from "../specHelper";
-import {init} from "../../src/components/EmailQuery";
+import {init} from "../../src/exchange/components/EmailQuery";
 import {waitFor} from "@testing-library/dom";
 
 describe("getName", () => {

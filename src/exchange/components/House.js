@@ -3,8 +3,8 @@ import {
   exchangeEvents as stateEvents,
   removeHouseFromState,
   renameHouse
-} from "../exchange/state.js";
-import {addEventListener, leftContainerId, selectElement} from "../utils.js";
+} from "../state.js";
+import {addEventListener, leftContainerId, selectElement} from "../../utils.js";
 
 export function init() {
   stateEvents.on(Events.HOUSE_ADDED, onHouseAdded);

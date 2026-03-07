@@ -1,5 +1,5 @@
 import {beforeAll, beforeEach, describe, expect, it} from "vitest";
-import {init as initInstructions} from "../../src/components/Instructions";
+import {init as initInstructions} from "../../src/exchange/components/Instructions";
 import {nextStep} from "../../src/exchange/state";
 import {resetDOM, resetState} from "../specHelper";
 

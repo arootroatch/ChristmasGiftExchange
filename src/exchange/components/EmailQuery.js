@@ -1,4 +1,4 @@
-import {addEventListener, removeEventListener, selectElement, setLoadingState, escapeAttr} from "../utils";
+import {addEventListener, removeEventListener, selectElement, setLoadingState, escapeAttr} from "../../utils";
 
 const emailQueryId = "emailQuery";
 const emailQueryBtnId = "emailQueryBtn";

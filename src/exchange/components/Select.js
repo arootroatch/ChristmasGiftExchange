@@ -1,5 +1,5 @@
-import {addEventListener, nameListId, selectElement} from "../utils.js";
-import {ExchangeEvents as Events, exchangeEvents as stateEvents, addNameToHouse, removeNameFromHouse} from "../exchange/state.js";
+import {addEventListener, nameListId, selectElement} from "../../utils.js";
+import {ExchangeEvents as Events, exchangeEvents as stateEvents, addNameToHouse, removeNameFromHouse} from "../state.js";
 
 export function init() {
   stateEvents.on(Events.PARTICIPANT_ADDED, ({participants}) => updateAllSelects(participants));

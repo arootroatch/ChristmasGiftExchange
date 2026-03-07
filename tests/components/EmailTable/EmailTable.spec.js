@@ -8,13 +8,13 @@ import {
   shouldDisplayEmailTable,
   shouldDisplayErrorSnackbar,
 } from "../../specHelper";
-import "../../../src/components/Name";
+import "../../../src/exchange/components/Name";
 import {assignRecipients, nextStep, startExchange, getState} from "../../../src/exchange/state";
 import {alex, whitney} from "../../testData";
 import {
   emailInput,
   init,
-} from "../../../src/components/EmailTable/EmailTable";
+} from "../../../src/exchange/components/EmailTable/EmailTable";
 import {init as initSnackbar} from "../../../src/Snackbar";
 
 function stubExchangeApiFetch() {

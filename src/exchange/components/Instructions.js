@@ -1,5 +1,5 @@
-import {ExchangeEvents as Events, exchangeEvents as stateEvents} from "../exchange/state.js";
-import {selectElement} from "../utils.js";
+import {ExchangeEvents as Events, exchangeEvents as stateEvents} from "../state.js";
+import {selectElement} from "../../utils.js";
 
 export const instructions = [
   `<span style="font-weight:bold">Step 1 / 4:</span> Enter the names of everyone participating in the gift exchange. Make sure all names are unique. If two people have the same name, please add a last initial or nickname.`,

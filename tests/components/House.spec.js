@@ -15,7 +15,7 @@ import {
   stubProperty
 } from "../specHelper";
 import {addEventListener} from "../../src/utils";
-import {insertNameFromSelect} from "../../src/components/Select";
+import {insertNameFromSelect} from "../../src/exchange/components/Select";
 import {addHouseToState, getState} from "../../src/exchange/state";
 import * as stateModule from "../../src/exchange/state";
 

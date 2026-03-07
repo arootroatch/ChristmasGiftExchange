@@ -1,6 +1,6 @@
-import {ExchangeEvents as Events, exchangeEvents as stateEvents} from "../../exchange/state.js";
-import {addEventListener, pushHTML, selectElement, setLoadingState} from "../../utils.js";
-import {showError, showSuccess} from "../../Snackbar.js";
+import {ExchangeEvents as Events, exchangeEvents as stateEvents} from "../../state.js";
+import {addEventListener, pushHTML, selectElement, setLoadingState} from "../../../utils.js";
+import {showError, showSuccess} from "../../../Snackbar.js";
 
 const sendEmailsId = "sendEmails";
 const sendEmailsBtnId = "sendEmailsBtn";

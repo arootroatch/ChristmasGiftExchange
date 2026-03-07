@@ -1,5 +1,5 @@
-import {ExchangeEvents as Events, exchangeEvents as stateEvents, removeParticipant, nextNameNumber} from "../exchange/state.js";
-import {participantsId, selectElement, escapeAttr} from "../utils.js";
+import {ExchangeEvents as Events, exchangeEvents as stateEvents, removeParticipant, nextNameNumber} from "../state.js";
+import {participantsId, selectElement, escapeAttr} from "../../utils.js";
 
 export function init() {
   stateEvents.on(Events.PARTICIPANT_ADDED, ({houses, participants}) => renderParticipantsSlot(houses, participants));

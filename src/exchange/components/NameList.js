@@ -1,5 +1,5 @@
-import {ExchangeEvents as Events, exchangeEvents as stateEvents, addParticipant} from "../exchange/state.js";
-import {addEventListener, leftContainerId, nameListId, participantsId, selectElement, unshiftHTML} from "../utils.js";
+import {ExchangeEvents as Events, exchangeEvents as stateEvents, addParticipant} from "../state.js";
+import {addEventListener, leftContainerId, nameListId, participantsId, selectElement, unshiftHTML} from "../../utils.js";
 import {insertNameFromSelect} from "./Select.js";
 
 const addNameBtnId = "add-name-btn";
