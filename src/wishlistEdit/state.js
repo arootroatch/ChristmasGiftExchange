@@ -1,4 +1,4 @@
-import {EventEmitter} from '../Events.js';
+import {EventEmitter} from '../EventEmitter.js';
 
 export const wishlistEditEvents = new EventEmitter();
 
