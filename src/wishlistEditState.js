@@ -13,14 +13,6 @@ const wishlistEditState = {
   userData: {wishlists: [], wishItems: []},
 };
 
-export function getUserName() {
-  return wishlistEditState.userName;
-}
-
-export function getUserData() {
-  return wishlistEditState.userData;
-}
-
 export function resetState() {
   wishlistEditState.userName = '';
   wishlistEditState.userData = {wishlists: [], wishItems: []};
@@ -29,25 +21,25 @@ export function resetState() {
 export function setUserData(data) {
   wishlistEditState.userName = data.name;
   wishlistEditState.userData = {wishlists: data.wishlists, wishItems: data.wishItems};
-  wishlistEditEvents.emit(WishlistEditEvents.USER_LOADED);
+  wishlistEditEvents.emit(WishlistEditEvents.USER_LOADED, {...wishlistEditState});
 }
 
 export function addWishlist(wishlist) {
   wishlistEditState.userData.wishlists.push(wishlist);
-  wishlistEditEvents.emit(WishlistEditEvents.WISHLISTS_CHANGED);
+  wishlistEditEvents.emit(WishlistEditEvents.WISHLISTS_CHANGED, {...wishlistEditState});
 }
 
 export function deleteWishlist(index) {
   wishlistEditState.userData.wishlists.splice(index, 1);
-  wishlistEditEvents.emit(WishlistEditEvents.WISHLISTS_CHANGED);
+  wishlistEditEvents.emit(WishlistEditEvents.WISHLISTS_CHANGED, {...wishlistEditState});
 }
 
 export function addItem(item) {
   wishlistEditState.userData.wishItems.push(item);
-  wishlistEditEvents.emit(WishlistEditEvents.ITEMS_CHANGED);
+  wishlistEditEvents.emit(WishlistEditEvents.ITEMS_CHANGED, {...wishlistEditState});
 }
 
 export function deleteItem(index) {
   wishlistEditState.userData.wishItems.splice(index, 1);
-  wishlistEditEvents.emit(WishlistEditEvents.ITEMS_CHANGED);
+  wishlistEditEvents.emit(WishlistEditEvents.ITEMS_CHANGED, {...wishlistEditState});
 }

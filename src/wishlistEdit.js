@@ -3,8 +3,6 @@ import * as snackbar from './components/Snackbar.js';
 import {
   wishlistEditEvents,
   WishlistEditEvents,
-  getUserName,
-  getUserData,
   setUserData,
   addWishlist,
   deleteWishlist,
@@ -14,6 +12,12 @@ import {
 
 const tokenMatch = window.location.pathname.match(/\/wishlist\/edit\/([^/]+)/);
 const token = tokenMatch ? tokenMatch[1] : "";
+
+let cachedUserData;
+
+function cacheUserData({userData}) {
+    cachedUserData = userData;
+}
 
 function redirectWithError() {
     sessionStorage.setItem("snackbarError", "Invalid wishlist link");
@@ -34,9 +38,9 @@ async function loadUser() {
     setUserData(data);
 }
 
-function renderWishlists() {
+function renderWishlists({userData}) {
     const container = document.getElementById("wishlists-list");
-    container.innerHTML = getUserData().wishlists.map((w, i) => `
+    container.innerHTML = userData.wishlists.map((w, i) => `
         <div class="wishlist-entry">
             <a href="${escapeAttr(w.url)}" target="_blank">${escape(w.title || w.url)}</a>
             <button class="delete-btn" data-type="wishlists" data-index="${i}">X</button>
@@ -44,9 +48,9 @@ function renderWishlists() {
     `).join("");
 }
 
-function renderItems() {
+function renderItems({userData}) {
     const container = document.getElementById("items-list");
-    container.innerHTML = getUserData().wishItems.map((item, i) => `
+    container.innerHTML = userData.wishItems.map((item, i) => `
         <div class="wishlist-entry">
             <a href="${escapeAttr(item.url)}" target="_blank">${escape(item.title || item.url)}</a>
             <button class="delete-btn" data-type="wishItems" data-index="${i}">X</button>
@@ -54,10 +58,10 @@ function renderItems() {
     `).join("");
 }
 
-function onUserLoaded() {
-    document.getElementById("greeting").textContent = `Hi ${getUserName()}, add your wishlist!`;
-    renderWishlists();
-    renderItems();
+function onUserLoaded({userName, userData}) {
+    document.getElementById("greeting").textContent = `Hi ${userName}, add your wishlist!`;
+    renderWishlists({userData});
+    renderItems({userData});
 }
 
 function handleAddWishlist() {
@@ -91,8 +95,8 @@ async function saveWishlist() {
         method: "PUT",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({
-            wishlists: getUserData().wishlists,
-            wishItems: getUserData().wishItems,
+            wishlists: cachedUserData.wishlists,
+            wishItems: cachedUserData.wishItems,
         }),
     });
     if (response.ok) {
@@ -130,8 +134,11 @@ async function sendContactInfo() {
 
 // Subscribe to state events
 wishlistEditEvents.on(WishlistEditEvents.USER_LOADED, onUserLoaded);
+wishlistEditEvents.on(WishlistEditEvents.USER_LOADED, cacheUserData);
 wishlistEditEvents.on(WishlistEditEvents.WISHLISTS_CHANGED, renderWishlists);
+wishlistEditEvents.on(WishlistEditEvents.WISHLISTS_CHANGED, cacheUserData);
 wishlistEditEvents.on(WishlistEditEvents.ITEMS_CHANGED, renderItems);
+wishlistEditEvents.on(WishlistEditEvents.ITEMS_CHANGED, cacheUserData);
 
 // Wire up DOM event listeners
 snackbar.init();
