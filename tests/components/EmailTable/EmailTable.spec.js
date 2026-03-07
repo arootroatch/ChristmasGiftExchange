@@ -9,7 +9,7 @@ import {
   shouldDisplayErrorSnackbar,
 } from "../../specHelper";
 import "../../../src/components/Name";
-import {assignRecipients, nextStep, startExchange, state} from "../../../src/state";
+import {assignRecipients, nextStep, startExchange, state} from "../../../src/exchangeState";
 import {alex, whitney} from "../../testData";
 import {
   emailInput,

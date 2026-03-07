@@ -1,4 +1,4 @@
-import {ExchangeEvents as Events, exchangeEvents as stateEvents, addEmailsToParticipants, state} from "../../state.js";
+import {ExchangeEvents as Events, exchangeEvents as stateEvents, addEmailsToParticipants, state} from "../../exchangeState.js";
 import {addEventListener, pushHTML, selectElement, setLoadingState, escapeHTML} from "../../utils.js";
 import {showError} from "../Snackbar.js";
 

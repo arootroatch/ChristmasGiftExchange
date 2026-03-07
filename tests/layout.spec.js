@@ -1,5 +1,5 @@
 import {afterEach, beforeAll, beforeEach, describe, expect, it, vi} from 'vitest';
-import {state, startExchange} from '../src/state';
+import {state, startExchange} from '../src/exchangeState';
 import {initReactiveSystem, resetDOM} from "./specHelper";
 import {alex} from "./testData";
 import {secretSantaMode} from "../src/main";

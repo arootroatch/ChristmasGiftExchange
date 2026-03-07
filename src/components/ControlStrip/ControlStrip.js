@@ -1,5 +1,5 @@
 import {selectElement} from "../../utils.js";
-import {ExchangeEvents as Events, exchangeEvents as stateEvents} from "../../state.js";
+import {ExchangeEvents as Events, exchangeEvents as stateEvents} from "../../exchangeState.js";
 
 const controlStripId = "control-strip";
 

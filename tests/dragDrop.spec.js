@@ -1,6 +1,6 @@
 import {beforeAll, beforeEach, describe, expect, it, vi} from 'vitest';
 import {allowDrop, drag, dragLeave, drop, initDragDrop} from '../src/dragDrop';
-import {state, addNameToHouse} from '../src/state';
+import {state, addNameToHouse} from '../src/exchangeState';
 import {
   addHouseToDOM,
   enterName,

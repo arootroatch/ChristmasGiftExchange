@@ -1,5 +1,5 @@
 import {addKeybinding, addEventListener, click, removeKeybinding, selectElement} from "../../utils.js";
-import {ExchangeEvents as Events, exchangeEvents as stateEvents, addHouseToState, state} from "../../state.js";
+import {ExchangeEvents as Events, exchangeEvents as stateEvents, addHouseToState, state} from "../../exchangeState.js";
 
 const addHouseId = "addHouse";
 const slotSelector = '[data-slot="addHouse"]';

@@ -6,7 +6,7 @@ import {
   removeHouseFromState,
   removeNameFromHouse,
   renameHouse
-} from "../state.js";
+} from "../exchangeState.js";
 import {addEventListener, leftContainerId, selectElement} from "../utils.js";
 
 export function init() {

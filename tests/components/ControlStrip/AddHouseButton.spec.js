@@ -1,10 +1,10 @@
 import {afterEach, beforeAll, beforeEach, describe, expect, it, vi} from "vitest";
 import {click, installParticipantNames, resetDOM, resetState} from "../../specHelper";
-import * as stateModule from "../../../src/state";
+import * as stateModule from "../../../src/exchangeState";
 import {init as initControlStrip} from "../../../src/components/ControlStrip/ControlStrip";
 import {init as initNextStepButton} from "../../../src/components/ControlStrip/NextStepButton";
 import {init as initAddHouseButton} from "../../../src/components/ControlStrip/AddHouseButton";
-import {assignRecipients, state} from "../../../src/state";
+import {assignRecipients, state} from "../../../src/exchangeState";
 import {selectElement} from "../../../src/utils";
 import {alex} from "../../testData";
 

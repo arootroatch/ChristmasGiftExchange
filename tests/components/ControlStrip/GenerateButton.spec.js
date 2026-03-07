@@ -19,7 +19,7 @@ import {init as initNextStepButton} from "../../../src/components/ControlStrip/N
 import {init as initGenerateButton, generateList} from "../../../src/components/ControlStrip/GenerateButton";
 import {init as initResultsTable} from "../../../src/components/ResultsTable";
 import {init as initEmailTable} from "../../../src/components/EmailTable/EmailTable";
-import {state} from "../../../src/state";
+import {state} from "../../../src/exchangeState";
 import {selectElement} from "../../../src/utils";
 import {alex, whitney} from "../../testData";
 
@@ -237,7 +237,7 @@ describe("generateList", () => {
   });
 
   it('calls assignRecipients when not secret santa', async () => {
-    const stateModule = await import('../../../src/state.js');
+    const stateModule = await import('../../../src/exchangeState.js');
     const spy = vi.spyOn(stateModule, 'assignRecipients');
 
     enterName("Alex");

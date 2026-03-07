@@ -13,7 +13,7 @@ import * as emailTable from "./components/EmailTable/EmailTable.js";
 import * as emailQuery from "./components/EmailQuery.js";
 import * as sendEmails from "./components/EmailTable/SendEmails.js";
 import * as snackbar from "./components/Snackbar.js";
-import {loadExchange, startExchange} from "./state.js";
+import {loadExchange, startExchange} from "./exchangeState.js";
 import {leftContainerId, selectElement} from "./utils.js";
 
 export function secretSantaMode() {

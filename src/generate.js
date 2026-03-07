@@ -1,4 +1,4 @@
-import {state, getHousesForGeneration} from "./state.js";
+import {state, getHousesForGeneration} from "./exchangeState.js";
 
 export function hasDuplicates(arr) {
   let flattened = arr.flat();

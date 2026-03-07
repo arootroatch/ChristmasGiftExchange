@@ -5,7 +5,7 @@ vi.mock('../src/dragDrop', () => ({
   initDragDrop: vi.fn(),
 }));
 
-vi.mock('../src/state', async (importOriginal) => {
+vi.mock('../src/exchangeState', async (importOriginal) => {
   const actual = await importOriginal();
   return {
     ...actual,
@@ -235,7 +235,7 @@ it('calls generateButton.init', async () => {
         participants: [{name: "Alex", email: "alex@test.com"}]
       };
       sessionStorage.setItem("reuseExchange", JSON.stringify(exchangeData));
-      const {loadExchange} = await import('../src/state');
+      const {loadExchange} = await import('../src/exchangeState');
 
       main();
 
@@ -252,7 +252,7 @@ it('calls generateButton.init', async () => {
     });
 
     it('does not call loadExchange when no reuseExchange in sessionStorage', async () => {
-      const {loadExchange} = await import('../src/state');
+      const {loadExchange} = await import('../src/exchangeState');
 
       main();
 
