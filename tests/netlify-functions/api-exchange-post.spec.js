@@ -92,20 +92,17 @@ describe('api-exchange-post', () => {
         expect(users.find(u => u.email === 'alex@test.com').name).toBe('Alex');
     });
 
-    it('returns tokens for each participant', async () => {
+    it('does not return tokens in response', async () => {
         const event = buildEvent(exchangePayload);
         const response = await handler(event);
         const body = JSON.parse(response.body);
 
         body.participants.forEach(p => {
-            expect(p.token).toBeDefined();
-            expect(p.token).toMatch(
-                /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-            );
+            expect(p.token).toBeUndefined();
         });
     });
 
-    it('preserves existing user token on upsert', async () => {
+    it('preserves existing user data on upsert', async () => {
         const db = client.db('test-db');
         const existingToken = crypto.randomUUID();
         await db.collection('users').insertOne({
@@ -117,14 +114,11 @@ describe('api-exchange-post', () => {
         });
 
         const event = buildEvent(exchangePayload);
-        const response = await handler(event);
-        const body = JSON.parse(response.body);
+        await handler(event);
 
-        const alexParticipant = body.participants.find(p => p.name === 'Alex');
-        expect(alexParticipant.token).toBe(existingToken);
-
-        // Verify wishlists were preserved
+        // Verify token and wishlists were preserved in DB
         const user = await db.collection('users').findOne({email: 'alex@test.com'});
+        expect(user.token).toBe(existingToken);
         expect(user.wishlists).toHaveLength(1);
         expect(user.wishlists[0].url).toBe('https://amazon.com/wishlist');
     });

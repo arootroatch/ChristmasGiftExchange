@@ -82,16 +82,14 @@ function buildExchangeDoc(exchangeId, isSecretSanta, houses, participants, assig
     };
 }
 
-function buildResponse(exchangeId, participants, userMap) {
-    const responseParticipants = participants.map(p => {
-        const user = userMap[p.name];
-        return {
+function buildResponse(exchangeId, participants) {
+    return {
+        exchangeId,
+        participants: participants.map(p => ({
             name: p.name,
             email: p.email,
-            token: user.token,
-        };
-    });
-    return {exchangeId, participants: responseParticipants};
+        })),
+    };
 }
 
 export const handler = apiHandler("POST", async (event) => {
@@ -105,5 +103,5 @@ export const handler = apiHandler("POST", async (event) => {
     const exchangeDoc = buildExchangeDoc(data.exchangeId, data.isSecretSanta, data.houses, data.participants, data.assignments, userMap);
     await exchangesCol.insertOne(exchangeDoc);
 
-    return ok(buildResponse(data.exchangeId, data.participants, userMap));
+    return ok(buildResponse(data.exchangeId, data.participants));
 });
