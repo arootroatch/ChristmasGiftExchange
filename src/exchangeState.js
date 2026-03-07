@@ -173,10 +173,6 @@ export function getExchangePayload() {
   };
 }
 
-export function setTokenMap(tokenMap) {
-  state._tokenMap = tokenMap;
-}
-
 export function getParticipantNames() {
   return state.participants.map(p => p.name);
 }

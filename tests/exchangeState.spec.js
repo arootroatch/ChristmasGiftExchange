@@ -18,8 +18,7 @@ import {
   removeHouseFromState,
   removeNameFromHouse,
   renameHouse,
-  isGenerated,
-  setTokenMap
+  isGenerated
 } from '/src/exchangeState.js'
 import {alex, whitney, hunter} from "./testData";
 import {ExchangeEvents as Events, exchangeEvents as stateEvents} from '/src/exchangeState.js'
@@ -443,14 +442,6 @@ describe('state helper functions', () => {
       expect(payload.houses).toBe(getState().houses);
       expect(payload.participants).toBe(getState().participants);
       expect(payload.assignments).toBe(getState().assignments);
-    });
-  });
-
-  describe('setTokenMap', () => {
-    it('stores token map on state', () => {
-      const tokens = [{name: "Alex", token: "abc"}];
-      setTokenMap(tokens);
-      expect(getState()._tokenMap).toEqual(tokens);
     });
   });
 
