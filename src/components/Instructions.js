@@ -1,5 +1,4 @@
-import {Events, stateEvents} from "../Events.js";
-import {state} from "../state.js";
+import {ExchangeEvents as Events, exchangeEvents as stateEvents, state} from "../state.js";
 import {selectElement} from "../utils.js";
 
 export const instructions = [

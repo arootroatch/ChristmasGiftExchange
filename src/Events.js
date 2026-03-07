@@ -1,4 +1,4 @@
-class EventEmitter {
+export class EventEmitter {
   constructor() {
     this.listeners = {};
   }
@@ -18,19 +18,3 @@ class EventEmitter {
     }
   }
 }
-
-export const stateEvents = new EventEmitter();
-
-export const Events = {
-  EXCHANGE_STARTED: 'exchange:started',
-  NEXT_STEP: 'exchange:nextStep',
-  PARTICIPANT_ADDED: 'participant:added',
-  PARTICIPANT_REMOVED: 'participant:removed',
-  HOUSE_ADDED: 'house:added',
-  HOUSE_REMOVED: 'house:removed',
-  HOUSE_RENAMED: 'house:renamed',
-  NAME_ADDED_TO_HOUSE: 'name:addedToHouse',
-  NAME_REMOVED_FROM_HOUSE: 'name:removedFromHouse',
-  RECIPIENTS_ASSIGNED: 'recipients:assigned',
-  EMAILS_ADDED: 'emails:added',
-};

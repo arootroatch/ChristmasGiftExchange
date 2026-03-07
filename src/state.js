@@ -1,4 +1,20 @@
-import {Events, stateEvents} from './Events.js';
+import {EventEmitter} from './Events.js';
+
+export const exchangeEvents = new EventEmitter();
+
+export const ExchangeEvents = {
+  EXCHANGE_STARTED: 'exchange:started',
+  NEXT_STEP: 'exchange:nextStep',
+  PARTICIPANT_ADDED: 'participant:added',
+  PARTICIPANT_REMOVED: 'participant:removed',
+  HOUSE_ADDED: 'house:added',
+  HOUSE_REMOVED: 'house:removed',
+  HOUSE_RENAMED: 'house:renamed',
+  NAME_ADDED_TO_HOUSE: 'name:addedToHouse',
+  NAME_REMOVED_FROM_HOUSE: 'name:removedFromHouse',
+  RECIPIENTS_ASSIGNED: 'recipients:assigned',
+  EMAILS_ADDED: 'emails:added',
+};
 
 export let state;
 
@@ -12,7 +28,7 @@ export function startExchange(isSecretSanta = false) {
     assignments: [],
     nameNumber: 1,
   }
-  stateEvents.emit(Events.EXCHANGE_STARTED);
+  exchangeEvents.emit(ExchangeEvents.EXCHANGE_STARTED);
 }
 
 export function nextStep(maxSteps = null) {
@@ -21,7 +37,7 @@ export function nextStep(maxSteps = null) {
   } else {
     state.step++;
   }
-  stateEvents.emit(Events.NEXT_STEP, {step: state.step});
+  exchangeEvents.emit(ExchangeEvents.NEXT_STEP, {step: state.step});
 }
 
 
@@ -39,19 +55,19 @@ function findHouse(houseID) {
 export function addHouseToState(houseID) {
   const displayNumber = state.houses.length + 1;
   state.houses.push({id: houseID, name: `Group ${displayNumber}`, members: []});
-  stateEvents.emit(Events.HOUSE_ADDED, {houseID});
+  exchangeEvents.emit(ExchangeEvents.HOUSE_ADDED, {houseID});
 }
 
 export function removeHouseFromState(houseID) {
   state.houses = state.houses.filter(h => h.id !== houseID);
-  stateEvents.emit(Events.HOUSE_REMOVED, {houseID});
+  exchangeEvents.emit(ExchangeEvents.HOUSE_REMOVED, {houseID});
 }
 
 export function renameHouse(houseID, name) {
   const house = findHouse(houseID);
   if (house) {
     house.name = name;
-    stateEvents.emit(Events.HOUSE_RENAMED, {houseID, name});
+    exchangeEvents.emit(ExchangeEvents.HOUSE_RENAMED, {houseID, name});
   }
 }
 
@@ -60,7 +76,7 @@ export function addNameToHouse(houseID, name) {
   if (!house) return;
   if (!house.members.includes(name)) {
     house.members.push(name);
-    stateEvents.emit(Events.NAME_ADDED_TO_HOUSE, {houseID, name, members: house.members});
+    exchangeEvents.emit(ExchangeEvents.NAME_ADDED_TO_HOUSE, {houseID, name, members: house.members});
   }
 }
 
@@ -68,14 +84,14 @@ export function removeNameFromHouse(houseID, name) {
   const house = findHouse(houseID);
   if (house) {
     house.members = house.members.filter(n => n !== name);
-    stateEvents.emit(Events.NAME_REMOVED_FROM_HOUSE, {houseID, name, members: house.members});
+    exchangeEvents.emit(ExchangeEvents.NAME_REMOVED_FROM_HOUSE, {houseID, name, members: house.members});
   }
 }
 
 export function addParticipant(name) {
   const participant = new Participant(name);
   state.participants.push(participant);
-  stateEvents.emit(Events.PARTICIPANT_ADDED, {name, participant});
+  exchangeEvents.emit(ExchangeEvents.PARTICIPANT_ADDED, {name, participant});
 }
 
 export function removeParticipant(name) {
@@ -85,7 +101,7 @@ export function removeParticipant(name) {
     }
   });
   state.participants = state.participants.filter(p => p.name !== name);
-  stateEvents.emit(Events.PARTICIPANT_REMOVED, {name});
+  exchangeEvents.emit(ExchangeEvents.PARTICIPANT_REMOVED, {name});
 }
 
 export function getHousesArray() {
@@ -111,7 +127,7 @@ export function assignRecipients(recipientNames) {
     giver: state.participants[index].name,
     recipient
   }));
-  stateEvents.emit(Events.RECIPIENTS_ASSIGNED, {
+  exchangeEvents.emit(ExchangeEvents.RECIPIENTS_ASSIGNED, {
     isGenerated: true,
     isSecretSanta: state.isSecretSanta,
     assignments: state.assignments
@@ -123,7 +139,7 @@ export function addEmailsToParticipants(emails) {
     let i = parseInt(obj.index);
     state.participants[i].email = obj.email;
   });
-  stateEvents.emit(Events.EMAILS_ADDED, {participants: state.participants});
+  exchangeEvents.emit(ExchangeEvents.EMAILS_ADDED, {participants: state.participants});
 }
 
 export function isGenerated() {

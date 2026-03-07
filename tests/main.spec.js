@@ -5,10 +5,14 @@ vi.mock('../src/dragDrop', () => ({
   initDragDrop: vi.fn(),
 }));
 
-vi.mock('../src/state', () => ({
-  startExchange: vi.fn(),
-  loadExchange: vi.fn(),
-}));
+vi.mock('../src/state', async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    startExchange: vi.fn(),
+    loadExchange: vi.fn(),
+  };
+});
 
 vi.mock('../src/components/House', () => ({
   init: vi.fn(),

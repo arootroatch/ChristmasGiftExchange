@@ -19,7 +19,7 @@ import {
   isGenerated
 } from '/src/state.js'
 import {alex, whitney, hunter} from "./testData";
-import {Events, stateEvents} from '/src/Events.js'
+import {ExchangeEvents as Events, exchangeEvents as stateEvents} from '/src/state.js'
 import {installParticipantNames} from "./specHelper";
 
 test('state is undefined before exchange starts', () => {

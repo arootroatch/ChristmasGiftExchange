@@ -1,4 +1,6 @@
 import {
+  ExchangeEvents as Events,
+  exchangeEvents as stateEvents,
   state,
   addHouseToState,
   removeHouseFromState,
@@ -6,7 +8,6 @@ import {
   renameHouse
 } from "../state.js";
 import {addEventListener, leftContainerId, selectElement} from "../utils.js";
-import {Events, stateEvents} from "../Events.js";
 
 export function init() {
   stateEvents.on(Events.HOUSE_ADDED, onHouseAdded);
