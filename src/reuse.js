@@ -1,4 +1,5 @@
 import {escape, escapeAttr} from './utils.js';
+import * as snackbar from './components/Snackbar.js';
 
 async function searchExchanges() {
     const email = document.getElementById("reuse-email").value.trim();
@@ -14,18 +15,18 @@ async function searchExchanges() {
         );
 
         if (!response.ok) {
-            showSnackbar("Something went wrong. Please try again.", "error");
+            snackbar.showError("Something went wrong. Please try again.");
             return;
         }
 
         const exchanges = await response.json();
         if (exchanges.length === 0) {
-            showSnackbar("No past exchanges found for that email", "error");
+            snackbar.showError("No past exchanges found for that email");
             return;
         }
         renderResults(exchanges);
     } catch (error) {
-        showSnackbar("Something went wrong. Please try again.", "error");
+        snackbar.showError("Something went wrong. Please try again.");
     } finally {
         btn.textContent = "Search";
         btn.disabled = false;
@@ -56,12 +57,7 @@ function useExchange(event) {
     window.location.href = "/";
 }
 
-function showSnackbar(message, type) {
-    const bar = document.getElementById("snackbar");
-    bar.textContent = message;
-    bar.className = type;
-    setTimeout(() => { bar.className = "hidden"; }, 3000);
-}
+snackbar.init();
 
 document.getElementById("reuse-search-btn").addEventListener("click", searchExchanges);
 document.getElementById("reuse-email").addEventListener("keydown", (e) => {

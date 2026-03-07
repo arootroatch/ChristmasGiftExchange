@@ -143,7 +143,8 @@ describe("Reuse Exchange Page", () => {
             await vi.waitFor(() => {
                 const snackbar = document.getElementById("snackbar");
                 expect(snackbar.textContent).toBe("No past exchanges found for that email");
-                expect(snackbar.className).toBe("error");
+                expect(snackbar.classList.contains("show")).toBe(true);
+                expect(snackbar.style.color).toBe("rgb(179, 30, 32)");
             });
         });
 
@@ -157,7 +158,8 @@ describe("Reuse Exchange Page", () => {
             await vi.waitFor(() => {
                 const snackbar = document.getElementById("snackbar");
                 expect(snackbar.textContent).toBe("Something went wrong. Please try again.");
-                expect(snackbar.className).toBe("error");
+                expect(snackbar.classList.contains("show")).toBe(true);
+                expect(snackbar.style.color).toBe("rgb(179, 30, 32)");
             });
         });
     });
