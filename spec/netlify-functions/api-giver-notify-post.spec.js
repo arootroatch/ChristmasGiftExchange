@@ -1,40 +1,25 @@
 import {afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi} from 'vitest';
-import {MongoClient} from 'mongodb';
-import {MongoMemoryServer} from 'mongodb-memory-server';
 import crypto from 'crypto';
+import {setupMongo, teardownMongo, cleanCollections} from './mongoHelper.js';
 
 describe('api-giver-notify-post', () => {
-    let mongoServer;
-    let client;
-    let handler;
+    let client, db, handler;
+    let mongo;
     let mockFetch;
-    let originalEnv;
-    let consoleLogSpy;
-    let consoleErrorSpy;
 
     const alexToken = crypto.randomUUID();
     const whitneyToken = crypto.randomUUID();
     const hunterToken = crypto.randomUUID();
 
     beforeAll(async () => {
-        consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-        consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+        mongo = await setupMongo();
+        ({client, db} = mongo);
 
-        originalEnv = {...process.env};
-
-        mongoServer = await MongoMemoryServer.create();
-        const uri = mongoServer.getUri();
-
-        process.env.MONGO_DB_URI = uri;
-        process.env.MONGODB_DATABASE = 'test-db';
         process.env.URL = 'https://test.netlify.app';
         process.env.NETLIFY_EMAILS_SECRET = 'test-secret-key';
 
         mockFetch = vi.fn().mockResolvedValue({ok: true});
         vi.stubGlobal('fetch', mockFetch);
-
-        client = new MongoClient(uri);
-        await client.connect();
 
         const module = await import('../../netlify/functions/api-giver-notify-post.mjs');
         handler = module.handler;
@@ -42,7 +27,6 @@ describe('api-giver-notify-post', () => {
 
     beforeEach(async () => {
         mockFetch.mockClear();
-        const db = client.db('test-db');
         await db.collection('users').insertMany([
             {name: 'Alex', email: 'alex@test.com', token: alexToken, wishlists: [], wishItems: []},
             {name: 'Whitney', email: 'whitney@test.com', token: whitneyToken, wishlists: [], wishItems: []},
@@ -51,17 +35,14 @@ describe('api-giver-notify-post', () => {
     });
 
     afterEach(async () => {
-        const db = client.db('test-db');
-        await db.collection('users').deleteMany({});
+        await cleanCollections(db, 'users');
     });
 
     afterAll(async () => {
-        consoleLogSpy.mockRestore();
-        consoleErrorSpy.mockRestore();
         vi.unstubAllGlobals();
-        process.env = originalEnv;
-        await client.close();
-        await mongoServer.stop();
+        delete process.env.URL;
+        delete process.env.NETLIFY_EMAILS_SECRET;
+        await teardownMongo(mongo);
     });
 
     function buildEvent(body) {
@@ -163,7 +144,7 @@ describe('api-giver-notify-post', () => {
     });
 
     it('sets wishlistEditUrl to null when user not found in DB', async () => {
-        const db = client.db('test-db');
+
         await db.collection('users').deleteOne({email: 'alex@test.com'});
 
         const event = buildEvent(bulkPayload);
@@ -176,7 +157,7 @@ describe('api-giver-notify-post', () => {
     });
 
     it('handles names with special characters', async () => {
-        const db = client.db('test-db');
+
         await db.collection('users').insertOne({
             name: "O'Brien", email: 'obrien@test.com', token: crypto.randomUUID(), wishlists: [], wishItems: [],
         });

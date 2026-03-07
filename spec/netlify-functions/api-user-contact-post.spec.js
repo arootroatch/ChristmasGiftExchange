@@ -1,32 +1,18 @@
 import {afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi} from 'vitest';
-import {MongoClient, ObjectId} from 'mongodb';
-import {MongoMemoryServer} from 'mongodb-memory-server';
+import {ObjectId} from 'mongodb';
+import {setupMongo, teardownMongo, cleanCollections} from './mongoHelper.js';
 
 describe('api-user-contact-post', () => {
-    let mongoServer;
-    let client;
-    let handler;
-    let originalEnv;
-    let consoleLogSpy;
-    let consoleErrorSpy;
+    let client, db, handler;
+    let mongo;
     let mockFetch;
 
     beforeAll(async () => {
-        consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-        consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+        mongo = await setupMongo();
+        ({client, db} = mongo);
 
-        originalEnv = {...process.env};
-
-        mongoServer = await MongoMemoryServer.create();
-        const uri = mongoServer.getUri();
-
-        process.env.MONGO_DB_URI = uri;
-        process.env.MONGODB_DATABASE = 'test-db';
         process.env.URL = 'https://test.netlify.app';
         process.env.NETLIFY_EMAILS_SECRET = 'test-secret';
-
-        client = new MongoClient(uri);
-        await client.connect();
 
         mockFetch = vi.fn().mockResolvedValue({ok: true});
         vi.stubGlobal('fetch', mockFetch);
@@ -40,18 +26,14 @@ describe('api-user-contact-post', () => {
     });
 
     afterEach(async () => {
-        const db = client.db('test-db');
-        await db.collection('users').deleteMany({});
-        await db.collection('exchanges').deleteMany({});
+        await cleanCollections(db, 'users', 'exchanges');
     });
 
     afterAll(async () => {
-        consoleLogSpy.mockRestore();
-        consoleErrorSpy.mockRestore();
         vi.unstubAllGlobals();
-        process.env = originalEnv;
-        await client.close();
-        await mongoServer.stop();
+        delete process.env.URL;
+        delete process.env.NETLIFY_EMAILS_SECRET;
+        await teardownMongo(mongo);
     });
 
     function buildEvent(token, body) {
@@ -75,7 +57,7 @@ describe('api-user-contact-post', () => {
     });
 
     it('emails givers with contact info', async () => {
-        const db = client.db('test-db');
+
         const recipientId = new ObjectId();
         const giverId = new ObjectId();
         const recipientToken = crypto.randomUUID();
@@ -135,7 +117,7 @@ describe('api-user-contact-post', () => {
     });
 
     it('stores NOTHING in the database', async () => {
-        const db = client.db('test-db');
+
         const recipientId = new ObjectId();
         const giverId = new ObjectId();
         const recipientToken = crypto.randomUUID();
@@ -186,7 +168,7 @@ describe('api-user-contact-post', () => {
     });
 
     it('defaults missing contact fields to fallback text', async () => {
-        const db = client.db('test-db');
+
         const recipientId = new ObjectId();
         const giverId = new ObjectId();
         const recipientToken = crypto.randomUUID();
