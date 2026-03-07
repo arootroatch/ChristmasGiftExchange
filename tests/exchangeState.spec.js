@@ -19,9 +19,9 @@ import {
   removeNameFromHouse,
   renameHouse,
   isGenerated
-} from '/src/exchangeState.js'
+} from '/src/exchange/state.js'
 import {alex, whitney, hunter} from "./testData";
-import {ExchangeEvents as Events, exchangeEvents as stateEvents} from '/src/exchangeState.js'
+import {ExchangeEvents as Events, exchangeEvents as stateEvents} from '/src/exchange/state.js'
 import {installParticipantNames} from "./specHelper";
 
 test('state exists as an object before exchange starts', () => {

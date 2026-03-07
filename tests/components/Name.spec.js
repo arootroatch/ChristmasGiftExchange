@@ -11,7 +11,7 @@ import {
   shouldSelect,
   stubProperty
 } from "../specHelper";
-import {getState, addNameToHouse} from "../../src/exchangeState";
+import {getState, addNameToHouse} from "../../src/exchange/state";
 import {alex, whitney} from "../testData";
 
 describe('addName', () => {

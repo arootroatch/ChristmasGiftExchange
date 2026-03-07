@@ -1,4 +1,4 @@
-import {ExchangeEvents as Events, exchangeEvents as stateEvents, addParticipant} from "../exchangeState.js";
+import {ExchangeEvents as Events, exchangeEvents as stateEvents, addParticipant} from "../exchange/state.js";
 import {addEventListener, leftContainerId, nameListId, participantsId, selectElement, unshiftHTML} from "../utils.js";
 import {insertNameFromSelect} from "./Select.js";
 

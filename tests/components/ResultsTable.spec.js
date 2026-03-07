@@ -1,7 +1,7 @@
 import {beforeAll, beforeEach, describe, expect, it} from "vitest";
 import {init} from "../../src/components/ResultsTable";
 import {initReactiveSystem, installParticipantNames, resetDOM, resetState} from "../specHelper";
-import {assignRecipients, startExchange, getState} from "../../src/exchangeState";
+import {assignRecipients, startExchange, getState} from "../../src/exchange/state";
 
 describe('resultsTable', () => {
   beforeAll(() => {

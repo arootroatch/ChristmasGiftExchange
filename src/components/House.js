@@ -3,7 +3,7 @@ import {
   exchangeEvents as stateEvents,
   removeHouseFromState,
   renameHouse
-} from "../exchangeState.js";
+} from "../exchange/state.js";
 import {addEventListener, leftContainerId, selectElement} from "../utils.js";
 
 export function init() {

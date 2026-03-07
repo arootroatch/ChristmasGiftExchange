@@ -1,4 +1,4 @@
-import {ExchangeEvents as Events, exchangeEvents as stateEvents, removeParticipant, nextNameNumber} from "../exchangeState.js";
+import {ExchangeEvents as Events, exchangeEvents as stateEvents, removeParticipant, nextNameNumber} from "../exchange/state.js";
 import {participantsId, selectElement, escapeAttr} from "../utils.js";
 
 export function init() {

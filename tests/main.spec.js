@@ -1,11 +1,11 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
-import main from '../src/main';
+import main from '../src/exchange/index';
 
 vi.mock('../src/dragDrop', () => ({
   initDragDrop: vi.fn(),
 }));
 
-vi.mock('../src/exchangeState', async (importOriginal) => {
+vi.mock('../src/exchange/state', async (importOriginal) => {
   const actual = await importOriginal();
   return {
     ...actual,
@@ -235,7 +235,7 @@ it('calls generateButton.init', async () => {
         participants: [{name: "Alex", email: "alex@test.com"}]
       };
       sessionStorage.setItem("reuseExchange", JSON.stringify(exchangeData));
-      const {loadExchange} = await import('../src/exchangeState');
+      const {loadExchange} = await import('../src/exchange/state');
 
       main();
 
@@ -252,7 +252,7 @@ it('calls generateButton.init', async () => {
     });
 
     it('does not call loadExchange when no reuseExchange in sessionStorage', async () => {
-      const {loadExchange} = await import('../src/exchangeState');
+      const {loadExchange} = await import('../src/exchange/state');
 
       main();
 

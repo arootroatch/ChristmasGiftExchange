@@ -1,4 +1,4 @@
-import {addHouseToState, getState, startExchange} from "../src/exchangeState";
+import {addHouseToState, getState, startExchange} from "../src/exchange/state";
 import {expect, vi} from "vitest";
 import {indexHtml} from "../setupTests";
 import {selectElement} from "../src/utils";

@@ -16,8 +16,8 @@ import {
 } from "../specHelper";
 import {addEventListener} from "../../src/utils";
 import {insertNameFromSelect} from "../../src/components/Select";
-import {addHouseToState, getState} from "../../src/exchangeState";
-import * as stateModule from "../../src/exchangeState";
+import {addHouseToState, getState} from "../../src/exchange/state";
+import * as stateModule from "../../src/exchange/state";
 
 describe('addHouse', () => {
   vi.mock(import("/src/utils.js"), async (importOriginal) => {

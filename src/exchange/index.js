@@ -1,20 +1,20 @@
-import {initDragDrop} from "./dragDrop.js";
-import * as house from "./components/House.js";
-import * as name from "./components/Name.js";
-import * as nameList from "./components/NameList.js";
-import * as select from "./components/Select.js";
-import * as resultsTable from "./components/ResultsTable.js";
-import * as controlStrip from "./components/ControlStrip/ControlStrip.js";
-import * as nextStepButton from "./components/ControlStrip/NextStepButton.js";
-import * as addHouseButton from "./components/ControlStrip/AddHouseButton.js";
-import * as generateButton from "./components/ControlStrip/GenerateButton.js";
-import * as instructions from "./components/Instructions.js";
-import * as emailTable from "./components/EmailTable/EmailTable.js";
-import * as emailQuery from "./components/EmailQuery.js";
-import * as sendEmails from "./components/EmailTable/SendEmails.js";
-import * as snackbar from "./Snackbar.js";
-import {loadExchange, startExchange} from "./exchangeState.js";
-import {leftContainerId, selectElement} from "./utils.js";
+import {initDragDrop} from "../dragDrop.js";
+import * as house from "../components/House.js";
+import * as name from "../components/Name.js";
+import * as nameList from "../components/NameList.js";
+import * as select from "../components/Select.js";
+import * as resultsTable from "../components/ResultsTable.js";
+import * as controlStrip from "../components/ControlStrip/ControlStrip.js";
+import * as nextStepButton from "../components/ControlStrip/NextStepButton.js";
+import * as addHouseButton from "../components/ControlStrip/AddHouseButton.js";
+import * as generateButton from "../components/ControlStrip/GenerateButton.js";
+import * as instructions from "../components/Instructions.js";
+import * as emailTable from "../components/EmailTable/EmailTable.js";
+import * as emailQuery from "../components/EmailQuery.js";
+import * as sendEmails from "../components/EmailTable/SendEmails.js";
+import * as snackbar from "../Snackbar.js";
+import {loadExchange, startExchange} from "./state.js";
+import {leftContainerId, selectElement} from "../utils.js";
 
 export function secretSantaMode() {
   selectElement(`#${leftContainerId}`).classList.add("secret");

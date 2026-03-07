@@ -1,5 +1,5 @@
 import {pushHTML, selectElement} from "../utils.js";
-import {ExchangeEvents as Events, exchangeEvents as stateEvents} from "../exchangeState.js";
+import {ExchangeEvents as Events, exchangeEvents as stateEvents} from "../exchange/state.js";
 
 const tableId = "results-table";
 const tableBodyId = "table-body";

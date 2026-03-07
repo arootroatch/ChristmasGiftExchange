@@ -1,9 +1,9 @@
 import {afterEach, beforeAll, beforeEach, describe, expect, it, vi} from "vitest";
 import {click, resetDOM, resetState} from "../../specHelper";
-import * as stateModule from "../../../src/exchangeState";
+import * as stateModule from "../../../src/exchange/state";
 import {init as initControlStrip} from "../../../src/components/ControlStrip/ControlStrip";
 import {init as initNextStepButton} from "../../../src/components/ControlStrip/NextStepButton";
-import {addParticipant, assignRecipients, getState} from "../../../src/exchangeState";
+import {addParticipant, assignRecipients, getState} from "../../../src/exchange/state";
 import {selectElement} from "../../../src/utils";
 
 describe("nextStepButton", () => {

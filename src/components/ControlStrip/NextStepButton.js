@@ -1,5 +1,5 @@
 import {addKeybinding, addEventListener, click, removeKeybinding, selectElement} from "../../utils.js";
-import {ExchangeEvents as Events, exchangeEvents as stateEvents, isGenerated, nextStep} from "../../exchangeState.js";
+import {ExchangeEvents as Events, exchangeEvents as stateEvents, isGenerated, nextStep} from "../../exchange/state.js";
 import {showError} from "../../Snackbar.js";
 
 const nextStepId = "nextStep";

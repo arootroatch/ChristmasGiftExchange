@@ -19,7 +19,7 @@ import {init as initNextStepButton} from "../../../src/components/ControlStrip/N
 import {init as initGenerateButton, generateList} from "../../../src/components/ControlStrip/GenerateButton";
 import {init as initResultsTable} from "../../../src/components/ResultsTable";
 import {init as initEmailTable} from "../../../src/components/EmailTable/EmailTable";
-import {addParticipant, assignRecipients, getState} from "../../../src/exchangeState";
+import {addParticipant, assignRecipients, getState} from "../../../src/exchange/state";
 import {selectElement} from "../../../src/utils";
 
 const noPossibleComboError = "No possible combinations! Please try a different configuration/number of names."
@@ -237,7 +237,7 @@ describe("generateList", () => {
   });
 
   it('calls assignRecipients when not secret santa', async () => {
-    const stateModule = await import('../../../src/exchangeState.js');
+    const stateModule = await import('../../../src/exchange/state.js');
     const spy = vi.spyOn(stateModule, 'assignRecipients');
 
     enterName("Alex");

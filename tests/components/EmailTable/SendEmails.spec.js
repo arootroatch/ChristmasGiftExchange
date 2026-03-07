@@ -6,7 +6,7 @@ import {
   resetState,
   shouldDisplaySuccessSnackbar,
 } from "../../specHelper";
-import {startExchange, getState, addEmailsToParticipants, assignRecipients} from "../../../src/exchangeState";
+import {startExchange, getState, addEmailsToParticipants, assignRecipients} from "../../../src/exchange/state";
 import {init} from "../../../src/components/EmailTable/SendEmails";
 import {init as initSnackbar} from "../../../src/Snackbar";
 import {alex, hunter, megan, whitney} from "../../testData";
