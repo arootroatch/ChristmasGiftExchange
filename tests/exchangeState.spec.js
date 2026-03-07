@@ -90,6 +90,20 @@ describe('state helper functions', () => {
       expect(state.houses.find(h => h.id === "house-1").members).toEqual(["Whitney"]);
     });
 
+    it('should remove all members from house before removing', () => {
+      addHouseToState("house-0");
+      addNameToHouse("house-0", "Alex");
+      addNameToHouse("house-0", "Whitney");
+
+      const removeSpy = vi.fn();
+      const unsubscribe = stateEvents.on(Events.NAME_REMOVED_FROM_HOUSE, removeSpy);
+
+      removeHouseFromState("house-0");
+
+      expect(removeSpy).toHaveBeenCalledTimes(2);
+      unsubscribe();
+    });
+
     it('should handle removing non-existent house', () => {
       addHouseToState("house-0");
       expect(() => removeHouseFromState("house-99")).not.toThrow();

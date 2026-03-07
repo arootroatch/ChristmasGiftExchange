@@ -4,7 +4,6 @@ import {
   state,
   addHouseToState,
   removeHouseFromState,
-  removeNameFromHouse,
   renameHouse
 } from "../exchangeState.js";
 import {addEventListener, leftContainerId, selectElement} from "../utils.js";
@@ -53,8 +52,5 @@ function onHouseRenamed() {
 function deleteHouse() {
   const houseDiv = this.closest('.household') || this.parentNode;
   const houseID = houseDiv.id;
-  const house = state.houses.find(h => h.id === houseID);
-  const names = [...(house ? house.members : [])];
-  names.forEach(name => removeNameFromHouse(houseID, name));
   removeHouseFromState(houseID);
 }

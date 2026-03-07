@@ -59,6 +59,11 @@ export function addHouseToState(houseID) {
 }
 
 export function removeHouseFromState(houseID) {
+  const house = findHouse(houseID);
+  if (house) {
+    const names = [...house.members];
+    names.forEach(name => removeNameFromHouse(houseID, name));
+  }
   state.houses = state.houses.filter(h => h.id !== houseID);
   exchangeEvents.emit(ExchangeEvents.HOUSE_REMOVED, {houseID, ...state});
 }
