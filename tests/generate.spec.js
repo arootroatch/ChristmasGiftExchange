@@ -1,5 +1,5 @@
 import {beforeAll, beforeEach, describe, expect, it} from 'vitest';
-import {generate, hasDuplicates} from '../src/generate';
+import {generate, hasDuplicates} from '../src/exchange/generate';
 import {getState, addHouseToState, addNameToHouse} from '../src/exchange/state';
 import {
   participantByName,

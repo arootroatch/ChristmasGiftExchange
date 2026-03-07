@@ -1,7 +1,7 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import main from '../src/exchange/index';
 
-vi.mock('../src/dragDrop', () => ({
+vi.mock('../src/exchange/dragDrop', () => ({
   initDragDrop: vi.fn(),
 }));
 
@@ -159,7 +159,7 @@ it('calls generateButton.init', async () => {
   });
 
   it('calls initDragDrop', async () => {
-    const {initDragDrop} = await import('../src/dragDrop');
+    const {initDragDrop} = await import('../src/exchange/dragDrop');
     main();
     expect(initDragDrop).toHaveBeenCalledTimes(1);
   });
@@ -177,7 +177,7 @@ it('calls generateButton.init', async () => {
     const emailTable = await import('../src/components/EmailTable/EmailTable');
     const emailQuery = await import('../src/components/EmailQuery');
     const sendEmails = await import('../src/components/EmailTable/SendEmails');
-    const {initDragDrop} = await import('../src/dragDrop');
+    const {initDragDrop} = await import('../src/exchange/dragDrop');
 
     main();
 

@@ -1,6 +1,6 @@
 import {addKeybinding, addEventListener, click, removeKeybinding, selectElement} from "../../utils.js";
 import {ExchangeEvents as Events, exchangeEvents as stateEvents, assignRecipients} from "../../exchange/state.js";
-import {generate} from "../../generate.js";
+import {generate} from "../../exchange/generate.js";
 import {showError} from "../../Snackbar.js";
 import * as self from "./GenerateButton.js";
 

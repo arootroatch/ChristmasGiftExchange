@@ -1,5 +1,5 @@
-import {leftContainerId, participantsId, selectElement} from "./utils";
-import { addNameToHouse, removeNameFromHouse } from "./exchange/state.js";
+import {leftContainerId, participantsId, selectElement} from "../utils";
+import { addNameToHouse, removeNameFromHouse } from "./state.js";
 
 export function allowDrop(e) {
   if (e.target.className === 'name-container'){

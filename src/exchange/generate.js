@@ -1,4 +1,4 @@
-import {getHousesForGeneration, getParticipantNames} from "./exchange/state.js";
+import {getHousesForGeneration, getParticipantNames} from "./state.js";
 
 export function hasDuplicates(arr) {
   let flattened = arr.flat();
