@@ -1,34 +1,23 @@
-import {afterAll, afterEach, beforeAll, describe, expect, it, vi} from 'vitest';
-import {MongoClient} from 'mongodb';
-import {MongoMemoryServer} from 'mongodb-memory-server';
+import {afterAll, afterEach, beforeAll, describe, expect, it} from 'vitest';
+import {setupMongo, teardownMongo, cleanCollections} from '../netlify-functions/mongoHelper.js';
 
 describe('migrateLegacyData', () => {
-    let mongoServer;
-    let client;
-    let db;
-    let migrateLegacyData;
+    let db, migrateLegacyData;
+    let mongo;
 
     beforeAll(async () => {
-        vi.spyOn(console, 'log').mockImplementation(() => {});
-        mongoServer = await MongoMemoryServer.create();
-        client = new MongoClient(mongoServer.getUri());
-        await client.connect();
-        db = client.db('test-db');
-
+        mongo = await setupMongo();
+        ({db} = mongo);
         const module = await import('../../scripts/migrate-legacy.mjs');
         migrateLegacyData = module.migrateLegacyData;
     });
 
     afterEach(async () => {
-        await db.collection('names').deleteMany({});
-        await db.collection('users').deleteMany({});
-        await db.collection('exchanges').deleteMany({});
+        await cleanCollections(db, 'names', 'users', 'exchanges');
     });
 
     afterAll(async () => {
-        vi.restoreAllMocks();
-        await client.close();
-        await mongoServer.stop();
+        await teardownMongo(mongo);
     });
 
     it('creates users and exchange from legacy documents', async () => {

@@ -1,70 +1,27 @@
-import {afterAll, afterEach, beforeAll, describe, expect, it, vi} from 'vitest';
-import {MongoClient} from 'mongodb';
-import {MongoMemoryServer} from 'mongodb-memory-server';
+import {afterAll, afterEach, beforeAll, describe, expect, it} from 'vitest';
+import {setupMongo, teardownMongo, cleanCollections} from './mongoHelper.js';
 
 describe('postToDb', () => {
-    let mongoServer;
-    let client;
-    let handler;
-    let originalEnv;
-    let consoleLogSpy;
-    let consoleErrorSpy;
-    let mongoAvailable = true;
+    let db, handler;
+    let mongo;
 
     beforeAll(async () => {
-        // Mock console to suppress output during tests
-        consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-        consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-
-        // Store original environment
-        originalEnv = {...process.env};
-
-        try {
-            // Start in-memory MongoDB server
-            mongoServer = await MongoMemoryServer.create();
-            const uri = mongoServer.getUri();
-
-            // Set test environment variables
-            process.env.MONGO_DB_URI = uri;
-            process.env.MONGODB_DATABASE = 'test-db';
-            process.env.MONGODB_COLLECTION = 'test-collection';
-
-            // Create MongoDB client
-            client = new MongoClient(uri);
-            await client.connect();
-
-            // Import handler after environment is set up
-            const module = await import('../../netlify/functions/postToDb.mjs');
-            handler = module.handler;
-        } catch (error) {
-            mongoAvailable = false;
-        }
+        mongo = await setupMongo();
+        ({db} = mongo);
+        const module = await import('../../netlify/functions/postToDb.mjs');
+        handler = module.handler;
     });
 
     afterEach(async () => {
-        if (!mongoAvailable) return;
-        // Clean up database between tests
-        const db = client.db(process.env.MONGODB_DATABASE);
-        await db.collection(process.env.MONGODB_COLLECTION).deleteMany({});
+        await cleanCollections(db, process.env.MONGODB_COLLECTION);
     });
 
     afterAll(async () => {
-        // Restore console
-        consoleLogSpy.mockRestore();
-        consoleErrorSpy.mockRestore();
-
-        // Restore environment
-        process.env = originalEnv;
-
-        // Close client and stop server
-        if (!mongoAvailable) return;
-        await client.close();
-        await mongoServer.stop();
+        await teardownMongo(mongo);
     });
 
     describe('handler', () => {
         it('successfully inserts documents and returns 200', async () => {
-            if (!mongoAvailable) return;
             const docs = [
                 {name: 'Alex', recipient: 'Whitney', email: 'alex@test.com'},
                 {name: 'Whitney', recipient: 'Hunter', email: 'whitney@test.com'},
@@ -81,7 +38,6 @@ describe('postToDb', () => {
             expect(response.result.insertedCount).toBe(2);
 
             // Verify documents were actually inserted
-            const db = client.db(process.env.MONGODB_DATABASE);
             const collection = db.collection(process.env.MONGODB_COLLECTION);
             const insertedDocs = await collection.find({}).toArray();
 
@@ -91,7 +47,6 @@ describe('postToDb', () => {
         });
 
         it('parses JSON body correctly', async () => {
-            if (!mongoAvailable) return;
             const docs = [
                 {name: 'Alex', recipient: 'Whitney'},
                 {name: 'Hunter', recipient: 'Alex'},
@@ -103,7 +58,6 @@ describe('postToDb', () => {
 
             await handler(event);
 
-            const db = client.db(process.env.MONGODB_DATABASE);
             const collection = db.collection(process.env.MONGODB_COLLECTION);
             const insertedDocs = await collection.find({}).toArray();
 
@@ -115,7 +69,6 @@ describe('postToDb', () => {
         });
 
         it('rejects with error for empty array of documents', async () => {
-            if (!mongoAvailable) return;
             const event = {
                 body: JSON.stringify([]),
             };
@@ -126,7 +79,6 @@ describe('postToDb', () => {
         });
 
         it('handles single document', async () => {
-            if (!mongoAvailable) return;
             const docs = [{name: 'Alex', recipient: 'Whitney', email: 'alex@test.com'}];
             const event = {
                 body: JSON.stringify(docs),
@@ -137,7 +89,6 @@ describe('postToDb', () => {
             expect(response.statusCode).toBe(200);
             expect(response.result.insertedCount).toBe(1);
 
-            const db = client.db(process.env.MONGODB_DATABASE);
             const collection = db.collection(process.env.MONGODB_COLLECTION);
             const insertedDocs = await collection.find({}).toArray();
 
@@ -146,7 +97,6 @@ describe('postToDb', () => {
         });
 
         it('handles multiple documents', async () => {
-            if (!mongoAvailable) return;
             const docs = [
                 {name: 'Alex', recipient: 'Whitney'},
                 {name: 'Whitney', recipient: 'Hunter'},
@@ -163,7 +113,6 @@ describe('postToDb', () => {
             expect(response.statusCode).toBe(200);
             expect(response.result.insertedCount).toBe(4);
 
-            const db = client.db(process.env.MONGODB_DATABASE);
             const collection = db.collection(process.env.MONGODB_COLLECTION);
             const insertedDocs = await collection.find({}).toArray();
 
@@ -171,7 +120,6 @@ describe('postToDb', () => {
         });
 
         it('stores documents with all fields intact', async () => {
-            if (!mongoAvailable) return;
             const docs = [{
                 name: 'Test User',
                 recipient: 'Another User',
@@ -185,7 +133,6 @@ describe('postToDb', () => {
 
             await handler(event);
 
-            const db = client.db(process.env.MONGODB_DATABASE);
             const collection = db.collection(process.env.MONGODB_COLLECTION);
             const insertedDocs = await collection.find({}).toArray();
 
@@ -197,7 +144,6 @@ describe('postToDb', () => {
         });
 
         it('handles special characters in names', async () => {
-            if (!mongoAvailable) return;
             const docs = [{
                 name: "O'Brien",
                 recipient: 'José García',
@@ -212,7 +158,6 @@ describe('postToDb', () => {
 
             expect(response.statusCode).toBe(200);
 
-            const db = client.db(process.env.MONGODB_DATABASE);
             const collection = db.collection(process.env.MONGODB_COLLECTION);
             const insertedDocs = await collection.find({}).toArray();
 

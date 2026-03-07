@@ -1,9 +1,6 @@
 import {afterAll, beforeAll, describe, expect, it, vi} from 'vitest';
-import {MongoMemoryServer} from 'mongodb-memory-server';
 
 describe('db utility', () => {
-    let mongoServer;
-    let originalEnv;
     let consoleLogSpy;
     let consoleErrorSpy;
     let getDb, getUsersCollection, getExchangesCollection, getLegacyCollection;
@@ -11,15 +8,6 @@ describe('db utility', () => {
     beforeAll(async () => {
         consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
         consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-
-        originalEnv = {...process.env};
-
-        mongoServer = await MongoMemoryServer.create();
-        const uri = mongoServer.getUri();
-
-        process.env.MONGO_DB_URI = uri;
-        process.env.MONGODB_DATABASE = 'test-db';
-        process.env.MONGODB_COLLECTION = 'legacy-names';
 
         const module = await import('../../netlify/shared/db.mjs');
         getDb = module.getDb;
@@ -31,8 +19,6 @@ describe('db utility', () => {
     afterAll(async () => {
         consoleLogSpy.mockRestore();
         consoleErrorSpy.mockRestore();
-        process.env = originalEnv;
-        await mongoServer.stop();
     });
 
     describe('getDb', () => {
