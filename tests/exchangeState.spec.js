@@ -25,8 +25,9 @@ import {alex, whitney, hunter} from "./testData";
 import {ExchangeEvents as Events, exchangeEvents as stateEvents} from '/src/exchangeState.js'
 import {installParticipantNames} from "./specHelper";
 
-test('state is undefined before exchange starts', () => {
-  expect(getState()).toBeUndefined();
+test('state exists as an object before exchange starts', () => {
+  expect(getState()).toBeDefined();
+  expect(typeof getState()).toBe('object');
 })
 
 test('startExchange initializes state', () => {

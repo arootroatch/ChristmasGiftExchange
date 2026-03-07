@@ -6,21 +6,33 @@ A vanilla JavaScript web app for drawing names in a gift exchange or Secret Sant
 ## Architecture
 
 ### Frontend: Event-Driven Component System
-- **state.js** — Central state object + mutation functions that emit events
-- **Events.js** — `EventEmitter` class with `stateEvents` singleton and `Events` enum
-- **Components** subscribe via `init()` → `stateEvents.on()` and respond to specific events
+- **Events.js** — Reusable `EventEmitter` class (no page-specific code)
+- **exchangeState.js** — Private state object + mutation functions that emit events via `exchangeEvents` singleton. Components never import state directly.
+- **wishlistEditState.js** — Encapsulated state for wishlist edit page with getter functions
+- **Components** subscribe via `init()` → `stateEvents.on()` and destructure what they need from event payloads
 
-### State Object
+### Exchange State Architecture
+The exchange state object is **private** (not exported). Components access data through:
+1. **Event payloads** — Every `emit()` spreads `...state` into the payload, so callbacks destructure what they need
+2. **Closure chains** — Event callback → render() → click handler, passing data through closures
+3. **State accessor functions** — `getExchangePayload()`, `getParticipantNames()`, `nextNameNumber()`, `isGenerated()`, `getState()` (tests only)
+4. **Cached module variables** — For click handlers that need current state (e.g., NextStepButton caches `currentStep`/`currentParticipantsLength`)
+
 ```js
+// State shape (private, accessed via getState() in tests only):
 {
-  houses: {},           // houseID -> array of names
-  introIndex: 0,        // current intro step
-  isSecretSanta: false, // secret santa mode toggle
-  givers: [],           // array of Giver objects
-  nameNumber: 1         // counter for unique field IDs
+  exchangeId: 'uuid',    // generated on startExchange()
+  houses: [],            // array of {id, name, members[]}
+  step: 1,               // current wizard step
+  isSecretSanta: false,  // secret santa mode toggle
+  participants: [],      // array of Participant {name, email}
+  assignments: [],       // array of {giver, recipient}
+  nameNumber: 1,         // counter for unique field IDs
+  _tokenMap: undefined,  // set after email submission API response
 }
 ```
-- `isGenerated()` is a derived function (checks if all givers have recipients), not a stored field
+- `isGenerated()` is a derived function (checks `assignments.length > 0`), not a stored field
+- `Participant` class is private to exchangeState.js
 
 ### Container Component Pattern
 Container components (like `house.js` and `nameList.js`) follow a consistent structure:
@@ -32,11 +44,12 @@ Container components (like `house.js` and `nameList.js`) follow a consistent str
 - Child components (e.g., `name.js`, `select.js`) fill slots inside the container via the `data-slot` pattern
 
 ### Frontend Design Principles
-- **State functions are pure state mutators** — They handle mutation, cascading cleanup (e.g., `removeGiver` removes from houses too), and event emission. Input validation and formatting (e.g., capitalization, empty checks) belong in the UI handler, not in state functions.
-- **Event handlers call state functions directly** — No intermediate wrapper functions like `addName` or `deleteName` that just delegate to state functions. Inline arrows are fine for short handlers; multi-line handlers can be extracted into named functions.
-- **Emit functions are private** — `emitAddComponent`, `emitUpdateComponent`, `emitRemoveComponent` are internal to state.js. External code calls named state functions (e.g., `addGiver`, `removeGiver`).
-- **Components subscribe to events they care about** — Each component checks `event.type` in its lifecycle methods and responds accordingly. Components are self-sufficient in knowing what events matter to them.
-- **Generate module only updates state** — `generate.js` does not directly call rendering functions. It updates state and lets components respond via the event system.
+- **State is private** — Components never import `state` directly. They get data from event payloads, accessor functions, or closures.
+- **State functions encapsulate mutation + emission** — They handle mutation, cascading cleanup (e.g., `removeHouseFromState` removes all members first), and event emission with `{...state}` spread into payloads.
+- **Event payloads carry state** — Every emit spreads `...state` plus any event-specific fields (e.g., `{houseID, ...state}`). Components destructure what they need.
+- **Components subscribe to events they care about** — Each component is self-sufficient in knowing what events matter to them.
+- **Click handlers use closures or cached values** — When a click handler needs state data, it either receives it through the render closure chain or caches it from event callbacks (e.g., `currentStep` in NextStepButton).
+- **Generate module uses accessor functions** — `generate.js` calls `getParticipantNames()` and `getHousesForGeneration()` — never reads state directly.
 - **No framework** — Pure vanilla JS with a lightweight pub/sub event system.
 
 ### Backend: Netlify Serverless Functions + MongoDB
@@ -77,10 +90,11 @@ Legacy endpoints (not refactored): `get_name.mjs`, `postToDb.mjs`
 ```
 src/
   main.js              # Entry point, initializes all components, landing page buttons
-  state.js             # State management + event emission
-  Events.js            # EventEmitter class
-  generate.js          # Name drawing algorithm
-  utils.js             # DOM helpers (selectElement, click, addEventListener, pushHTML, unshiftHTML, etc.)
+  exchangeState.js     # Private state + mutation functions + event emission (state NOT exported)
+  wishlistEditState.js # Encapsulated state for wishlist edit page
+  Events.js            # Reusable EventEmitter class
+  generate.js          # Name drawing algorithm (uses accessor functions, not state)
+  utils.js             # DOM helpers (selectElement, click, addEventListener, pushHTML, unshiftHTML, escape, escapeAttr)
   dragDrop.js          # Drag and drop name reassignment
   reuse.js             # Reuse previous exchange page
   wishlistEdit.js      # Wishlist editing page
@@ -130,7 +144,7 @@ tests/
   specHelper.js        # Test utilities (initReactiveSystem, resetState, enterName, click, etc.)
   setupTests.js        # JSDOM initialization from index.html
   testData.js
-  state.spec.js
+  exchangeState.spec.js
   generate.spec.js
   layout.spec.js
   dragDrop.spec.js
@@ -186,14 +200,15 @@ tests/
 Key functions to reuse:
 - `initReactiveSystem()` — Initializes house, name, select components + render subscriptions (call in `beforeAll`)
 - `resetState()` — Resets all state to defaults (call in `beforeEach`)
-- `enterName(name)` — Sets input value and clicks Add
-- `addHouseToDOM()` — Calls addHouseToState directly
+- `enterName(name)` — Sets input value and clicks Add (emits PARTICIPANT_ADDED, updates caches)
+- `addHouseToDOM()` — Calls `addHouseToState()` (no args — ID generated internally)
 - `moveNameToHouse(selector, name)` — Changes select to move name
 - `click(selector)` / `change(selector, value)` — Simulate events
 - `shouldSelect(selector)` / `shouldNotSelect(selector)` — Assert element exists/doesn't
 - `shouldDisplayErrorSnackbar(message)` — Assert error snackbar shown
-- `installGiverNames(...names)` — Directly push givers to state
+- `installGiverNames(...names)` / `installParticipantNames(...names)` — Push to `getState().participants` (does NOT emit events — use `addParticipant()` when event-driven components need to react)
 - `removeAllNames()` / `removeAllHouses()` — DOM cleanup
+- Tests access state via `getState()` from exchangeState.js — `state` is not exported
 
 ### Backend Test Patterns (tests/netlify-functions/)
 - Use `MongoMemoryServer` for in-memory MongoDB during tests

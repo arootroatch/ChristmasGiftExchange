@@ -16,22 +16,28 @@ export const ExchangeEvents = {
   EMAILS_ADDED: 'emails:added',
 };
 
-let state;
+const state = {
+  exchangeId: '',
+  houses: [],
+  step: 1,
+  isSecretSanta: false,
+  participants: [],
+  assignments: [],
+  nameNumber: 1,
+};
 
 export function getState() {
   return state;
 }
 
 export function startExchange(isSecretSanta = false) {
-  state = {
-    exchangeId: crypto.randomUUID(),
-    houses: [],
-    step: 1,
-    isSecretSanta: isSecretSanta,
-    participants: [],
-    assignments: [],
-    nameNumber: 1,
-  }
+  state.exchangeId = crypto.randomUUID();
+  state.houses = [];
+  state.step = 1;
+  state.isSecretSanta = isSecretSanta;
+  state.participants = [];
+  state.assignments = [];
+  state.nameNumber = 1;
   exchangeEvents.emit(ExchangeEvents.EXCHANGE_STARTED, {...state});
 }
 
