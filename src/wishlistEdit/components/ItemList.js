@@ -1,6 +1,19 @@
 import {wishlistEditEvents, WishlistEditEvents, addItem, deleteItem} from '../state.js';
 import {escape, escapeAttr, selectElement, addEventListener} from '../../utils.js';
 
+function template() {
+    return `<section id="items-section">
+        <h2>Individual Items</h2>
+        <p class="helper-text">Add links to specific products you'd like</p>
+        <div id="items-list"></div>
+        <div id="add-item-form">
+            <input type="url" id="item-url" placeholder="Product URL"/>
+            <input type="text" id="item-title" placeholder="Title (optional)"/>
+            <button id="add-item-btn" class="button">Add</button>
+        </div>
+    </section>`;
+}
+
 const entryTemplate = (url, title, index) => `
     <div class="wishlist-entry">
         <a href="${escapeAttr(url)}" target="_blank">${escape(title || url)}</a>
@@ -8,6 +21,7 @@ const entryTemplate = (url, title, index) => `
     </div>`;
 
 export function init() {
+    selectElement('[data-slot="items"]').innerHTML = template();
     wishlistEditEvents.on(WishlistEditEvents.USER_LOADED, render);
     wishlistEditEvents.on(WishlistEditEvents.ITEMS_CHANGED, render);
     addEventListener("#add-item-btn", "click", handleAdd);
