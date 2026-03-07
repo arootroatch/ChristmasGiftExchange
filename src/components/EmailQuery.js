@@ -1,4 +1,4 @@
-import {addEventListener, removeEventListener, selectElement, setLoadingState, escapeHTML} from "../utils";
+import {addEventListener, removeEventListener, selectElement, setLoadingState, escapeAttr} from "../utils";
 
 const emailQueryId = "emailQuery";
 const emailQueryBtnId = "emailQueryBtn";
@@ -35,7 +35,7 @@ export const emailQueryError =
 export function emailQueryResult(date, recipient) {
   return `
     <div>
-        As of ${escapeHTML(date.toDateString())}, you're buying a gift for <span>${escapeHTML(recipient)}!</span>
+        As of ${escapeAttr(date.toDateString())}, you're buying a gift for <span>${escapeAttr(recipient)}!</span>
     </div>
     ${emailQueryInput}`;
 }
@@ -47,7 +47,7 @@ function renderResult(results) {
 
   let html = emailQueryResult(date, results.recipient);
   if (results.wishlistViewUrl) {
-    html += `<a href="${escapeHTML(results.wishlistViewUrl)}" class="button" style="margin-top: 10px; display: inline-block;">View Wishlist</a>`;
+    html += `<a href="${escapeAttr(results.wishlistViewUrl)}" class="button" style="margin-top: 10px; display: inline-block;">View Wishlist</a>`;
   }
 
   queryDiv.innerHTML = html;

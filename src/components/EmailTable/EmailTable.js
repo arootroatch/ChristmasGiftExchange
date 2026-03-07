@@ -1,5 +1,5 @@
 import {ExchangeEvents as Events, exchangeEvents as stateEvents, addEmailsToParticipants, state} from "../../exchangeState.js";
-import {addEventListener, pushHTML, selectElement, setLoadingState, escapeHTML} from "../../utils.js";
+import {addEventListener, pushHTML, selectElement, setLoadingState, escapeAttr} from "../../utils.js";
 import {showError} from "../Snackbar.js";
 
 const emailTableId = "emailTable";
@@ -42,7 +42,7 @@ function template() {
 }
 
 export function emailInput(participant, i) {
-  const safeName = escapeHTML(participant.name);
+  const safeName = escapeAttr(participant.name);
   return `
     <div class="emailDiv">
       <label for=${i}>${safeName}</label>
@@ -52,7 +52,7 @@ export function emailInput(participant, i) {
              placeholder="${safeName}@example.com"
              name=${safeName}
              id=${i}
-             value="${escapeHTML(participant.email || "")}"
+             value="${escapeAttr(participant.email || "")}"
              required/>
     </div>`;
 }

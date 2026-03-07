@@ -1,5 +1,5 @@
 import {ExchangeEvents as Events, exchangeEvents as stateEvents, state, removeParticipant} from "../exchangeState.js";
-import {participantsId, selectElement, escapeHTML} from "../utils.js";
+import {participantsId, selectElement, escapeAttr} from "../utils.js";
 
 export function init() {
   stateEvents.on(Events.PARTICIPANT_ADDED, () => renderParticipantsSlot());
@@ -38,7 +38,7 @@ function renderIntoSlot(slot, names) {
 
 function template(name) {
   const id = state.nameNumber++;
-  const safe = escapeHTML(name);
+  const safe = escapeAttr(name);
   return `
       <div class="name-wrapper" id="wrapper-${safe}" draggable="true">
         <button id="delete-${safe}${id}" class="delete-name">X</button>
