@@ -1,6 +1,6 @@
 import {beforeEach, describe, expect, it, test, vi} from 'vitest'
 import {
-  state,
+  getState,
   startExchange,
   addParticipant,
   addHouseToState,
@@ -26,40 +26,40 @@ import {ExchangeEvents as Events, exchangeEvents as stateEvents} from '/src/exch
 import {installParticipantNames} from "./specHelper";
 
 test('state is undefined before exchange starts', () => {
-  expect(state).toBeUndefined();
+  expect(getState()).toBeUndefined();
 })
 
 test('startExchange initializes state', () => {
   startExchange();
-  expect(state.houses).toEqual([]);
-  expect(state.step).toEqual(1);
-  expect(state.isSecretSanta).toEqual(false);
-  expect(state.participants).toEqual([]);
-  expect(state.assignments).toEqual([]);
-  expect(state.nameNumber).toEqual(1);
+  expect(getState().houses).toEqual([]);
+  expect(getState().step).toEqual(1);
+  expect(getState().isSecretSanta).toEqual(false);
+  expect(getState().participants).toEqual([]);
+  expect(getState().assignments).toEqual([]);
+  expect(getState().nameNumber).toEqual(1);
 })
 
 describe('exchangeId', () => {
   it('generates a UUID when exchange starts', () => {
     startExchange();
-    expect(state.exchangeId).toBeDefined();
-    expect(state.exchangeId).toMatch(
+    expect(getState().exchangeId).toBeDefined();
+    expect(getState().exchangeId).toMatch(
       /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
     );
   });
 
   it('generates a different UUID each time', () => {
     startExchange();
-    const first = state.exchangeId;
+    const first = getState().exchangeId;
     startExchange();
-    expect(state.exchangeId).not.toBe(first);
+    expect(getState().exchangeId).not.toBe(first);
   });
 });
 
 describe('state helper functions', () => {
   beforeEach(() => {
     startExchange();
-    state.participants = [
+    getState().participants = [
       {...alex},
       {...whitney},
       {...hunter}
@@ -69,22 +69,22 @@ describe('state helper functions', () => {
   describe('addHouseToState', () => {
     it('should add house object with generated id, name, and empty members', () => {
       addHouseToState();
-      expect(state.houses.length).toBe(1);
-      expect(state.houses[0].id).toMatch(/^house-/);
-      expect(state.houses[0].name).toBe("Group 1");
-      expect(state.houses[0].members).toEqual([]);
+      expect(getState().houses.length).toBe(1);
+      expect(getState().houses[0].id).toMatch(/^house-/);
+      expect(getState().houses[0].name).toBe("Group 1");
+      expect(getState().houses[0].members).toEqual([]);
     });
 
     it('should assign incrementing display names', () => {
       addHouseToState();
       addHouseToState();
-      expect(state.houses[0].name).toBe("Group 1");
-      expect(state.houses[1].name).toBe("Group 2");
+      expect(getState().houses[0].name).toBe("Group 1");
+      expect(getState().houses[1].name).toBe("Group 2");
     });
 
     it('returns the generated houseID', () => {
       const houseID = addHouseToState();
-      expect(houseID).toBe(state.houses[0].id);
+      expect(houseID).toBe(getState().houses[0].id);
     });
   });
 
@@ -95,8 +95,8 @@ describe('state helper functions', () => {
       addNameToHouse(id0, "Alex");
       addNameToHouse(id1, "Whitney");
       removeHouseFromState(id0);
-      expect(state.houses.find(h => h.id === id0)).toBeUndefined();
-      expect(state.houses.find(h => h.id === id1).members).toEqual(["Whitney"]);
+      expect(getState().houses.find(h => h.id === id0)).toBeUndefined();
+      expect(getState().houses.find(h => h.id === id1).members).toEqual(["Whitney"]);
     });
 
     it('should remove all members from house before removing', () => {
@@ -116,7 +116,7 @@ describe('state helper functions', () => {
     it('should handle removing non-existent house', () => {
       addHouseToState();
       expect(() => removeHouseFromState("house-99")).not.toThrow();
-      expect(state.houses.length).toBe(1);
+      expect(getState().houses.length).toBe(1);
     });
   });
 
@@ -124,21 +124,21 @@ describe('state helper functions', () => {
     it('should add name to existing house', () => {
       const id0 = addHouseToState();
       addNameToHouse(id0, "Alex");
-      expect(state.houses[0].members).toEqual(["Alex"]);
+      expect(getState().houses[0].members).toEqual(["Alex"]);
     });
 
     it('should not add duplicate names', () => {
       const id0 = addHouseToState();
       addNameToHouse(id0, "Alex");
       addNameToHouse(id0, "Alex");
-      expect(state.houses[0].members).toEqual(["Alex"]);
+      expect(getState().houses[0].members).toEqual(["Alex"]);
     });
 
     it('should add multiple names to same house', () => {
       const id0 = addHouseToState();
       addNameToHouse(id0, "Alex");
       addNameToHouse(id0, "Whitney");
-      expect(state.houses[0].members).toEqual(["Alex", "Whitney"]);
+      expect(getState().houses[0].members).toEqual(["Alex", "Whitney"]);
     });
   });
 
@@ -148,7 +148,7 @@ describe('state helper functions', () => {
       addNameToHouse(id0, "Alex");
       addNameToHouse(id0, "Whitney");
       removeNameFromHouse(id0, "Alex");
-      expect(state.houses[0].members).toEqual(["Whitney"]);
+      expect(getState().houses[0].members).toEqual(["Whitney"]);
     });
 
     it('should handle non-existent house', () => {
@@ -159,7 +159,7 @@ describe('state helper functions', () => {
       const id0 = addHouseToState();
       addNameToHouse(id0, "Alex");
       removeNameFromHouse(id0, "Whitney");
-      expect(state.houses[0].members).toEqual(["Alex"]);
+      expect(getState().houses[0].members).toEqual(["Alex"]);
     });
   });
 
@@ -167,7 +167,7 @@ describe('state helper functions', () => {
     it('should update house name', () => {
       const id0 = addHouseToState();
       renameHouse(id0, "Smith Family");
-      expect(state.houses[0].name).toBe("Smith Family");
+      expect(getState().houses[0].name).toBe("Smith Family");
     });
 
     it('should emit HOUSE_RENAMED event', () => {
@@ -186,17 +186,17 @@ describe('state helper functions', () => {
 
   describe('addParticipant', () => {
     it('should add a participant to state', () => {
-      state.participants = [];
+      getState().participants = [];
       addParticipant("Alex");
-      expect(state.participants.length).toBe(1);
-      expect(state.participants[0].name).toBe("Alex");
+      expect(getState().participants.length).toBe(1);
+      expect(getState().participants[0].name).toBe("Alex");
     });
   });
 
   describe('removeParticipant', () => {
     it('should remove participant from state', () => {
       removeParticipant("Whitney");
-      expect(state.participants.map(p => p.name)).toEqual(["Alex", "Hunter"]);
+      expect(getState().participants.map(p => p.name)).toEqual(["Alex", "Hunter"]);
     });
 
     it('should remove participant from house before removing from state', () => {
@@ -204,16 +204,16 @@ describe('state helper functions', () => {
       addNameToHouse(id0, "Alex");
       addNameToHouse(id0, "Whitney");
       removeParticipant("Alex");
-      expect(state.houses[0].members).toEqual(["Whitney"]);
-      expect(state.participants.map(p => p.name)).toEqual(["Whitney", "Hunter"]);
+      expect(getState().houses[0].members).toEqual(["Whitney"]);
+      expect(getState().participants.map(p => p.name)).toEqual(["Whitney", "Hunter"]);
     });
 
     it('should handle participant not in any house', () => {
       const id0 = addHouseToState();
       addNameToHouse(id0, "Whitney");
       removeParticipant("Alex");
-      expect(state.houses[0].members).toEqual(["Whitney"]);
-      expect(state.participants.map(p => p.name)).toEqual(["Whitney", "Hunter"]);
+      expect(getState().houses[0].members).toEqual(["Whitney"]);
+      expect(getState().participants.map(p => p.name)).toEqual(["Whitney", "Hunter"]);
     });
   });
 
@@ -236,8 +236,8 @@ describe('state helper functions', () => {
       expect(getHousesArray()).toEqual([["Alex"], ["Whitney"]]);
     });
 
-    it('should handle empty state.houses array', () => {
-      state.houses = [];
+    it('should handle empty getState().houses array', () => {
+      getState().houses = [];
       expect(getHousesArray()).toEqual([]);
     });
   });
@@ -250,7 +250,7 @@ describe('state helper functions', () => {
     });
 
     it('should return all participants if no houses', () => {
-      state.houses = [];
+      getState().houses = [];
       expect(getIndividualParticipants()).toEqual([["Alex"], ["Whitney"], ["Hunter"]]);
     });
 
@@ -264,11 +264,11 @@ describe('state helper functions', () => {
   });
 
   describe('assignRecipients', () => {
-    it('populates state.assignments array', () => {
+    it('populates getState().assignments array', () => {
       installParticipantNames("Alex", "Whitney", "Hunter");
       assignRecipients(["Whitney", "Hunter", "Alex"]);
 
-      expect(state.assignments).toEqual([
+      expect(getState().assignments).toEqual([
         {giver: "Alex", recipient: "Whitney"},
         {giver: "Whitney", recipient: "Hunter"},
         {giver: "Hunter", recipient: "Alex"}
@@ -279,7 +279,7 @@ describe('state helper functions', () => {
       const spy = vi.fn();
       const unsubscribe = stateEvents.on(Events.RECIPIENTS_ASSIGNED, spy);
       installParticipantNames("Alex", "Whitney", "Hunter");
-      state.isSecretSanta = false;
+      getState().isSecretSanta = false;
 
       assignRecipients(["Whitney", "Hunter", "Alex"]);
 
@@ -300,14 +300,14 @@ describe('state helper functions', () => {
       const spy = vi.fn();
       const unsubscribe = stateEvents.on(Events.RECIPIENTS_ASSIGNED, spy);
       installParticipantNames("Alex", "Whitney", "Hunter");
-      state.isSecretSanta = true;
+      getState().isSecretSanta = true;
 
       assignRecipients(["Whitney", "Hunter", "Alex"]);
 
       expect(spy).toHaveBeenCalledWith(expect.objectContaining({
         isGenerated: true,
         isSecretSanta: true,
-        assignments: state.assignments,
+        assignments: getState().assignments,
       }));
 
       unsubscribe();
@@ -344,7 +344,7 @@ describe('state helper functions', () => {
     });
 
     it('should return only individuals when no houses exist', () => {
-      state.houses = [];
+      getState().houses = [];
       expect(getHousesForGeneration()).toEqual([["Alex"], ["Whitney"], ["Hunter"]]);
     });
 
@@ -365,21 +365,21 @@ describe('state helper functions', () => {
 
       nextStep();
 
-      expect(state.step).toBe(2);
+      expect(getState().step).toBe(2);
       expect(spy).toHaveBeenCalledWith(expect.objectContaining({step: 2}));
       unsubscribe();
     });
 
     it('wraps to 0 when maxSteps is provided', () => {
-      state.step = 3;
+      getState().step = 3;
       nextStep(3);
-      expect(state.step).toBe(0);
+      expect(getState().step).toBe(0);
     });
   });
 
   describe('addEmailsToParticipants', () => {
     beforeEach(() => {
-      state.participants = [];
+      getState().participants = [];
       installParticipantNames("Alex", "Whitney", "Hunter");
     });
 
@@ -391,9 +391,9 @@ describe('state helper functions', () => {
 
       addEmailsToParticipants(emails);
 
-      expect(state.participants[0].email).toBe("alex@example.com");
-      expect(state.participants[1].email).toBe("whitney@example.com");
-      expect(state.participants[2].email).toBe("");
+      expect(getState().participants[0].email).toBe("alex@example.com");
+      expect(getState().participants[1].email).toBe("whitney@example.com");
+      expect(getState().participants[2].email).toBe("");
     });
 
     it('should handle multiple emails at once', () => {
@@ -405,9 +405,9 @@ describe('state helper functions', () => {
 
       addEmailsToParticipants(emails);
 
-      expect(state.participants[0].email).toBe("alex@example.com");
-      expect(state.participants[1].email).toBe("whitney@example.com");
-      expect(state.participants[2].email).toBe("hunter@example.com");
+      expect(getState().participants[0].email).toBe("alex@example.com");
+      expect(getState().participants[1].email).toBe("whitney@example.com");
+      expect(getState().participants[2].email).toBe("hunter@example.com");
     });
 
     it('should emit EMAILS_ADDED event', () => {
@@ -419,16 +419,16 @@ describe('state helper functions', () => {
 
       addEmailsToParticipants(emails);
 
-      expect(spy).toHaveBeenCalledWith(expect.objectContaining({participants: state.participants}));
+      expect(spy).toHaveBeenCalledWith(expect.objectContaining({participants: getState().participants}));
       unsubscribe();
     });
 
     it('should handle empty emails array', () => {
-      const originalParticipants = [...state.participants];
+      const originalParticipants = [...getState().participants];
 
       addEmailsToParticipants([]);
 
-      expect(state.participants).toEqual(originalParticipants);
+      expect(getState().participants).toEqual(originalParticipants);
     });
   });
 
@@ -437,11 +437,11 @@ describe('state helper functions', () => {
       installParticipantNames("Alex", "Whitney");
       assignRecipients(["Whitney", "Alex"]);
       const payload = getExchangePayload();
-      expect(payload.exchangeId).toBe(state.exchangeId);
-      expect(payload.isSecretSanta).toBe(state.isSecretSanta);
-      expect(payload.houses).toBe(state.houses);
-      expect(payload.participants).toBe(state.participants);
-      expect(payload.assignments).toBe(state.assignments);
+      expect(payload.exchangeId).toBe(getState().exchangeId);
+      expect(payload.isSecretSanta).toBe(getState().isSecretSanta);
+      expect(payload.houses).toBe(getState().houses);
+      expect(payload.participants).toBe(getState().participants);
+      expect(payload.assignments).toBe(getState().assignments);
     });
   });
 
@@ -449,13 +449,13 @@ describe('state helper functions', () => {
     it('stores token map on state', () => {
       const tokens = [{name: "Alex", token: "abc"}];
       setTokenMap(tokens);
-      expect(state._tokenMap).toEqual(tokens);
+      expect(getState()._tokenMap).toEqual(tokens);
     });
   });
 
   describe('getParticipantNames', () => {
     it('returns array of participant name strings', () => {
-      state.participants = [];
+      getState().participants = [];
       installParticipantNames("Alex", "Whitney");
       expect(getParticipantNames()).toEqual(["Alex", "Whitney"]);
     });
@@ -478,41 +478,41 @@ describe('state helper functions', () => {
     it('populates participants from exchange data', () => {
       loadExchange(exchangeData);
 
-      expect(state.participants).toHaveLength(3);
-      expect(state.participants[0].name).toBe("Alex");
-      expect(state.participants[1].name).toBe("Whitney");
-      expect(state.participants[2].name).toBe("Hunter");
+      expect(getState().participants).toHaveLength(3);
+      expect(getState().participants[0].name).toBe("Alex");
+      expect(getState().participants[1].name).toBe("Whitney");
+      expect(getState().participants[2].name).toBe("Hunter");
     });
 
     it('sets participant emails from exchange data', () => {
       loadExchange(exchangeData);
 
-      expect(state.participants[0].email).toBe("alex@gmail.com");
-      expect(state.participants[1].email).toBe("whitney@gmail.com");
-      expect(state.participants[2].email).toBe("hunter@gmail.com");
+      expect(getState().participants[0].email).toBe("alex@gmail.com");
+      expect(getState().participants[1].email).toBe("whitney@gmail.com");
+      expect(getState().participants[2].email).toBe("hunter@gmail.com");
     });
 
     it('populates houses with names and members', () => {
       loadExchange(exchangeData);
 
-      expect(state.houses).toHaveLength(2);
-      expect(state.houses[0].name).toBe("Smith Family");
-      expect(state.houses[0].members).toEqual(["Alex", "Whitney"]);
-      expect(state.houses[1].name).toBe("Jones Family");
-      expect(state.houses[1].members).toEqual(["Hunter"]);
+      expect(getState().houses).toHaveLength(2);
+      expect(getState().houses[0].name).toBe("Smith Family");
+      expect(getState().houses[0].members).toEqual(["Alex", "Whitney"]);
+      expect(getState().houses[1].name).toBe("Jones Family");
+      expect(getState().houses[1].members).toEqual(["Hunter"]);
     });
 
     it('sets isSecretSanta from exchange data', () => {
       loadExchange(exchangeData);
 
-      expect(state.isSecretSanta).toBe(true);
+      expect(getState().isSecretSanta).toBe(true);
     });
 
     it('generates a new exchangeId', () => {
       loadExchange(exchangeData);
 
-      expect(state.exchangeId).toBeDefined();
-      expect(state.exchangeId).toMatch(
+      expect(getState().exchangeId).toBeDefined();
+      expect(getState().exchangeId).toMatch(
         /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
       );
     });
@@ -520,13 +520,13 @@ describe('state helper functions', () => {
     it('sets assignments to empty array', () => {
       loadExchange(exchangeData);
 
-      expect(state.assignments).toEqual([]);
+      expect(getState().assignments).toEqual([]);
     });
 
     it('initializes nameNumber to 1', () => {
       loadExchange(exchangeData);
 
-      expect(state.nameNumber).toBe(1);
+      expect(getState().nameNumber).toBe(1);
     });
 
     it('emits EXCHANGE_STARTED event', () => {
@@ -571,9 +571,9 @@ describe('state helper functions', () => {
 
       loadExchange(noHousesData);
 
-      expect(state.participants).toHaveLength(2);
-      expect(state.houses).toHaveLength(0);
-      expect(state.isSecretSanta).toBe(false);
+      expect(getState().participants).toHaveLength(2);
+      expect(getState().houses).toHaveLength(0);
+      expect(getState().isSecretSanta).toBe(false);
     });
   });
 });

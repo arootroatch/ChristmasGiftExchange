@@ -16,7 +16,7 @@ import {
 } from "../specHelper";
 import {addEventListener} from "../../src/utils";
 import {insertNameFromSelect} from "../../src/components/Select";
-import {addHouseToState, state} from "../../src/exchangeState";
+import {addHouseToState, getState} from "../../src/exchangeState";
 import * as stateModule from "../../src/exchangeState";
 
 describe('addHouse', () => {
@@ -44,7 +44,7 @@ describe('addHouse', () => {
   });
 
   it('should add house to state', () => {
-    const house = state.houses.find(h => h.id === "house-0");
+    const house = getState().houses.find(h => h.id === "house-0");
     expect(house).toBeDefined();
     expect(house.members).toEqual([]);
   });
@@ -75,13 +75,13 @@ describe("deleteHouse", () => {
 
   it("puts names back in participants list", () => {
     expect(document.querySelectorAll("#house-0 .name-container .name-wrapper").length).toBe(2);
-    expect(state.participants.length).toBe(2);
-    expect(state.houses.find(h => h.id === "house-0").members.length).toBe(2);
+    expect(getState().participants.length).toBe(2);
+    expect(getState().houses.find(h => h.id === "house-0").members.length).toBe(2);
 
     click("#house-0-delete")
 
     // Verify state is updated
-    expect(state.houses.find(h => h.id === "house-0")).toBeUndefined();
+    expect(getState().houses.find(h => h.id === "house-0")).toBeUndefined();
 
     // Verify names are back in participants list
     const participants = document.querySelector("#participants");
@@ -103,9 +103,9 @@ describe("deleteHouse", () => {
   })
 
   it("removes house from state", () => {
-    expect(state.houses.find(h => h.id === "house-0")).toBeDefined();
+    expect(getState().houses.find(h => h.id === "house-0")).toBeDefined();
     click("#house-0-delete");
-    expect(state.houses.find(h => h.id === "house-0")).toBeUndefined();
+    expect(getState().houses.find(h => h.id === "house-0")).toBeUndefined();
   })
 
 
@@ -143,7 +143,7 @@ describe('insertNameFromSelect', () => {
 
   it("adds name to house in state", () => {
     change("#house-0-select", "Alex");
-    expect(state.houses.find(h => h.id === "house-0").members).toContain("Alex");
+    expect(getState().houses.find(h => h.id === "house-0").members).toContain("Alex");
   })
 
   it("adds name to participant list and removes from house div", () => {

@@ -6,7 +6,7 @@ import {
   resetState,
   shouldDisplaySuccessSnackbar,
 } from "../../specHelper";
-import {startExchange, state, addEmailsToParticipants, assignRecipients} from "../../../src/exchangeState";
+import {startExchange, getState, addEmailsToParticipants, assignRecipients} from "../../../src/exchangeState";
 import {init} from "../../../src/components/EmailTable/SendEmails";
 import {init as initSnackbar} from "../../../src/components/Snackbar";
 import {alex, hunter, megan, whitney} from "../../testData";
@@ -71,7 +71,7 @@ describe("sendEmails", () => {
     beforeEach(() => {
       installGivers([{...alex}, {...whitney}, {...hunter}, {...megan}]);
       assignRecipients([whitney.name, hunter.name, megan.name, alex.name]);
-      state._tokenMap = [
+      getState()._tokenMap = [
         {name: "Alex", email: alex.email, token: "token-alex"},
         {name: "Whitney", email: whitney.email, token: "token-whitney"},
         {name: "Hunter", email: hunter.email, token: "token-hunter"},
@@ -93,9 +93,9 @@ describe("sendEmails", () => {
     });
 
     it("sends emails for each assignment with wishlistEditUrl", () => {
-      state.assignments.forEach((assignment) => {
-        const participant = state.participants.find(p => p.name === assignment.giver);
-        const tokenInfo = state._tokenMap.find(t => t.name === assignment.giver);
+      getState().assignments.forEach((assignment) => {
+        const participant = getState().participants.find(p => p.name === assignment.giver);
+        const tokenInfo = getState()._tokenMap.find(t => t.name === assignment.giver);
         expect(global.fetch).toHaveBeenCalledWith("/.netlify/functions/api-giver-notify-post", {
           body: JSON.stringify({
             name: assignment.giver,
@@ -116,7 +116,7 @@ describe("sendEmails", () => {
       if (existing) existing.remove();
       installGivers([{...alex}, {...whitney}]);
       assignRecipients([whitney.name, alex.name]);
-      state._tokenMap = undefined;
+      getState()._tokenMap = undefined;
       addEmailsToParticipants([
         {name: alex.name, email: alex.email, index: 0},
         {name: whitney.name, email: whitney.email, index: 1},
@@ -124,8 +124,8 @@ describe("sendEmails", () => {
       global.fetch.mockClear();
       click("#sendEmailsBtn");
 
-      state.assignments.forEach((assignment) => {
-        const participant = state.participants.find(p => p.name === assignment.giver);
+      getState().assignments.forEach((assignment) => {
+        const participant = getState().participants.find(p => p.name === assignment.giver);
         expect(global.fetch).toHaveBeenCalledWith("/.netlify/functions/api-giver-notify-post", {
           body: JSON.stringify({
             name: assignment.giver,

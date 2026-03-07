@@ -3,7 +3,7 @@ import {click, resetDOM, resetState} from "../../specHelper";
 import * as stateModule from "../../../src/exchangeState";
 import {init as initControlStrip} from "../../../src/components/ControlStrip/ControlStrip";
 import {init as initNextStepButton} from "../../../src/components/ControlStrip/NextStepButton";
-import {addParticipant, assignRecipients, state} from "../../../src/exchangeState";
+import {addParticipant, assignRecipients, getState} from "../../../src/exchangeState";
 import {selectElement} from "../../../src/utils";
 
 describe("nextStepButton", () => {
@@ -29,7 +29,7 @@ describe("nextStepButton", () => {
     resetState();
     addParticipant("Alex");
     click("#nextStep");
-    expect(state.step).toBe(2);
+    expect(getState().step).toBe(2);
     expect(selectElement("#nextStep")).not.toBeNull();
   });
 
@@ -38,17 +38,17 @@ describe("nextStepButton", () => {
     addParticipant("Alex");
     click("#nextStep"); // step 2
     click("#nextStep"); // step 3
-    expect(state.step).toBe(3);
+    expect(getState().step).toBe(3);
     expect(selectElement("#nextStep")).not.toBeNull();
   });
 
   it("is removed at step 3 with isSecretSanta", () => {
     resetState();
     addParticipant("Alex");
-    state.isSecretSanta = true;
+    getState().isSecretSanta = true;
     click("#nextStep"); // step 2
     click("#nextStep"); // step 3
-    expect(state.step).toBe(3);
+    expect(getState().step).toBe(3);
     expect(selectElement("#nextStep")).toBeNull();
   });
 
@@ -59,21 +59,21 @@ describe("nextStepButton", () => {
     click("#nextStep"); // step 3
     assignRecipients(["Whitney"]);
     click("#nextStep"); // step 4
-    expect(state.step).toBe(4);
+    expect(getState().step).toBe(4);
     expect(selectElement("#nextStep")).toBeNull();
   });
 
   it("does not advance from step 1 without participants", () => {
     resetState();
     click("#nextStep");
-    expect(state.step).toBe(1);
+    expect(getState().step).toBe(1);
   });
 
   it("advances from step 1 with participants", () => {
     resetState();
     addParticipant("Alex");
     click("#nextStep");
-    expect(state.step).toBe(2);
+    expect(getState().step).toBe(2);
   });
 
   it("does not advance from step 3 without generation", () => {
@@ -82,7 +82,7 @@ describe("nextStepButton", () => {
     click("#nextStep"); // step 2
     click("#nextStep"); // step 3
     click("#nextStep"); // should not advance
-    expect(state.step).toBe(3);
+    expect(getState().step).toBe(3);
   });
 
   it("advances from step 3 with generated list", () => {
@@ -92,7 +92,7 @@ describe("nextStepButton", () => {
     click("#nextStep"); // step 3
     assignRecipients(["Whitney"]);
     click("#nextStep"); // step 4
-    expect(state.step).toBe(4);
+    expect(getState().step).toBe(4);
   });
 
   describe("Alt+Enter keybinding", () => {

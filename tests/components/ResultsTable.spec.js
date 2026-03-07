@@ -1,7 +1,7 @@
 import {beforeAll, beforeEach, describe, expect, it} from "vitest";
 import {init} from "../../src/components/ResultsTable";
 import {initReactiveSystem, installParticipantNames, resetDOM, resetState} from "../specHelper";
-import {assignRecipients, startExchange, state} from "../../src/exchangeState";
+import {assignRecipients, startExchange, getState} from "../../src/exchangeState";
 
 describe('resultsTable', () => {
   beforeAll(() => {
@@ -53,7 +53,7 @@ describe('resultsTable', () => {
     expect(document.querySelector("#results-table")).toBeNull();
   });
 
-  it('renders results from state.assignments when assignRecipients is called', () => {
+  it('renders results from getState().assignments when assignRecipients is called', () => {
     startExchange(false);
     installParticipantNames("Alex", "Whitney", "Hunter");
 

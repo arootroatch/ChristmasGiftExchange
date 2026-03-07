@@ -1,6 +1,6 @@
 import {beforeAll, beforeEach, describe, expect, it} from 'vitest';
 import {generate, hasDuplicates} from '../src/generate';
-import {state, addHouseToState, addNameToHouse} from '../src/exchangeState';
+import {getState, addHouseToState, addNameToHouse} from '../src/exchangeState';
 import {
   participantByName,
   installParticipantNames,
@@ -68,8 +68,8 @@ describe('generate', () => {
 
     it('two names in separate houses', () => {
       installParticipantNames("Alex", "Whitney");
-      const alexIndex = state.participants.indexOf(participantByName("Alex"));
-      const whitIndex = state.participants.indexOf(participantByName("Whitney"));
+      const alexIndex = getState().participants.indexOf(participantByName("Alex"));
+      const whitIndex = getState().participants.indexOf(participantByName("Whitney"));
       addHouseToState("house-0");
       addHouseToState("house-1");
       addNameToHouse("house-0", "Alex");

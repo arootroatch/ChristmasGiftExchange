@@ -11,7 +11,7 @@ import {
   shouldSelect,
   stubProperty
 } from "../specHelper";
-import {state, addNameToHouse} from "../../src/exchangeState";
+import {getState, addNameToHouse} from "../../src/exchangeState";
 import {alex, whitney} from "../testData";
 
 describe('addName', () => {
@@ -42,9 +42,9 @@ describe('addName', () => {
   });
 
   it('should add name to state', () => {
-    expect(state.participants[0].name).toBe("Alex");
-    expect(state.participants.length).toBe(1);
-    expect(state.nameNumber).toBe(2);
+    expect(getState().participants[0].name).toBe("Alex");
+    expect(getState().participants.length).toBe(1);
+    expect(getState().nameNumber).toBe(2);
   });
 
   it('should clear input field', () => {
@@ -52,20 +52,20 @@ describe('addName', () => {
   })
 
   it("clicking delete x removes name from state", () => {
-    expect(state.participants[0].name).toEqual("Alex");
-    state.participants.push({...whitney});
-    expect(state.participants.length).toBe(2);
+    expect(getState().participants[0].name).toEqual("Alex");
+    getState().participants.push({...whitney});
+    expect(getState().participants.length).toBe(2);
     click("#delete-Alex1");
-    expect(state.participants.length).toBe(1);
-    expect(state.participants[0].name).toEqual("Whitney");
+    expect(getState().participants.length).toBe(1);
+    expect(getState().participants[0].name).toEqual("Whitney");
   })
 
   it("clicking delete x removes name from DOM", () => {
-    expect(state.participants[0].name).toEqual("Alex");
+    expect(getState().participants[0].name).toEqual("Alex");
     click("#delete-Alex1");
     // In reactive architecture, element is re-rendered, so check it no longer exists
     shouldNotSelect("#wrapper-Alex");
-    expect(state.participants).toEqual([]);
+    expect(getState().participants).toEqual([]);
   });
 
   it("adds names to dropdown", () => {
@@ -93,7 +93,7 @@ describe('addName', () => {
     addHouseToDOM();
     addNameToHouse("house-0", "Alex");
 
-    const house = state.houses.find(h => h.id === "house-0");
+    const house = getState().houses.find(h => h.id === "house-0");
     expect(house.members).toContain("Alex");
     const deleteBtn = document.querySelector('[id^="delete-Alex"]');
     click(`#${deleteBtn.id}`);
@@ -108,10 +108,10 @@ describe('addName', () => {
     expect(nameEl.innerHTML).not.toContain("<img");
   });
 
-  it("clicking delete x on name in main list does not affect state.houses", () => {
+  it("clicking delete x on name in main list does not affect getState().houses", () => {
     addHouseToDOM();
-    const previousHouses = structuredClone(state.houses);
+    const previousHouses = structuredClone(getState().houses);
     click("#delete-Alex1");
-    expect(state.houses).toEqual(previousHouses);
+    expect(getState().houses).toEqual(previousHouses);
   });
 });

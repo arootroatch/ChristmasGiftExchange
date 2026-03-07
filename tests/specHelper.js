@@ -1,4 +1,4 @@
-import {addHouseToState, state, startExchange} from "../src/exchangeState";
+import {addHouseToState, getState, startExchange} from "../src/exchangeState";
 import {expect, vi} from "vitest";
 import {indexHtml} from "../setupTests";
 import {selectElement} from "../src/utils";
@@ -32,7 +32,7 @@ export function initReactiveSystem() {
 }
 
 export function installGivers(givers) {
-  state.participants = givers;
+  getState().participants = givers;
 }
 
 export function stubFetch(ok, status, body) {
@@ -52,13 +52,13 @@ export function stubFetchError(message) {
 
 export function installGiverNames(...giverNames) {
   giverNames.forEach((name) => {
-    state.participants.push({name: name, email: ""});
+    getState().participants.push({name: name, email: ""});
   })
 }
 
 export function installParticipantNames(...participantNames) {
   participantNames.forEach((name) => {
-    state.participants.push({name: name, email: ""});
+    getState().participants.push({name: name, email: ""});
   })
 }
 
@@ -189,11 +189,11 @@ export function shouldDisplayEmailTable(...names) {
 }
 
 export function giverByName(name){
-  return state.participants.filter((p) => p.name === name)[0];
+  return getState().participants.filter((p) => p.name === name)[0];
 }
 
 export function participantByName(name){
-  return state.participants.filter((p) => p.name === name)[0];
+  return getState().participants.filter((p) => p.name === name)[0];
 }
 
 export function expectColor(actual, ...expectedColors) {

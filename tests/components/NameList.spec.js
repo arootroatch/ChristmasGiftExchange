@@ -13,7 +13,7 @@ import {
   addHouseToDOM,
   moveNameToHouse,
 } from "../specHelper";
-import {state} from "../../src/exchangeState";
+import {getState} from "../../src/exchangeState";
 
 describe('nameList', () => {
 
@@ -31,8 +31,8 @@ describe('nameList', () => {
   describe('#add-name-btn click handler', () => {
     it('capitalizes first letter, adds participant to state, and clears input', () => {
       enterName("alex");
-      expect(state.participants.length).toBe(1);
-      expect(state.participants[0].name).toBe("Alex");
+      expect(getState().participants.length).toBe(1);
+      expect(getState().participants[0].name).toBe("Alex");
       expect(document.querySelector("#name-input").value).toBe("");
     });
 
@@ -45,20 +45,20 @@ describe('nameList', () => {
         cancelable: true,
       });
       input.dispatchEvent(event);
-      expect(state.participants.length).toBe(1);
-      expect(state.participants[0].name).toBe("Alex");
+      expect(getState().participants.length).toBe(1);
+      expect(getState().participants[0].name).toBe("Alex");
     });
 
     it('does nothing when input is empty', () => {
       click("#add-name-btn");
-      expect(state.participants.length).toBe(0);
+      expect(getState().participants.length).toBe(0);
     });
 
     it('rejects whitespace-only input', () => {
       const input = document.querySelector("#name-input");
       input.value = "   ";
       click("#add-name-btn");
-      expect(state.participants.length).toBe(0);
+      expect(getState().participants.length).toBe(0);
     });
   });
 
@@ -91,7 +91,7 @@ describe('nameList', () => {
       enterName("Alex");
       const deleteBtn = document.querySelector("#participants [id^='delete-Alex']");
       click(`#${deleteBtn.id}`);
-      expect(state.participants.length).toBe(0);
+      expect(getState().participants.length).toBe(0);
     });
   });
 
@@ -116,10 +116,10 @@ describe('nameList', () => {
       enterName("Alex");
       addHouseToDOM();
       moveNameToHouse("#house-0-select", "Alex");
-      expect(state.houses.find(h => h.id === "house-0").members).toContain("Alex");
+      expect(getState().houses.find(h => h.id === "house-0").members).toContain("Alex");
       const deleteBtn = document.querySelector("[id^='delete-Alex']");
       click(`#${deleteBtn.id}`);
-      expect(state.houses.find(h => h.id === "house-0").members).not.toContain("Alex");
+      expect(getState().houses.find(h => h.id === "house-0").members).not.toContain("Alex");
     });
   });
 });

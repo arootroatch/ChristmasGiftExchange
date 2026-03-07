@@ -1,5 +1,5 @@
 import {afterEach, beforeAll, beforeEach, describe, expect, it, vi} from 'vitest';
-import {addParticipant, state, startExchange} from '../src/exchangeState';
+import {addParticipant, getState, startExchange} from '../src/exchangeState';
 import {initReactiveSystem, resetDOM} from "./specHelper";
 import {secretSantaMode} from "../src/main";
 
@@ -28,7 +28,7 @@ describe('layout', () => {
     it('sets secretSanta state to true', () => {
       secretSantaMode();
 
-      expect(state.isSecretSanta).toBe(true);
+      expect(getState().isSecretSanta).toBe(true);
     });
 
     it('adds secret class to left-container', () => {
@@ -57,11 +57,11 @@ describe('layout', () => {
     });
 
     it('secretSantaBtn button has click listener attached', () => {
-      expect(state.isSecretSanta).toBe(false);
+      expect(getState().isSecretSanta).toBe(false);
 
       secretSantaBtn.click();
 
-      expect(state.isSecretSanta).toBe(true);
+      expect(getState().isSecretSanta).toBe(true);
     });
 
     it('nextStep button has click listener attached', () => {
@@ -71,7 +71,7 @@ describe('layout', () => {
 
       nextStepBtn.click();
 
-      expect(state.step).toBeGreaterThan(1);
+      expect(getState().step).toBeGreaterThan(1);
     });
   });
 });

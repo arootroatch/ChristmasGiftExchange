@@ -1,6 +1,6 @@
 import {beforeAll, beforeEach, describe, expect, it, vi} from 'vitest';
 import {allowDrop, drag, dragLeave, drop, initDragDrop} from '../src/dragDrop';
-import {state, addNameToHouse} from '../src/exchangeState';
+import {getState, addNameToHouse} from '../src/exchangeState';
 import {
   addHouseToDOM,
   enterName,
@@ -117,7 +117,7 @@ describe('dragDrop', () => {
 
       drop(mockEvent);
 
-      expect(state.houses.find(h => h.id === "house-0").members).toContain('Alex');
+      expect(getState().houses.find(h => h.id === "house-0").members).toContain('Alex');
       // Check that a name wrapper for Alex exists in the house container (re-rendered)
       shouldSelect('#house-0 .name-container #wrapper-Alex');
     });
@@ -144,8 +144,8 @@ describe('dragDrop', () => {
 
       drop(mockEvent);
 
-      expect(state.houses.find(h => h.id === "house-0").members).not.toContain('Alex');
-      expect(state.houses.find(h => h.id === "house-1").members).toContain('Alex');
+      expect(getState().houses.find(h => h.id === "house-0").members).not.toContain('Alex');
+      expect(getState().houses.find(h => h.id === "house-1").members).toContain('Alex');
       // Check that a name wrapper for Alex exists in house-1 (re-rendered)
       shouldSelect('#house-1 .name-container #wrapper-Alex');
     });

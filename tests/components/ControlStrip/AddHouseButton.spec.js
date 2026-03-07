@@ -4,7 +4,7 @@ import * as stateModule from "../../../src/exchangeState";
 import {init as initControlStrip} from "../../../src/components/ControlStrip/ControlStrip";
 import {init as initNextStepButton} from "../../../src/components/ControlStrip/NextStepButton";
 import {init as initAddHouseButton} from "../../../src/components/ControlStrip/AddHouseButton";
-import {addParticipant, assignRecipients, state} from "../../../src/exchangeState";
+import {addParticipant, assignRecipients, getState} from "../../../src/exchangeState";
 import {selectElement} from "../../../src/utils";
 
 describe("addHouseButton", () => {
@@ -31,7 +31,7 @@ describe("addHouseButton", () => {
     resetState();
     addParticipant("Alex");
     click("#nextStep"); // step 2
-    expect(state.step).toBe(2);
+    expect(getState().step).toBe(2);
     expect(selectElement("#addHouse")).not.toBeNull();
   });
 
@@ -41,11 +41,11 @@ describe("addHouseButton", () => {
     click("#nextStep");
     expect(selectElement("#addHouse")).not.toBeNull();
     click("#nextStep");
-    expect(state.step).toBe(3);
+    expect(getState().step).toBe(3);
     expect(selectElement("#addHouse")).not.toBeNull();
     assignRecipients(["Whitney"]);
     click("#nextStep");
-    expect(state.step).toBe(4);
+    expect(getState().step).toBe(4);
     expect(selectElement("#addHouse")).toBeNull();
   });
 
@@ -70,7 +70,7 @@ describe("addHouseButton", () => {
 
   it("is removed when recipients assigned in secret santa mode", () => {
     resetState();
-    state.isSecretSanta = true;
+    getState().isSecretSanta = true;
     addParticipant("Alex");
     click("#nextStep"); // step 2
     expect(selectElement("#addHouse")).not.toBeNull();

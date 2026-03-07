@@ -19,7 +19,7 @@ import {init as initNextStepButton} from "../../../src/components/ControlStrip/N
 import {init as initGenerateButton, generateList} from "../../../src/components/ControlStrip/GenerateButton";
 import {init as initResultsTable} from "../../../src/components/ResultsTable";
 import {init as initEmailTable} from "../../../src/components/EmailTable/EmailTable";
-import {addParticipant, assignRecipients, state} from "../../../src/exchangeState";
+import {addParticipant, assignRecipients, getState} from "../../../src/exchangeState";
 import {selectElement} from "../../../src/utils";
 
 const noPossibleComboError = "No possible combinations! Please try a different configuration/number of names."
@@ -50,7 +50,7 @@ describe("generateButton", () => {
     resetState();
     addParticipant("Alex");
     click("#nextStep"); // step 2
-    expect(state.step).toBe(2);
+    expect(getState().step).toBe(2);
     expect(selectElement("#generate")).toBeNull();
   });
 
@@ -59,7 +59,7 @@ describe("generateButton", () => {
     addParticipant("Alex");
     click("#nextStep"); // step 2
     click("#nextStep"); // step 3
-    expect(state.step).toBe(3);
+    expect(getState().step).toBe(3);
     expect(selectElement("#generate")).not.toBeNull();
   });
 
@@ -80,7 +80,7 @@ describe("generateButton", () => {
     click("#nextStep"); // step 3
     assignRecipients(["Whitney"]);
     click("#nextStep"); // step 4
-    expect(state.step).toBe(4);
+    expect(getState().step).toBe(4);
     expect(selectElement("#generate")).toBeNull();
   });
 
@@ -187,7 +187,7 @@ describe("generateList", () => {
 
     generateList();
     let tableHTML = '';
-    for (const assignment of state.assignments) {
+    for (const assignment of getState().assignments) {
       tableHTML += `<tr>
                 <td>${assignment.giver}</td>
                 <td>${assignment.recipient}</td>
@@ -206,7 +206,7 @@ describe("generateList", () => {
 
     generateList();
     let tableHTML = '';
-    for (const assignment of state.assignments) {
+    for (const assignment of getState().assignments) {
       tableHTML += `<tr>
                 <td>${assignment.giver}</td>
                 <td>${assignment.recipient}</td>
@@ -218,7 +218,7 @@ describe("generateList", () => {
   });
 
   it('should display email table instead of results table if secret santa mode', () => {
-    state.isSecretSanta = true;
+    getState().isSecretSanta = true;
     enterName("Alex");
     enterName("Whitney");
 
@@ -227,7 +227,7 @@ describe("generateList", () => {
   });
 
   it('should hide secretGenerate and nextStep buttons in Secret Santa mode after generating', () => {
-    state.isSecretSanta = true;
+    getState().isSecretSanta = true;
     enterName("Alex");
     enterName("Whitney");
 

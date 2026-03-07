@@ -16,7 +16,11 @@ export const ExchangeEvents = {
   EMAILS_ADDED: 'emails:added',
 };
 
-export let state;
+let state;
+
+export function getState() {
+  return state;
+}
 
 export function startExchange(isSecretSanta = false) {
   state = {
@@ -41,7 +45,7 @@ export function nextStep(maxSteps = null) {
 }
 
 
-export class Participant {
+class Participant {
   constructor(name, email = "") {
     this.name = name;
     this.email = email;

@@ -9,7 +9,7 @@ import {
   shouldDisplayErrorSnackbar,
 } from "../../specHelper";
 import "../../../src/components/Name";
-import {assignRecipients, nextStep, startExchange, state} from "../../../src/exchangeState";
+import {assignRecipients, nextStep, startExchange, getState} from "../../../src/exchangeState";
 import {alex, whitney} from "../../testData";
 import {
   emailInput,
@@ -72,12 +72,12 @@ describe('emailTable', () => {
   beforeEach(() => {
     stubExchangeApiFetch();
     resetState();
-    state.isSecretSanta = true;
+    getState().isSecretSanta = true;
   });
 
   describe("reactive rendering", () => {
     it("renders on RECIPIENTS_ASSIGNED when isSecretSanta", () => {
-      state.isSecretSanta = true;
+      getState().isSecretSanta = true;
       installGivers([{...alex}, {...whitney}]);
 
       assignRecipients(["Whitney", "Alex"]);
@@ -86,7 +86,7 @@ describe('emailTable', () => {
     });
 
     it("does not render on RECIPIENTS_ASSIGNED when not isSecretSanta", () => {
-      state.isSecretSanta = false;
+      getState().isSecretSanta = false;
       installGivers([{...alex}, {...whitney}]);
 
       assignRecipients(["Whitney", "Alex"]);
@@ -96,7 +96,7 @@ describe('emailTable', () => {
 
     it("renders on NEXT_STEP when step is 4", () => {
       installGivers([{...alex}, {...whitney}]);
-      state.step = 3;
+      getState().step = 3;
 
       nextStep();
 
@@ -105,7 +105,7 @@ describe('emailTable', () => {
 
     it("does not render on NEXT_STEP when step is not 4", () => {
       installGivers([{...alex}, {...whitney}]);
-      state.step = 1;
+      getState().step = 1;
 
       nextStep();
 
@@ -122,9 +122,9 @@ describe('emailTable', () => {
     });
 
     it("displays dismiss button when not secret santa", () => {
-      state.isSecretSanta = false;
+      getState().isSecretSanta = false;
       installGivers([{...alex}, {...whitney}]);
-      state.step = 3;
+      getState().step = 3;
 
       nextStep();
 
@@ -133,7 +133,7 @@ describe('emailTable', () => {
     });
 
     it("hides dismiss button in secret santa mode", () => {
-      state.isSecretSanta = true;
+      getState().isSecretSanta = true;
       installGivers([{...alex}, {...whitney}]);
 
       assignRecipients(["Whitney", "Alex"]);
@@ -149,7 +149,7 @@ describe('emailTable', () => {
       // Clear render-generated inputs and givers, replace with test data
       const body = document.querySelector("#emailTableBody");
       body.querySelectorAll(".emailDiv").forEach(el => el.remove());
-      state.participants = [];
+      getState().participants = [];
       installParticipantNames("Alex", "Whitney", "Hunter", "Megan");
       renderEmailTableInputs([
         {name: "Alex", email: "arootroatch@gmail.com"},
@@ -172,12 +172,12 @@ describe('emailTable', () => {
 
     it("sets email for each participant", async () => {
       await vi.waitFor(() => {
-        expect(state.participants[0].email).toBe("arootroatch@gmail.com");
+        expect(getState().participants[0].email).toBe("arootroatch@gmail.com");
       });
 
       const expectedEmails = ["arootroatch@gmail.com", "whitney@gmail.com", "hunter@gmail.com", "megan@gmail.com"];
 
-      state.participants.forEach((participant, i) => {
+      getState().participants.forEach((participant, i) => {
         expect(participant.email).toBe(expectedEmails[i]);
       })
     })
@@ -187,18 +187,18 @@ describe('emailTable', () => {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({
-          exchangeId: state.exchangeId,
-          isSecretSanta: state.isSecretSanta,
-          houses: state.houses,
-          participants: state.participants,
-          assignments: state.assignments
+          exchangeId: getState().exchangeId,
+          isSecretSanta: getState().isSecretSanta,
+          houses: getState().houses,
+          participants: getState().participants,
+          assignments: getState().assignments
         })
       });
     })
 
     it("stores token map from API response on state", async () => {
       await vi.waitFor(() => {
-        expect(state._tokenMap).toEqual(apiTokenResponse.participants);
+        expect(getState()._tokenMap).toEqual(apiTokenResponse.participants);
       });
     })
 
@@ -232,16 +232,16 @@ describe('emailTable', () => {
     });
 
     it("does not add emails to participants when postToServer returns non-200 status", async () => {
-      const initialEmail0 = state.participants[0].email;
-      const initialEmail1 = state.participants[1].email;
+      const initialEmail0 = getState().participants[0].email;
+      const initialEmail1 = getState().participants[1].email;
 
       submitEmailForm();
 
       await vi.waitFor(() => {
         expect(global.fetch).toHaveBeenCalled();
       });
-      expect(state.participants[0].email).toBe(initialEmail0);
-      expect(state.participants[1].email).toBe(initialEmail1);
+      expect(getState().participants[0].email).toBe(initialEmail0);
+      expect(getState().participants[1].email).toBe(initialEmail1);
     });
 
     it("displays error snackbar when postToServer returns non-200 status", async () => {
@@ -254,8 +254,8 @@ describe('emailTable', () => {
   });
 
   it("emailInput returns correct HTML template", () => {
-    state.participants = [{name: "Alex", email: ""}, {name: "Whitney", email: ""}];
-    const result = emailInput(state.participants[0], 0);
+    getState().participants = [{name: "Alex", email: ""}, {name: "Whitney", email: ""}];
+    const result = emailInput(getState().participants[0], 0);
 
     expect(result).toContain('<div class="emailDiv">');
     expect(result).toContain('<label for=0>Alex</label>');
