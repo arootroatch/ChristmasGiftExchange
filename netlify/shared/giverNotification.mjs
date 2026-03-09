@@ -21,6 +21,12 @@ export async function forEachGiverOf(recipientUser, callback) {
 }
 
 export async function sendNotificationEmail(templateName, to, subject, parameters) {
+    if (process.env.CONTEXT !== "production") {
+        console.log(`[DEV EMAIL] Template: ${templateName} | To: ${to} | Subject: ${subject}`);
+        console.log("[DEV EMAIL] Parameters:", JSON.stringify(parameters, null, 2));
+        return;
+    }
+
     await fetch(
         `${process.env.URL}/.netlify/functions/emails/${templateName}`,
         {
