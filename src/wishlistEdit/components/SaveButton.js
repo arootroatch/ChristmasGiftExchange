@@ -21,17 +21,30 @@ export function init(token) {
 }
 
 async function save(token) {
-    const response = await fetch(`/.netlify/functions/api-user-wishlist-put/${token}`, {
-        method: "PUT",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({
-            wishlists: cachedUserData.wishlists,
-            wishItems: cachedUserData.wishItems,
-        }),
-    });
-    if (response.ok) {
-        snackbar.showSuccess("Wishlist saved!");
-    } else {
-        snackbar.showError("Failed to save wishlist");
+    const btn = selectElement("#save-wishlist-btn");
+    btn.disabled = true;
+    btn.textContent = "Saving...";
+
+    try {
+        const response = await fetch(`/.netlify/functions/api-user-wishlist-put/${token}`, {
+            method: "PUT",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                wishlists: cachedUserData.wishlists,
+                wishItems: cachedUserData.wishItems,
+            }),
+        });
+
+        if (response.ok) {
+            snackbar.showSuccess("Wishlist saved!");
+        } else {
+            const body = await response.json();
+            snackbar.showError(body.error || "Failed to save wishlist");
+        }
+    } catch (error) {
+        snackbar.showError("Something went wrong. Please try again.");
+    } finally {
+        btn.disabled = false;
+        btn.textContent = "Save Wishlist";
     }
 }

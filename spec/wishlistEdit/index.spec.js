@@ -374,9 +374,65 @@ describe("Wishlist Edit Page", () => {
 
             await vi.waitFor(() => {
                 const snackbar = document.getElementById("snackbar");
-                expect(snackbar.textContent).toBe("Failed to save wishlist");
+                expect(snackbar.textContent).toBe("Server error");
                 expect(snackbar.classList.contains("show")).toBe(true);
                 expect(snackbar.style.color).toBe("rgb(179, 30, 32)");
+            });
+        });
+
+        it("shows API error message on failed save", async () => {
+            mockFetch({
+                body: {name: "John", wishlists: [], wishItems: []},
+            });
+            await loadModule();
+            await vi.waitFor(() => {
+                expect(document.getElementById("greeting").textContent).toContain("John");
+            });
+
+            mockFetch({ok: false, status: 500, body: {error: "Database unavailable"}});
+            document.getElementById("save-wishlist-btn").click();
+
+            await vi.waitFor(() => {
+                const snackbar = document.getElementById("snackbar");
+                expect(snackbar.textContent).toBe("Database unavailable");
+            });
+        });
+
+        it("shows generic error on network failure during save", async () => {
+            mockFetch({
+                body: {name: "John", wishlists: [], wishItems: []},
+            });
+            await loadModule();
+            await vi.waitFor(() => {
+                expect(document.getElementById("greeting").textContent).toContain("John");
+            });
+
+            window.fetch = vi.fn(() => Promise.reject(new Error("Network error")));
+            globalThis.fetch = window.fetch;
+            document.getElementById("save-wishlist-btn").click();
+
+            await vi.waitFor(() => {
+                const snackbar = document.getElementById("snackbar");
+                expect(snackbar.textContent).toBe("Something went wrong. Please try again.");
+            });
+        });
+
+        it("re-enables save button after error", async () => {
+            mockFetch({
+                body: {name: "John", wishlists: [], wishItems: []},
+            });
+            await loadModule();
+            await vi.waitFor(() => {
+                expect(document.getElementById("greeting").textContent).toContain("John");
+            });
+
+            mockFetch({ok: false, status: 500, body: {error: "Error"}});
+            document.getElementById("save-wishlist-btn").click();
+
+            await vi.waitFor(() => {
+                const btn = document.getElementById("save-wishlist-btn");
+                expect(btn.disabled).toBe(false);
+                expect(btn.textContent).toBe("Save Wishlist");
             });
         });
     });
@@ -437,6 +493,68 @@ describe("Wishlist Edit Page", () => {
                 expect(document.getElementById("contact-address").value).toBe("");
                 expect(document.getElementById("contact-phone").value).toBe("");
                 expect(document.getElementById("contact-notes").value).toBe("");
+            });
+        });
+
+        it("shows API error message on failed send", async () => {
+            mockFetch({
+                body: {name: "John", wishlists: [], wishItems: []},
+            });
+            await loadModule();
+            await vi.waitFor(() => {
+                expect(document.getElementById("greeting").textContent).toContain("John");
+            });
+
+            document.getElementById("contact-address").value = "123 Main St";
+
+            mockFetch({ok: false, status: 500, body: {error: "Email service down"}});
+            document.getElementById("send-contact-btn").click();
+
+            await vi.waitFor(() => {
+                const snackbar = document.getElementById("snackbar");
+                expect(snackbar.textContent).toBe("Email service down");
+            });
+        });
+
+        it("shows generic error on network failure during send", async () => {
+            mockFetch({
+                body: {name: "John", wishlists: [], wishItems: []},
+            });
+            await loadModule();
+            await vi.waitFor(() => {
+                expect(document.getElementById("greeting").textContent).toContain("John");
+            });
+
+            document.getElementById("contact-address").value = "123 Main St";
+
+            window.fetch = vi.fn(() => Promise.reject(new Error("Network error")));
+            globalThis.fetch = window.fetch;
+            document.getElementById("send-contact-btn").click();
+
+            await vi.waitFor(() => {
+                const snackbar = document.getElementById("snackbar");
+                expect(snackbar.textContent).toBe("Something went wrong. Please try again.");
+            });
+        });
+
+        it("re-enables send button after error", async () => {
+            mockFetch({
+                body: {name: "John", wishlists: [], wishItems: []},
+            });
+            await loadModule();
+            await vi.waitFor(() => {
+                expect(document.getElementById("greeting").textContent).toContain("John");
+            });
+
+            document.getElementById("contact-address").value = "123 Main St";
+
+            mockFetch({ok: false, status: 500, body: {error: "Error"}});
+            document.getElementById("send-contact-btn").click();
+
+            await vi.waitFor(() => {
+                const btn = document.getElementById("send-contact-btn");
+                expect(btn.disabled).toBe(false);
+                expect(btn.textContent).toBe("Send to My Secret Santa");
             });
         });
 

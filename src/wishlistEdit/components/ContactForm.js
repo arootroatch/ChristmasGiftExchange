@@ -30,18 +30,30 @@ async function send(token) {
         return;
     }
 
-    const response = await fetch(`/.netlify/functions/api-user-contact-post/${token}`, {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({address, phone, notes}),
-    });
+    const btn = selectElement("#send-contact-btn");
+    btn.disabled = true;
+    btn.textContent = "Sending...";
 
-    if (response.ok) {
-        snackbar.showSuccess("Contact info sent to your Secret Santa!");
-        selectElement("#contact-address").value = "";
-        selectElement("#contact-phone").value = "";
-        selectElement("#contact-notes").value = "";
-    } else {
-        snackbar.showError("Failed to send contact info");
+    try {
+        const response = await fetch(`/.netlify/functions/api-user-contact-post/${token}`, {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({address, phone, notes}),
+        });
+
+        if (response.ok) {
+            snackbar.showSuccess("Contact info sent to your Secret Santa!");
+            selectElement("#contact-address").value = "";
+            selectElement("#contact-phone").value = "";
+            selectElement("#contact-notes").value = "";
+        } else {
+            const body = await response.json();
+            snackbar.showError(body.error || "Failed to send contact info");
+        }
+    } catch (error) {
+        snackbar.showError("Something went wrong. Please try again.");
+    } finally {
+        btn.disabled = false;
+        btn.textContent = "Send to My Secret Santa";
     }
 }
