@@ -115,20 +115,63 @@ describe("sendEmails", () => {
   });
 
   describe("batchEmails error handling", () => {
-    it("displays error snackbar on fetch failure", async () => {
-      global.fetch = vi.fn(() => Promise.reject(new Error("Network error")));
+    function stubFetchNotOk(errorMessage) {
+      global.fetch = vi.fn(() => Promise.resolve({
+        ok: false,
+        status: 500,
+        json: () => Promise.resolve({error: errorMessage})
+      }));
+    }
+
+    function setupAndClick() {
       installGivers([{...alex}, {...whitney}]);
       assignRecipients([whitney.name, alex.name]);
       addEmailsToParticipants([
         {name: alex.name, email: alex.email, index: 0},
         {name: whitney.name, email: whitney.email, index: 1},
       ]);
-
       click("#sendEmailsBtn");
+    }
+
+    it("displays error snackbar on fetch failure", async () => {
+      global.fetch = vi.fn(() => Promise.reject(new Error("Network error")));
+      setupAndClick();
 
       const {shouldDisplayErrorSnackbar} = await import("../../../specHelper");
       await vi.waitFor(() => {
-        shouldDisplayErrorSnackbar("Something went wrong sending emails");
+        shouldDisplayErrorSnackbar("Something went wrong. Please try again.");
+      });
+    });
+
+    it("displays API error message on non-ok response", async () => {
+      stubFetchNotOk("Database unavailable");
+      setupAndClick();
+
+      const {shouldDisplayErrorSnackbar} = await import("../../../specHelper");
+      await vi.waitFor(() => {
+        shouldDisplayErrorSnackbar("Database unavailable");
+      });
+    });
+
+    it("re-renders send button on non-ok response", async () => {
+      stubFetchNotOk("Database unavailable");
+      setupAndClick();
+
+      await vi.waitFor(() => {
+        const btn = document.querySelector("#sendEmailsBtn");
+        expect(btn).not.toBeNull();
+        expect(btn.textContent).toContain("Send Emails");
+      });
+    });
+
+    it("re-renders send button on network failure", async () => {
+      global.fetch = vi.fn(() => Promise.reject(new Error("Network error")));
+      setupAndClick();
+
+      await vi.waitFor(() => {
+        const btn = document.querySelector("#sendEmailsBtn");
+        expect(btn).not.toBeNull();
+        expect(btn.textContent).toContain("Send Emails");
       });
     });
   });

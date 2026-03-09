@@ -56,10 +56,19 @@ async function batchEmails() {
         assignments: cachedAssignments,
       }),
     });
+
+    if (!response.ok) {
+      const body = await response.json();
+      showError(body.error || "Something went wrong sending emails");
+      render();
+      return;
+    }
+
     const data = await response.json();
     hideElement();
     showSuccess(`Sent ${data.sent} of ${data.total} emails successfully!`);
   } catch (error) {
-    showError("Something went wrong sending emails");
+    showError("Something went wrong. Please try again.");
+    render();
   }
 }
