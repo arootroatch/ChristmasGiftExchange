@@ -202,7 +202,7 @@ spec/
     postToDb.spec.js
     schemas/
       user.spec.js
-  scripts/
+  dev/
     migrate-legacy.spec.js
 ```
 

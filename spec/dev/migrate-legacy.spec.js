@@ -8,7 +8,7 @@ describe('migrateLegacyData', () => {
     beforeAll(async () => {
         mongo = await setupMongo();
         ({db} = mongo);
-        const module = await import('../../scripts/migrate-legacy.mjs');
+        const module = await import('../../dev/migrate-legacy.mjs');
         migrateLegacyData = module.migrateLegacyData;
     });
 
