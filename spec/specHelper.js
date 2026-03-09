@@ -166,12 +166,12 @@ export function shouldDisplayErrorSnackbar(message) {
   expect(snackbar.classList).toContain("show");
   expectColor(snackbar.style.color, "rgb(179, 30, 32)", "#b31e20");
   expectBorderColor(snackbar.style.border, "3px solid", "rgb(179, 30, 32)", "#b31e20");
-  expect(snackbar.innerHTML).toContain(message);
+  expect(snackbar.textContent).toContain(message);
 }
 
 export function shouldDisplaySuccessSnackbar(message) {
   const snackbar = selectElement("#snackbar");
-  expect(snackbar.innerHTML).toContain(message);
+  expect(snackbar.textContent).toContain(message);
   expectColor(snackbar.style.color, "rgb(25, 140, 10)", "#198c0a");
   expectBorderColor(snackbar.style.border, "2px solid", "rgb(25, 140, 10)", "#198c0a");
 }

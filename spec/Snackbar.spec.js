@@ -11,7 +11,7 @@ describe("snackbar", () => {
 
   beforeEach(() => {
     bar = document.querySelector("#snackbar");
-    bar.innerHTML = "";
+    bar.textContent = "";
     bar.className = "hidden";
     bar.style.color = "";
     bar.style.border = "";
@@ -25,7 +25,7 @@ describe("snackbar", () => {
   describe("showError", () => {
     it("displays the error message", () => {
       snackbar.showError("Something went wrong");
-      expect(bar.innerHTML).toBe("Something went wrong");
+      expect(bar.textContent).toBe("Something went wrong");
     });
 
     it("styles with error colors", () => {
@@ -57,7 +57,7 @@ describe("snackbar", () => {
   describe("showSuccess", () => {
     it("displays the success message", () => {
       snackbar.showSuccess("Names generated!");
-      expect(bar.innerHTML).toBe("Names generated!");
+      expect(bar.textContent).toBe("Names generated!");
     });
 
     it("styles with success colors", () => {

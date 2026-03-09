@@ -17,7 +17,7 @@ export function showSuccess(message) {
 }
 
 function showMessage(message) {
-  bar.innerHTML = message;
+  bar.textContent = message;
   bar.classList.replace("hidden", "show");
 
   setTimeout(() => {
