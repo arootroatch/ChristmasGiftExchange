@@ -241,7 +241,7 @@ describe("Wishlist View Page", () => {
             await vi.waitFor(() => {
                 expect(window.sessionStorage.setItem).toHaveBeenCalledWith(
                     "snackbarError",
-                    "Something went wrong"
+                    "Something went wrong. Please try again."
                 );
             });
         });

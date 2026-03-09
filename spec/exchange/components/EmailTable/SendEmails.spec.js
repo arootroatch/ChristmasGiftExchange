@@ -139,7 +139,7 @@ describe("sendEmails", () => {
 
       const {shouldDisplayErrorSnackbar} = await import("../../../specHelper");
       await vi.waitFor(() => {
-        shouldDisplayErrorSnackbar("Something went wrong. Please try again.");
+        shouldDisplayErrorSnackbar("Failed to send emails. Please try again.");
       });
     });
 

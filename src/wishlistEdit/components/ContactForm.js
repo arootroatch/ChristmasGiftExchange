@@ -47,11 +47,12 @@ async function send(token) {
             selectElement("#contact-phone").value = "";
             selectElement("#contact-notes").value = "";
         } else {
-            const body = await response.json();
-            snackbar.showError(body.error || "Failed to send contact info");
+            let errorMessage;
+            try { errorMessage = (await response.json()).error; } catch {}
+            snackbar.showError(errorMessage || "Failed to send contact info. Please try again.");
         }
     } catch (error) {
-        snackbar.showError("Something went wrong. Please try again.");
+        snackbar.showError("Failed to send contact info. Please try again.");
     } finally {
         btn.disabled = false;
         btn.textContent = "Send to My Secret Santa";

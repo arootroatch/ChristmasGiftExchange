@@ -51,7 +51,8 @@ function renderResult(results) {
 
 function renderError(message = "Email address not found!") {
   const queryDiv = selectElement(`#${queryDivId}`);
-  queryDiv.innerHTML = `<div style="color:#b31e20">${message}</div>`;
+  queryDiv.innerHTML = '<div style="color:#b31e20"></div>';
+  queryDiv.firstElementChild.textContent = message;
   setTimeout(() => {
     queryDiv.innerHTML = emailQueryInit;
     addEventListener(`#${emailQueryBtnId}`, "click", getName);
@@ -74,8 +75,9 @@ async function getName(e) {
     );
 
     if (!response.ok) {
-      const body = await response.json();
-      renderError(body.error || "Something went wrong");
+      let errorMessage;
+      try { errorMessage = (await response.json()).error; } catch {}
+      renderError(errorMessage || "Email address not found. Please try again.");
       return;
     }
 
@@ -83,7 +85,7 @@ async function getName(e) {
     renderResult(results);
   } catch (error) {
     console.error('Error fetching name:', error);
-    renderError("Something went wrong. Please try again.");
+    renderError("Failed to look up recipient. Please try again.");
   }
 }
 

@@ -186,7 +186,7 @@ describe("Reuse Exchange Page", () => {
 
             await vi.waitFor(() => {
                 const snackbar = document.getElementById("snackbar");
-                expect(snackbar.textContent).toBe("Something went wrong. Please try again.");
+                expect(snackbar.textContent).toBe("Failed to search exchanges. Please try again.");
             });
         });
 
@@ -202,7 +202,7 @@ describe("Reuse Exchange Page", () => {
 
             await vi.waitFor(() => {
                 const snackbar = document.getElementById("snackbar");
-                expect(snackbar.textContent).toBe("Something went wrong. Please try again.");
+                expect(snackbar.textContent).toBe("Failed to search exchanges. Please try again.");
             });
         });
     });

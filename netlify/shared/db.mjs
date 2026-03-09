@@ -7,7 +7,7 @@ export async function getDb() {
         const client = await clientPromise;
         return client.db(process.env.MONGODB_DATABASE);
     } catch (error) {
-        throw new Error("Database unavailable");
+        throw new Error("Database unavailable", {cause: error});
     }
 }
 

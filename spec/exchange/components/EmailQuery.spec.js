@@ -107,9 +107,9 @@ describe("getName", () => {
         stubFetchError("Internal Server Error");
         click("#emailQueryBtn");
         await vi.advanceTimersByTimeAsync(0);
-        expect(query.innerHTML).toContain("Something went wrong. Please try again.");
+        expect(query.innerHTML).toContain("Failed to look up recipient. Please try again.");
         vi.advanceTimersByTime(2000);
-        expect(query.innerHTML).not.toContain("Something went wrong. Please try again.");
+        expect(query.innerHTML).not.toContain("Failed to look up recipient. Please try again.");
         expect(query.innerHTML).toContain("Need to know who you're buying a gift for?");
         emailQueryBtn = document.querySelector("#emailQueryBtn");
         expect(emailQueryBtn.innerHTML).toContain("Search it!");
@@ -139,7 +139,7 @@ describe("getName", () => {
             json: () => Promise.resolve({})
         }));
         click("#emailQueryBtn");
-        await waitFor(() => expect(query.innerHTML).toContain("Something went wrong"));
+        await waitFor(() => expect(query.innerHTML).toContain("Email address not found. Please try again."));
     });
 
 })

@@ -21,8 +21,9 @@ async function loadWishlist() {
         }
 
         if (!response.ok) {
-            const body = await response.json();
-            redirectWithError(body.error || "Something went wrong");
+            let errorMessage;
+            try { errorMessage = (await response.json()).error; } catch {}
+            redirectWithError(errorMessage || "Something went wrong. Please try again.");
             return;
         }
 

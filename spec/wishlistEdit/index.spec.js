@@ -413,7 +413,7 @@ describe("Wishlist Edit Page", () => {
 
             await vi.waitFor(() => {
                 const snackbar = document.getElementById("snackbar");
-                expect(snackbar.textContent).toBe("Something went wrong. Please try again.");
+                expect(snackbar.textContent).toBe("Failed to save wishlist. Please try again.");
             });
         });
 
@@ -533,7 +533,7 @@ describe("Wishlist Edit Page", () => {
 
             await vi.waitFor(() => {
                 const snackbar = document.getElementById("snackbar");
-                expect(snackbar.textContent).toBe("Something went wrong. Please try again.");
+                expect(snackbar.textContent).toBe("Failed to send contact info. Please try again.");
             });
         });
 

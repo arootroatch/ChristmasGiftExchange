@@ -15,8 +15,9 @@ async function searchExchanges() {
         );
 
         if (!response.ok) {
-            const body = await response.json();
-            snackbar.showError(body.error || "Something went wrong. Please try again.");
+            let errorMessage;
+            try { errorMessage = (await response.json()).error; } catch {}
+            snackbar.showError(errorMessage || "Failed to search exchanges. Please try again.");
             return;
         }
 
@@ -27,7 +28,7 @@ async function searchExchanges() {
         }
         renderResults(exchanges);
     } catch (error) {
-        snackbar.showError("Something went wrong. Please try again.");
+        snackbar.showError("Failed to search exchanges. Please try again.");
     } finally {
         btn.textContent = "Search";
         btn.disabled = false;

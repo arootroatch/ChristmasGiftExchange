@@ -38,11 +38,12 @@ async function save(token) {
         if (response.ok) {
             snackbar.showSuccess("Wishlist saved!");
         } else {
-            const body = await response.json();
-            snackbar.showError(body.error || "Failed to save wishlist");
+            let errorMessage;
+            try { errorMessage = (await response.json()).error; } catch {}
+            snackbar.showError(errorMessage || "Failed to save wishlist. Please try again.");
         }
     } catch (error) {
-        snackbar.showError("Something went wrong. Please try again.");
+        snackbar.showError("Failed to save wishlist. Please try again.");
     } finally {
         btn.disabled = false;
         btn.textContent = "Save Wishlist";
