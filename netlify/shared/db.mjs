@@ -3,8 +3,12 @@ import {MongoClient} from "mongodb";
 const clientPromise = new MongoClient(process.env.MONGO_DB_URI).connect();
 
 export async function getDb() {
-    const client = await clientPromise;
-    return client.db(process.env.MONGODB_DATABASE);
+    try {
+        const client = await clientPromise;
+        return client.db(process.env.MONGODB_DATABASE);
+    } catch (error) {
+        throw new Error("Database unavailable");
+    }
 }
 
 export async function getUsersCollection() {
