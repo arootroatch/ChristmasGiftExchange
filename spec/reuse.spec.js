@@ -171,9 +171,38 @@ describe("Reuse Exchange Page", () => {
 
             await vi.waitFor(() => {
                 const snackbar = document.getElementById("snackbar");
-                expect(snackbar.textContent).toBe("Something went wrong. Please try again.");
+                expect(snackbar.textContent).toBe("Server error");
                 expect(snackbar.classList.contains("show")).toBe(true);
                 expect(snackbar.style.color).toBe("rgb(179, 30, 32)");
+            });
+        });
+
+        it("shows generic error when non-ok response has no error field", async () => {
+            mockFetch({ok: false, status: 500, body: {}});
+            await loadModule();
+
+            document.getElementById("reuse-email").value = "test@test.com";
+            document.getElementById("reuse-search-btn").click();
+
+            await vi.waitFor(() => {
+                const snackbar = document.getElementById("snackbar");
+                expect(snackbar.textContent).toBe("Something went wrong. Please try again.");
+            });
+        });
+
+        it("shows generic error on network failure", async () => {
+            mockFetch({body: []});
+            await loadModule();
+
+            window.fetch = vi.fn(() => Promise.reject(new Error("Network error")));
+            globalThis.fetch = window.fetch;
+
+            document.getElementById("reuse-email").value = "test@test.com";
+            document.getElementById("reuse-search-btn").click();
+
+            await vi.waitFor(() => {
+                const snackbar = document.getElementById("snackbar");
+                expect(snackbar.textContent).toBe("Something went wrong. Please try again.");
             });
         });
     });

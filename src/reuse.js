@@ -15,7 +15,8 @@ async function searchExchanges() {
         );
 
         if (!response.ok) {
-            snackbar.showError("Something went wrong. Please try again.");
+            const body = await response.json();
+            snackbar.showError(body.error || "Something went wrong. Please try again.");
             return;
         }
 
