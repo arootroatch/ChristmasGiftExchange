@@ -48,7 +48,7 @@ function template(name) {
 function attachListeners(container) {
   container.querySelectorAll('.delete-name').forEach(btn => {
     btn.addEventListener('click', (event) => {
-      const name = event.currentTarget.nextElementSibling.innerHTML;
+      const name = event.currentTarget.nextElementSibling.textContent;
       removeParticipant(name);
     });
   });

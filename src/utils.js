@@ -35,7 +35,7 @@ export function unshiftHTML(selector, html) {
 
 export function setLoadingState(selector) {
     const btn = document.querySelector(selector);
-    btn.innerHTML = "Loading...";
+    btn.textContent = "Loading...";
     btn.style.color = "#808080";
 }
 
