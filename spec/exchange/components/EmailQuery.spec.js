@@ -102,15 +102,44 @@ describe("getName", () => {
         });
     });
 
-    it("displays error message for 2 secs if email not found", async () => {
+    it("displays error message for 2 secs on network error", async () => {
+        vi.useFakeTimers();
         stubFetchError("Internal Server Error");
         click("#emailQueryBtn");
-        await waitFor(() => expect(query.innerHTML).toContain("Email address not found!"));
-        setTimeout(() => {
-            expect(query.innerHTML).not.toContain("Email address not found!");
-            expect(query.innerHTML).toContain("Need to know who you're buying a gift for?");
-            expect(emailQueryBtn.innerHTML).toContain("Search it!");
-        }, 2000);
+        await vi.advanceTimersByTimeAsync(0);
+        expect(query.innerHTML).toContain("Something went wrong. Please try again.");
+        vi.advanceTimersByTime(2000);
+        expect(query.innerHTML).not.toContain("Something went wrong. Please try again.");
+        expect(query.innerHTML).toContain("Need to know who you're buying a gift for?");
+        emailQueryBtn = document.querySelector("#emailQueryBtn");
+        expect(emailQueryBtn.innerHTML).toContain("Search it!");
+        vi.useRealTimers();
+    });
+
+    function stubFetchNotOk(errorMessage) {
+        global.fetch = vi.fn(() => Promise.resolve({
+            ok: false,
+            status: 500,
+            json: () => Promise.resolve({error: errorMessage})
+        }));
+    }
+
+    it("displays API error message on non-ok response", async () => {
+        await waitFor(() => expect(document.querySelector("#emailQueryBtn")).not.toBeNull(), {timeout: 3000});
+        stubFetchNotOk("Database unavailable");
+        click("#emailQueryBtn");
+        await waitFor(() => expect(query.innerHTML).toContain("Database unavailable"));
+    });
+
+    it("displays generic error on non-ok response without error field", async () => {
+        await waitFor(() => expect(document.querySelector("#emailQueryBtn")).not.toBeNull(), {timeout: 3000});
+        global.fetch = vi.fn(() => Promise.resolve({
+            ok: false,
+            status: 500,
+            json: () => Promise.resolve({})
+        }));
+        click("#emailQueryBtn");
+        await waitFor(() => expect(query.innerHTML).toContain("Something went wrong"));
     });
 
 })

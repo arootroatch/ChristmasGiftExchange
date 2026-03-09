@@ -27,11 +27,6 @@ export const emailQueryInit =
     </label>
     ${emailQueryInput}`
 
-export const emailQueryError =
-  `<div style="color:#b31e20">
-        Email address not found!
-    </div>`
-
 export function emailQueryResult(date, recipient) {
   return `
     <div>
@@ -54,10 +49,9 @@ function renderResult(results) {
   addEventListener(`#${emailQueryBtnId}`, "click", getName);
 }
 
-function renderError() {
+function renderError(message = "Email address not found!") {
   const queryDiv = selectElement(`#${queryDivId}`);
-
-  queryDiv.innerHTML = emailQueryError;
+  queryDiv.innerHTML = `<div style="color:#b31e20">${message}</div>`;
   setTimeout(() => {
     queryDiv.innerHTML = emailQueryInit;
     addEventListener(`#${emailQueryBtnId}`, "click", getName);
@@ -78,11 +72,18 @@ async function getName(e) {
     const response = await fetch(
       `/.netlify/functions/api-recipient-get?email=${encodeURIComponent(email)}`
     );
+
+    if (!response.ok) {
+      const body = await response.json();
+      renderError(body.error || "Something went wrong");
+      return;
+    }
+
     const results = await response.json();
     renderResult(results);
   } catch (error) {
     console.error('Error fetching name:', error);
-    renderError();
+    renderError("Something went wrong. Please try again.");
   }
 }
 
