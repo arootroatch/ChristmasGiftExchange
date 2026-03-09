@@ -28,6 +28,7 @@ export function apiHandler(method, fn) {
         try {
             return await fn(event);
         } catch (error) {
+            console.error("Unhandled error in API handler:", error);
             return serverError(error.message);
         }
     };
