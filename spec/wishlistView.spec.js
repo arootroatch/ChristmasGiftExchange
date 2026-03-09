@@ -169,7 +169,7 @@ describe("Wishlist View Page", () => {
 
             await vi.waitFor(() => {
                 const content = document.getElementById("wishlist-content");
-                expect(content.innerHTML).toContain("No wishlist submitted yet.");
+                expect(content.textContent).toContain("No wishlist submitted yet.");
             });
         });
     });
@@ -206,6 +206,35 @@ describe("Wishlist View Page", () => {
         it("stores error in sessionStorage on non-403 error", async () => {
             setupDOM();
             mockFetch({ok: false, status: 500, body: {error: "Server error"}});
+            mockSessionStorage();
+            await loadModule();
+
+            await vi.waitFor(() => {
+                expect(window.sessionStorage.setItem).toHaveBeenCalledWith(
+                    "snackbarError",
+                    "Server error"
+                );
+            });
+        });
+
+        it("stores error in sessionStorage on network failure", async () => {
+            setupDOM();
+            mockSessionStorage();
+            window.fetch = vi.fn(() => Promise.reject(new Error("Network error")));
+            globalThis.fetch = window.fetch;
+            await loadModule();
+
+            await vi.waitFor(() => {
+                expect(window.sessionStorage.setItem).toHaveBeenCalledWith(
+                    "snackbarError",
+                    "Something went wrong. Please try again."
+                );
+            });
+        });
+
+        it("shows generic error when non-ok response has no error field", async () => {
+            setupDOM();
+            mockFetch({ok: false, status: 500, body: {}});
             mockSessionStorage();
             await loadModule();
 
