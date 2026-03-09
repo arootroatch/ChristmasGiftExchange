@@ -4,7 +4,7 @@
   "description": "Gift exchange generator site for holiday name picking",
   "main": "main.js",
   "scripts": {
-    "dev": "netlify dev --env-file .env.development",
+    "dev": "netlify dev",
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest",

@@ -120,23 +120,29 @@ npm run coverage
 
 ### Local development
 
-For local development with serverless functions and a local MongoDB:
+Local development requires the Netlify CLI and a MongoDB instance.
 
-```bash
-npm run dev
-```
+1. **Install the Netlify CLI** (if you haven't already):
 
-This uses `netlify dev` with a local database seeded with test data.
+   ```bash
+   npm i -g netlify-cli
+   ```
 
-### Netlify CLI
+2. **Start the dev database** in a separate terminal. This launches an in-memory MongoDB via MongoMemoryServer, seeds it with test data, and opens a REPL for querying:
 
-The Netlify Serverless functions for MongoDB and Postmark email will not work without a Netlify CLI local development server and authentication to both my Netlify account and MongoDB Atlas cluster.
+   ```bash
+   node scripts/dev-db.mjs
+   ```
 
-To install:
-`npm i -g netlify-cli`
+   The script updates `MONGO_DB_URI` in `.env.local` to point to the in-memory server.
 
-Then:
-`netlify dev`
+3. **Start the dev server** in another terminal:
+
+   ```bash
+   npm run dev
+   ```
+
+   This runs `netlify dev`, which starts the Vite dev server and proxies serverless function requests. Environment variables are loaded from `.env.local`.
 
 ### Submit a pull request
 

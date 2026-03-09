@@ -3,6 +3,10 @@
   publish = "dist"
   functions = "netlify/functions"
 
+[dev]
+  command = "npx vite"
+  targetPort = 5173
+
 [functions.emails]
   included_files = ["./emails/**"]
 

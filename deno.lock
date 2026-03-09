@@ -21,7 +21,8 @@
         "npm:n@^10.1.0",
         "npm:node-fetch@^3.3.2",
         "npm:vite@7.1.11",
-        "npm:vitest@^3.0.7"
+        "npm:vitest@^3.0.7",
+        "npm:zod@^4.3.6"
       ]
     }
   }
