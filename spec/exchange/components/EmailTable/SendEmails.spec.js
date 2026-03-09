@@ -10,6 +10,7 @@ import {startExchange, getState, addEmailsToParticipants, assignRecipients} from
 import {init} from "../../../../src/exchange/components/EmailTable/SendEmails";
 import {init as initSnackbar} from "../../../../src/Snackbar";
 import {alex, hunter, megan, whitney} from "../../../testData";
+import {serverErrorMessage} from "../../../../src/utils";
 
 function stubDispatchEmailFetch(sent, total) {
   global.fetch = vi.fn(() => Promise.resolve({
@@ -118,7 +119,7 @@ describe("sendEmails", () => {
     function stubFetchNotOk(errorMessage) {
       global.fetch = vi.fn(() => Promise.resolve({
         ok: false,
-        status: 500,
+        status: 400,
         json: () => Promise.resolve({error: errorMessage})
       }));
     }
@@ -139,7 +140,7 @@ describe("sendEmails", () => {
 
       const {shouldDisplayErrorSnackbar} = await import("../../../specHelper");
       await vi.waitFor(() => {
-        shouldDisplayErrorSnackbar("Failed to send emails. Please try again.");
+        shouldDisplayErrorSnackbar(serverErrorMessage);
       });
     });
 

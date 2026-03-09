@@ -1,5 +1,5 @@
 import {wishlistEditEvents, WishlistEditEvents} from '../state.js';
-import {addEventListener, selectElement} from '../../utils.js';
+import {addEventListener, selectElement, apiFetch} from '../../utils.js';
 import * as snackbar from '../../Snackbar.js';
 
 let cachedUserData;
@@ -25,27 +25,17 @@ async function save(token) {
     btn.disabled = true;
     btn.textContent = "Saving...";
 
-    try {
-        const response = await fetch(`/.netlify/functions/api-user-wishlist-put/${token}`, {
-            method: "PUT",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({
-                wishlists: cachedUserData.wishlists,
-                wishItems: cachedUserData.wishItems,
-            }),
-        });
+    await apiFetch(`/.netlify/functions/api-user-wishlist-put/${token}`, {
+        method: "PUT",
+        body: {
+            wishlists: cachedUserData.wishlists,
+            wishItems: cachedUserData.wishItems,
+        },
+        onSuccess: () => snackbar.showSuccess("Wishlist saved!"),
+        onError: (msg) => snackbar.showError(msg),
+        fallbackMessage: "Failed to save wishlist. Please try again.",
+    });
 
-        if (response.ok) {
-            snackbar.showSuccess("Wishlist saved!");
-        } else {
-            let errorMessage;
-            try { errorMessage = (await response.json()).error; } catch {}
-            snackbar.showError(errorMessage || "Failed to save wishlist. Please try again.");
-        }
-    } catch (error) {
-        snackbar.showError("Failed to save wishlist. Please try again.");
-    } finally {
-        btn.disabled = false;
-        btn.textContent = "Save Wishlist";
-    }
+    btn.disabled = false;
+    btn.textContent = "Save Wishlist";
 }

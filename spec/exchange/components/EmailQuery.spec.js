@@ -2,6 +2,7 @@ import {beforeEach, describe, expect, it, vi, afterAll, beforeAll} from "vitest"
 import {click, expectColor, stubFetchError} from "../../specHelper";
 import {init} from "../../../src/exchange/components/EmailQuery";
 import {waitFor} from "@testing-library/dom";
+import {serverErrorMessage} from "../../../src/utils";
 
 describe("getName", () => {
     let emailQueryBtn;
@@ -48,7 +49,8 @@ describe("getName", () => {
         emailInput.value = "test@example.com";
         click("#emailQueryBtn");
         expect(global.fetch).toHaveBeenCalledWith(
-            "/.netlify/functions/api-recipient-get?email=test%40example.com"
+            "/.netlify/functions/api-recipient-get?email=test%40example.com",
+            expect.objectContaining({})
         );
     })
 
@@ -107,9 +109,9 @@ describe("getName", () => {
         stubFetchError("Internal Server Error");
         click("#emailQueryBtn");
         await vi.advanceTimersByTimeAsync(0);
-        expect(query.innerHTML).toContain("Failed to look up recipient. Please try again.");
+        expect(query.innerHTML).toContain(serverErrorMessage);
         vi.advanceTimersByTime(2000);
-        expect(query.innerHTML).not.toContain("Failed to look up recipient. Please try again.");
+        expect(query.innerHTML).not.toContain(serverErrorMessage);
         expect(query.innerHTML).toContain("Need to know who you're buying a gift for?");
         emailQueryBtn = document.querySelector("#emailQueryBtn");
         expect(emailQueryBtn.innerHTML).toContain("Search it!");
@@ -119,7 +121,7 @@ describe("getName", () => {
     function stubFetchNotOk(errorMessage) {
         global.fetch = vi.fn(() => Promise.resolve({
             ok: false,
-            status: 500,
+            status: 400,
             json: () => Promise.resolve({error: errorMessage})
         }));
     }
@@ -135,7 +137,7 @@ describe("getName", () => {
         await waitFor(() => expect(document.querySelector("#emailQueryBtn")).not.toBeNull(), {timeout: 3000});
         global.fetch = vi.fn(() => Promise.resolve({
             ok: false,
-            status: 500,
+            status: 400,
             json: () => Promise.resolve({})
         }));
         click("#emailQueryBtn");

@@ -1,3 +1,4 @@
+export const serverErrorMessage = "Aw shucks! Something went wrong. Don't worry - the developer has been notified.";
 export const leftContainerId = "left-container";
 export const nameListId = "name-list";
 export const participantsId = "participants";
@@ -61,4 +62,27 @@ export function escape(str) {
 
 export function escapeAttr(str) {
     return str.replace(/&/g, "&amp;").replace(/'/g, "&#39;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+export async function apiFetch(url, {method, body, onSuccess, onError, fallbackMessage = "Something went wrong. Please try again."} = {}) {
+    try {
+        const response = await fetch(url, {
+            method,
+            ...(body && {headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)}),
+        });
+        if (response.status >= 500) {
+            onError(serverErrorMessage);
+            return;
+        }
+        if (!response.ok) {
+            let errorMessage;
+            try { errorMessage = (await response.json()).error; } catch {}
+            onError(errorMessage || fallbackMessage);
+            return;
+        }
+        const data = await response.json();
+        onSuccess(data);
+    } catch (error) {
+        onError(serverErrorMessage);
+    }
 }

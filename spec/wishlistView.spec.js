@@ -2,6 +2,7 @@ import {describe, it, expect, vi, beforeEach, afterEach} from "vitest";
 import fs from "fs";
 import path from "path";
 import {JSDOM} from "jsdom";
+import {serverErrorMessage} from "../src/utils";
 
 const html = fs.readFileSync(
     path.resolve(__dirname, "../pages/wishlist/view/index.html"),
@@ -85,7 +86,8 @@ describe("Wishlist View Page", () => {
 
             await vi.waitFor(() => {
                 expect(window.fetch).toHaveBeenCalledWith(
-                    "/.netlify/functions/api-exchange-get/exchange-id-456?token=giver-token-123"
+                    "/.netlify/functions/api-exchange-get/exchange-id-456?token=giver-token-123",
+                    expect.objectContaining({})
                 );
             });
         });
@@ -184,7 +186,7 @@ describe("Wishlist View Page", () => {
             await vi.waitFor(() => {
                 expect(window.sessionStorage.setItem).toHaveBeenCalledWith(
                     "snackbarError",
-                    "You don't have access to view that participant's wish list"
+                    "Access denied"
                 );
             });
         });
@@ -212,7 +214,7 @@ describe("Wishlist View Page", () => {
             await vi.waitFor(() => {
                 expect(window.sessionStorage.setItem).toHaveBeenCalledWith(
                     "snackbarError",
-                    "Server error"
+                    serverErrorMessage
                 );
             });
         });
@@ -227,14 +229,14 @@ describe("Wishlist View Page", () => {
             await vi.waitFor(() => {
                 expect(window.sessionStorage.setItem).toHaveBeenCalledWith(
                     "snackbarError",
-                    "Something went wrong. Please try again."
+                    serverErrorMessage
                 );
             });
         });
 
         it("shows generic error when non-ok response has no error field", async () => {
             setupDOM();
-            mockFetch({ok: false, status: 500, body: {}});
+            mockFetch({ok: false, status: 400, body: {}});
             mockSessionStorage();
             await loadModule();
 

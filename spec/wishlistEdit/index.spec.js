@@ -2,6 +2,7 @@ import {describe, it, expect, vi, beforeEach, afterEach} from "vitest";
 import fs from "fs";
 import path from "path";
 import {JSDOM} from "jsdom";
+import {serverErrorMessage} from "../../src/utils";
 
 const html = fs.readFileSync(
     path.resolve(__dirname, "../../pages/wishlist/edit/index.html"),
@@ -374,7 +375,7 @@ describe("Wishlist Edit Page", () => {
 
             await vi.waitFor(() => {
                 const snackbar = document.getElementById("snackbar");
-                expect(snackbar.textContent).toBe("Server error");
+                expect(snackbar.textContent).toBe(serverErrorMessage);
                 expect(snackbar.classList.contains("show")).toBe(true);
                 expect(snackbar.style.color).toBe("rgb(179, 30, 32)");
             });
@@ -389,7 +390,7 @@ describe("Wishlist Edit Page", () => {
                 expect(document.getElementById("greeting").textContent).toContain("John");
             });
 
-            mockFetch({ok: false, status: 500, body: {error: "Database unavailable"}});
+            mockFetch({ok: false, status: 400, body: {error: "Database unavailable"}});
             document.getElementById("save-wishlist-btn").click();
 
             await vi.waitFor(() => {
@@ -413,7 +414,7 @@ describe("Wishlist Edit Page", () => {
 
             await vi.waitFor(() => {
                 const snackbar = document.getElementById("snackbar");
-                expect(snackbar.textContent).toBe("Failed to save wishlist. Please try again.");
+                expect(snackbar.textContent).toBe(serverErrorMessage);
             });
         });
 
@@ -507,7 +508,7 @@ describe("Wishlist Edit Page", () => {
 
             document.getElementById("contact-address").value = "123 Main St";
 
-            mockFetch({ok: false, status: 500, body: {error: "Email service down"}});
+            mockFetch({ok: false, status: 400, body: {error: "Email service down"}});
             document.getElementById("send-contact-btn").click();
 
             await vi.waitFor(() => {
@@ -533,7 +534,7 @@ describe("Wishlist Edit Page", () => {
 
             await vi.waitFor(() => {
                 const snackbar = document.getElementById("snackbar");
-                expect(snackbar.textContent).toBe("Failed to send contact info. Please try again.");
+                expect(snackbar.textContent).toBe(serverErrorMessage);
             });
         });
 

@@ -1,4 +1,4 @@
-import {escape, escapeAttr} from './utils.js';
+import {escape, escapeAttr, apiFetch} from './utils.js';
 import * as snackbar from './Snackbar.js';
 
 async function searchExchanges() {
@@ -9,30 +9,20 @@ async function searchExchanges() {
     btn.textContent = "Searching...";
     btn.disabled = true;
 
-    try {
-        const response = await fetch(
-            `/.netlify/functions/api-exchange-search?email=${encodeURIComponent(email)}`
-        );
+    await apiFetch(`/.netlify/functions/api-exchange-search?email=${encodeURIComponent(email)}`, {
+        onSuccess: (data) => {
+            if (data.length === 0) {
+                snackbar.showError("No past exchanges found for that email");
+                return;
+            }
+            renderResults(data);
+        },
+        onError: (msg) => snackbar.showError(msg),
+        fallbackMessage: "Failed to search exchanges. Please try again.",
+    });
 
-        if (!response.ok) {
-            let errorMessage;
-            try { errorMessage = (await response.json()).error; } catch {}
-            snackbar.showError(errorMessage || "Failed to search exchanges. Please try again.");
-            return;
-        }
-
-        const exchanges = await response.json();
-        if (exchanges.length === 0) {
-            snackbar.showError("No past exchanges found for that email");
-            return;
-        }
-        renderResults(exchanges);
-    } catch (error) {
-        snackbar.showError("Failed to search exchanges. Please try again.");
-    } finally {
-        btn.textContent = "Search";
-        btn.disabled = false;
-    }
+    btn.textContent = "Search";
+    btn.disabled = false;
 }
 
 function renderResults(exchanges) {

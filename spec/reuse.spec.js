@@ -2,6 +2,7 @@ import {describe, it, expect, vi, beforeEach, afterEach} from "vitest";
 import fs from "fs";
 import path from "path";
 import {JSDOM} from "jsdom";
+import {serverErrorMessage} from "../src/utils";
 
 const html = fs.readFileSync(
     path.resolve(__dirname, "../pages/reuse/index.html"),
@@ -117,7 +118,8 @@ describe("Reuse Exchange Page", () => {
 
             await vi.waitFor(() => {
                 expect(window.fetch).toHaveBeenCalledWith(
-                    "/.netlify/functions/api-exchange-search?email=john%40test.com"
+                    "/.netlify/functions/api-exchange-search?email=john%40test.com",
+                    expect.objectContaining({})
                 );
             });
         });
@@ -132,7 +134,8 @@ describe("Reuse Exchange Page", () => {
 
             await vi.waitFor(() => {
                 expect(window.fetch).toHaveBeenCalledWith(
-                    "/.netlify/functions/api-exchange-search?email=john%40test.com"
+                    "/.netlify/functions/api-exchange-search?email=john%40test.com",
+                    expect.objectContaining({})
                 );
             });
         });
@@ -171,14 +174,14 @@ describe("Reuse Exchange Page", () => {
 
             await vi.waitFor(() => {
                 const snackbar = document.getElementById("snackbar");
-                expect(snackbar.textContent).toBe("Server error");
+                expect(snackbar.textContent).toBe(serverErrorMessage);
                 expect(snackbar.classList.contains("show")).toBe(true);
                 expect(snackbar.style.color).toBe("rgb(179, 30, 32)");
             });
         });
 
         it("shows generic error when non-ok response has no error field", async () => {
-            mockFetch({ok: false, status: 500, body: {}});
+            mockFetch({ok: false, status: 400, body: {}});
             await loadModule();
 
             document.getElementById("reuse-email").value = "test@test.com";
@@ -202,7 +205,7 @@ describe("Reuse Exchange Page", () => {
 
             await vi.waitFor(() => {
                 const snackbar = document.getElementById("snackbar");
-                expect(snackbar.textContent).toBe("Failed to search exchanges. Please try again.");
+                expect(snackbar.textContent).toBe(serverErrorMessage);
             });
         });
     });

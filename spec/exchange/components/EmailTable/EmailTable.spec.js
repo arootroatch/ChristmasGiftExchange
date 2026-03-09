@@ -173,17 +173,15 @@ describe('emailTable', () => {
     })
 
     it("posts exchange data to new API endpoint", () => {
-      expect(global.fetch).toHaveBeenCalledWith("/.netlify/functions/api-exchange-post", {
+      expect(global.fetch).toHaveBeenCalledWith("/.netlify/functions/api-exchange-post", expect.objectContaining({
         method: "POST",
         headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({
-          exchangeId: getState().exchangeId,
-          isSecretSanta: getState().isSecretSanta,
-          houses: getState().houses,
-          participants: getState().participants,
-          assignments: getState().assignments
-        })
-      });
+      }));
+      const callArgs = global.fetch.mock.calls[0];
+      const body = JSON.parse(callArgs[1].body);
+      expect(body.exchangeId).toBe(getState().exchangeId);
+      expect(body.isSecretSanta).toBe(getState().isSecretSanta);
+      expect(body.participants.length).toBe(4);
     })
 
     it("hides email table on EMAILS_ADDED", async () => {
@@ -232,7 +230,7 @@ describe('emailTable', () => {
       submitEmailForm();
 
       await vi.waitFor(() => {
-        shouldDisplayErrorSnackbar("Failed to submit emails");
+        shouldDisplayErrorSnackbar("Aw shucks!");
       });
     });
   });

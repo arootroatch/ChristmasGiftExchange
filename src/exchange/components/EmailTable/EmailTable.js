@@ -1,5 +1,5 @@
 import {ExchangeEvents as Events, exchangeEvents as stateEvents, addEmailsToParticipants, getExchangePayload} from "../../state.js";
-import {addEventListener, pushHTML, selectElement, setLoadingState, escapeAttr} from "../../../utils.js";
+import {addEventListener, pushHTML, selectElement, setLoadingState, escapeAttr, apiFetch, serverErrorMessage} from "../../../utils.js";
 import {showError} from "../../../Snackbar.js";
 
 const emailTableId = "emailTable";
@@ -88,17 +88,13 @@ async function submitEmails(event) {
   setLoadingState(`#${submitEmailsId}`);
   const emails = getEmails();
 
-  try {
-    const response = await postToServer();
-    if (!response.ok) {
-      handleEmailSubmitError(response);
-    } else {
-      const data = await response.json();
-      addEmailsToParticipants(emails);
-    }
-  } catch (error) {
-    showError("Something went wrong");
-  }
+  await apiFetch("/.netlify/functions/api-exchange-post", {
+    method: "POST",
+    body: getExchangePayload(),
+    onSuccess: () => addEmailsToParticipants(emails),
+    onError: (msg) => showError(msg),
+    fallbackMessage: "Failed to submit emails. Please try again.",
+  });
 }
 
 function getEmails() {
@@ -110,16 +106,4 @@ function getEmails() {
       index: input.id
     };
   });
-}
-
-async function postToServer() {
-  return fetch("/.netlify/functions/api-exchange-post", {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify(getExchangePayload())
-  });
-}
-
-function handleEmailSubmitError() {
-  showError("Failed to submit emails");
 }

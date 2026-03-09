@@ -1,4 +1,4 @@
-import {addEventListener, selectElement} from '../../utils.js';
+import {addEventListener, selectElement, apiFetch} from '../../utils.js';
 import * as snackbar from '../../Snackbar.js';
 
 function template() {
@@ -34,27 +34,19 @@ async function send(token) {
     btn.disabled = true;
     btn.textContent = "Sending...";
 
-    try {
-        const response = await fetch(`/.netlify/functions/api-user-contact-post/${token}`, {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({address, phone, notes}),
-        });
-
-        if (response.ok) {
+    await apiFetch(`/.netlify/functions/api-user-contact-post/${token}`, {
+        method: "POST",
+        body: {address, phone, notes},
+        onSuccess: () => {
             snackbar.showSuccess("Contact info sent to your Secret Santa!");
             selectElement("#contact-address").value = "";
             selectElement("#contact-phone").value = "";
             selectElement("#contact-notes").value = "";
-        } else {
-            let errorMessage;
-            try { errorMessage = (await response.json()).error; } catch {}
-            snackbar.showError(errorMessage || "Failed to send contact info. Please try again.");
-        }
-    } catch (error) {
-        snackbar.showError("Failed to send contact info. Please try again.");
-    } finally {
-        btn.disabled = false;
-        btn.textContent = "Send to My Secret Santa";
-    }
+        },
+        onError: (msg) => snackbar.showError(msg),
+        fallbackMessage: "Failed to send contact info. Please try again.",
+    });
+
+    btn.disabled = false;
+    btn.textContent = "Send to My Secret Santa";
 }

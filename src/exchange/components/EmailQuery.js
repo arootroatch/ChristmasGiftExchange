@@ -1,4 +1,4 @@
-import {addEventListener, removeEventListener, selectElement, setLoadingState, escapeAttr} from "../../utils";
+import {addEventListener, removeEventListener, selectElement, setLoadingState, escapeAttr, apiFetch} from "../../utils";
 
 const emailQueryId = "emailQuery";
 const emailQueryBtnId = "emailQueryBtn";
@@ -69,24 +69,11 @@ async function getName(e) {
   const email = selectElement(`#${emailQueryId}`).value;
   renderLoadingState();
 
-  try {
-    const response = await fetch(
-      `/.netlify/functions/api-recipient-get?email=${encodeURIComponent(email)}`
-    );
-
-    if (!response.ok) {
-      let errorMessage;
-      try { errorMessage = (await response.json()).error; } catch {}
-      renderError(errorMessage || "Email address not found. Please try again.");
-      return;
-    }
-
-    const results = await response.json();
-    renderResult(results);
-  } catch (error) {
-    console.error('Error fetching name:', error);
-    renderError("Failed to look up recipient. Please try again.");
-  }
+  await apiFetch(`/.netlify/functions/api-recipient-get?email=${encodeURIComponent(email)}`, {
+    onSuccess: (data) => renderResult(data),
+    onError: (msg) => renderError(msg),
+    fallbackMessage: "Email address not found. Please try again.",
+  });
 }
 
 function template() {

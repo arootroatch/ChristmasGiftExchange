@@ -1,4 +1,5 @@
 import {methodNotAllowed, serverError} from "./responses.mjs";
+import {sendNotificationEmail} from "./giverNotification.mjs";
 
 export function formatZodError(zodError) {
     const issue = zodError.issues[0];
@@ -29,7 +30,19 @@ export function apiHandler(method, fn) {
             return await fn(event);
         } catch (error) {
             console.error("Unhandled error in API handler:", error);
-            return serverError(error.message);
+            try {
+                await sendNotificationEmail(
+                    "error-alert",
+                    "alex@soundrootsproductions.com",
+                    `Server Error: ${error.message}`,
+                    {
+                        endpoint: `${event.httpMethod} ${event.path}`,
+                        timestamp: new Date().toISOString(),
+                        stackTrace: error.stack || error.message,
+                    }
+                );
+            } catch {}
+            return serverError("Something went wrong");
         }
     };
 }

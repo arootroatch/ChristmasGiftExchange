@@ -1,5 +1,5 @@
 import {ExchangeEvents as Events, exchangeEvents as stateEvents} from "../../state.js";
-import {addEventListener, pushHTML, selectElement, setLoadingState} from "../../../utils.js";
+import {addEventListener, pushHTML, selectElement, setLoadingState, apiFetch} from "../../../utils.js";
 import {showError, showSuccess} from "../../../Snackbar.js";
 
 const sendEmailsId = "sendEmails";
@@ -47,29 +47,20 @@ function hideElement() {
 async function batchEmails() {
   setLoadingState(`#${sendEmailsBtnId}`);
 
-  try {
-    const response = await fetch("/.netlify/functions/api-giver-notify-post", {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({
-        participants: cachedParticipants,
-        assignments: cachedAssignments,
-      }),
-    });
-
-    if (!response.ok) {
-      let errorMessage;
-      try { errorMessage = (await response.json()).error; } catch {}
-      showError(errorMessage || "Failed to send emails. Please try again.");
+  await apiFetch("/.netlify/functions/api-giver-notify-post", {
+    method: "POST",
+    body: {
+      participants: cachedParticipants,
+      assignments: cachedAssignments,
+    },
+    onSuccess: (data) => {
+      hideElement();
+      showSuccess(`Sent ${data.sent} of ${data.total} emails successfully!`);
+    },
+    onError: (msg) => {
+      showError(msg);
       render();
-      return;
-    }
-
-    const data = await response.json();
-    hideElement();
-    showSuccess(`Sent ${data.sent} of ${data.total} emails successfully!`);
-  } catch (error) {
-    showError("Failed to send emails. Please try again.");
-    render();
-  }
+    },
+    fallbackMessage: "Failed to send emails. Please try again.",
+  });
 }
