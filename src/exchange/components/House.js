@@ -4,7 +4,7 @@ import {
   removeHouseFromState,
   renameHouse
 } from "../state.js";
-import {addEventListener, leftContainerId, selectElement} from "../../utils.js";
+import {addEventListener, leftContainerId, pushHTML, selectElement} from "../../utils.js";
 
 export function init() {
   stateEvents.on(Events.HOUSE_ADDED, onHouseAdded);
@@ -12,11 +12,10 @@ export function init() {
 }
 
 function onHouseAdded({houseID, houses}) {
-  const container = selectElement(`#${leftContainerId}`);
-  if (!container) return;
+  if (!selectElement(`#${leftContainerId}`)) return;
   const house = houses.find(h => h.id === houseID);
   const html = template(houseID, house.name);
-  container.insertAdjacentHTML('beforeend', html);
+  pushHTML(`#${leftContainerId}`, html)
   attachListeners(houseID);
 }
 

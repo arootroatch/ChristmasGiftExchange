@@ -17,17 +17,34 @@ Drawing names from a hat doesn't work when your family is scattered across the c
 ![Secret Santa Mode](/assets/SecretSantaMode.png)
 ![Recipient Lookup](/assets/SearchEmail.gif)
 
+## Features
+
+### Name Drawing
+- Add participants and optionally group them into households
+- Groups prevent members from drawing each other
+- Secret Santa Mode emails each participant their assignment privately
+- Drag-and-drop reassignment of generated results
+
+### Wishlists
+- Each participant receives a unique link to submit their wishlist
+- Wishlist links, individual item links, and contact/shipping info
+- Givers can view their recipient's wishlist through the exchange email
+
+### Reuse Past Exchanges
+- Look up previous exchanges by email
+- Reuse participant lists, groups, and emails without re-entering everything
+
 ## Architecture
 
 ### State as Single Source of Truth
 
-Like React, the UI is a function of state. A central `state.js` module owns all application data and exposes named mutation functions. Every mutation emits a corresponding event — components never modify state directly and never talk to each other.
+Like React, the UI is a function of state. A central state module owns all application data and exposes named mutation functions. Every mutation emits a corresponding event — components never modify state directly and never talk to each other.
 
 ```
-User Action → State Mutation → Event Emitted → Components React
+User Action -> State Mutation -> Event Emitted -> Components React
 ```
 
-The state module exposes functions like `addGiver()`, `removeHouseFromState()`, and `assignRecipients()`. Each one updates the state object and emits a specific event. The emit functions are private — external code can only trigger changes through the named API.
+The state module exposes functions like `addParticipant()`, `removeHouseFromState()`, and `assignRecipients()`. Each one updates the state object and emits a specific event. The emit functions are private — external code can only trigger changes through the named API.
 
 ### Lightweight Pub/Sub Event System
 
@@ -43,6 +60,16 @@ export function init() {
 
 This keeps components self-sufficient. Adding a new component means subscribing to existing events — no wiring changes needed elsewhere.
 
+### Multi-Page App
+
+The app is organized as multiple pages sharing common modules:
+- **Exchange page** (`src/exchange/`) — the main name-drawing wizard
+- **Wishlist edit page** (`src/wishlistEdit/`) — participant wishlist submission
+- **Wishlist view page** (`src/wishlistView.js`) — giver views recipient's wishlist
+- **Reuse page** (`src/reuse.js`) — search and reuse past exchanges
+
+A custom Vite plugin (`viteMultiPagePlugin.js`) handles the multi-page build with HTML entry points in the `pages/` directory.
+
 ### Bipartite Matching Algorithm
 
 The name-drawing algorithm isn't just random shuffling. It models the problem as a bipartite graph where each participant can be assigned to any recipient outside their exclusion group. It then finds a [perfect matching](https://en.wikipedia.org/wiki/Matching_(graph_theory)#In_unweighted_bipartite_graphs) using augmenting paths, guaranteeing a valid assignment exists before presenting results — or reporting that the constraints make one impossible.
@@ -52,8 +79,9 @@ The algorithm is pure business logic with no UI imports, following strict separa
 ### Serverless Backend
 
 Netlify Functions handle the server-side work:
-- **MongoDB Atlas** — stores assignments so participants can look up their recipient by email
+- **MongoDB Atlas** — stores exchanges, user wishlists, and assignments
 - **Postmark** — sends each participant an email with their assigned recipient
+- **Zod 4** — validates all request bodies and database documents
 
 ## Testing
 
@@ -75,7 +103,30 @@ A custom snackbar notification system handles user-facing errors:
 ```bash
 git clone https://github.com/arootroatch/ChristmasGiftExchange.git
 cd ChristmasGiftExchange
+npm install
 ```
+
+### Run tests
+
+```bash
+npm run test
+```
+
+### Run coverage
+
+```bash
+npm run coverage
+```
+
+### Local development
+
+For local development with serverless functions and a local MongoDB:
+
+```bash
+npm run dev
+```
+
+This uses `netlify dev` with a local database seeded with test data.
 
 ### Netlify CLI
 
