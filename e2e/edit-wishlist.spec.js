@@ -1,0 +1,67 @@
+import {test, expect} from '@playwright/test';
+import {connectDB, disconnectDB, cleanDB, makeUser, makeExchange, seedUsers, seedExchange} from './helpers.js';
+
+test.describe('Edit Wishlist → Giver Sees Updates', () => {
+    let giver, recipient, exchangeId;
+
+    test.beforeAll(async () => {
+        await connectDB();
+    });
+
+    test.beforeEach(async () => {
+        await cleanDB();
+
+        giver = makeUser({name: 'Alice', email: 'alice@test.com'});
+        recipient = makeUser({name: 'Bob', email: 'bob@test.com'});
+        exchangeId = 'edit-wishlist-ex';
+
+        await seedUsers(giver, recipient);
+        await seedExchange(makeExchange({
+            exchangeId,
+            participants: [giver._id, recipient._id],
+            assignments: [{giverId: giver._id, recipientId: recipient._id}],
+        }));
+    });
+
+    test.afterAll(async () => {
+        await disconnectDB();
+    });
+
+    test('recipient edits wishlist and giver sees the updates', async ({page}) => {
+        // Step 1: Recipient navigates to wishlist edit page
+        await page.goto(`/wishlist/edit/${recipient.token}`);
+
+        // Wait for page to load user data
+        await expect(page.locator('#greeting')).toContainText('Bob', {timeout: 10000});
+
+        // Step 2: Add a wishlist URL
+        await page.locator('#wishlist-url').fill('https://amazon.com/wishlist/123');
+        await page.locator('#wishlist-title').fill('My Amazon List');
+        await page.locator('#add-wishlist-btn').click();
+
+        // Verify wishlist entry appeared in the list
+        await expect(page.locator('#wishlists-list')).toContainText('My Amazon List');
+
+        // Step 3: Add a wish item
+        await page.locator('#item-url').fill('https://amazon.com/product/456');
+        await page.locator('#item-title').fill('Cool Gadget');
+        await page.locator('#add-item-btn').click();
+
+        // Verify item entry appeared in the list
+        await expect(page.locator('#items-list')).toContainText('Cool Gadget');
+
+        // Step 4: Save
+        await page.locator('#save-wishlist-btn').click();
+        await expect(page.locator('#snackbar')).toContainText('Wishlist saved', {timeout: 10000});
+
+        // Step 5: Giver navigates to wishlist view page
+        await page.goto(`/wishlist/view/${giver.token}?exchange=${exchangeId}`);
+
+        // Step 6: Giver sees the recipient's wishlist
+        await expect(page.locator('#heading')).toContainText("Bob's Wishlist", {timeout: 10000});
+
+        const content = page.locator('#wishlist-content');
+        await expect(content).toContainText('My Amazon List');
+        await expect(content).toContainText('Cool Gadget');
+    });
+});
