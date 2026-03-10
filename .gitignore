@@ -29,3 +29,6 @@ docs/
 
 # Build output
 dist/
+
+# E2E test temp state
+e2e/.e2e-state.json
