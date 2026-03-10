@@ -2,7 +2,7 @@ import {test, expect} from '@playwright/test';
 import {connectDB, disconnectDB, cleanDB, makeUser, makeExchange, seedUsers, seedExchange} from './helpers.js';
 
 test.describe('Reuse Exchange', () => {
-    let alice, bob;
+    let alice, bob, exchangeId;
 
     test.beforeAll(async () => {
         await connectDB();
@@ -13,10 +13,11 @@ test.describe('Reuse Exchange', () => {
 
         alice = makeUser({name: 'Alice', email: 'alice@test.com'});
         bob = makeUser({name: 'Bob', email: 'bob@test.com'});
+        exchangeId = crypto.randomUUID();
 
         await seedUsers(alice, bob);
         await seedExchange(makeExchange({
-            exchangeId: 'reuse-ex-1',
+            exchangeId,
             isSecretSanta: true,
             participants: [alice._id, bob._id],
             assignments: [
@@ -39,7 +40,7 @@ test.describe('Reuse Exchange', () => {
         await page.locator('#reuse-search-btn').click();
 
         const results = page.locator('#results-section');
-        await expect(results).toContainText('Alice', {timeout: 10000});
+        await expect(results).toContainText('Alice');
         await expect(results).toContainText('Bob');
         await expect(results).toContainText('Family');
     });
@@ -50,7 +51,7 @@ test.describe('Reuse Exchange', () => {
         await page.locator('#reuse-email').fill('nobody@test.com');
         await page.locator('#reuse-search-btn').click();
 
-        await expect(page.locator('#snackbar')).toContainText('No past exchanges found', {timeout: 10000});
+        await expect(page.locator('#snackbar')).toContainText('No past exchanges found');
     });
 
     test('Use This Exchange button stores data in sessionStorage', async ({page}) => {
@@ -58,22 +59,22 @@ test.describe('Reuse Exchange', () => {
 
         await page.locator('#reuse-email').fill('alice@test.com');
         await page.locator('#reuse-search-btn').click();
-        await expect(page.locator('.use-exchange-btn')).toBeVisible({timeout: 10000});
+        await expect(page.locator('.use-exchange-btn')).toBeVisible();
 
-        // Intercept sessionStorage.setItem before click triggers navigation
-        const [stored] = await Promise.all([
-            page.evaluate(() => new Promise(resolve => {
-                const origSetItem = sessionStorage.setItem.bind(sessionStorage);
-                sessionStorage.setItem = (key, value) => {
-                    origSetItem(key, value);
-                    if (key === 'reuseExchange') resolve(value);
-                };
-            })),
-            page.locator('.use-exchange-btn').first().click(),
-        ]);
+        // Intercept sessionStorage.setItem before click — the home page consumes and removes the item on load
+        const storedPromise = page.evaluate(() => new Promise(resolve => {
+            const origSetItem = sessionStorage.setItem.bind(sessionStorage);
+            sessionStorage.setItem = (key, value) => {
+                origSetItem(key, value);
+                if (key === 'reuseExchange') resolve(value);
+            };
+        }));
+
+        await page.locator('.use-exchange-btn').first().click();
+        const stored = await storedPromise;
 
         expect(stored).not.toBeNull();
         const parsed = JSON.parse(stored);
-        expect(parsed.exchangeId).toBe('reuse-ex-1');
+        expect(parsed.exchangeId).toBe(exchangeId);
     });
 });

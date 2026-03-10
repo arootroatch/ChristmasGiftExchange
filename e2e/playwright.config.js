@@ -4,7 +4,11 @@ export default defineConfig({
     testDir: '.',
     timeout: 30000,
     retries: 0,
+    // All tests share one MongoMemoryServer instance — parallel workers would cause DB conflicts
     workers: 1,
+    expect: {
+        timeout: 10000,
+    },
     use: {
         baseURL: 'http://localhost:8888',
         headless: true,

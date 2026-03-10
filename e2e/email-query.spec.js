@@ -20,7 +20,7 @@ test.describe('Email Query', () => {
 
         await seedUsers(giver, recipient);
         await seedExchange(makeExchange({
-            exchangeId: 'query-ex',
+            exchangeId: crypto.randomUUID(),
             participants: [giver._id, recipient._id],
             assignments: [{giverId: giver._id, recipientId: recipient._id}],
         }));
@@ -40,7 +40,7 @@ test.describe('Email Query', () => {
         await submitBtn.click();
 
         const result = page.locator('#query');
-        await expect(result).toContainText('Bob', {timeout: 10000});
+        await expect(result).toContainText('Bob');
     });
 
     test('shows wishlist view link when recipient has wishlist', async ({page}) => {
@@ -50,7 +50,8 @@ test.describe('Email Query', () => {
         await page.locator('#emailQueryBtn').click();
 
         const link = page.locator('#query a');
-        await expect(link).toBeVisible({timeout: 10000});
+        await expect(link).toBeVisible();
+        await expect(link).toHaveAttribute('href', /\/wishlist\/view\//);
     });
 
     test('shows error for unknown email', async ({page}) => {
@@ -60,6 +61,6 @@ test.describe('Email Query', () => {
         await page.locator('#emailQueryBtn').click();
 
         const result = page.locator('#query');
-        await expect(result).toContainText(/not found/i, {timeout: 10000});
+        await expect(result).toContainText(/not found/i);
     });
 });

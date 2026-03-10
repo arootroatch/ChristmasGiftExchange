@@ -85,7 +85,11 @@ Netlify Functions handle the server-side work:
 
 ## Testing
 
-The project uses **Vitest** with **jsdom** for a full unit test suite. The event-driven architecture makes components naturally testable in isolation — each component can be tested by emitting events and asserting on DOM output, without needing to set up the entire application.
+The project has three test layers:
+
+- **Unit tests** — Vitest + jsdom. Components tested in isolation by emitting events and asserting on DOM output.
+- **Integration tests** — Contract tests that call real backend handlers with frontend-shaped payloads against MongoMemoryServer, verifying request/response shapes stay in sync.
+- **E2E tests** — Playwright driving a real `netlify dev` server backed by MongoMemoryServer, verifying critical user journeys end-to-end.
 
 ## Error Handling
 
@@ -109,13 +113,18 @@ npm install
 ### Run tests
 
 ```bash
-npm run test
+npm test              # all unit + integration tests (watch mode)
+npm run unit          # unit tests only (watch mode)
+npm run integration   # integration/contract tests only (watch mode)
+npm run e2e           # Playwright end-to-end tests
+npm run coverage      # all tests with coverage report
 ```
 
-### Run coverage
+Add `-- run` to any vitest command for a single run instead of watch mode:
 
 ```bash
-npm run coverage
+npm test -- run
+npm run unit -- run
 ```
 
 ### Local development

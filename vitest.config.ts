@@ -6,5 +6,6 @@ export default defineConfig({
     setupFiles: ['spec/setupTests.js'],
     globalSetup: ['spec/netlify-functions/mongoSetup.js'],
     fileParallelism: false,
+    include: ['spec/**/*.spec.js'],
   },
 });

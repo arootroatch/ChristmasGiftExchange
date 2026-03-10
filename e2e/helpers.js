@@ -6,6 +6,7 @@ export {makeUser, makeExchange} from '../spec/shared/testFactories.js';
 
 const STATE_FILE = path.join(import.meta.dirname, '.e2e-state.json');
 
+// Module-level DB state — safe because playwright.config.js enforces workers: 1
 let client;
 let db;
 
@@ -33,8 +34,8 @@ export async function disconnectDB() {
 
 export async function cleanDB() {
     const d = requireDB();
-    await d.collection('users').deleteMany({});
     await d.collection('exchanges').deleteMany({});
+    await d.collection('users').deleteMany({});
     await d.collection('legacy-names').deleteMany({});
 }
 

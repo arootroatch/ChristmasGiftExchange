@@ -9,7 +9,9 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest",
-    "test:e2e": "npx playwright test",
+    "unit": "vitest --exclude 'spec/integration/**'",
+    "integration": "vitest spec/integration/",
+    "e2e": "npx playwright test --config e2e/playwright.config.js",
     "coverage": "vitest run --coverage"
   },
   "repository": {

@@ -16,7 +16,7 @@ describe('api-exchange-post contract', () => {
 
     // This mirrors the shape returned by getExchangePayload() in src/exchange/state.js:166-174
     const fePayload = {
-        exchangeId: 'fe-exchange-123',
+        exchangeId: crypto.randomUUID(),
         isSecretSanta: true,
         houses: [{id: 'house-1', name: 'Family', members: ['Alice', 'Bob']}],
         participants: [

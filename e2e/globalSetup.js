@@ -1,11 +1,19 @@
 import {MongoMemoryServer} from 'mongodb-memory-server';
 import {spawn, execSync} from 'child_process';
-import {writeFileSync, unlinkSync} from 'fs';
+import {writeFileSync, unlinkSync, readFileSync} from 'fs';
 import path from 'path';
 import net from 'net';
 
 const PORT = 8888;
 const STATE_FILE = path.join(import.meta.dirname, '.e2e-state.json');
+
+function cleanupStaleRun() {
+    try {
+        readFileSync(STATE_FILE, 'utf-8');
+        unlinkSync(STATE_FILE);
+        execSync(`lsof -ti :${PORT} | xargs kill -9 2>/dev/null || true`);
+    } catch { /* no stale state */ }
+}
 
 function checkPortAvailable(port) {
     return new Promise((resolve, reject) => {
@@ -31,12 +39,13 @@ async function waitForServer(url, timeoutMs = 30000) {
 }
 
 export default async function globalSetup() {
+    cleanupStaleRun();
     await checkPortAvailable(PORT);
 
     const mongoServer = await MongoMemoryServer.create();
     const mongoUri = mongoServer.getUri();
 
-    const netlifyDev = spawn('npx', ['netlify', 'dev', '--port', String(PORT)], {
+    const netlifyDev = spawn('npx', ['netlify', 'dev', '--port', String(PORT), '--no-open'], {
         cwd: path.resolve(import.meta.dirname, '..'),
         env: {
             ...process.env,

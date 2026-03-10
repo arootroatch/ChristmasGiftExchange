@@ -16,7 +16,7 @@ describe('api-exchange-search contract', () => {
         bob = makeUser({name: 'Bob', email: 'bob@test.com'});
         await seedUsers(db, alice, bob);
         await seedExchange(db, makeExchange({
-            exchangeId: 'search-ex-1',
+            exchangeId: crypto.randomUUID(),
             isSecretSanta: true,
             participants: [alice._id, bob._id],
             assignments: [{giverId: alice._id, recipientId: bob._id}, {giverId: bob._id, recipientId: alice._id}],

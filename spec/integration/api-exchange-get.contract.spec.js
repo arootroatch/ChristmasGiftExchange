@@ -2,7 +2,7 @@ import {afterAll, afterEach, beforeAll, beforeEach, describe, expect, it} from '
 import {setupMongo, teardownMongo, cleanCollections, buildEvent, makeUser, makeExchange, seedUsers, seedExchange} from './contractHelper.js';
 
 describe('api-exchange-get contract', () => {
-    let handler, db, mongo, giver, recipient;
+    let handler, db, mongo, giver, recipient, exchangeId;
 
     beforeAll(async () => {
         mongo = await setupMongo();
@@ -19,9 +19,10 @@ describe('api-exchange-get contract', () => {
             wishlists: [{url: 'https://amazon.com/list', title: 'My List'}],
             wishItems: [{url: 'https://amazon.com/item', title: 'Cool Thing'}],
         });
+        exchangeId = crypto.randomUUID();
         await seedUsers(db, giver, recipient);
         await seedExchange(db, makeExchange({
-            exchangeId: 'ex-123',
+            exchangeId,
             participants: [giver._id, recipient._id],
             assignments: [{giverId: giver._id, recipientId: recipient._id}],
         }));
@@ -32,7 +33,7 @@ describe('api-exchange-get contract', () => {
 
     function exchangeGetEvent() {
         return buildEvent('GET', {
-            path: '/.netlify/functions/api-exchange-get/ex-123',
+            path: `/.netlify/functions/api-exchange-get/${exchangeId}`,
             queryStringParameters: {token: giver.token},
         });
     }

@@ -1,5 +1,5 @@
 import {test, expect} from '@playwright/test';
-import {connectDB, disconnectDB, cleanDB, findUser, findExchange} from './helpers.js';
+import {connectDB, disconnectDB, cleanDB, findUser, findExchange, makeUser, makeExchange, seedUsers, seedExchange} from './helpers.js';
 
 test.describe('Create Exchange → View Wishlist', () => {
     test.beforeAll(async () => {
@@ -35,7 +35,7 @@ test.describe('Create Exchange → View Wishlist', () => {
 
         await page.locator('#nextStep').click();
 
-        await expect(page.locator('#emailTable')).toBeVisible({timeout: 5000});
+        await expect(page.locator('#emailTable')).toBeVisible();
 
         // pressSequentially works around Verifalia widget intercepting fill()
         const emailInputs = page.locator('#emailTableBody .emailInput');
@@ -47,9 +47,9 @@ test.describe('Create Exchange → View Wishlist', () => {
         }
 
         await page.locator('#submitEmails').click();
-        await expect(page.locator('#sendEmailsBtn')).toBeVisible({timeout: 10000});
+        await expect(page.locator('#sendEmailsBtn')).toBeVisible();
         await page.locator('#sendEmailsBtn').click();
-        await expect(page.locator('#snackbar')).toContainText(/Sent \d+ of \d+ emails successfully/i, {timeout: 10000});
+        await expect(page.locator('#snackbar')).toContainText(/Sent \d+ of \d+ emails successfully/i);
     }
 
     test('full exchange creation flow creates exchange in DB', async ({page}) => {
@@ -61,18 +61,22 @@ test.describe('Create Exchange → View Wishlist', () => {
         expect(exchange.assignments).toHaveLength(3);
     });
 
-    test('giver can view recipient wishlist page after exchange created', async ({page}) => {
-        await createExchange(page, ['Alice', 'Bob']);
+    test('giver can view recipient wishlist page', async ({page}) => {
+        const giver = makeUser({name: 'Alice', email: 'alice@test.com'});
+        const recipient = makeUser({name: 'Bob', email: 'bob@test.com'});
+        const exchangeId = crypto.randomUUID();
 
-        const giver = await findUser({email: 'alice@test.com'});
-        const exchange = await findExchange({});
-        expect(giver).not.toBeNull();
-        expect(exchange).not.toBeNull();
+        await seedUsers(giver, recipient);
+        await seedExchange(makeExchange({
+            exchangeId,
+            participants: [giver._id, recipient._id],
+            assignments: [{giverId: giver._id, recipientId: recipient._id}],
+        }));
 
-        await page.goto(`/wishlist/view/${giver.token}?exchange=${exchange.exchangeId}`);
+        await page.goto(`/wishlist/view/${giver.token}?exchange=${exchangeId}`);
 
         const heading = page.locator('#heading');
-        await expect(heading).toBeVisible({timeout: 10000});
+        await expect(heading).toBeVisible();
         await expect(heading).toContainText('Wishlist');
         await expect(page.locator('#wishlist-content')).toContainText('No wishlist submitted yet');
     });
