@@ -11,6 +11,7 @@ import * as generateButton from "./components/ControlStrip/GenerateButton.js";
 import * as instructions from "./components/Instructions.js";
 import * as emailTable from "./components/EmailTable/EmailTable.js";
 import * as emailQuery from "./components/EmailQuery.js";
+import * as reuseLink from "./components/ReuseLink.js";
 import * as sendEmails from "./components/EmailTable/SendEmails.js";
 import * as snackbar from "../Snackbar.js";
 import {loadExchange, startExchange} from "./state.js";
@@ -36,6 +37,7 @@ export default function main() {
 
   emailTable.init();
   emailQuery.init();
+  reuseLink.init();
   sendEmails.init();
 
   const letsGo = selectElement("#letsGo");

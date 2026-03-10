@@ -1,31 +1,29 @@
-import crypto from "crypto";
-
 const users = [
     {
         name: "Alex",
         email: "alex@example.com",
-        token: crypto.randomUUID(),
+        token: "a0000000-0000-4000-a000-000000000001",
         wishlists: [{url: "https://amazon.com/wishlist/abc", title: "Amazon Wishlist"}],
-        wishItems: [{name: "Wool Socks", url: "https://amazon.com/dp/socks123", price: "$15"}],
+        wishItems: [{title: "Wool Socks", url: "https://amazon.com/dp/socks123"}],
     },
     {
         name: "Whitney",
         email: "whitney@example.com",
-        token: crypto.randomUUID(),
+        token: "a0000000-0000-4000-a000-000000000002",
         wishlists: [],
         wishItems: [],
     },
     {
         name: "Hunter",
         email: "hunter@example.com",
-        token: crypto.randomUUID(),
+        token: "a0000000-0000-4000-a000-000000000003",
         wishlists: [],
         wishItems: [],
     },
     {
         name: "Megan",
         email: "megan@example.com",
-        token: crypto.randomUUID(),
+        token: "a0000000-0000-4000-a000-000000000004",
         wishlists: [],
         wishItems: [],
     },
@@ -42,7 +40,7 @@ export async function seed(db) {
     const userIds = Object.values(insertedUsers.insertedIds);
 
     await exchangesCol.insertOne({
-        exchangeId: crypto.randomUUID(),
+        exchangeId: "e0000000-0000-4000-a000-000000000001",
         createdAt: new Date(),
         isSecretSanta: true,
         houses: [

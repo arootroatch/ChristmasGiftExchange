@@ -38,9 +38,9 @@ async function main() {
 
     await seed(db);
 
-    console.log("\nREPL ready. Available: db, users, exchanges, seed(), find(), findOne()");
+    console.log("\nREPL ready. Available: db, users, exchanges, seed(), find(), findOne(), links()");
     console.log("Example: await find(users, {name: 'Alice'})")
-    console.log("Example: await findOne(exchanges, {id: '...'})\n");
+    console.log("Example: await links('user-token-uuid')\n");
 
     const r = repl.start({prompt: "dev-db> ", useGlobal: true});
     r.context.db = db;
@@ -49,6 +49,18 @@ async function main() {
     r.context.seed = () => seed(db);
     r.context.find = (collection, query = {}) => collection.find(query).toArray();
     r.context.findOne = (collection, query = {}) => collection.findOne(query);
+    r.context.links = async (token) => {
+        const base = "http://localhost:8888";
+        const user = await db.collection("users").findOne({token});
+        if (!user) { console.log("User not found"); return; }
+        console.log(`\nLinks for ${user.name} (${user.email}):`);
+        console.log(`  Edit wishlist: ${base}/wishlist/edit/${token}`);
+        const exs = await db.collection("exchanges").find({participants: user._id}).toArray();
+        for (const ex of exs) {
+            console.log(`  View wishlist: ${base}/wishlist/view/${token}?exchange=${ex.exchangeId}`);
+        }
+        console.log();
+    };
 
     r.on("exit", async () => {
         console.log("\nShutting down...");

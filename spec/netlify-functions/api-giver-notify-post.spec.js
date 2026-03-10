@@ -17,6 +17,7 @@ describe('api-giver-notify-post', () => {
 
         process.env.URL = 'https://test.netlify.app';
         process.env.NETLIFY_EMAILS_SECRET = 'test-secret-key';
+        process.env.CONTEXT = 'production';
 
         mockFetch = vi.fn().mockResolvedValue({ok: true});
         vi.stubGlobal('fetch', mockFetch);
@@ -42,6 +43,7 @@ describe('api-giver-notify-post', () => {
         vi.unstubAllGlobals();
         delete process.env.URL;
         delete process.env.NETLIFY_EMAILS_SECRET;
+        delete process.env.CONTEXT;
         await teardownMongo(mongo);
     });
 

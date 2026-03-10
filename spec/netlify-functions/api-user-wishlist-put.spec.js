@@ -13,6 +13,7 @@ describe('api-user-wishlist-put', () => {
 
         process.env.URL = 'https://test.netlify.app';
         process.env.NETLIFY_EMAILS_SECRET = 'test-secret';
+        process.env.CONTEXT = 'production';
 
         mockFetch = vi.fn().mockResolvedValue({ok: true});
         vi.stubGlobal('fetch', mockFetch);
@@ -33,6 +34,7 @@ describe('api-user-wishlist-put', () => {
         vi.unstubAllGlobals();
         delete process.env.URL;
         delete process.env.NETLIFY_EMAILS_SECRET;
+        delete process.env.CONTEXT;
         await teardownMongo(mongo);
     });
 
