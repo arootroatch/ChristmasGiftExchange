@@ -131,7 +131,7 @@ Local development requires the Netlify CLI and a MongoDB instance.
 2. **Start the dev database** in a separate terminal. This launches an in-memory MongoDB via MongoMemoryServer, seeds it with test data, and opens a REPL for querying:
 
    ```bash
-   node dev/dev-db.mjs
+   bin/db
    ```
 
    The script updates `MONGO_DB_URI` in `.env.local` to point to the in-memory server.

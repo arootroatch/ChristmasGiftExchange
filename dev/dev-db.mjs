@@ -38,14 +38,17 @@ async function main() {
 
     await seed(db);
 
-    console.log("\nREPL ready. Available: db, users, exchanges, seed()");
-    console.log("Example: await users.find({}).toArray()\n");
+    console.log("\nREPL ready. Available: db, users, exchanges, seed(), find(), findOne()");
+    console.log("Example: await find(users, {name: 'Alice'})")
+    console.log("Example: await findOne(exchanges, {id: '...'})\n");
 
     const r = repl.start({prompt: "dev-db> ", useGlobal: true});
     r.context.db = db;
     r.context.users = db.collection("users");
     r.context.exchanges = db.collection("exchanges");
     r.context.seed = () => seed(db);
+    r.context.find = (collection, query = {}) => collection.find(query).toArray();
+    r.context.findOne = (collection, query = {}) => collection.findOne(query);
 
     r.on("exit", async () => {
         console.log("\nShutting down...");
