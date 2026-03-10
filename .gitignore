@@ -32,3 +32,6 @@ dist/
 
 # E2E test temp state
 e2e/.e2e-state.json
+
+# Deno (auto-generated, not used)
+deno.lock
