@@ -2,6 +2,7 @@
   "name": "christmas-gift-exchange",
   "version": "1.0.0",
   "description": "Gift exchange generator site for holiday name picking",
+  "type": "module",
   "main": "main.js",
   "scripts": {
     "dev": "netlify dev",
