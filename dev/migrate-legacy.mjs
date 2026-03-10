@@ -1,3 +1,5 @@
+import crypto from 'crypto';
+
 export async function migrateLegacyData(db, legacyCollectionName, options = {}) {
     const {dryRun = false} = options;
     const legacyCol = db.collection(legacyCollectionName);
@@ -16,15 +18,50 @@ export async function migrateLegacyData(db, legacyCollectionName, options = {}) 
     }
     console.log(`Found ${Object.keys(exchangeGroups).length} exchanges`);
 
-    // Look up all existing users by email
+    // Upsert all unique users (by email)
     const emailToUser = {};
-    const allUsers = await usersCol.find().toArray();
-    for (const user of allUsers) {
-        emailToUser[user.email] = user;
+    let usersCreated = 0;
+    let usersSkipped = 0;
+    const uniqueEmails = [...new Set(allDocs.filter(d => d.email).map(d => d.email))];
+    let userIndex = 0;
+
+    for (const doc of allDocs) {
+        if (!doc.email || emailToUser[doc.email]) continue;
+        userIndex++;
+        console.log(`Processing user ${userIndex}/${uniqueEmails.length}: ${doc.name} (${doc.email})`);
+
+        if (dryRun) {
+            const existing = await usersCol.findOne({email: doc.email});
+            if (existing) {
+                emailToUser[doc.email] = existing;
+                usersSkipped++;
+            } else {
+                emailToUser[doc.email] = {_id: `dry-run-${doc.email}`, name: doc.name, email: doc.email};
+                usersCreated++;
+            }
+            continue;
+        }
+
+        const existing = await usersCol.findOne({email: doc.email});
+        const result = await usersCol.findOneAndUpdate(
+            {email: doc.email},
+            {
+                $set: {name: doc.name, email: doc.email},
+                $setOnInsert: {
+                    token: crypto.randomUUID(),
+                    wishlists: [],
+                    wishItems: [],
+                },
+            },
+            {upsert: true, returnDocument: 'after'}
+        );
+        emailToUser[doc.email] = result;
+        if (existing) {
+            usersSkipped++;
+        } else {
+            usersCreated++;
+        }
     }
-    console.log(`Loaded ${allUsers.length} users`);
-    const usersCreated = 0;
-    const usersSkipped = allUsers.length;
 
     // Create exchanges
     let exchangesCreated = 0;
