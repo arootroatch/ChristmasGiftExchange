@@ -65,7 +65,7 @@ describe('db utility', () => {
 describe("getDb with failed connection", () => {
     it("throws 'Database unavailable' when connection fails", async () => {
         const originalUri = process.env.MONGO_DB_URI;
-        process.env.MONGO_DB_URI = "mongodb://localhost:27099/?serverSelectionTimeoutMS=1000";
+        process.env.MONGO_DB_URI = "mongodb://localhost:27099/?serverSelectionTimeoutMS=100";
 
         vi.resetModules();
         const {getDb} = await import("../../netlify/shared/db.mjs");
@@ -74,5 +74,5 @@ describe("getDb with failed connection", () => {
 
         process.env.MONGO_DB_URI = originalUri;
         vi.resetModules();
-    }, 10000);
+    }, 5000);
 });

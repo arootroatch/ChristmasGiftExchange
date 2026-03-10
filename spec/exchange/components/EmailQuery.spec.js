@@ -11,20 +11,20 @@ describe("getName", () => {
     let consoleErrorSpy;
 
     beforeAll(() => {
-        // Mock console to suppress output during tests
         consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
         consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-        init();
-        query = document.querySelector("#query");
     });
 
     afterAll(() => {
-        // Restore console
         consoleLogSpy.mockRestore();
         consoleErrorSpy.mockRestore();
     });
 
     beforeEach(() => {
+        vi.useRealTimers();
+        vi.clearAllTimers();
+        init();
+        query = document.querySelector("#query");
         emailQueryBtn = document.querySelector("#emailQueryBtn");
     })
 
@@ -54,11 +54,13 @@ describe("getName", () => {
         );
     })
 
-    it("displays recipient and date", () => {
+    it("displays recipient and date", async () => {
         stubRecipientFetch({recipient: "Whitney", date: "2023-06-15T12:00:00.000Z"});
         click("#emailQueryBtn");
-        expect(query.innerHTML).toContain("As of Thu Jun 15 2023, you're buying a gift for");
-        expect(query.innerHTML).toContain("Whitney!");
+        await waitFor(() => {
+            expect(query.innerHTML).toContain("As of Thu Jun 15 2023, you're buying a gift for");
+            expect(query.innerHTML).toContain("Whitney!");
+        });
     })
 
     it("displays View Wishlist link when wishlistViewUrl is present", async () => {
@@ -127,14 +129,12 @@ describe("getName", () => {
     }
 
     it("displays API error message on non-ok response", async () => {
-        await waitFor(() => expect(document.querySelector("#emailQueryBtn")).not.toBeNull(), {timeout: 3000});
         stubFetchNotOk("Database unavailable");
         click("#emailQueryBtn");
         await waitFor(() => expect(query.innerHTML).toContain("Database unavailable"));
     });
 
     it("displays generic error on non-ok response without error field", async () => {
-        await waitFor(() => expect(document.querySelector("#emailQueryBtn")).not.toBeNull(), {timeout: 3000});
         global.fetch = vi.fn(() => Promise.resolve({
             ok: false,
             status: 400,
