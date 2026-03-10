@@ -1,5 +1,3 @@
-import crypto from 'crypto';
-
 export async function migrateLegacyData(db, legacyCollectionName, options = {}) {
     const {dryRun = false} = options;
     const legacyCol = db.collection(legacyCollectionName);
@@ -9,58 +7,24 @@ export async function migrateLegacyData(db, legacyCollectionName, options = {}) 
     const allDocs = await legacyCol.find().toArray();
     console.log(`Found ${allDocs.length} legacy documents`);
 
-    // Group by exchange id
+    // Group by exchange id (skip docs without an exchange id)
     const exchangeGroups = {};
     for (const doc of allDocs) {
+        if (!doc.id || !doc.email) continue;
         if (!exchangeGroups[doc.id]) exchangeGroups[doc.id] = [];
         exchangeGroups[doc.id].push(doc);
     }
     console.log(`Found ${Object.keys(exchangeGroups).length} exchanges`);
 
-    // Upsert all unique users (by email)
+    // Look up all existing users by email
     const emailToUser = {};
-    let usersCreated = 0;
-    let usersSkipped = 0;
-    const uniqueEmails = [...new Set(allDocs.map(d => d.email))];
-    let userIndex = 0;
-
-    for (const doc of allDocs) {
-        if (emailToUser[doc.email]) continue;
-        userIndex++;
-        console.log(`Processing user ${userIndex}/${uniqueEmails.length}: ${doc.name} (${doc.email})`);
-
-        if (dryRun) {
-            const existing = await usersCol.findOne({email: doc.email});
-            if (existing) {
-                emailToUser[doc.email] = existing;
-                usersSkipped++;
-            } else {
-                emailToUser[doc.email] = {_id: `dry-run-${doc.email}`, name: doc.name, email: doc.email};
-                usersCreated++;
-            }
-            continue;
-        }
-
-        const existing = await usersCol.findOne({email: doc.email});
-        const result = await usersCol.findOneAndUpdate(
-            {email: doc.email},
-            {
-                $set: {name: doc.name, email: doc.email},
-                $setOnInsert: {
-                    token: crypto.randomUUID(),
-                    wishlists: [],
-                    wishItems: [],
-                },
-            },
-            {upsert: true, returnDocument: 'after'}
-        );
-        emailToUser[doc.email] = result;
-        if (existing) {
-            usersSkipped++;
-        } else {
-            usersCreated++;
-        }
+    const allUsers = await usersCol.find().toArray();
+    for (const user of allUsers) {
+        emailToUser[user.email] = user;
     }
+    console.log(`Loaded ${allUsers.length} users`);
+    const usersCreated = 0;
+    const usersSkipped = allUsers.length;
 
     // Create exchanges
     let exchangesCreated = 0;
@@ -82,6 +46,15 @@ export async function migrateLegacyData(db, legacyCollectionName, options = {}) 
         const nameToEmail = {};
         for (const doc of docs) {
             nameToEmail[doc.name] = doc.email;
+        }
+
+        const hasUnresolvableUser = docs.some(doc =>
+            !emailToUser[doc.email] || !nameToEmail[doc.recipient] || !emailToUser[nameToEmail[doc.recipient]]
+        );
+        if (hasUnresolvableUser) {
+            exchangesSkipped++;
+            console.log(`  Skipping (unresolvable participant or recipient)`);
+            continue;
         }
 
         const participants = docs.map(doc => emailToUser[doc.email]._id);
