@@ -21,7 +21,7 @@ describe('api-user-get', () => {
     });
 
     it('returns 405 for non-GET requests', async () => {
-        const event = {httpMethod: 'POST', path: '/api/user/some-token'};
+        const event = {httpMethod: 'POST', path: '/.netlify/functions/api-user-get/some-token'};
         const response = await handler(event);
         expect(response.statusCode).toBe(405);
     });
@@ -38,7 +38,7 @@ describe('api-user-get', () => {
 
         const event = {
             httpMethod: 'GET',
-            path: `/api/user/${alexToken}`,
+            path: `/.netlify/functions/api-user-get/${alexToken}`,
         };
 
         const response = await handler(event);
@@ -62,7 +62,7 @@ describe('api-user-get', () => {
 
         const event = {
             httpMethod: 'GET',
-            path: `/api/user/${alexToken}`,
+            path: `/.netlify/functions/api-user-get/${alexToken}`,
         };
 
         const response = await handler(event);
@@ -76,7 +76,7 @@ describe('api-user-get', () => {
     it('returns 401 for unknown token', async () => {
         const event = {
             httpMethod: 'GET',
-            path: '/api/user/nonexistent-token',
+            path: '/.netlify/functions/api-user-get/nonexistent-token',
         };
 
         const response = await handler(event);

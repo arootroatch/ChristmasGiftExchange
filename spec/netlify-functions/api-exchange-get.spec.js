@@ -70,7 +70,7 @@ describe('api-exchange-get', () => {
     }
 
     it('returns 405 for non-GET requests', async () => {
-        const event = {httpMethod: 'POST', path: '/api/exchange/abc', queryStringParameters: {token: 'x'}};
+        const event = {httpMethod: 'POST', path: '/.netlify/functions/api-exchange-get/abc', queryStringParameters: {token: 'x'}};
         const response = await handler(event);
         expect(response.statusCode).toBe(405);
     });
@@ -80,7 +80,7 @@ describe('api-exchange-get', () => {
 
         const event = {
             httpMethod: 'GET',
-            path: '/api/exchange/exchange-view',
+            path: '/.netlify/functions/api-exchange-get/exchange-view',
             queryStringParameters: {token: giverToken},
         };
 
@@ -99,7 +99,7 @@ describe('api-exchange-get', () => {
 
         const event = {
             httpMethod: 'GET',
-            path: '/api/exchange/exchange-view',
+            path: '/.netlify/functions/api-exchange-get/exchange-view',
             queryStringParameters: {token: outsiderToken},
         };
 
@@ -115,7 +115,7 @@ describe('api-exchange-get', () => {
 
         const event = {
             httpMethod: 'GET',
-            path: '/api/exchange/exchange-view',
+            path: '/.netlify/functions/api-exchange-get/exchange-view',
             queryStringParameters: {token: 'nonexistent-token'},
         };
 
@@ -128,7 +128,7 @@ describe('api-exchange-get', () => {
 
         const event = {
             httpMethod: 'GET',
-            path: '/api/exchange/nonexistent-exchange',
+            path: '/.netlify/functions/api-exchange-get/nonexistent-exchange',
             queryStringParameters: {token: giverToken},
         };
 

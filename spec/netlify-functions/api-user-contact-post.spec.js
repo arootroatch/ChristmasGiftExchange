@@ -41,13 +41,13 @@ describe('api-user-contact-post', () => {
     function buildEvent(token, body) {
         return {
             httpMethod: 'POST',
-            path: `/api/user/${token}/contact`,
+            path: `/.netlify/functions/api-user-contact-post/${token}`,
             body: JSON.stringify(body),
         };
     }
 
     it('returns 405 for non-POST requests', async () => {
-        const event = {httpMethod: 'GET', path: '/api/user/token/contact'};
+        const event = {httpMethod: 'GET', path: '/.netlify/functions/api-user-contact-post/token'};
         const response = await handler(event);
         expect(response.statusCode).toBe(405);
     });

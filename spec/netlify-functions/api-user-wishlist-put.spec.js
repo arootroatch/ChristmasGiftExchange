@@ -41,13 +41,13 @@ describe('api-user-wishlist-put', () => {
     function buildEvent(token, body) {
         return {
             httpMethod: 'PUT',
-            path: `/api/user/${token}/wishlist`,
+            path: `/.netlify/functions/api-user-wishlist-put/${token}`,
             body: JSON.stringify(body),
         };
     }
 
     it('returns 405 for non-PUT requests', async () => {
-        const event = {httpMethod: 'GET', path: '/api/user/token/wishlist'};
+        const event = {httpMethod: 'GET', path: '/.netlify/functions/api-user-wishlist-put/token'};
         const response = await handler(event);
         expect(response.statusCode).toBe(405);
     });
@@ -156,7 +156,7 @@ describe('api-user-wishlist-put', () => {
 
         const event = {
             httpMethod: 'PUT',
-            path: `/api/user/${alexToken}/wishlist`,
+            path: `/.netlify/functions/api-user-wishlist-put/${alexToken}`,
             body: JSON.stringify({wishlists: "not-an-array"}),
         };
 
