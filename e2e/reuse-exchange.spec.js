@@ -35,11 +35,9 @@ test.describe('Reuse Exchange', () => {
     test('search by email shows past exchange details', async ({page}) => {
         await page.goto('/reuse');
 
-        // Enter email and search
         await page.locator('#reuse-email').fill('alice@test.com');
         await page.locator('#reuse-search-btn').click();
 
-        // Wait for results
         const results = page.locator('#results-section');
         await expect(results).toContainText('Alice', {timeout: 10000});
         await expect(results).toContainText('Bob');
@@ -60,18 +58,9 @@ test.describe('Reuse Exchange', () => {
 
         await page.locator('#reuse-email').fill('alice@test.com');
         await page.locator('#reuse-search-btn').click();
-
-        // Wait for results to render
         await expect(page.locator('.use-exchange-btn')).toBeVisible({timeout: 10000});
 
-        // Prevent navigation so sessionStorage can be inspected before the exchange page consumes it
-        await page.evaluate(() => {
-            window._navigatedTo = null;
-            window.location.assign = (url) => { window._navigatedTo = url; };
-            window.location.replace = (url) => { window._navigatedTo = url; };
-        });
-
-        // Intercept the href setter by capturing the click handler's effect
+        // Intercept sessionStorage.setItem before click triggers navigation
         const [stored] = await Promise.all([
             page.evaluate(() => new Promise(resolve => {
                 const origSetItem = sessionStorage.setItem.bind(sessionStorage);
