@@ -202,8 +202,29 @@ spec/
     postToDb.spec.js
     schemas/
       user.spec.js
+  shared/
+    testFactories.js     # Shared makeUser, makeExchange, buildEvent factories
+  integration/
+    contractHelper.js    # Contract test setup (re-exports factories + mongo helpers)
+    api-exchange-post.contract.spec.js
+    api-exchange-get.contract.spec.js
+    api-exchange-search.contract.spec.js
+    api-user-get.contract.spec.js
+    api-user-wishlist-put.contract.spec.js
+    api-user-contact-post.contract.spec.js
+    api-giver-notify-post.contract.spec.js
+    api-recipient-get.contract.spec.js
   dev/
     migrate-legacy.spec.js
+
+e2e/
+  playwright.config.js   # Playwright config (workers: 1, port 8888)
+  globalSetup.js         # Starts MongoMemoryServer + netlify dev
+  helpers.js             # DB connection, seeding, query helpers for e2e
+  create-exchange.spec.js
+  edit-wishlist.spec.js
+  reuse-exchange.spec.js
+  email-query.spec.js
 ```
 
 ## Testing

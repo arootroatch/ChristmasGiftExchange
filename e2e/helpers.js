@@ -1,11 +1,18 @@
-import {MongoClient, ObjectId} from 'mongodb';
+import {MongoClient} from 'mongodb';
 import {readFileSync} from 'fs';
 import path from 'path';
+
+export {makeUser, makeExchange} from '../spec/shared/testFactories.js';
 
 const STATE_FILE = path.join(import.meta.dirname, '.e2e-state.json');
 
 let client;
 let db;
+
+function requireDB() {
+    if (!db) throw new Error('connectDB() must be called before using DB helpers');
+    return db;
+}
 
 export async function connectDB() {
     let state;
@@ -25,46 +32,24 @@ export async function disconnectDB() {
 }
 
 export async function cleanDB() {
-    if (!db) return;
-    await db.collection('users').deleteMany({});
-    await db.collection('exchanges').deleteMany({});
-    await db.collection('legacy-names').deleteMany({});
-}
-
-export function makeUser({name, email, token, wishlists, wishItems, _id} = {}) {
-    return {
-        _id: _id || new ObjectId(),
-        name: name || 'Test User',
-        email: email || 'test@test.com',
-        token: token || crypto.randomUUID(),
-        wishlists: wishlists || [],
-        wishItems: wishItems || [],
-    };
-}
-
-export function makeExchange({exchangeId, participants, assignments, houses, isSecretSanta, createdAt} = {}) {
-    return {
-        exchangeId: exchangeId || 'test-exchange',
-        createdAt: createdAt || new Date(),
-        isSecretSanta: isSecretSanta ?? false,
-        participants: participants || [],
-        assignments: assignments || [],
-        houses: houses || [],
-    };
+    const d = requireDB();
+    await d.collection('users').deleteMany({});
+    await d.collection('exchanges').deleteMany({});
+    await d.collection('legacy-names').deleteMany({});
 }
 
 export async function seedUsers(...users) {
-    return db.collection('users').insertMany(users);
+    return requireDB().collection('users').insertMany(users);
 }
 
 export async function seedExchange(exchange) {
-    return db.collection('exchanges').insertOne(exchange);
+    return requireDB().collection('exchanges').insertOne(exchange);
 }
 
 export async function findUser(query) {
-    return db.collection('users').findOne(query);
+    return requireDB().collection('users').findOne(query);
 }
 
 export async function findExchange(query) {
-    return db.collection('exchanges').findOne(query);
+    return requireDB().collection('exchanges').findOne(query);
 }

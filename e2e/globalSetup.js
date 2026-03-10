@@ -1,9 +1,22 @@
 import {MongoMemoryServer} from 'mongodb-memory-server';
-import {spawn} from 'child_process';
+import {spawn, execSync} from 'child_process';
 import {writeFileSync, unlinkSync} from 'fs';
 import path from 'path';
+import net from 'net';
 
+const PORT = 8888;
 const STATE_FILE = path.join(import.meta.dirname, '.e2e-state.json');
+
+function checkPortAvailable(port) {
+    return new Promise((resolve, reject) => {
+        const server = net.createServer();
+        server.once('error', () => reject(new Error(
+            `Port ${port} is already in use. Stop the other process or use a different port.`
+        )));
+        server.once('listening', () => server.close(() => resolve()));
+        server.listen(port);
+    });
+}
 
 async function waitForServer(url, timeoutMs = 30000) {
     const start = Date.now();
@@ -18,10 +31,12 @@ async function waitForServer(url, timeoutMs = 30000) {
 }
 
 export default async function globalSetup() {
+    await checkPortAvailable(PORT);
+
     const mongoServer = await MongoMemoryServer.create();
     const mongoUri = mongoServer.getUri();
 
-    const netlifyDev = spawn('npx', ['netlify', 'dev', '--port', '8888'], {
+    const netlifyDev = spawn('npx', ['netlify', 'dev', '--port', String(PORT)], {
         cwd: path.resolve(import.meta.dirname, '..'),
         env: {
             ...process.env,
@@ -39,12 +54,10 @@ export default async function globalSetup() {
         if (process.env.DEBUG_E2E) console.error(`[netlify dev] ${data}`);
     });
 
-    await waitForServer('http://localhost:8888');
+    await waitForServer(`http://localhost:${PORT}`);
 
-    // Save state for test helpers (DB seeding needs the URI)
     writeFileSync(STATE_FILE, JSON.stringify({mongoUri}));
 
-    // Return teardown function — MongoMemoryServer instance is in closure
     return async () => {
         netlifyDev.kill('SIGTERM');
         await mongoServer.stop();
