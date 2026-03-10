@@ -87,10 +87,15 @@ async function submitEmails(event) {
   event.preventDefault();
   setLoadingState(`#${submitEmailsId}`);
   const emails = getEmails();
+  const payload = getExchangePayload();
+  payload.participants = payload.participants.map((p, i) => ({
+    ...p,
+    email: emails[i]?.email || p.email,
+  }));
 
   await apiFetch("/.netlify/functions/api-exchange-post", {
     method: "POST",
-    body: getExchangePayload(),
+    body: payload,
     onSuccess: () => addEmailsToParticipants(emails),
     onError: (msg) => showError(msg),
     fallbackMessage: "Failed to submit emails. Please try again.",
