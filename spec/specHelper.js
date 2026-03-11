@@ -164,16 +164,18 @@ export function moveNameToHouse(houseSelector, name) {
 export function shouldDisplayErrorSnackbar(message) {
   const snackbar = document.querySelector("#snackbar");
   expect(snackbar.classList).toContain("show");
-  expectColor(snackbar.style.color, "rgb(179, 30, 32)", "#b31e20");
-  expectBorderColor(snackbar.style.border, "3px solid", "rgb(179, 30, 32)", "#b31e20");
+  expectColor(snackbar.style.color, "rgb(255, 255, 255)", "#fff");
+  expectBorderColor(snackbar.style.border, "1px solid", "rgba(200, 60, 60, 0.4)");
+  expectColor(snackbar.style.background, "rgba(140, 30, 30, 0.9)");
   expect(snackbar.textContent).toContain(message);
 }
 
 export function shouldDisplaySuccessSnackbar(message) {
   const snackbar = selectElement("#snackbar");
   expect(snackbar.textContent).toContain(message);
-  expectColor(snackbar.style.color, "rgb(25, 140, 10)", "#198c0a");
-  expectBorderColor(snackbar.style.border, "2px solid", "rgb(25, 140, 10)", "#198c0a");
+  expectColor(snackbar.style.color, "rgb(255, 255, 255)", "#fff");
+  expectBorderColor(snackbar.style.border, "1px solid", "rgba(44, 184, 24, 0.4)");
+  expectColor(snackbar.style.background, "rgba(25, 140, 10, 0.9)");
 }
 
 export function shouldDisplayEmailTable(...names) {

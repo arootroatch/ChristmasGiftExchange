@@ -26,16 +26,12 @@ describe('resultsTable', () => {
     expect(table.closest("#flex-div")).not.toBeNull();
   });
 
-  it('renders empty placeholder rows in tbody', () => {
+  it('renders empty table body', () => {
     startExchange(false);
 
-    const rows = document.querySelectorAll("#table-body tr");
-    expect(rows.length).toBe(4);
-    rows.forEach(row => {
-      const cells = row.querySelectorAll("td");
-      expect(cells.length).toBe(2);
-      cells.forEach(cell => expect(cell.textContent).toBe(""));
-    });
+    const tableBody = document.querySelector("#table-body");
+    expect(tableBody).not.toBeNull();
+    expect(tableBody.children.length).toBe(0);
   });
 
   it('does not render table on secret santa exchange', () => {
@@ -60,21 +56,18 @@ describe('resultsTable', () => {
     assignRecipients(["Whitney", "Hunter", "Alex"]);
 
     const tableBody = document.querySelector('#table-body');
-    const rows = tableBody.querySelectorAll('tr');
+    const rows = tableBody.querySelectorAll('.result-row');
 
     expect(rows.length).toBe(3);
 
-    const row1Cells = rows[0].querySelectorAll('td');
-    expect(row1Cells[0].textContent).toBe('Alex');
-    expect(row1Cells[1].textContent).toBe('Whitney');
+    expect(rows[0].firstElementChild.textContent).toBe('Alex');
+    expect(rows[0].lastElementChild.textContent).toBe('Whitney');
 
-    const row2Cells = rows[1].querySelectorAll('td');
-    expect(row2Cells[0].textContent).toBe('Whitney');
-    expect(row2Cells[1].textContent).toBe('Hunter');
+    expect(rows[1].firstElementChild.textContent).toBe('Whitney');
+    expect(rows[1].lastElementChild.textContent).toBe('Hunter');
 
-    const row3Cells = rows[2].querySelectorAll('td');
-    expect(row3Cells[0].textContent).toBe('Hunter');
-    expect(row3Cells[1].textContent).toBe('Alex');
+    expect(rows[2].firstElementChild.textContent).toBe('Hunter');
+    expect(rows[2].lastElementChild.textContent).toBe('Alex');
   });
 
   it('does not render results when isSecretSanta=true', () => {

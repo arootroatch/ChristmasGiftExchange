@@ -15,6 +15,7 @@ describe("snackbar", () => {
     bar.className = "hidden";
     bar.style.color = "";
     bar.style.border = "";
+    bar.style.background = "";
     vi.useFakeTimers();
   });
 

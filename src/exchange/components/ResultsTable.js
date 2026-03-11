@@ -6,20 +6,15 @@ const tableBodyId = "table-body";
 const flexDivSelector = "#flex-div";
 
 function template() {
-  return `<table class="table" id="${tableId}">
-    <thead>
-      <tr>
-        <th>Giver</th>
-        <th>Recipient</th>
-      </tr>
-    </thead>
-    <tbody id="${tableBodyId}">
-      <tr><td></td><td></td></tr>
-      <tr><td></td><td></td></tr>
-      <tr><td></td><td></td></tr>
-      <tr><td></td><td></td></tr>
-    </tbody>
-  </table>`;
+  return `<div class="results-card" id="${tableId}">
+    <h2>Results</h2>
+    <div class="results-header">
+      <span>Giver</span>
+      <span></span>
+      <span>Recipient</span>
+    </div>
+    <div id="${tableBodyId}"></div>
+  </div>`;
 }
 
 function render() {
@@ -42,10 +37,11 @@ function renderResults(assignments) {
   clearTable();
   let html = '';
   for (const assignment of assignments) {
-    html += `<tr>
-                <td>${assignment.giver}</td>
-                <td>${assignment.recipient}</td>
-            </tr>`;
+    html += `<div class="result-row">
+                <span>${assignment.giver}</span>
+                <span class="result-arrow">&#8594;</span>
+                <span>${assignment.recipient}</span>
+            </div>`;
   }
   pushHTML(`#${tableBodyId}`, html);
 }

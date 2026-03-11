@@ -1,16 +1,15 @@
 #snackbar {
   min-width: 250px;
-  background-color: #fff;
-  color: #000;
   text-align: center;
   border-radius: 10px;
-  border: 3px solid #198c0a;
   padding: 16px;
   position: fixed;
   z-index: 100;
   left: 50%;
   transform: translateX(-50%);
   top: 20px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 .show {
