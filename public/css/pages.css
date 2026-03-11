@@ -1,6 +1,7 @@
 /* Secondary Pages Stylesheet — Reuse, Wishlist Edit, Wishlist View */
 
 @import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;500;600&display=swap');
+@import url('components/entries.css');
 
 /* ── Design Tokens ─────────────────────────────────────────── */
 :root {
@@ -247,28 +248,6 @@ textarea {
 
 .wishlist-entry a:hover {
   color: #fff;
-}
-
-.delete-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--text-secondary);
-  font-size: 0.75rem;
-  cursor: pointer;
-  transition: all 0.15s;
-  flex-shrink: 0;
-}
-
-.delete-btn:hover {
-  background: rgba(180, 40, 40, 0.4);
-  border-color: rgba(180, 40, 40, 0.6);
-  color: #ff8888;
 }
 
 /* ── Exchange Results (Reuse page) ──────────────────────────── */

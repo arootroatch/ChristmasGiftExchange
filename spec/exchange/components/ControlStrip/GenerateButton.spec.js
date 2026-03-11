@@ -188,10 +188,11 @@ describe("generateList", () => {
     generateList();
     let tableHTML = '';
     for (const assignment of getState().assignments) {
-      tableHTML += `<tr>
-                <td>${assignment.giver}</td>
-                <td>${assignment.recipient}</td>
-            </tr>`;
+      tableHTML += `<div class="result-row">
+                <span>${assignment.giver}</span>
+                <span class="result-arrow">→</span>
+                <span>${assignment.recipient}</span>
+            </div>`;
     }
     const table = document.querySelector("#table-body");
 
@@ -207,10 +208,11 @@ describe("generateList", () => {
     generateList();
     let tableHTML = '';
     for (const assignment of getState().assignments) {
-      tableHTML += `<tr>
-                <td>${assignment.giver}</td>
-                <td>${assignment.recipient}</td>
-            </tr>`;
+      tableHTML += `<div class="result-row">
+                <span>${assignment.giver}</span>
+                <span class="result-arrow">→</span>
+                <span>${assignment.recipient}</span>
+            </div>`;
     }
     const table = document.querySelector("#table-body");
 

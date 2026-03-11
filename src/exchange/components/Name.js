@@ -38,7 +38,7 @@ function template(name) {
   const id = nextNameNumber();
   const safe = escapeAttr(name);
   return `
-      <div class="name-wrapper" id="wrapper-${safe}" draggable="true">
+      <div class="name-wrapper entry-row" id="wrapper-${safe}" draggable="true">
         <span class="name-entered" id="${safe}${id}">${safe}</span>
         <button id="delete-${safe}${id}" class="delete-btn">&#10005;</button>
       </div>`;
