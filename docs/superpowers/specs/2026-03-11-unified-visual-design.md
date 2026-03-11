@@ -64,8 +64,15 @@ Unify the visual language across the exchange page and secondary pages (wishlist
 - Change `#control-strip` background from `#69292ac9` to frosted glass: `background: rgba(255,255,255,0.08)`, `backdrop-filter: blur(12px)`, `-webkit-backdrop-filter: blur(12px)`, `border-top: 1px solid rgba(255,255,255,0.15)`
 
 #### `public/css/components/table.css`
-- Change `th` background from `#69292ac9` to `#69292a` (solid, consistent with buttons)
-- Change alternating row backgrounds from opaque gray (`#7b7b7b91`, `#9e9e9e8b`) to translucent dark: `rgba(0,0,0,0.2)` (odd) and `rgba(0,0,0,0.1)` (even)
+- Replace the `<table>` styling with entry card results styling:
+  - `.results-card` — frosted glass container matching `.household, #name-list`: `background: rgba(255,255,255,0.08)`, `backdrop-filter: blur(12px)`, `-webkit-backdrop-filter: blur(12px)`, `border: 1px solid rgba(255,255,255,0.15)`, `border-radius: 16px`, `padding: 1rem`, `box-shadow: 0 8px 32px rgba(0,0,0,0.4)`
+  - `.results-header` — label row: `display: grid`, `grid-template-columns: 1fr auto 1fr`, `padding: 6px 10px`, `margin-bottom: 6px`
+  - `.results-header span` — `font-size: 0.7rem`, `color: rgba(255,255,255,0.4)`, `text-transform: uppercase`, `letter-spacing: 0.05em`
+  - `.results-header span:last-child` — `text-align: right`
+  - `.result-row` — entry card style: `display: grid`, `grid-template-columns: 1fr auto 1fr`, `padding: 8px 10px`, `background: rgba(0,0,0,0.2)`, `border: 1px solid rgba(255,255,255,0.06)`, `border-radius: 6px`, `margin-bottom: 5px`
+  - `.result-row span:last-child` — `text-align: right`
+  - `.result-arrow` — `color: rgba(255,255,255,0.3)`, `width: 24px`, `text-align: center`
+- Remove all old `.table` styles (border-collapse, th, td, tr alternating colors)
 
 #### `public/css/components/snackbar.css`
 - Remove base `background-color: #fff`, `color: #000`, `border: 3px solid #198c0a` from `#snackbar`
@@ -151,6 +158,43 @@ Changes:
 - Delete button content changes from "X" to `&#10005;` (multiplication sign, matching pages.css style)
 
 Update `attachListeners()`: change selector from `.delete-name` to `.delete-btn`, and update the name extraction from `nextElementSibling` to `previousElementSibling` (since name now comes before button).
+
+#### `src/exchange/components/ResultsTable.js`
+Replace the `<table>` markup with entry card results inside a frosted glass container.
+
+Current `template()`:
+```html
+<table class="table" id="results-table">
+  <thead><tr><th>Giver</th><th>Recipient</th></tr></thead>
+  <tbody id="table-body">...</tbody>
+</table>
+```
+
+New `template()`:
+```html
+<div class="results-card" id="results-table">
+  <h2>Results</h2>
+  <div class="results-header">
+    <span>Giver</span>
+    <span></span>
+    <span>Recipient</span>
+  </div>
+  <div id="table-body"></div>
+</div>
+```
+
+Update `renderResults()` — replace `<tr><td>` markup with entry card rows:
+```html
+<div class="result-row">
+  <span>${assignment.giver}</span>
+  <span class="result-arrow">&#8594;</span>
+  <span>${assignment.recipient}</span>
+</div>
+```
+
+Update `clearTable()` — logic stays the same (clear children of `#table-body`).
+
+The `render()`, `remove()`, and `init()` functions remain unchanged — they reference `#results-table` and `#table-body` IDs which are preserved.
 
 ### Shared CSS Extraction
 
