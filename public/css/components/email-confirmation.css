@@ -1,16 +1,19 @@
 .sendEmails {
-  background-color: white;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   max-width: 400px;
   position: fixed;
   top: 20px;
   left: 50%;
   transform: translateX(-50%);
-  border-radius: 10px;
-  color: #198c0a;
+  border-radius: 16px;
+  color: rgba(255, 255, 255, 0.9);
   padding: 20px;
-  border: 2px solid #198c0a;
   text-align: center;
   z-index: 10;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
 }
 
 #hideEmails {

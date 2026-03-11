@@ -51,7 +51,7 @@ function renderResult(results) {
 
 function renderError(message = "Email address not found!") {
   const queryDiv = selectElement(`#${queryDivId}`);
-  queryDiv.innerHTML = '<div style="color:#b31e20"></div>';
+  queryDiv.innerHTML = '<div style="color:rgba(255,100,100,0.9)"></div>';
   queryDiv.firstElementChild.textContent = message;
   setTimeout(() => {
     queryDiv.innerHTML = emailQueryInit;
