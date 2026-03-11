@@ -1,22 +1,17 @@
 /* Secondary Pages Stylesheet — Reuse, Wishlist Edit, Wishlist View */
-/* Aesthetic: Frosted Holiday Card — warm burgundy, frosted glass, gold accents */
 
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;500;600&display=swap');
 
 /* ── Design Tokens ─────────────────────────────────────────── */
 :root {
-  --burgundy-deep: #2a0d0e;
+  --burgundy-deep: #150808;
   --burgundy: #69292a;
   --burgundy-light: #8e3a3b;
   --green: #198c0a;
-  --green-glow: #2cb818;
-  --gold: #d4a84b;
-  --gold-light: #e8c87a;
-  --cream: #faf3e8;
   --frost: rgba(255, 255, 255, 0.08);
   --frost-border: rgba(255, 255, 255, 0.15);
-  --text-primary: #faf3e8;
-  --text-secondary: rgba(250, 243, 232, 0.7);
+  --text-primary: #f0f0f0;
+  --text-secondary: rgba(240, 240, 240, 0.7);
   --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2);
   --shadow-input: inset 0 2px 4px rgba(0, 0, 0, 0.3);
   --radius-lg: 16px;
@@ -37,10 +32,7 @@ body {
   min-height: 100vh;
   color: var(--text-primary);
   background: var(--burgundy-deep);
-  background-image:
-    radial-gradient(ellipse at 20% 0%, rgba(105, 41, 42, 0.6) 0%, transparent 60%),
-    radial-gradient(ellipse at 80% 100%, rgba(25, 140, 10, 0.15) 0%, transparent 50%),
-    url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  background-image: radial-gradient(ellipse at 30% 0%, rgba(90, 35, 36, 0.25) 0%, transparent 50%);
   background-attachment: fixed;
 }
 
@@ -59,30 +51,20 @@ body {
 
 /* ── Typography ─────────────────────────────────────────────── */
 h1 {
-  font-family: 'Playfair Display', 'Georgia', serif;
+  font-family: 'Source Sans 3', 'Georgia', serif;
   font-weight: 700;
   font-size: 2rem;
   text-align: center;
-  color: var(--cream);
+  color: #fff;
   margin: 0 0 8px;
   letter-spacing: -0.01em;
-  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
-}
-
-h1::after {
-  content: '';
-  display: block;
-  width: 60px;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, var(--gold), transparent);
-  margin: 12px auto 0;
 }
 
 h2 {
-  font-family: 'Playfair Display', 'Georgia', serif;
+  font-family: 'Source Sans 3', 'Georgia', serif;
   font-weight: 600;
   font-size: 1.25rem;
-  color: var(--gold-light);
+  color: #fff;
   margin: 0 0 4px;
   letter-spacing: 0.01em;
 }
@@ -154,13 +136,13 @@ textarea {
 }
 
 input::placeholder, textarea::placeholder {
-  color: rgba(250, 243, 232, 0.35);
+  color: rgba(240, 240, 240, 0.35);
 }
 
 input:focus, textarea:focus {
   outline: none;
-  border-color: var(--gold);
-  box-shadow: var(--shadow-input), 0 0 0 2px rgba(212, 168, 75, 0.2);
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow: var(--shadow-input), 0 0 0 2px rgba(255, 255, 255, 0.15);
 }
 
 textarea {
@@ -174,52 +156,42 @@ textarea {
   align-items: center;
   justify-content: center;
   padding: 10px 22px;
-  border: none;
-  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
   font-family: 'Source Sans 3', sans-serif;
   font-weight: 600;
   font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.2s ease;
-  text-shadow: none;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   width: auto;
   max-height: none;
   margin: 0;
-  background: var(--burgundy);
-  color: var(--cream);
+  background: #69292a;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .button:hover {
-  background: var(--burgundy-light);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  background: #7a3233;
 }
 
 .button:active {
-  transform: translateY(0);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  background: #5a2122;
 }
 
 .button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  transform: none;
 }
 
 .button.primary {
-  background: linear-gradient(135deg, var(--green), #157a08);
-  color: #fff;
   font-size: 1rem;
   padding: 12px 32px;
   width: 100%;
   margin-top: 8px;
-  box-shadow: 0 4px 16px rgba(25, 140, 10, 0.3);
 }
 
 .button.primary:hover {
-  background: linear-gradient(135deg, var(--green-glow), var(--green));
-  box-shadow: 0 6px 24px rgba(25, 140, 10, 0.4);
+  background: #7a3233;
 }
 
 /* ── Add-Form Row (URL + Title + Button) ────────────────────── */
@@ -261,8 +233,9 @@ textarea {
 }
 
 .wishlist-entry a {
-  color: var(--gold-light);
-  text-decoration: none;
+  color: rgba(255, 255, 255, 0.9);
+  text-decoration: underline;
+  text-decoration-color: rgba(255, 255, 255, 0.3);
   font-weight: 500;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -273,8 +246,7 @@ textarea {
 }
 
 .wishlist-entry a:hover {
-  color: var(--gold);
-  text-decoration: underline;
+  color: #fff;
 }
 
 .delete-btn {
@@ -315,14 +287,14 @@ textarea {
 }
 
 .exchange-result:hover {
-  border-color: rgba(212, 168, 75, 0.3);
+  border-color: rgba(255, 255, 255, 0.3);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 .exchange-result h3 {
-  font-family: 'Playfair Display', 'Georgia', serif;
+  font-family: 'Source Sans 3', sans-serif;
   font-weight: 600;
-  color: var(--gold-light);
+  color: #fff;
   margin: 0 0 8px;
   font-size: 1.15rem;
 }
@@ -341,15 +313,6 @@ textarea {
 
 .exchange-result .button {
   margin-top: 12px;
-}
-
-.use-exchange-btn {
-  background: linear-gradient(135deg, var(--green), #157a08) !important;
-  color: #fff !important;
-}
-
-.use-exchange-btn:hover {
-  background: linear-gradient(135deg, var(--green-glow), var(--green)) !important;
 }
 
 /* ── Wishlist View Page ─────────────────────────────────────── */
@@ -385,14 +348,14 @@ textarea {
 }
 
 #wishlist-content a {
-  color: var(--gold-light);
+  color: rgba(255, 255, 255, 0.9);
   text-decoration: none;
   font-weight: 500;
   transition: color 0.15s;
 }
 
 #wishlist-content a:hover {
-  color: var(--gold);
+  color: #fff;
   text-decoration: underline;
 }
 
@@ -494,7 +457,7 @@ textarea {
 }
 
 .back-link:hover {
-  color: var(--gold-light);
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .back-link::before {

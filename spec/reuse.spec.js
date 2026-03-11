@@ -161,7 +161,7 @@ describe("Reuse Exchange Page", () => {
                 const snackbar = document.getElementById("snackbar");
                 expect(snackbar.textContent).toBe("No past exchanges found for that email");
                 expect(snackbar.classList.contains("show")).toBe(true);
-                expect(snackbar.style.color).toBe("rgb(179, 30, 32)");
+                expect(snackbar.style.color).toBe("rgb(255, 255, 255)");
             });
         });
 
@@ -176,7 +176,7 @@ describe("Reuse Exchange Page", () => {
                 const snackbar = document.getElementById("snackbar");
                 expect(snackbar.textContent).toBe(serverErrorMessage);
                 expect(snackbar.classList.contains("show")).toBe(true);
-                expect(snackbar.style.color).toBe("rgb(179, 30, 32)");
+                expect(snackbar.style.color).toBe("rgb(255, 255, 255)");
             });
         });
 

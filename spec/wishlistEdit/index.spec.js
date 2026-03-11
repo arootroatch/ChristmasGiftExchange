@@ -357,7 +357,7 @@ describe("Wishlist Edit Page", () => {
                 const snackbar = document.getElementById("snackbar");
                 expect(snackbar.textContent).toBe("Wishlist saved!");
                 expect(snackbar.classList.contains("show")).toBe(true);
-                expect(snackbar.style.color).toBe("rgb(25, 140, 10)");
+                expect(snackbar.style.color).toBe("rgb(255, 255, 255)");
             });
         });
 
@@ -377,7 +377,7 @@ describe("Wishlist Edit Page", () => {
                 const snackbar = document.getElementById("snackbar");
                 expect(snackbar.textContent).toBe(serverErrorMessage);
                 expect(snackbar.classList.contains("show")).toBe(true);
-                expect(snackbar.style.color).toBe("rgb(179, 30, 32)");
+                expect(snackbar.style.color).toBe("rgb(255, 255, 255)");
             });
         });
 
@@ -577,7 +577,7 @@ describe("Wishlist Edit Page", () => {
             const snackbar = document.getElementById("snackbar");
             expect(snackbar.textContent).toBe("Please fill in at least one field");
             expect(snackbar.classList.contains("show")).toBe(true);
-            expect(snackbar.style.color).toBe("rgb(179, 30, 32)");
+            expect(snackbar.style.color).toBe("rgb(255, 255, 255)");
         });
     });
 
