@@ -37,7 +37,6 @@ describe('addName', () => {
     shouldSelect("#wrapper-Alex");
     shouldSelect("#delete-Alex1");
     shouldSelect("#Alex1");
-    shouldSelect("#brAlex1");
     shouldBeDraggable("#wrapper-Alex");
   });
 

@@ -39,16 +39,15 @@ function template(name) {
   const safe = escapeAttr(name);
   return `
       <div class="name-wrapper" id="wrapper-${safe}" draggable="true">
-        <button id="delete-${safe}${id}" class="delete-name">X</button>
-        <p class="name-entered" id="${safe}${id}">${safe}</p>
-        <br id="br${safe}${id}">
+        <span class="name-entered" id="${safe}${id}">${safe}</span>
+        <button id="delete-${safe}${id}" class="delete-btn">&#10005;</button>
       </div>`;
 }
 
 function attachListeners(container) {
-  container.querySelectorAll('.delete-name').forEach(btn => {
+  container.querySelectorAll('.delete-btn').forEach(btn => {
     btn.addEventListener('click', (event) => {
-      const name = event.currentTarget.nextElementSibling.textContent;
+      const name = event.currentTarget.previousElementSibling.textContent;
       removeParticipant(name);
     });
   });

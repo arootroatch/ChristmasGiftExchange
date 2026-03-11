@@ -1,23 +1,41 @@
-.delete-name {
-  display: inline-block;
-  background-color: transparent;
-  border: 1px solid #bb0000;
-  fill: none;
-  color: #bb0000;
+.delete-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.75rem;
   cursor: pointer;
-  font-size: 10px;
-  padding: 2px 5px;
-  position: relative;
-  top: -2px;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+
+.delete-btn:hover {
+  background: rgba(180, 40, 40, 0.4);
+  border-color: rgba(180, 40, 40, 0.6);
+  color: #ff8888;
 }
 
 .name-input {
   text-transform: capitalize;
 }
 
+.name-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+  margin-bottom: 5px;
+  transition: background 0.15s;
+}
+
 .name-wrapper:hover {
-  cursor: pointer;
-  background-color: #69292ac9;
-  border-radius: 10px;
-  padding-left: 10px;
+  background: rgba(0, 0, 0, 0.3);
 }
