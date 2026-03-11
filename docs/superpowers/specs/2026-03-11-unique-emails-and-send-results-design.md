@@ -84,13 +84,18 @@ Initialized in `src/exchange/index.js` alongside other EmailTable components. Or
 
 **Collapsed state:** Text prompt + "Send Me the Results" button.
 
-**Expanded state (after clicking "Send Me the Results"):**
+**Confirmation state (after clicking "Send Me the Results"):**
+A confirmation screen replaces the collapsed state with warnings:
+- "Your exchange will not be saved. Recipients will not be able to look up wishlists or contact info. Be sure to save your results email or take a screenshot!"
+- In secret santa mode, additional warning: "This will reveal all gift exchange assignments on your screen."
+- Two buttons: **Continue** and **Cancel**
+- Cancel returns to collapsed state
+
+**Expanded state (after clicking "Continue"):**
 - In secret santa mode only: the full results table (giver -> recipient for all assignments) using the same row markup pattern as ResultsTable.js
 - `<select>` dropdown populated with participant names (from cached participants)
 - Email `<input type="email">` field (required)
 - **Send** button
-
-Clicking "Send Me the Results" toggles the expanded form (show/hide).
 
 **Send button behavior:**
 1. Disables button, shows "Sending..." (same `setLoadingState` pattern)
