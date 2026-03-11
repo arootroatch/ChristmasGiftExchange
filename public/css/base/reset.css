@@ -34,13 +34,15 @@ body {
 
 h1 {
   text-align: center;
-  text-shadow: 2px 2px 4px rgb(114, 114, 114);
 }
 
 #intro {
-  background-color: rgba(220, 220, 220, 0.717);
-  color: black;
-  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.85);
+  border-radius: 16px;
   margin: 20px auto;
   line-height: 1.5em;
   text-align: justify;

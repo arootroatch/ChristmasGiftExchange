@@ -1,17 +1,14 @@
 .button,
 .btn-bottom {
-  background-color: #69292ac9;
-  color: rgb(226, 226, 226);
-  box-shadow: 0 1px 0 0 #3b0e0fc9, 0 2px 0 0 #3b0e0fc9, 0 3px 0 0 #3b0e0fc9,
-    0 4px 4px 0 #3b0e0fc9;
+  background-color: #69292a;
+  color: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
   transition: 0.2s;
-  border-radius: 20px;
-  border-style: outset;
   padding: 5px 10px;
   cursor: pointer;
   width: 150px;
   font-weight: bold;
-  text-shadow: 2px 2px 2px rgb(114, 114, 114);
   margin: 0 5px 10px 5px;
   max-height: 65px;
 }
@@ -27,12 +24,10 @@
 
 .button:hover,
 .btn-bottom:hover {
-  transform: translate(0, 2px);
-  box-shadow: 0 1px 0 0 #3b0e0fc9, 0 2px 4px 0 #3b0e0fc9;
+  background-color: #7a3233;
 }
 
 .button:active,
 .btn-bottom:active {
-  transform: translate(0, 4px);
-  box-shadow: none;
+  background-color: #5a2122;
 }
