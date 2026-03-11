@@ -204,15 +204,51 @@ Extract these shared styles into a new `public/css/components/entries.css` impor
 
 This avoids duplicating the entry card and delete button styles across both stylesheets. The pages.css `.delete-btn` and `.wishlist-entry` definitions move into entries.css; participants.css `.name-wrapper` and `.delete-btn` are replaced by the shared import.
 
-## Out of Scope
+### Overlay & Inline Components
 
-These components are intentionally unchanged in this pass:
-- **Email dialog** (`email-dialog.css`) — white background modal with burgundy header
-- **Email confirmation** (`email-confirmation.css`) — white background with green border
-- **Email query** (`email-query.css`) — semi-transparent white container with black text
-- **Intro box** (`#intro` in reset.css) — light gray with black text
+#### `public/css/components/email-dialog.css`
+Convert `#emailTable` from white background modal to frosted glass:
+- Remove `background-color: white`
+- Add `background: rgba(255,255,255,0.08)`, `backdrop-filter: blur(12px)`, `-webkit-backdrop-filter: blur(12px)`
+- Add `border: 1px solid rgba(255,255,255,0.15)`
+- Change `border-radius` from `10px` to `16px`
+- Add `box-shadow: 0 8px 32px rgba(0,0,0,0.5)`
+- `h3`: remove `background-color: #69292a`, add `border-bottom: 1px solid rgba(255,255,255,0.1)`, keep padding
+- `.emailDiv`: change `color` from `black` to inherit (white), change `border-bottom` from `1px solid #69292a` to `1px solid rgba(255,255,255,0.08)`
+- `.emailDiv input`: add `background: rgba(0,0,0,0.25)`, `border: 1px solid rgba(255,255,255,0.12)`, `border-radius: 6px`, `color: #f0f0f0`
+- `.emailDiv label`: add `color: rgba(255,255,255,0.7)`
 
-These overlay/modal components use a different visual pattern (light backgrounds for readability in form contexts). They may be addressed in a future design pass.
+#### `public/css/components/email-confirmation.css`
+Convert `.sendEmails` from white/green to frosted glass:
+- Remove `background-color: white`, `color: #198c0a`, `border: 2px solid #198c0a`
+- Add `background: rgba(255,255,255,0.08)`, `backdrop-filter: blur(12px)`, `-webkit-backdrop-filter: blur(12px)`
+- Add `border: 1px solid rgba(255,255,255,0.15)`
+- Change `border-radius` from `10px` to `16px`
+- Add `box-shadow: 0 8px 32px rgba(0,0,0,0.5)`
+- Add `color: rgba(255,255,255,0.9)`
+
+#### `public/css/components/email-query.css`
+Convert `.emailQuery` from semi-transparent white to frosted glass:
+- Remove `background-color: rgba(255,255,255,0.409)`, `color: black`, `border: 3px solid #69292a`
+- Add `background: rgba(255,255,255,0.08)`, `backdrop-filter: blur(12px)`, `-webkit-backdrop-filter: blur(12px)`
+- Add `border: 1px solid rgba(255,255,255,0.15)`
+- Change `border-radius` from `10px` to `16px`
+- Add `box-shadow: 0 8px 32px rgba(0,0,0,0.4)`
+- Add `color: rgba(255,255,255,0.85)`
+- `& span` (recipient name): change `color` from `#198c0a` to `#fff`, keep bold + font-size
+- `& input`: add `background: rgba(0,0,0,0.25)`, `border: 1px solid rgba(255,255,255,0.12)`, `border-radius: 6px`, `color: #f0f0f0`
+- `& label`: add `color: rgba(255,255,255,0.7)`
+
+#### `src/exchange/components/EmailQuery.js`
+- Remove inline `style="color:#b31e20"` from `renderError()` — error text will use inherited white color (or use `color: rgba(255,100,100,0.9)` for a subtle red on dark background)
+
+#### `public/css/base/reset.css`
+Convert `#intro` from light gray to frosted glass:
+- Remove `background-color: rgba(220,220,220,0.717)`, `color: black`
+- Add `background: rgba(255,255,255,0.08)`, `backdrop-filter: blur(12px)`, `-webkit-backdrop-filter: blur(12px)`
+- Add `border: 1px solid rgba(255,255,255,0.15)`
+- Change `border-radius` from `10px` to `16px`
+- Add `color: rgba(255,255,255,0.85)`
 
 ## Verification Notes
 
