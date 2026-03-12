@@ -14,6 +14,7 @@ describe('sendEmailsWithRetry', () => {
 
     beforeEach(() => {
         fetch.mockReset();
+        vi.spyOn(console, 'error').mockImplementation(() => {});
     });
 
     afterAll(() => {

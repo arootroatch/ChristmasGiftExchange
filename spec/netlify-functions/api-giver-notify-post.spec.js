@@ -28,6 +28,7 @@ describe('api-giver-notify-post', () => {
 
     beforeEach(async () => {
         mockFetch.mockClear();
+        vi.spyOn(console, 'error').mockImplementation(() => {});
         await db.collection('users').insertMany([
             {name: 'Alex', email: 'alex@test.com', token: alexToken, wishlists: [], wishItems: []},
             {name: 'Whitney', email: 'whitney@test.com', token: whitneyToken, wishlists: [], wishItems: []},
