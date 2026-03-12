@@ -79,4 +79,16 @@ describe('resultsTable', () => {
     const tableBody = document.querySelector('#table-body');
     expect(tableBody).toBeNull();
   });
+
+  it('applies stagger animation-delay to result rows', () => {
+    startExchange(false);
+    installParticipantNames("Alex", "Whitney", "Hunter");
+
+    assignRecipients(["Whitney", "Hunter", "Alex"]);
+
+    const rows = document.querySelectorAll('.result-row');
+    expect(rows[0].style.animationDelay).toBe('');
+    expect(rows[1].style.animationDelay).toBe('0.07s');
+    expect(rows[2].style.animationDelay).toBe('0.14s');
+  });
 });

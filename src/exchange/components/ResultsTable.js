@@ -36,8 +36,10 @@ function clearTable() {
 function renderResults(assignments) {
   clearTable();
   let html = '';
-  for (const assignment of assignments) {
-    html += `<div class="result-row">
+  for (let i = 0; i < assignments.length; i++) {
+    const assignment = assignments[i];
+    const delay = i > 0 ? ` style="animation-delay: ${(i * 0.07).toFixed(2)}s"` : '';
+    html += `<div class="result-row"${delay}>
                 <span>${assignment.giver}</span>
                 <span class="result-arrow">&#8594;</span>
                 <span>${assignment.recipient}</span>

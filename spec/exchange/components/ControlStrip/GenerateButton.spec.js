@@ -186,9 +186,12 @@ describe("generateList", () => {
     enterName("Whitney");
 
     generateList();
+    const assignments = getState().assignments;
     let tableHTML = '';
-    for (const assignment of getState().assignments) {
-      tableHTML += `<div class="result-row">
+    for (let i = 0; i < assignments.length; i++) {
+      const assignment = assignments[i];
+      const delay = i > 0 ? ` style="animation-delay: ${(i * 0.07).toFixed(2)}s"` : '';
+      tableHTML += `<div class="result-row"${delay}>
                 <span>${assignment.giver}</span>
                 <span class="result-arrow">→</span>
                 <span>${assignment.recipient}</span>
@@ -206,9 +209,12 @@ describe("generateList", () => {
     moveNameToHouse("#house-0-select", "Alex");
 
     generateList();
+    const assignments = getState().assignments;
     let tableHTML = '';
-    for (const assignment of getState().assignments) {
-      tableHTML += `<div class="result-row">
+    for (let i = 0; i < assignments.length; i++) {
+      const assignment = assignments[i];
+      const delay = i > 0 ? ` style="animation-delay: ${(i * 0.07).toFixed(2)}s"` : '';
+      tableHTML += `<div class="result-row"${delay}>
                 <span>${assignment.giver}</span>
                 <span class="result-arrow">→</span>
                 <span>${assignment.recipient}</span>
