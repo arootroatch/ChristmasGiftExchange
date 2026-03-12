@@ -20,13 +20,7 @@ const houseInputSchema = z.object({
     members: z.array(z.string()),
 });
 
-const exchangePostRequestSchema = z.object({
-    exchangeId: z.string(),
-    isSecretSanta: z.boolean(),
-    houses: z.array(houseInputSchema),
-    participants: z.array(participantInputSchema),
-    assignments: z.array(assignmentInputSchema),
-}).check(ctx => {
+function validateAssignmentNamesExist(ctx) {
     const names = new Set(ctx.value.participants.map(p => p.name));
     ctx.value.assignments.forEach((a, i) => {
         if (!names.has(a.giver)) {
@@ -44,7 +38,9 @@ const exchangePostRequestSchema = z.object({
             });
         }
     });
-}).check(ctx => {
+}
+
+function validateUniqueEmails(ctx) {
     const emails = ctx.value.participants.map(p => p.email.toLowerCase());
     const seen = new Set();
     for (const email of emails) {
@@ -58,7 +54,16 @@ const exchangePostRequestSchema = z.object({
         }
         seen.add(email);
     }
-});
+}
+
+const exchangePostRequestSchema = z.object({
+    exchangeId: z.string(),
+    isSecretSanta: z.boolean(),
+    houses: z.array(houseInputSchema),
+    participants: z.array(participantInputSchema),
+    assignments: z.array(assignmentInputSchema),
+}).check(validateAssignmentNamesExist)
+  .check(validateUniqueEmails);
 
 async function upsertParticipants(usersCol, participants) {
     const userMap = {};
