@@ -3,6 +3,10 @@ import {defineConfig} from 'vitest/config';
 export default defineConfig({
   test: {
     globalSetup: ['spec/netlify-functions/mongoSetup.js'],
+    coverage: {
+      provider: 'v8',
+      include: ['src/**', 'netlify/**'],
+    },
     projects: [
       {
         test: {

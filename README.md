@@ -145,6 +145,14 @@ Local development requires the Netlify CLI and a MongoDB instance.
 
    The script updates `MONGO_DB_URI` in `.env.local` to point to the in-memory server.
 
+   You can also connect a REPL to an existing database (dev or production):
+
+   ```bash
+   npm run repl        # prompts for environment (dev or prod)
+   npm run repl dev    # connects using .env.local
+   npm run repl prod   # connects using .env
+   ```
+
 3. **Start the dev server** in another terminal:
 
    ```bash
@@ -161,6 +169,15 @@ Local development requires the Netlify CLI and a MongoDB instance.
    ```
 
    Then visit `localhost:8888/.netlify/functions/emails` to see rendered email previews.
+
+### CI/CD Pipeline
+
+Pushes to `main` trigger a GitHub Actions workflow:
+
+1. **Unit + integration tests** — Vitest with coverage uploaded to Codecov
+2. **E2E tests** — Playwright against a `netlify dev` server backed by MongoMemoryServer
+3. **Staging deploy** — Netlify draft deploy (requires both test jobs to pass)
+4. **Production deploy** — Manual approval gate via GitHub environment protection rules
 
 ### Submit a pull request
 
