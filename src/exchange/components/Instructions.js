@@ -8,12 +8,37 @@ export const instructions = [
 ];
 
 const introId = "intro";
+let animating = false;
 
 function renderInstructions({step}) {
   if (!step || step < 1 || step > instructions.length) return;
   const introDiv = selectElement(`#${introId}`);
   if (!introDiv) return;
-  introDiv.innerHTML = `<p>${instructions[step - 1]}</p>`;
+
+  const newContent = `<p class="slide-in-right">${instructions[step - 1]}</p>`;
+  const paragraph = introDiv.querySelector('p.slide-in-right');
+
+  // First render or no animated paragraph yet — just replace
+  if (!paragraph) {
+    introDiv.innerHTML = newContent;
+    return;
+  }
+
+  // Guard against rapid clicks during animation
+  if (animating) return;
+  animating = true;
+
+  // Animate out, then swap and animate in
+  paragraph.classList.remove('slide-in-right');
+  paragraph.classList.add('slide-out-left');
+  paragraph.addEventListener('animationend', () => {
+    introDiv.innerHTML = newContent;
+    animating = false;
+  }, {once: true});
+}
+
+export function resetAnimating() {
+  animating = false;
 }
 
 export function init() {
