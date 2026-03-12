@@ -1,13 +1,13 @@
 import {afterAll, afterEach, beforeAll, beforeEach, describe, expect, it} from 'vitest';
 import {setupMongo, teardownMongo, cleanCollections, buildEvent, makeUser, makeExchange, seedUsers, seedExchange} from './contractHelper.js';
 
-describe('api-exchange-search contract', () => {
+describe('api-exchange-get contract', () => {
     let handler, db, mongo, alice, bob;
 
     beforeAll(async () => {
         mongo = await setupMongo();
         db = mongo.db;
-        const module = await import('../../netlify/functions/api-exchange-search.mjs');
+        const module = await import('../../netlify/functions/api-exchange-get.mjs');
         handler = module.handler;
     });
 

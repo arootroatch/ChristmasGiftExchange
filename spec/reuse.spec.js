@@ -118,7 +118,7 @@ describe("Reuse Exchange Page", () => {
 
             await vi.waitFor(() => {
                 expect(window.fetch).toHaveBeenCalledWith(
-                    "/.netlify/functions/api-exchange-search?email=john%40test.com",
+                    "/.netlify/functions/api-exchange-get?email=john%40test.com",
                     expect.objectContaining({})
                 );
             });
@@ -134,7 +134,7 @@ describe("Reuse Exchange Page", () => {
 
             await vi.waitFor(() => {
                 expect(window.fetch).toHaveBeenCalledWith(
-                    "/.netlify/functions/api-exchange-search?email=john%40test.com",
+                    "/.netlify/functions/api-exchange-get?email=john%40test.com",
                     expect.objectContaining({})
                 );
             });

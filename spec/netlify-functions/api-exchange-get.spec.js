@@ -2,14 +2,14 @@ import {afterAll, afterEach, beforeAll, describe, expect, it} from 'vitest';
 import {ObjectId} from 'mongodb';
 import {setupMongo, teardownMongo, cleanCollections} from './mongoHelper.js';
 
-describe('api-exchange-search', () => {
+describe('api-exchange-get', () => {
     let client, db, handler;
     let mongo;
 
     beforeAll(async () => {
         mongo = await setupMongo();
         ({client, db} = mongo);
-        const module = await import('../../netlify/functions/api-exchange-search.mjs');
+        const module = await import('../../netlify/functions/api-exchange-get.mjs');
         handler = module.handler;
     });
 

@@ -9,7 +9,7 @@ async function searchExchanges() {
     btn.textContent = "Searching...";
     btn.disabled = true;
 
-    await apiFetch(`/.netlify/functions/api-exchange-search?email=${encodeURIComponent(email)}`, {
+    await apiFetch(`/.netlify/functions/api-exchange-get?email=${encodeURIComponent(email)}`, {
         onSuccess: (data) => {
             if (data.length === 0) {
                 snackbar.showError("No past exchanges found for that email");
