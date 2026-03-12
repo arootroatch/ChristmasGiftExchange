@@ -15,8 +15,9 @@ function onHouseAdded({houseID, houses}) {
   if (!selectElement(`#${leftContainerId}`)) return;
   const house = houses.find(h => h.id === houseID);
   const html = template(houseID, house.name);
-  pushHTML(`#${leftContainerId}`, html)
+  pushHTML(`#${leftContainerId}`, html);
   attachListeners(houseID);
+  selectElement(`#${houseID}`)?.scrollIntoView({behavior: 'smooth', block: 'nearest'});
 }
 
 function onHouseRemoved({houseID}) {

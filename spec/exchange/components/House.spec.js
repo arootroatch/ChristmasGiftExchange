@@ -56,6 +56,14 @@ describe('addHouse', () => {
   it('adds change event listener to name select', () => {
     expect(addEventListener).toHaveBeenCalledWith("#house-0-select", "change", insertNameFromSelect);
   });
+
+  it("scrolls new house into view", () => {
+    const scrollSpy = vi.spyOn(window.Element.prototype, 'scrollIntoView');
+    addHouseToDOM();
+
+    expect(scrollSpy).toHaveBeenLastCalledWith({behavior: 'smooth', block: 'nearest'});
+    scrollSpy.mockRestore();
+  });
 });
 
 describe("deleteHouse", () => {

@@ -13,4 +13,5 @@ if (typeof document !== 'undefined') {
     globalThis.document = dom.window.document;
     globalThis.window = dom.window;
     globalThis.navigator = dom.window.navigator;
+    dom.window.Element.prototype.scrollIntoView = function () {};
 }
