@@ -13,13 +13,7 @@ import * as emailTable from "./components/EmailTable/EmailTable.js";
 import * as recipientSearch from "./components/RecipientSearch.js";
 import * as reuseLink from "./components/ReuseLink.js";
 import * as snackbar from "../Snackbar.js";
-import {loadExchange, startExchange} from "./state.js";
-import {leftContainerId, selectElement} from "../utils.js";
-
-export function secretSantaMode() {
-  selectElement(`#${leftContainerId}`).classList.add("secret");
-  startExchange(true);
-}
+import {loadExchange} from "./state.js";
 
 export default function main() {
   snackbar.init();
@@ -37,11 +31,6 @@ export default function main() {
   emailTable.init();
   recipientSearch.init();
   reuseLink.init();
-
-  const letsGo = selectElement("#letsGo");
-  const secretSantaBtn = selectElement("#secretSantaBtn");
-  if (letsGo) letsGo.onclick = () => startExchange(false);
-  if (secretSantaBtn) secretSantaBtn.onclick = secretSantaMode;
 
   initDragDrop();
 

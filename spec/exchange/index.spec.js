@@ -9,7 +9,6 @@ vi.mock('../../src/exchange/state', async (importOriginal) => {
   const actual = await importOriginal();
   return {
     ...actual,
-    startExchange: vi.fn(),
     loadExchange: vi.fn(),
   };
 });
@@ -53,6 +52,14 @@ vi.mock('../../src/exchange/components/EmailTable/EmailTable', () => ({
 }));
 
 vi.mock('../../src/exchange/components/RecipientSearch', () => ({
+  init: vi.fn(),
+}));
+
+vi.mock('../../src/exchange/components/Instructions', () => ({
+  init: vi.fn(),
+}));
+
+vi.mock('../../src/exchange/components/ReuseLink', () => ({
   init: vi.fn(),
 }));
 
@@ -147,6 +154,22 @@ it('calls generateButton.init', async () => {
     expect(init).toHaveBeenCalledTimes(1);
   });
 
+  it('calls instructions.init', async () => {
+    const {init} = await import('../../src/exchange/components/Instructions');
+
+    main();
+
+    expect(init).toHaveBeenCalledTimes(1);
+  });
+
+  it('calls reuseLink.init', async () => {
+    const {init} = await import('../../src/exchange/components/ReuseLink');
+
+    main();
+
+    expect(init).toHaveBeenCalledTimes(1);
+  });
+
   it('calls snackbar.init', async () => {
     const {init} = await import('../../src/Snackbar');
 
@@ -173,6 +196,8 @@ it('calls generateButton.init', async () => {
     const generateButton = await import('../../src/exchange/components/ControlStrip/GenerateButton');
     const emailTable = await import('../../src/exchange/components/EmailTable/EmailTable');
     const recipientSearch = await import('../../src/exchange/components/RecipientSearch');
+    const instructions = await import('../../src/exchange/components/Instructions');
+    const reuseLink = await import('../../src/exchange/components/ReuseLink');
     const {initDragDrop} = await import('../../src/exchange/dragDrop');
 
     main();
@@ -188,6 +213,8 @@ it('calls generateButton.init', async () => {
     expect(generateButton.init).toHaveBeenCalledTimes(1);
     expect(emailTable.init).toHaveBeenCalledTimes(1);
     expect(recipientSearch.init).toHaveBeenCalledTimes(1);
+    expect(instructions.init).toHaveBeenCalledTimes(1);
+    expect(reuseLink.init).toHaveBeenCalledTimes(1);
     expect(initDragDrop).toHaveBeenCalledTimes(1);
 
     const snackbarOrder = snackbar.init.mock.invocationCallOrder[0];
@@ -199,8 +226,10 @@ it('calls generateButton.init', async () => {
     const nextStepOrder = nextStepButton.init.mock.invocationCallOrder[0];
     const addHouseOrder = addHouseButton.init.mock.invocationCallOrder[0];
     const generateOrder = generateButton.init.mock.invocationCallOrder[0];
+    const instructionsOrder = instructions.init.mock.invocationCallOrder[0];
     const emailTableOrder = emailTable.init.mock.invocationCallOrder[0];
     const recipientSearchOrder = recipientSearch.init.mock.invocationCallOrder[0];
+    const reuseLinkOrder = reuseLink.init.mock.invocationCallOrder[0];
     const dragDropOrder = initDragDrop.mock.invocationCallOrder[0];
 
     expect(snackbarOrder).toBeLessThan(houseOrder);
@@ -211,9 +240,11 @@ it('calls generateButton.init', async () => {
     expect(controlStripOrder).toBeLessThan(nextStepOrder);
     expect(nextStepOrder).toBeLessThan(addHouseOrder);
     expect(addHouseOrder).toBeLessThan(generateOrder);
-    expect(generateOrder).toBeLessThan(emailTableOrder);
+    expect(generateOrder).toBeLessThan(instructionsOrder);
+    expect(instructionsOrder).toBeLessThan(emailTableOrder);
     expect(emailTableOrder).toBeLessThan(recipientSearchOrder);
-    expect(recipientSearchOrder).toBeLessThan(dragDropOrder);
+    expect(recipientSearchOrder).toBeLessThan(reuseLinkOrder);
+    expect(reuseLinkOrder).toBeLessThan(dragDropOrder);
   });
 
   describe('sessionStorage reuse', () => {
