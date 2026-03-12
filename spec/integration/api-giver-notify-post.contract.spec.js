@@ -19,8 +19,7 @@ describe('api-giver-notify-post contract', () => {
         await teardownMongo(mongo);
     });
 
-    // Mirrors the shape FE sends from SendEmails.js:53-54
-    // These come from cached event payload: cachedParticipants, cachedAssignments
+    // Mirrors the shape FE sends from EmailTable.js retryFailedEmails
     const fePayload = {
         participants: [
             {name: 'Alice', email: 'alice@test.com'},
@@ -77,7 +76,7 @@ describe('api-giver-notify-post contract', () => {
             const response = await handler(event);
             const body = JSON.parse(response.body);
 
-            // FE uses: body.sent and body.total in SendEmails.js success handler
+            // FE uses: body.sent, body.total, and body.emailsFailed in EmailTable.js retry handler
             expect(body).toHaveProperty('sent');
             expect(body).toHaveProperty('total');
             expect(typeof body.sent).toBe('number');

@@ -30,7 +30,6 @@ The exchange state object is **private** (not exported). Components access data 
   participants: [],      // array of Participant {name, email}
   assignments: [],       // array of {giver, recipient}
   nameNumber: 1,         // counter for unique field IDs
-  _tokenMap: undefined,  // set after email submission API response
 }
 ```
 - `isGenerated()` is a derived function (checks `assignments.length > 0`), not a stored field
@@ -68,8 +67,8 @@ Container components (like `house.js` and `nameList.js`) follow a consistent str
 #### API Endpoints (`netlify/functions/`)
 All `api-*` endpoints use `apiHandler` wrapper and Zod validation:
 - **api-exchange-post.mjs** — Creates exchange with participants, assignments, houses. Upserts users by email. Has `.check()` refinement validating assignment names exist in participants.
-- **api-exchange-get.mjs** — Returns recipient wishlist data for a giver viewing an exchange
-- **api-exchange-search.mjs** — Finds all exchanges for a user by email
+- **api-user-wishlist-get.mjs** — Returns recipient wishlist data for a giver viewing an exchange
+- **api-exchange-get.mjs** — Finds all exchanges for a user by email
 - **api-user-get.mjs** — Returns user data (name, wishlists, wishItems) by token
 - **api-user-wishlist-put.mjs** — Updates user wishlists/wishItems; notifies givers on first submission
 - **api-user-contact-post.mjs** — Emails contact info to givers (not stored in DB)
@@ -116,8 +115,7 @@ src/
       Instructions.js    # Intro instructions component
       EmailTable/
         EmailTable.js    # Email collection UI
-        SendEmails.js    # Email dispatch logic
-      EmailQuery.js      # Email lookup
+      RecipientSearch.js      # Recipient search
   wishlistEdit/
     index.js             # Entry point, initializes wishlist edit components
     state.js             # Encapsulated state for wishlist edit page
@@ -145,8 +143,8 @@ netlify/
       exchange.mjs     # Exchange, assignment, house Zod schemas
   functions/
     api-exchange-post.mjs    # Create exchange
-    api-exchange-get.mjs     # View recipient wishlist
-    api-exchange-search.mjs  # Search exchanges by email
+    api-user-wishlist-get.mjs # View recipient wishlist
+    api-exchange-get.mjs     # Search exchanges by email
     api-user-get.mjs         # Get user by token
     api-user-wishlist-put.mjs # Update wishlists
     api-user-contact-post.mjs # Send contact info to givers
@@ -176,10 +174,9 @@ spec/
         NextStepButton.spec.js
         AddHouseButton.spec.js
         GenerateButton.spec.js
-      EmailQuery.spec.js
+      RecipientSearch.spec.js
       EmailTable/
         EmailTable.spec.js
-        SendEmails.spec.js
       ResultsTable.spec.js
       House.spec.js
       NameList.spec.js
@@ -191,11 +188,12 @@ spec/
   netlify-functions/
     api-exchange-post.spec.js
     api-exchange-get.spec.js
-    api-exchange-search.spec.js
+    api-user-wishlist-get.spec.js
     api-user-get.spec.js
     api-user-wishlist-put.spec.js
     api-user-contact-post.spec.js
     api-giver-notify-post.spec.js
+    giverNotification.spec.js
     api-recipient-get.spec.js
     db.spec.js
     get_name.spec.js
@@ -208,7 +206,7 @@ spec/
     contractHelper.js    # Contract test setup (re-exports factories + mongo helpers)
     api-exchange-post.contract.spec.js
     api-exchange-get.contract.spec.js
-    api-exchange-search.contract.spec.js
+    api-user-wishlist-get.contract.spec.js
     api-user-get.contract.spec.js
     api-user-wishlist-put.contract.spec.js
     api-user-contact-post.contract.spec.js
@@ -224,7 +222,7 @@ e2e/
   create-exchange.spec.js
   edit-wishlist.spec.js
   reuse-exchange.spec.js
-  email-query.spec.js
+  recipient-search.spec.js
 ```
 
 ## Testing

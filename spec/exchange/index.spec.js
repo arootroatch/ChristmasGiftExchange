@@ -61,9 +61,6 @@ vi.mock('../../src/Snackbar', () => ({
   showError: vi.fn(),
 }));
 
-vi.mock('../../src/exchange/components/EmailTable/SendEmails', () => ({
-  init: vi.fn(),
-}));
 
 describe('main', () => {
   beforeEach(() => {
