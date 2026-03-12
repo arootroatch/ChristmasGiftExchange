@@ -49,7 +49,7 @@ function template(name) {
 
 function animateNewEntry(name) {
   const safe = escapeAttr(name);
-  const wrapper = selectElement(`#wrapper-${safe}`);
+  const wrapper = document.getElementById(`wrapper-${safe}`);
   if (wrapper) wrapper.classList.add('animated');
 }
 
