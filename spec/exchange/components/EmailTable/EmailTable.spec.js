@@ -507,4 +507,144 @@ describe('emailTable', () => {
 
     expect(document.querySelector("#emailTable")).toBeNull();
   });
+
+  it("hides email table and shows success snackbar when all emails sent", async () => {
+    global.fetch = vi.fn(() => Promise.resolve({
+      ok: true,
+      status: 200,
+      json: () => Promise.resolve({exchangeId: "test-id", participants: [], emailsFailed: []})
+    }));
+    triggerEmailTableRender();
+    renderEmailTableInputs([
+      {name: "Alex", email: "alex@test.com"},
+      {name: "Whitney", email: "whitney@test.com"}
+    ]);
+    installParticipantNames("Alex", "Whitney");
+
+    submitEmailForm();
+
+    const table = document.querySelector("#emailTable");
+    await vi.waitFor(() => {
+      expect(table.classList).toContain("hide");
+    });
+    vi.advanceTimersByTime(500);
+    expect(document.querySelector("#emailTable")).toBeNull();
+    shouldDisplaySuccessSnackbar("Exchange saved and emails sent!");
+  });
+
+  describe("failed emails", () => {
+    beforeEach(() => {
+      document.querySelector("#failedEmails")?.remove();
+    });
+
+    it("shows failed emails component when some emails fail", async () => {
+      global.fetch = vi.fn(() => Promise.resolve({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve({exchangeId: "test-id", participants: [], emailsFailed: ["alex@test.com"]})
+      }));
+      triggerEmailTableRender();
+      renderEmailTableInputs([
+        {name: "Alex", email: "alex@test.com"},
+        {name: "Whitney", email: "whitney@test.com"}
+      ]);
+      installParticipantNames("Alex", "Whitney");
+
+      submitEmailForm();
+
+      await vi.waitFor(() => {
+        const failedEl = document.querySelector("#failedEmails");
+        expect(failedEl).not.toBeNull();
+        expect(failedEl.textContent).toContain("alex@test.com");
+        expect(failedEl.textContent).toContain("recipient search");
+      });
+    });
+
+    it("removes failed emails and shows success on retry success", async () => {
+      global.fetch = vi.fn()
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 200,
+          json: () => Promise.resolve({exchangeId: "test-id", participants: [], emailsFailed: ["alex@test.com"]})
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 200,
+          json: () => Promise.resolve({sent: 1, total: 1, emailsFailed: []})
+        });
+
+      triggerEmailTableRender();
+      renderEmailTableInputs([
+        {name: "Alex", email: "alex@test.com"},
+        {name: "Whitney", email: "whitney@test.com"}
+      ]);
+      installParticipantNames("Alex", "Whitney");
+      submitEmailForm();
+
+      await vi.waitFor(() => {
+        expect(document.querySelector("#retryEmailsBtn")).not.toBeNull();
+      });
+      document.querySelector("#retryEmailsBtn").click();
+
+      await vi.waitFor(() => {
+        expect(document.querySelector("#failedEmails")).toBeNull();
+      });
+      shouldDisplaySuccessSnackbar("Emails sent successfully!");
+    });
+
+    it("removes failed emails and shows error on retry failure", async () => {
+      global.fetch = vi.fn()
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 200,
+          json: () => Promise.resolve({exchangeId: "test-id", participants: [], emailsFailed: ["alex@test.com"]})
+        })
+        .mockResolvedValueOnce({
+          ok: false,
+          status: 500,
+          json: () => Promise.resolve({error: "Server error"})
+        });
+
+      triggerEmailTableRender();
+      renderEmailTableInputs([
+        {name: "Alex", email: "alex@test.com"},
+        {name: "Whitney", email: "whitney@test.com"}
+      ]);
+      installParticipantNames("Alex", "Whitney");
+      submitEmailForm();
+
+      await vi.waitFor(() => {
+        expect(document.querySelector("#retryEmailsBtn")).not.toBeNull();
+      });
+      document.querySelector("#retryEmailsBtn").click();
+
+      await vi.waitFor(() => {
+        expect(document.querySelector("#failedEmails")).toBeNull();
+      });
+      shouldDisplayErrorSnackbar("We're sorry, but we were unable to send the remaining emails. Please contact participants directly.");
+    });
+
+    it("removes failed emails on EXCHANGE_STARTED", async () => {
+      global.fetch = vi.fn(() => Promise.resolve({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve({exchangeId: "test-id", participants: [], emailsFailed: ["alex@test.com"]})
+      }));
+      triggerEmailTableRender();
+      renderEmailTableInputs([
+        {name: "Alex", email: "alex@test.com"},
+        {name: "Whitney", email: "whitney@test.com"}
+      ]);
+      installParticipantNames("Alex", "Whitney");
+      submitEmailForm();
+
+      await vi.waitFor(() => {
+        expect(document.querySelector("#failedEmails")).not.toBeNull();
+      });
+
+      startExchange(false);
+
+      expect(document.querySelector("#failedEmails")).toBeNull();
+    });
+  });
 })

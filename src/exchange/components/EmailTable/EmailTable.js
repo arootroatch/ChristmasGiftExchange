@@ -14,6 +14,8 @@ const sendResultsFormId = "sendResults";
 const sendResultsNameId = "sendResultsName";
 const sendResultsEmailId = "sendResultsEmail";
 const sendResultsSubmitId = "sendResultsSubmit";
+const failedEmailsId = "failedEmails";
+const retryEmailsBtnId = "retryEmailsBtn";
 
 export function init() {
   stateEvents.on(Events.RECIPIENTS_ASSIGNED, (state) => {
@@ -31,6 +33,7 @@ export function init() {
     if (emailTable) emailTable.remove();
     selectElement(`#${confirmId}`)?.remove();
     selectElement(`#${sendResultsFormId}`)?.remove();
+    selectElement(`#${failedEmailsId}`)?.remove();
   });
 }
 
@@ -129,7 +132,14 @@ async function submitEmails(event) {
   await apiFetch("/.netlify/functions/api-exchange-post", {
     method: "POST",
     body: payload,
-    onSuccess: () => hideEmailTable(),
+    onSuccess: (data) => {
+      hideEmailTable();
+      if (data.emailsFailed && data.emailsFailed.length > 0) {
+        showFailedEmails(data.emailsFailed, payload);
+      } else {
+        showSuccess("Exchange saved and emails sent!");
+      }
+    },
     onError: (msg) => showError(msg),
     fallbackMessage: "Failed to submit emails. Please try again.",
   });
@@ -143,6 +153,51 @@ function getEmails() {
       email: input.value.trim(),
       index: input.id
     };
+  });
+}
+
+// Failed Emails — retry UI
+
+function failedEmailsTemplate(emailsFailed) {
+  return `
+    <div id="${failedEmailsId}" class="sendEmails show">
+      <p>Your exchange data has been saved. You can retrieve it by entering a participant's email in the recipient search on the home page.</p>
+      <p>However, we were unable to send emails to the following addresses:</p>
+      <ul>${emailsFailed.map(e => `<li>${escapeAttr(e)}</li>`).join('')}</ul>
+      <button class="button" id="${retryEmailsBtnId}">Retry</button>
+    </div>`;
+}
+
+function showFailedEmails(emailsFailed, payload) {
+  const failedAssignments = payload.assignments.filter(a => {
+    const participant = payload.participants.find(p => p.name === a.giver);
+    return participant && emailsFailed.includes(participant.email);
+  });
+  const failedParticipants = payload.participants.filter(p =>
+    emailsFailed.includes(p.email)
+  );
+
+  pushHTML("body", failedEmailsTemplate(emailsFailed));
+  addEventListener(`#${retryEmailsBtnId}`, "click", () =>
+    retryFailedEmails(failedParticipants, failedAssignments)
+  );
+}
+
+async function retryFailedEmails(participants, assignments) {
+  setLoadingState(`#${retryEmailsBtnId}`);
+
+  await apiFetch("/.netlify/functions/api-giver-notify-post", {
+    method: "POST",
+    body: {participants, assignments},
+    onSuccess: () => {
+      selectElement(`#${failedEmailsId}`)?.remove();
+      showSuccess("Emails sent successfully!");
+    },
+    onError: () => {
+      selectElement(`#${failedEmailsId}`)?.remove();
+      showError("We're sorry, but we were unable to send the remaining emails. Please contact participants directly.");
+    },
+    fallbackMessage: "Retry failed.",
   });
 }
 
