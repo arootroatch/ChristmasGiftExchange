@@ -133,9 +133,12 @@ describe('api-giver-notify-post', () => {
 
     it('counts partial failures', async () => {
         mockFetch
-            .mockResolvedValueOnce({ok: true})
-            .mockRejectedValueOnce(new Error('Email service down'))
-            .mockResolvedValueOnce({ok: true});
+            .mockResolvedValueOnce({ok: true})   // Alex: attempt 1 succeeds
+            .mockRejectedValueOnce(new Error('fail'))  // Whitney: attempt 1 fails
+            .mockRejectedValueOnce(new Error('fail'))  // Whitney: attempt 2 fails
+            .mockRejectedValueOnce(new Error('fail'))  // Whitney: attempt 3 fails
+            .mockResolvedValueOnce({ok: true})   // Hunter: attempt 1 succeeds
+            .mockResolvedValueOnce({ok: true});  // error-alert email
 
         const event = buildEvent(bulkPayload);
         const response = await handler(event);
@@ -143,13 +146,56 @@ describe('api-giver-notify-post', () => {
 
         expect(body.sent).toBe(2);
         expect(body.total).toBe(3);
+        expect(body.emailsFailed).toEqual(['whitney@test.com']);
+    });
+
+    it('returns emailsFailed array with failed emails', async () => {
+        mockFetch
+            .mockRejectedValueOnce(new Error('fail'))
+            .mockRejectedValueOnce(new Error('fail'))
+            .mockRejectedValueOnce(new Error('fail'))
+            .mockResolvedValueOnce({ok: true})
+            .mockResolvedValueOnce({ok: true})
+            .mockResolvedValueOnce({ok: true}); // error-alert email
+
+        const event = buildEvent(bulkPayload);
+        const response = await handler(event);
+        const body = JSON.parse(response.body);
+
+        expect(body.emailsFailed).toContain('alex@test.com');
+        expect(body.emailsFailed).toHaveLength(1);
+    });
+
+    it('sends error-alert email to admin when emails fail after retries', async () => {
+        mockFetch
+            .mockRejectedValueOnce(new Error('fail'))
+            .mockRejectedValueOnce(new Error('fail'))
+            .mockRejectedValueOnce(new Error('fail'))
+            .mockResolvedValueOnce({ok: true})
+            .mockResolvedValueOnce({ok: true})
+            .mockResolvedValueOnce({ok: true}); // for the error-alert email
+
+        const event = buildEvent(bulkPayload);
+        await handler(event);
+
+        const calls = mockFetch.mock.calls;
+        const errorAlertCall = calls.find(c =>
+            c[0].includes('error-alert')
+        );
+        expect(errorAlertCall).toBeDefined();
+        const alertBody = JSON.parse(errorAlertCall[1].body);
+        expect(alertBody.parameters.endpoint).toBe('api-giver-notify-post');
+        expect(alertBody.parameters.stackTrace).toContain('alex@test.com');
     });
 
     it('counts emails that return non-OK response as failures', async () => {
         mockFetch
             .mockResolvedValueOnce({ok: true})
             .mockResolvedValueOnce({ok: false, status: 500, statusText: 'Internal Server Error'})
-            .mockResolvedValueOnce({ok: true});
+            .mockResolvedValueOnce({ok: false, status: 500, statusText: 'Internal Server Error'})
+            .mockResolvedValueOnce({ok: false, status: 500, statusText: 'Internal Server Error'})
+            .mockResolvedValueOnce({ok: true})
+            .mockResolvedValueOnce({ok: true}); // error-alert email
 
         const event = buildEvent(bulkPayload);
         const response = await handler(event);

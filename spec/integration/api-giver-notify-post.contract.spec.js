@@ -83,5 +83,22 @@ describe('api-giver-notify-post contract', () => {
             expect(typeof body.sent).toBe('number');
             expect(typeof body.total).toBe('number');
         });
+
+        it('response contains sent, total, and emailsFailed', async () => {
+            const alice = makeUser({name: 'Alice', email: 'alice@test.com'});
+            const bob = makeUser({name: 'Bob', email: 'bob@test.com'});
+            await seedUsers(db, alice, bob);
+
+            const event = buildEvent('POST', {body: fePayload});
+            const response = await handler(event);
+            const body = JSON.parse(response.body);
+
+            expect(body).toHaveProperty('sent');
+            expect(body).toHaveProperty('total');
+            expect(body).toHaveProperty('emailsFailed');
+            expect(typeof body.sent).toBe('number');
+            expect(typeof body.total).toBe('number');
+            expect(Array.isArray(body.emailsFailed)).toBe(true);
+        });
     });
 });

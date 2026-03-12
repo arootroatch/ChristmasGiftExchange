@@ -1,7 +1,7 @@
 import {z} from "zod";
 import {apiHandler, validateBody} from "../shared/middleware.mjs";
 import {ok, badRequest} from "../shared/responses.mjs";
-import {sendNotificationEmail} from "../shared/giverNotification.mjs";
+import {sendNotificationEmail, sendEmailsWithRetry} from "../shared/giverNotification.mjs";
 import {getUsersCollection} from "../shared/db.mjs";
 
 const giverNotifyRequestSchema = z.object({
@@ -26,32 +26,26 @@ export const handler = apiHandler("POST", async (event) => {
     const userByEmail = {};
     users.forEach(u => { userByEmail[u.email] = u; });
 
-    let sent = 0;
-    const total = data.assignments.length;
+    const {emailsFailed} = await sendEmailsWithRetry(data.participants, data.assignments, userByEmail);
 
-    for (const assignment of data.assignments) {
-        const participant = data.participants.find(p => p.name === assignment.giver);
-        const user = userByEmail[participant.email];
-        const wishlistEditUrl = user
-            ? `${process.env.URL}/wishlist/edit/${user.token}`
-            : null;
+    const sent = data.assignments.length - emailsFailed.length;
 
+    if (emailsFailed.length > 0) {
         try {
             await sendNotificationEmail(
-                "secret-santa",
-                participant.email,
-                "Your gift exchange recipient name has arrived!",
+                "error-alert",
+                "alex@soundrootsproductions.com",
+                "Gift Exchange - Email Send Failures",
                 {
-                    name: assignment.giver,
-                    recipient: assignment.recipient,
-                    wishlistEditUrl,
+                    endpoint: "api-giver-notify-post",
+                    timestamp: new Date().toISOString(),
+                    stackTrace: `Failed to send emails to:\n${emailsFailed.join('\n')}\n\nAssignments: ${JSON.stringify(data.assignments, null, 2)}`,
                 }
             );
-            sent++;
         } catch (err) {
-            console.error(`Failed to send email to ${participant.email}:`, err);
+            console.error("Failed to send error-alert email:", err);
         }
     }
 
-    return ok({sent, total});
+    return ok({sent, total: data.assignments.length, emailsFailed});
 });
