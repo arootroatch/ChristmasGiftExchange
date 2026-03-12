@@ -10,10 +10,8 @@ import * as addHouseButton from "./components/ControlStrip/AddHouseButton.js";
 import * as generateButton from "./components/ControlStrip/GenerateButton.js";
 import * as instructions from "./components/Instructions.js";
 import * as emailTable from "./components/EmailTable/EmailTable.js";
-import * as emailQuery from "./components/EmailQuery.js";
+import * as recipientSearch from "./components/RecipientSearch.js";
 import * as reuseLink from "./components/ReuseLink.js";
-import * as sendEmails from "./components/EmailTable/SendEmails.js";
-import * as sendResults from "./components/EmailTable/SendResults.js";
 import * as snackbar from "../Snackbar.js";
 import {loadExchange, startExchange} from "./state.js";
 import {leftContainerId, selectElement} from "../utils.js";
@@ -37,10 +35,8 @@ export default function main() {
   instructions.init();
 
   emailTable.init();
-  emailQuery.init();
+  recipientSearch.init();
   reuseLink.init();
-  sendEmails.init();
-  sendResults.init();
 
   const letsGo = selectElement("#letsGo");
   const secretSantaBtn = selectElement("#secretSantaBtn");
