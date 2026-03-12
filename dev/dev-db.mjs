@@ -3,6 +3,7 @@ import {MongoClient} from "mongodb";
 import repl from "node:repl";
 import fs from "node:fs";
 import {seed} from "./seed.mjs";
+import {wishlistEditPath, wishlistViewPath} from "../netlify/shared/links.mjs";
 
 const DB_NAME = "gift-exchange";
 const ENV_FILE = ".env.local";
@@ -39,7 +40,7 @@ async function main() {
     await seed(db);
 
     console.log("\nREPL ready. Available: db, users, exchanges, seed(), find(), findOne(), links()");
-    console.log("Example: await find(users, {name: 'Alice'})")
+    console.log("Example: find(users, {name: 'Alice'})")
     console.log("Example: await links('user-token-uuid')\n");
 
     const r = repl.start({prompt: "dev-db> ", useGlobal: true});
@@ -47,17 +48,23 @@ async function main() {
     r.context.users = db.collection("users");
     r.context.exchanges = db.collection("exchanges");
     r.context.seed = () => seed(db);
-    r.context.find = (collection, query = {}) => collection.find(query).toArray();
-    r.context.findOne = (collection, query = {}) => collection.findOne(query);
+    r.context.find = async (collection, query = {}) => {
+        const results = await collection.find(query).toArray();
+        console.log(JSON.stringify(results, null, 2));
+    };
+    r.context.findOne = async (collection, query = {}) => {
+        const result = await collection.findOne(query);
+        console.log(JSON.stringify(result, null, 2));
+    };
     r.context.links = async (token) => {
         const base = "http://localhost:8888";
         const user = await db.collection("users").findOne({token});
         if (!user) { console.log("User not found"); return; }
         console.log(`\nLinks for ${user.name} (${user.email}):`);
-        console.log(`  Edit wishlist: ${base}/wishlist/edit/${token}`);
+        console.log(`  Edit wishlist: ${base}${wishlistEditPath(token)}`);
         const exs = await db.collection("exchanges").find({participants: user._id}).toArray();
         for (const ex of exs) {
-            console.log(`  View wishlist: ${base}/wishlist/view/${token}?exchange=${ex.exchangeId}`);
+            console.log(`  View wishlist: ${base}${wishlistViewPath(token, ex.exchangeId)}`);
         }
         console.log();
     };

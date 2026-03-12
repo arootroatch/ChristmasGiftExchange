@@ -1,4 +1,5 @@
 import {getUsersCollection, getExchangesCollection, getLegacyCollection} from "../shared/db.mjs";
+import {wishlistViewPath} from "../shared/links.mjs";
 import {apiHandler} from "../shared/middleware.mjs";
 import {ok, badRequest, notFound} from "../shared/responses.mjs";
 import {userSchema} from "../shared/schemas/user.mjs";
@@ -33,7 +34,7 @@ async function lookupFromNewCollections(email) {
     };
 
     if (hasWishlist) {
-        result.wishlistViewUrl = `/wishlist/view/${user.token}?exchange=${latestExchange.exchangeId}`;
+        result.wishlistViewUrl = wishlistViewPath(user.token, latestExchange.exchangeId);
     }
 
     return ok(result);

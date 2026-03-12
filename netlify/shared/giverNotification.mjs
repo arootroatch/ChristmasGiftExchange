@@ -1,4 +1,5 @@
 import {getUsersCollection, getExchangesCollection} from "./db.mjs";
+import {wishlistEditPath, absoluteUrl} from "./links.mjs";
 
 export async function forEachGiverOf(recipientUser, callback) {
     const exchangesCol = await getExchangesCollection();
@@ -27,7 +28,7 @@ export async function sendEmailsWithRetry(participants, assignments, userByEmail
         const participant = participants.find(p => p.name === assignment.giver);
         const user = userByEmail[participant.email];
         const wishlistEditUrl = user
-            ? `${process.env.URL}/wishlist/edit/${user.token}`
+            ? absoluteUrl(wishlistEditPath(user.token))
             : null;
 
         let sent = false;
