@@ -15,7 +15,15 @@ let cachedParticipants = [];
 let cachedAssignments = [];
 
 export function init() {
-    stateEvents.on(Events.RECIPIENTS_ASSIGNED, ({step, isSecretSanta, participants, assignments}) => {
+    stateEvents.on(Events.RECIPIENTS_ASSIGNED, ({isSecretSanta, participants, assignments}) => {
+        cachedIsSecretSanta = isSecretSanta;
+        cachedParticipants = participants;
+        cachedAssignments = assignments;
+        if (isSecretSanta) {
+            render();
+        }
+    });
+    stateEvents.on(Events.NEXT_STEP, ({step, isSecretSanta, participants, assignments}) => {
         cachedIsSecretSanta = isSecretSanta;
         cachedParticipants = participants;
         cachedAssignments = assignments;

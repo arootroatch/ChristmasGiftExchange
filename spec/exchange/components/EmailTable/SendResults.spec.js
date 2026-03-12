@@ -20,10 +20,8 @@ describe("SendResults", () => {
     });
 
     function triggerSecretSantaAssign() {
-        startExchange(true);
+        getState().isSecretSanta = true;
         installGivers([{...alex}, {...whitney}, {...hunter}]);
-        getState().step = 3;
-        nextStep();
         assignRecipients(["Whitney", "Hunter", "Alex"]);
     }
 
@@ -35,10 +33,24 @@ describe("SendResults", () => {
             expect(el.textContent).toContain("Don't want to send out emails to everyone?");
         });
 
-        it("does not render when not at step 4", () => {
-            startExchange(true);
+        it("does not render on RECIPIENTS_ASSIGNED when not isSecretSanta", () => {
+            getState().isSecretSanta = false;
             installGivers([{...alex}, {...whitney}]);
             assignRecipients(["Whitney", "Alex"]);
+            expect(document.querySelector("#sendResults")).toBeNull();
+        });
+
+        it("renders on NEXT_STEP when step is 4", () => {
+            installGivers([{...alex}, {...whitney}]);
+            getState().step = 3;
+            nextStep();
+            expect(document.querySelector("#sendResults")).not.toBeNull();
+        });
+
+        it("does not render on NEXT_STEP when step is not 4", () => {
+            installGivers([{...alex}, {...whitney}]);
+            getState().step = 1;
+            nextStep();
             expect(document.querySelector("#sendResults")).toBeNull();
         });
 
@@ -93,11 +105,11 @@ describe("SendResults", () => {
         it("does not show reveal warning in non-secret-santa mode", () => {
             const existing = document.querySelector("#sendResults");
             if (existing) existing.remove();
-            startExchange(false);
+            getState().isSecretSanta = false;
             installGivers([{...alex}, {...whitney}]);
+            assignRecipients(["Whitney", "Alex"]);
             getState().step = 3;
             nextStep();
-            assignRecipients(["Whitney", "Alex"]);
 
             document.querySelector("#sendResultsBtn").click();
 
@@ -146,11 +158,11 @@ describe("SendResults", () => {
         beforeEach(() => {
             const existing = document.querySelector("#sendResults");
             if (existing) existing.remove();
-            startExchange(false);
+            getState().isSecretSanta = false;
             installGivers([{...alex}, {...whitney}]);
+            assignRecipients(["Whitney", "Alex"]);
             getState().step = 3;
             nextStep();
-            assignRecipients(["Whitney", "Alex"]);
             document.querySelector("#sendResultsBtn").click();
             document.querySelector("#sendResultsConfirmBtn").click();
         });
