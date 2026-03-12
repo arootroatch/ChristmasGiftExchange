@@ -2,7 +2,10 @@ import {ExchangeEvents as Events, exchangeEvents as stateEvents, removeParticipa
 import {participantsId, selectElement, escapeAttr} from "../../utils.js";
 
 export function init() {
-  stateEvents.on(Events.PARTICIPANT_ADDED, ({houses, participants}) => renderParticipantsSlot(houses, participants));
+  stateEvents.on(Events.PARTICIPANT_ADDED, ({name: addedName, houses, participants}) => {
+    renderParticipantsSlot(houses, participants);
+    animateNewEntry(addedName);
+  });
   stateEvents.on(Events.PARTICIPANT_REMOVED, ({houses, participants}) => renderParticipantsSlot(houses, participants));
   stateEvents.on(Events.NAME_ADDED_TO_HOUSE, ({houseID, members, houses, participants}) => {
     renderHouseSlot(houseID, members);
@@ -42,6 +45,12 @@ function template(name) {
         <span class="name-entered" id="${safe}${id}">${safe}</span>
         <button id="delete-${safe}${id}" class="delete-btn">&#10005;</button>
       </div>`;
+}
+
+function animateNewEntry(name) {
+  const safe = escapeAttr(name);
+  const wrapper = selectElement(`#wrapper-${safe}`);
+  if (wrapper) wrapper.classList.add('animated');
 }
 
 function attachListeners(container) {

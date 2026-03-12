@@ -59,6 +59,16 @@ describe('addName', () => {
     expect(getState().participants[0].name).toEqual("Whitney");
   })
 
+  it("adds animated class only to the newly added name", () => {
+    addNamesToDOM("Bob");
+
+    const alice = document.querySelector('#wrapper-Alex');
+    const bob = document.querySelector('#wrapper-Bob');
+
+    expect(alice.classList.contains('animated')).toBe(false);
+    expect(bob.classList.contains('animated')).toBe(true);
+  });
+
   it("clicking delete x removes name from DOM", () => {
     expect(getState().participants[0].name).toEqual("Alex");
     click("#delete-Alex1");
