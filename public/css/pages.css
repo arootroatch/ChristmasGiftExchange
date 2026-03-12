@@ -1,24 +1,9 @@
 /* Secondary Pages Stylesheet — Reuse, Wishlist Edit, Wishlist View */
 
 @import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;500;600&display=swap');
+@import url('base/tokens.css');
+@import url('base/forms.css');
 @import url('components/entries.css');
-
-/* ── Design Tokens ─────────────────────────────────────────── */
-:root {
-  --burgundy-deep: #150808;
-  --burgundy: #69292a;
-  --burgundy-light: #8e3a3b;
-  --green: #198c0a;
-  --frost: rgba(255, 255, 255, 0.08);
-  --frost-border: rgba(255, 255, 255, 0.15);
-  --text-primary: #f0f0f0;
-  --text-secondary: rgba(240, 240, 240, 0.7);
-  --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2);
-  --shadow-input: inset 0 2px 4px rgba(0, 0, 0, 0.3);
-  --radius-lg: 16px;
-  --radius-md: 10px;
-  --radius-sm: 6px;
-}
 
 /* ── Base ───────────────────────────────────────────────────── */
 html {
@@ -77,16 +62,6 @@ h2 {
   font-weight: 300;
 }
 
-label {
-  display: block;
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: var(--text-secondary);
-  margin-bottom: 4px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
 /* ── Glass Card Sections ────────────────────────────────────── */
 section, #search-section {
   background: var(--frost);
@@ -116,39 +91,15 @@ hr {
   margin: 8px 0 20px;
 }
 
-/* ── Form Inputs ────────────────────────────────────────────── */
+/* ── Form Input Overrides (secondary pages) ───────────────── */
+select,
 input[type="email"],
 input[type="url"],
 input[type="text"],
 input[type="tel"],
 textarea {
   width: 100%;
-  padding: 10px 14px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: var(--radius-sm);
-  background: rgba(0, 0, 0, 0.25);
-  color: var(--text-primary);
-  font-family: 'Source Sans 3', sans-serif;
-  font-size: 0.95rem;
-  box-shadow: var(--shadow-input);
-  transition: border-color 0.2s, box-shadow 0.2s;
-  box-sizing: border-box;
   margin-bottom: 10px;
-}
-
-input::placeholder, textarea::placeholder {
-  color: rgba(240, 240, 240, 0.35);
-}
-
-input:focus, textarea:focus {
-  outline: none;
-  border-color: rgba(255, 255, 255, 0.5);
-  box-shadow: var(--shadow-input), 0 0 0 2px rgba(255, 255, 255, 0.15);
-}
-
-textarea {
-  resize: vertical;
-  min-height: 60px;
 }
 
 /* ── Buttons ────────────────────────────────────────────────── */
@@ -207,6 +158,11 @@ textarea {
 #add-wishlist-form input,
 #add-item-form input {
   margin-bottom: 0;
+}
+
+#add-wishlist-form label,
+#add-item-form label {
+  margin-bottom: 2px;
 }
 
 #add-wishlist-form .button,

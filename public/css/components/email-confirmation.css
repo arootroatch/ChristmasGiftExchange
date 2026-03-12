@@ -19,3 +19,12 @@
 #hideEmails {
   margin-left: 15px;
 }
+
+.sendEmails label {
+  display: inline;
+  font-size: inherit;
+  font-weight: normal;
+  text-transform: none;
+  letter-spacing: normal;
+  margin-bottom: 0;
+}

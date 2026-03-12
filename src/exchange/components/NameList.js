@@ -20,7 +20,8 @@ function template() {
   <div id="${nameListId}" style="display: none;">
     <h2 id="house1-header">Participant Names</h2>
     <div class="name-container" id="${participantsId}" data-slot="names-${participantsId}"></div>
-    <input type="text" id="name-input" class="name-input" />
+    <label for="name-input">Name</label>
+    <input type="text" id="name-input" class="name-input" placeholder="Aunt Cathy" />
     <button class="button" type="submit" id="add-name-btn">Add Name (Enter)</button>
     <select class="name-select" name="name-list-select" id="name-list-select">
       <option disabled selected value="default">-- Select a name --</option>

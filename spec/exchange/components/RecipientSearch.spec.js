@@ -1,11 +1,11 @@
 import {beforeEach, describe, expect, it, vi, afterAll, beforeAll} from "vitest";
 import {click, expectColor, stubFetchError} from "../../specHelper";
-import {init} from "../../../src/exchange/components/EmailQuery";
+import {init} from "../../../src/exchange/components/RecipientSearch";
 import {waitFor} from "@testing-library/dom";
 import {serverErrorMessage} from "../../../src/utils";
 
 describe("getName", () => {
-    let emailQueryBtn;
+    let recipientSearchBtn;
     let query;
     let consoleLogSpy;
     let consoleErrorSpy;
@@ -25,7 +25,7 @@ describe("getName", () => {
         vi.clearAllTimers();
         init();
         query = document.querySelector("#query");
-        emailQueryBtn = document.querySelector("#emailQueryBtn");
+        recipientSearchBtn = document.querySelector("#recipientSearchBtn");
     })
 
     function stubRecipientFetch(body) {
@@ -38,16 +38,16 @@ describe("getName", () => {
 
     it("sets button text to Loading...", () => {
         stubRecipientFetch({recipient: "Whitney", date: "2023-06-15T12:00:00.000Z"});
-        click("#emailQueryBtn");
-        expect(emailQueryBtn.innerHTML).toContain('Loading...');
-        expectColor(emailQueryBtn.style.color, "rgb(128, 128, 128)", "#808080");
+        click("#recipientSearchBtn");
+        expect(recipientSearchBtn.innerHTML).toContain('Loading...');
+        expectColor(recipientSearchBtn.style.color, "rgb(128, 128, 128)", "#808080");
     })
 
     it("fetches from api-recipient-get with email query param", () => {
         stubRecipientFetch({recipient: "Whitney", date: "2023-06-15T12:00:00.000Z"});
-        const emailInput = document.querySelector("#emailQuery");
+        const emailInput = document.querySelector("#recipientSearch");
         emailInput.value = "test@example.com";
-        click("#emailQueryBtn");
+        click("#recipientSearchBtn");
         expect(global.fetch).toHaveBeenCalledWith(
             "/.netlify/functions/api-recipient-get?email=test%40example.com",
             expect.objectContaining({})
@@ -56,7 +56,7 @@ describe("getName", () => {
 
     it("displays recipient and date", async () => {
         stubRecipientFetch({recipient: "Whitney", date: "2023-06-15T12:00:00.000Z"});
-        click("#emailQueryBtn");
+        click("#recipientSearchBtn");
         await waitFor(() => {
             expect(query.innerHTML).toContain("As of Thu Jun 15 2023, you're buying a gift for");
             expect(query.innerHTML).toContain("Whitney!");
@@ -69,7 +69,7 @@ describe("getName", () => {
             date: "2023-06-15T12:00:00.000Z",
             wishlistViewUrl: "/wishlist/view/token-abc?exchange=ex123"
         });
-        click("#emailQueryBtn");
+        click("#recipientSearchBtn");
         await waitFor(() => {
             expect(query.innerHTML).toContain("Whitney!");
             expect(query.innerHTML).toContain("View Wishlist");
@@ -82,7 +82,7 @@ describe("getName", () => {
             recipient: "Whitney",
             date: "2023-06-15T12:00:00.000Z"
         });
-        click("#emailQueryBtn");
+        click("#recipientSearchBtn");
         await waitFor(() => {
             expect(query.innerHTML).toContain("Whitney!");
             expect(query.innerHTML).not.toContain("View Wishlist");
@@ -91,7 +91,7 @@ describe("getName", () => {
 
     it("allows multiple searches", async () => {
         stubRecipientFetch({recipient: "Whitney", date: "2023-06-15T12:00:00.000Z"});
-        click("#emailQueryBtn");
+        click("#recipientSearchBtn");
         await waitFor(() => {
             expect(query.innerHTML).toContain("Whitney!");
         });
@@ -100,7 +100,7 @@ describe("getName", () => {
         await new Promise(resolve => setTimeout(resolve, 0));
 
         stubRecipientFetch({recipient: "Hunter", date: "2023-06-15T12:00:00.000Z"});
-        click("#emailQueryBtn");
+        click("#recipientSearchBtn");
         await waitFor(() => {
             expect(query.innerHTML).toContain("Hunter!");
         });
@@ -109,14 +109,14 @@ describe("getName", () => {
     it("displays error message for 2 secs on network error", async () => {
         vi.useFakeTimers();
         stubFetchError("Internal Server Error");
-        click("#emailQueryBtn");
+        click("#recipientSearchBtn");
         await vi.advanceTimersByTimeAsync(0);
         expect(query.innerHTML).toContain(serverErrorMessage);
         vi.advanceTimersByTime(2000);
         expect(query.innerHTML).not.toContain(serverErrorMessage);
         expect(query.innerHTML).toContain("Need to know who you're buying a gift for?");
-        emailQueryBtn = document.querySelector("#emailQueryBtn");
-        expect(emailQueryBtn.innerHTML).toContain("Search it!");
+        recipientSearchBtn = document.querySelector("#recipientSearchBtn");
+        expect(recipientSearchBtn.innerHTML).toContain("Search it!");
         vi.useRealTimers();
     });
 
@@ -130,7 +130,7 @@ describe("getName", () => {
 
     it("displays API error message on non-ok response", async () => {
         stubFetchNotOk("Database unavailable");
-        click("#emailQueryBtn");
+        click("#recipientSearchBtn");
         await waitFor(() => expect(query.innerHTML).toContain("Database unavailable"));
     });
 
@@ -140,7 +140,7 @@ describe("getName", () => {
             status: 400,
             json: () => Promise.resolve({})
         }));
-        click("#emailQueryBtn");
+        click("#recipientSearchBtn");
         await waitFor(() => expect(query.innerHTML).toContain("Email address not found. Please try again."));
     });
 

@@ -1,0 +1,16 @@
+/* ── Design Tokens ─────────────────────────────────────────── */
+:root {
+  --burgundy-deep: #150808;
+  --burgundy: #69292a;
+  --burgundy-light: #8e3a3b;
+  --green: #198c0a;
+  --frost: rgba(255, 255, 255, 0.08);
+  --frost-border: rgba(255, 255, 255, 0.15);
+  --text-primary: #f0f0f0;
+  --text-secondary: rgba(240, 240, 240, 0.7);
+  --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2);
+  --shadow-input: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+  --radius-lg: 16px;
+  --radius-md: 10px;
+  --radius-sm: 6px;
+}

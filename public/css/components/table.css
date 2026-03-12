@@ -30,6 +30,10 @@
   letter-spacing: 0.05em;
 }
 
+.results-header span:first-child {
+  text-align: left;
+}
+
 .results-header span:last-child {
   text-align: right;
 }
@@ -42,6 +46,10 @@
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 6px;
   margin-bottom: 5px;
+}
+
+.result-row span:first-child {
+  text-align: left;
 }
 
 .result-row span:last-child {

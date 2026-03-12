@@ -1,38 +1,38 @@
 import {addEventListener, removeEventListener, selectElement, setLoadingState, escapeAttr, apiFetch} from "../../utils";
 
-const emailQueryId = "emailQuery";
-const emailQueryBtnId = "emailQueryBtn";
+const recipientSearchId = "recipientSearch";
+const recipientSearchBtnId = "recipientSearchBtn";
 const queryDivId = "query";
 
-export const emailQueryInput =
+export const recipientSearchInput =
   `<div>
         <input
             type="email"
             maxlength="100"
-            id="${emailQueryId}"
-            placeholder="Enter your email to search"
+            id="${recipientSearchId}"
+            placeholder="you@example.com"
         />
         <button
             type="submit"
             class="button queryBtn"
-            id="${emailQueryBtnId}"
+            id="${recipientSearchBtnId}"
         >
         Search it!
         </button>
     </div>`
 
-export const emailQueryInit =
-  `<label for="${emailQueryId}">
+export const recipientSearchInit =
+  `<label for="${recipientSearchId}">
         Need to know who you're buying a gift for?
     </label>
-    ${emailQueryInput}`
+    ${recipientSearchInput}`
 
-export function emailQueryResult(date, recipient) {
+export function recipientSearchResult(date, recipient) {
   return `
     <div>
         As of ${escapeAttr(date.toDateString())}, you're buying a gift for <span>${escapeAttr(recipient)}!</span>
     </div>
-    ${emailQueryInput}`;
+    ${recipientSearchInput}`;
 }
 
 function renderResult(results) {
@@ -40,13 +40,13 @@ function renderResult(results) {
   const date = new Date(timestamp);
   const queryDiv = selectElement(`#${queryDivId}`);
 
-  let html = emailQueryResult(date, results.recipient);
+  let html = recipientSearchResult(date, results.recipient);
   if (results.wishlistViewUrl) {
     html += `<a href="${escapeAttr(results.wishlistViewUrl)}" class="button" style="margin-top: 10px; display: inline-block;">View Wishlist</a>`;
   }
 
   queryDiv.innerHTML = html;
-  addEventListener(`#${emailQueryBtnId}`, "click", getName);
+  addEventListener(`#${recipientSearchBtnId}`, "click", getName);
 }
 
 function renderError(message = "Email address not found!") {
@@ -54,19 +54,19 @@ function renderError(message = "Email address not found!") {
   queryDiv.innerHTML = '<div style="color:rgba(255,100,100,0.9)"></div>';
   queryDiv.firstElementChild.textContent = message;
   setTimeout(() => {
-    queryDiv.innerHTML = emailQueryInit;
-    addEventListener(`#${emailQueryBtnId}`, "click", getName);
+    queryDiv.innerHTML = recipientSearchInit;
+    addEventListener(`#${recipientSearchBtnId}`, "click", getName);
   }, 2000);
 }
 
 function renderLoadingState() {
-  setLoadingState(`#${emailQueryBtnId}`);
-  removeEventListener(`#${emailQueryBtnId}`, "click", getName);
+  setLoadingState(`#${recipientSearchBtnId}`);
+  removeEventListener(`#${recipientSearchBtnId}`, "click", getName);
 }
 
 async function getName(e) {
   e.preventDefault();
-  const email = selectElement(`#${emailQueryId}`).value;
+  const email = selectElement(`#${recipientSearchId}`).value;
   renderLoadingState();
 
   await apiFetch(`/.netlify/functions/api-recipient-get?email=${encodeURIComponent(email)}`, {
@@ -77,10 +77,10 @@ async function getName(e) {
 }
 
 function template() {
-  return `<div id="${queryDivId}" class="emailQuery">${emailQueryInit}</div>`;
+  return `<div id="${queryDivId}" class="recipientSearch">${recipientSearchInit}</div>`;
 }
 
 export function init() {
-  selectElement('[data-slot="email-query"]').innerHTML = template();
-  addEventListener(`#${emailQueryBtnId}`, "click", getName);
+  selectElement('[data-slot="recipient-search"]').innerHTML = template();
+  addEventListener(`#${recipientSearchBtnId}`, "click", getName);
 }

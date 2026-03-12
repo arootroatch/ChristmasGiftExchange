@@ -7,8 +7,14 @@ function template() {
         <p class="helper-text">Add links to your Amazon, Wishlist.com, or other wishlists</p>
         <div id="wishlists-list"></div>
         <div id="add-wishlist-form">
-            <input type="url" id="wishlist-url" placeholder="Wishlist URL"/>
-            <input type="text" id="wishlist-title" placeholder="Title (optional)"/>
+            <div>
+                <label for="wishlist-url">Wishlist URL</label>
+                <input type="url" id="wishlist-url" placeholder="https://amazon.com/hz/wishlist/ls/..."/>
+            </div>
+            <div>
+                <label for="wishlist-title">Title (optional)</label>
+                <input type="text" id="wishlist-title" placeholder="My Amazon Wishlist"/>
+            </div>
             <button id="add-wishlist-btn" class="button">Add</button>
         </div>
     </section>`;

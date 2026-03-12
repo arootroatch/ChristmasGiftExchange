@@ -1,7 +1,7 @@
 import {test, expect} from '@playwright/test';
 import {connectDB, disconnectDB, cleanDB, makeUser, makeExchange, seedUsers, seedExchange} from './helpers.js';
 
-test.describe('Email Query', () => {
+test.describe('Recipient Search', () => {
     let giver, recipient;
 
     test.beforeAll(async () => {
@@ -33,8 +33,8 @@ test.describe('Email Query', () => {
     test('entering giver email shows recipient name', async ({page}) => {
         await page.goto('/');
 
-        const emailInput = page.locator('#emailQuery');
-        const submitBtn = page.locator('#emailQueryBtn');
+        const emailInput = page.locator('#recipientSearch');
+        const submitBtn = page.locator('#recipientSearchBtn');
 
         await emailInput.fill('alice@test.com');
         await submitBtn.click();
@@ -46,8 +46,8 @@ test.describe('Email Query', () => {
     test('shows wishlist view link when recipient has wishlist', async ({page}) => {
         await page.goto('/');
 
-        await page.locator('#emailQuery').fill('alice@test.com');
-        await page.locator('#emailQueryBtn').click();
+        await page.locator('#recipientSearch').fill('alice@test.com');
+        await page.locator('#recipientSearchBtn').click();
 
         const link = page.locator('#query a');
         await expect(link).toBeVisible();
@@ -57,8 +57,8 @@ test.describe('Email Query', () => {
     test('shows error for unknown email', async ({page}) => {
         await page.goto('/');
 
-        await page.locator('#emailQuery').fill('nobody@test.com');
-        await page.locator('#emailQueryBtn').click();
+        await page.locator('#recipientSearch').fill('nobody@test.com');
+        await page.locator('#recipientSearchBtn').click();
 
         const result = page.locator('#query');
         await expect(result).toContainText(/not found/i);

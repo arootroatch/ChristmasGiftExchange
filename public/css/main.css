@@ -1,6 +1,10 @@
 /* Gift Exchange Generator - Main Stylesheet */
 /* Color Palette: Burgundy (#69292a, #3b0e0f) and Green (#198c0a) */
 
+/* Shared */
+@import url('base/tokens.css');
+@import url('base/forms.css');
+
 /* Base Styles */
 @import url('base/reset.css');
 @import url('base/layout.css');
@@ -14,7 +18,7 @@
 @import url('components/snackbar.css');
 @import url('components/email-dialog.css');
 @import url('components/email-confirmation.css');
-@import url('components/email-query.css');
+@import url('components/recipient-search.css');
 
 /* Themes */
 @import url('themes/secret-santa.css');

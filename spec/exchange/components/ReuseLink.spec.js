@@ -11,9 +11,9 @@ describe("ReuseLink", () => {
         shouldSelect('[data-slot="reuse-link"]');
     });
 
-    it("renders a container with the emailQuery class", () => {
+    it("renders a container with the reuseLink class", () => {
         const slot = document.querySelector('[data-slot="reuse-link"]');
-        const container = slot.querySelector(".emailQuery");
+        const container = slot.querySelector(".reuseLink");
         expect(container).not.toBeNull();
     });
 

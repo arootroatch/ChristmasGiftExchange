@@ -37,11 +37,9 @@
 
 .name-select {
   width: 100%;
-  color: black;
-  text-align: center;
   margin-top: 15px;
 }
 
 .name-container {
-  padding-bottom: 35px;
+  padding-bottom: 10px;
 }

@@ -7,8 +7,14 @@ function template() {
         <p class="helper-text">Add links to specific products you'd like</p>
         <div id="items-list"></div>
         <div id="add-item-form">
-            <input type="url" id="item-url" placeholder="Product URL"/>
-            <input type="text" id="item-title" placeholder="Title (optional)"/>
+            <div>
+                <label for="item-url">Product URL</label>
+                <input type="url" id="item-url" placeholder="https://amazon.com/dp/..."/>
+            </div>
+            <div>
+                <label for="item-title">Title (optional)</label>
+                <input type="text" id="item-title" placeholder="Bluetooth Headphones"/>
+            </div>
             <button id="add-item-btn" class="button">Add</button>
         </div>
     </section>`;

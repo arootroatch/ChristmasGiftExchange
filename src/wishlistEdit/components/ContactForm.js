@@ -6,11 +6,11 @@ function template() {
         <h2>Send Contact Info to Your Secret Santa</h2>
         <p class="helper-text">This information will be emailed directly to your Secret Santa and will NOT be stored.</p>
         <label for="contact-address">Shipping Address</label>
-        <textarea id="contact-address" rows="3" placeholder="Your shipping address"></textarea>
+        <textarea id="contact-address" rows="3" placeholder="123 Main St, City, State 12345"></textarea>
         <label for="contact-phone">Phone Number</label>
-        <input type="tel" id="contact-phone" placeholder="Your phone number"/>
+        <input type="tel" id="contact-phone" placeholder="(555) 123-4567"/>
         <label for="contact-notes">Notes</label>
-        <textarea id="contact-notes" rows="2" placeholder="Anything else they should know"></textarea>
+        <textarea id="contact-notes" rows="2" placeholder="Allergies, size preferences, etc."></textarea>
         <button id="send-contact-btn" class="button">Send to My Secret Santa</button>
     </section>`;
 }

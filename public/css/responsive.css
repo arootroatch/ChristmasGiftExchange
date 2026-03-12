@@ -72,6 +72,13 @@
   }
 }
 
+@media screen and (max-width: 400px) {
+  #top-actions {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
 @media screen and (max-width: 339px) {
   #container {
     padding-left: 0;
@@ -98,7 +105,7 @@
       align-items: center;
     }
   }
-  #emailQueryBtn {
+  #recipientSearchBtn {
     margin-top: 5px;
   }
 }
