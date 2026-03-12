@@ -145,6 +145,20 @@ describe('api-giver-notify-post', () => {
         expect(body.total).toBe(3);
     });
 
+    it('counts emails that return non-OK response as failures', async () => {
+        mockFetch
+            .mockResolvedValueOnce({ok: true})
+            .mockResolvedValueOnce({ok: false, status: 500, statusText: 'Internal Server Error'})
+            .mockResolvedValueOnce({ok: true});
+
+        const event = buildEvent(bulkPayload);
+        const response = await handler(event);
+        const body = JSON.parse(response.body);
+
+        expect(body.sent).toBe(2);
+        expect(body.total).toBe(3);
+    });
+
     it('sets wishlistEditUrl to null when user not found in DB', async () => {
 
         await db.collection('users').deleteOne({email: 'alex@test.com'});

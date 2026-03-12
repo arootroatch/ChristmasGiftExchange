@@ -27,7 +27,7 @@ export async function sendNotificationEmail(templateName, to, subject, parameter
         return;
     }
 
-    await fetch(
+    const response = await fetch(
         `${process.env.URL}/.netlify/functions/emails/${templateName}`,
         {
             headers: {"netlify-emails-secret": process.env.NETLIFY_EMAILS_SECRET},
@@ -40,4 +40,8 @@ export async function sendNotificationEmail(templateName, to, subject, parameter
             }),
         }
     );
+
+    if (!response.ok) {
+        throw new Error(`Email send failed (${response.status}): ${to}`);
+    }
 }
