@@ -1,4 +1,5 @@
 import {addEventListener, removeEventListener, selectElement, setLoadingState, escapeAttr, apiFetch} from "../../utils";
+import {ExchangeEvents as Events, exchangeEvents as stateEvents} from "../state.js";
 
 const recipientSearchId = "recipientSearch";
 const recipientSearchBtnId = "recipientSearchBtn";
@@ -83,4 +84,7 @@ function template() {
 export function init() {
   selectElement('[data-slot="recipient-search"]').innerHTML = template();
   addEventListener(`#${recipientSearchBtnId}`, "click", getName);
+  stateEvents.on(Events.EXCHANGE_STARTED, () => {
+    selectElement('[data-slot="recipient-search"]').innerHTML = "";
+  });
 }

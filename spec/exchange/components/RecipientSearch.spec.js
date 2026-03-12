@@ -3,6 +3,7 @@ import {click, expectColor, stubFetchError} from "../../specHelper";
 import {init} from "../../../src/exchange/components/RecipientSearch";
 import {waitFor} from "@testing-library/dom";
 import {serverErrorMessage} from "../../../src/utils";
+import {exchangeEvents, ExchangeEvents} from "../../../src/exchange/state";
 
 describe("getName", () => {
     let recipientSearchBtn;
@@ -142,6 +143,12 @@ describe("getName", () => {
         }));
         click("#recipientSearchBtn");
         await waitFor(() => expect(query.innerHTML).toContain("Email address not found. Please try again."));
+    });
+
+    it("hides when exchange starts", () => {
+        exchangeEvents.emit(ExchangeEvents.EXCHANGE_STARTED, {});
+        const slot = document.querySelector('[data-slot="recipient-search"]');
+        expect(slot.innerHTML).toBe("");
     });
 
 })

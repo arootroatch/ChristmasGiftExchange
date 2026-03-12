@@ -1,9 +1,14 @@
-import {beforeAll, describe, expect, it} from "vitest";
+import {beforeAll, beforeEach, describe, expect, it} from "vitest";
 import {shouldSelect} from "../../specHelper";
 import {init} from "../../../src/exchange/components/ReuseLink";
+import {exchangeEvents, ExchangeEvents} from "../../../src/exchange/state";
 
 describe("ReuseLink", () => {
     beforeAll(() => {
+        init();
+    });
+
+    beforeEach(() => {
         init();
     });
 
@@ -36,5 +41,11 @@ describe("ReuseLink", () => {
     it("link has no text-decoration", () => {
         const link = document.querySelector('[data-slot="reuse-link"] a');
         expect(link.style.textDecoration).toBe("none");
+    });
+
+    it("hides when exchange starts", () => {
+        exchangeEvents.emit(ExchangeEvents.EXCHANGE_STARTED, {});
+        const slot = document.querySelector('[data-slot="reuse-link"]');
+        expect(slot.innerHTML).toBe("");
     });
 });
