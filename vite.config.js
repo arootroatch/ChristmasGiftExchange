@@ -1,9 +1,10 @@
 import {defineConfig} from 'vite';
 import {resolve} from 'path';
-import {multiPagePlugin} from './src/viteMultiPagePlugin.js';
+import {netlifyRedirectsPlugin} from './src/viteNetlifyRedirects.js';
 
 export default defineConfig({
-    plugins: [multiPagePlugin()],
+    appType: 'mpa',
+    plugins: [netlifyRedirectsPlugin()],
     build: {
         rollupOptions: {
             input: {

@@ -4,29 +4,28 @@ import {writeFileSync, unlinkSync, readFileSync} from 'fs';
 import path from 'path';
 import net from 'net';
 
-const PORT = 8888;
 const STATE_FILE = path.join(import.meta.dirname, '.e2e-state.json');
 
 function cleanupStaleRun() {
     try {
-        readFileSync(STATE_FILE, 'utf-8');
+        const state = JSON.parse(readFileSync(STATE_FILE, 'utf-8'));
         unlinkSync(STATE_FILE);
-        execSync(`lsof -ti :${PORT} | xargs kill -9 2>/dev/null || true`);
+        if (state.port) execSync(`lsof -ti :${state.port} | xargs kill -9 2>/dev/null || true`);
     } catch { /* no stale state */ }
 }
 
-function checkPortAvailable(port) {
+function findAvailablePort() {
     return new Promise((resolve, reject) => {
         const server = net.createServer();
-        server.once('error', () => reject(new Error(
-            `Port ${port} is already in use. Stop the other process or use a different port.`
-        )));
-        server.once('listening', () => server.close(() => resolve()));
-        server.listen(port);
+        server.once('error', reject);
+        server.listen(0, () => {
+            const {port} = server.address();
+            server.close(() => resolve(port));
+        });
     });
 }
 
-async function waitForServer(url, timeoutMs = 30000) {
+async function waitForServer(url, timeoutMs = 60000) {
     const start = Date.now();
     while (Date.now() - start < timeoutMs) {
         try {
@@ -40,12 +39,20 @@ async function waitForServer(url, timeoutMs = 30000) {
 
 export default async function globalSetup() {
     cleanupStaleRun();
-    await checkPortAvailable(PORT);
 
+    const port = await findAvailablePort();
+    const targetPort = await findAvailablePort();
     const mongoServer = await MongoMemoryServer.create();
     const mongoUri = mongoServer.getUri();
 
-    const netlifyDev = spawn('npx', ['netlify', 'dev', '--port', String(PORT), '--no-open'], {
+    const netlifyDev = spawn('npx', [
+        'netlify', 'dev',
+        '--port', String(port),
+        '--target-port', String(targetPort),
+        '--command', `npx vite --port ${targetPort}`,
+        '--framework', '#custom',
+        '--no-open',
+    ], {
         cwd: path.resolve(import.meta.dirname, '..'),
         env: {
             ...process.env,
@@ -63,9 +70,9 @@ export default async function globalSetup() {
         if (process.env.DEBUG_E2E) console.error(`[netlify dev] ${data}`);
     });
 
-    await waitForServer(`http://localhost:${PORT}`);
+    await waitForServer(`http://localhost:${port}`);
 
-    writeFileSync(STATE_FILE, JSON.stringify({mongoUri}));
+    writeFileSync(STATE_FILE, JSON.stringify({mongoUri, port}));
 
     return async () => {
         netlifyDev.kill('SIGTERM');

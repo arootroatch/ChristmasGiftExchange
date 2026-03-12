@@ -1,4 +1,4 @@
-import {test, expect} from '@playwright/test';
+import {test, expect} from './fixtures.js';
 import {connectDB, disconnectDB, cleanDB, makeUser, makeExchange, seedUsers, seedExchange} from './helpers.js';
 
 test.describe('Edit Wishlist → Giver Sees Updates', () => {

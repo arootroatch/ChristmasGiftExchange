@@ -10,7 +10,6 @@ export default defineConfig({
         timeout: 10000,
     },
     use: {
-        baseURL: 'http://localhost:8888',
         headless: true,
     },
     globalSetup: './globalSetup.js',

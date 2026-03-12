@@ -25,7 +25,7 @@ describe("ReuseLink", () => {
     it("renders a link to /reuse", () => {
         const link = document.querySelector('[data-slot="reuse-link"] a');
         expect(link).not.toBeNull();
-        expect(link.getAttribute("href")).toBe("/reuse/");
+        expect(link.getAttribute("href")).toBe("/reuse");
     });
 
     it("link text says 'Reuse a Previous Exchange'", () => {
