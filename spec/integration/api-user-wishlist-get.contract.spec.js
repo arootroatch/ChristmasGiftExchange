@@ -1,13 +1,13 @@
 import {afterAll, afterEach, beforeAll, beforeEach, describe, expect, it} from 'vitest';
 import {setupMongo, teardownMongo, cleanCollections, buildEvent, makeUser, makeExchange, seedUsers, seedExchange} from './contractHelper.js';
 
-describe('api-exchange-get contract', () => {
+describe('api-user-wishlist-get contract', () => {
     let handler, db, mongo, giver, recipient, exchangeId;
 
     beforeAll(async () => {
         mongo = await setupMongo();
         db = mongo.db;
-        const module = await import('../../netlify/functions/api-exchange-get.mjs');
+        const module = await import('../../netlify/functions/api-user-wishlist-get.mjs');
         handler = module.handler;
     });
 
@@ -33,7 +33,7 @@ describe('api-exchange-get contract', () => {
 
     function exchangeGetEvent() {
         return buildEvent('GET', {
-            path: `/.netlify/functions/api-exchange-get/${exchangeId}`,
+            path: `/.netlify/functions/api-user-wishlist-get/${exchangeId}`,
             queryStringParameters: {token: giver.token},
         });
     }

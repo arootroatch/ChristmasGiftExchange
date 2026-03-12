@@ -2,14 +2,14 @@ import {afterAll, afterEach, beforeAll, describe, expect, it} from 'vitest';
 import {ObjectId} from 'mongodb';
 import {setupMongo, teardownMongo, cleanCollections} from './mongoHelper.js';
 
-describe('api-exchange-get', () => {
+describe('api-user-wishlist-get', () => {
     let client, db, handler;
     let mongo;
 
     beforeAll(async () => {
         mongo = await setupMongo();
         ({client, db} = mongo);
-        const module = await import('../../netlify/functions/api-exchange-get.mjs');
+        const module = await import('../../netlify/functions/api-user-wishlist-get.mjs');
         handler = module.handler;
     });
 
@@ -70,7 +70,7 @@ describe('api-exchange-get', () => {
     }
 
     it('returns 405 for non-GET requests', async () => {
-        const event = {httpMethod: 'POST', path: '/.netlify/functions/api-exchange-get/abc', queryStringParameters: {token: 'x'}};
+        const event = {httpMethod: 'POST', path: '/.netlify/functions/api-user-wishlist-get/abc', queryStringParameters: {token: 'x'}};
         const response = await handler(event);
         expect(response.statusCode).toBe(405);
     });
@@ -80,7 +80,7 @@ describe('api-exchange-get', () => {
 
         const event = {
             httpMethod: 'GET',
-            path: '/.netlify/functions/api-exchange-get/exchange-view',
+            path: '/.netlify/functions/api-user-wishlist-get/exchange-view',
             queryStringParameters: {token: giverToken},
         };
 
@@ -99,7 +99,7 @@ describe('api-exchange-get', () => {
 
         const event = {
             httpMethod: 'GET',
-            path: '/.netlify/functions/api-exchange-get/exchange-view',
+            path: '/.netlify/functions/api-user-wishlist-get/exchange-view',
             queryStringParameters: {token: outsiderToken},
         };
 
@@ -115,7 +115,7 @@ describe('api-exchange-get', () => {
 
         const event = {
             httpMethod: 'GET',
-            path: '/.netlify/functions/api-exchange-get/exchange-view',
+            path: '/.netlify/functions/api-user-wishlist-get/exchange-view',
             queryStringParameters: {token: 'nonexistent-token'},
         };
 
@@ -128,7 +128,7 @@ describe('api-exchange-get', () => {
 
         const event = {
             httpMethod: 'GET',
-            path: '/.netlify/functions/api-exchange-get/nonexistent-exchange',
+            path: '/.netlify/functions/api-user-wishlist-get/nonexistent-exchange',
             queryStringParameters: {token: giverToken},
         };
 

@@ -10,7 +10,7 @@ async function loadWishlist() {
         return;
     }
 
-    await apiFetch(`/.netlify/functions/api-exchange-get/${exchangeId}?token=${token}`, {
+    await apiFetch(`/.netlify/functions/api-user-wishlist-get/${exchangeId}?token=${token}`, {
         onSuccess: (data) => {
             document.getElementById("heading").textContent = `${data.recipientName}'s Wishlist`;
             const content = document.getElementById("wishlist-content");

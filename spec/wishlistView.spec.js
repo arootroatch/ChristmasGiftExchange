@@ -86,7 +86,7 @@ describe("Wishlist View Page", () => {
 
             await vi.waitFor(() => {
                 expect(window.fetch).toHaveBeenCalledWith(
-                    "/.netlify/functions/api-exchange-get/exchange-id-456?token=giver-token-123",
+                    "/.netlify/functions/api-user-wishlist-get/exchange-id-456?token=giver-token-123",
                     expect.objectContaining({})
                 );
             });
