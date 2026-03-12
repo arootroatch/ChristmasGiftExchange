@@ -49,9 +49,12 @@ function useExchange(event) {
     window.location.href = "/";
 }
 
-snackbar.init();
+export function main() {
+    snackbar.init();
 
-document.getElementById("reuse-search-btn").addEventListener("click", searchExchanges);
-document.getElementById("reuse-email").addEventListener("keydown", (e) => {
-    if (e.key === "Enter") searchExchanges();
-});
+    document.getElementById("reuse-search-btn").addEventListener("click", searchExchanges);
+    document.getElementById("reuse-email").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") searchExchanges();
+    });
+}
+

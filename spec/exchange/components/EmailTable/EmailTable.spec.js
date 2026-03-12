@@ -216,9 +216,8 @@ describe('emailTable', () => {
     it("displays error snackbar when postToServer returns non-200 status", async () => {
       submitEmailForm();
 
-      await vi.waitFor(() => {
-        shouldDisplayErrorSnackbar("Aw shucks!");
-      });
+      await vi.advanceTimersByTimeAsync(0);
+      shouldDisplayErrorSnackbar("Aw shucks!");
     });
   });
 
@@ -426,9 +425,8 @@ describe('emailTable', () => {
       document.querySelector("#sendResultsSubmit").click();
 
       const {serverErrorMessage} = await import("../../../../src/utils");
-      await vi.waitFor(() => {
-        shouldDisplayErrorSnackbar(serverErrorMessage);
-      });
+      await vi.advanceTimersByTimeAsync(0);
+      shouldDisplayErrorSnackbar(serverErrorMessage);
     });
 
     it("re-enables send button on API failure", async () => {
@@ -439,10 +437,9 @@ describe('emailTable', () => {
       }));
       document.querySelector("#sendResultsSubmit").click();
 
-      await vi.waitFor(() => {
-        const btn = document.querySelector("#sendResultsSubmit");
-        expect(btn.textContent).toBe("Send");
-      });
+      await vi.advanceTimersByTimeAsync(0);
+      const btn = document.querySelector("#sendResultsSubmit");
+      expect(btn.textContent).toBe("Send");
     });
 
     it("shows error when no name selected", () => {
@@ -524,9 +521,8 @@ describe('emailTable', () => {
     submitEmailForm();
 
     const table = document.querySelector("#emailTable");
-    await vi.waitFor(() => {
-      expect(table.classList).toContain("hide");
-    });
+    await vi.advanceTimersByTimeAsync(0);
+    expect(table.classList).toContain("hide");
     vi.advanceTimersByTime(500);
     expect(document.querySelector("#emailTable")).toBeNull();
     shouldDisplaySuccessSnackbar("Exchange saved and emails sent!");
@@ -552,12 +548,11 @@ describe('emailTable', () => {
 
       submitEmailForm();
 
-      await vi.waitFor(() => {
-        const failedEl = document.querySelector("#failedEmails");
-        expect(failedEl).not.toBeNull();
-        expect(failedEl.textContent).toContain("alex@test.com");
-        expect(failedEl.textContent).toContain("recipient search");
-      });
+      await vi.advanceTimersByTimeAsync(0);
+      const failedEl = document.querySelector("#failedEmails");
+      expect(failedEl).not.toBeNull();
+      expect(failedEl.textContent).toContain("alex@test.com");
+      expect(failedEl.textContent).toContain("recipient search");
     });
 
     it("removes failed emails and shows success on retry success", async () => {
@@ -581,14 +576,12 @@ describe('emailTable', () => {
       installParticipantNames("Alex", "Whitney");
       submitEmailForm();
 
-      await vi.waitFor(() => {
-        expect(document.querySelector("#retryEmailsBtn")).not.toBeNull();
-      });
+      await vi.advanceTimersByTimeAsync(0);
+      expect(document.querySelector("#retryEmailsBtn")).not.toBeNull();
       document.querySelector("#retryEmailsBtn").click();
 
-      await vi.waitFor(() => {
-        expect(document.querySelector("#failedEmails")).toBeNull();
-      });
+      await vi.advanceTimersByTimeAsync(0);
+      expect(document.querySelector("#failedEmails")).toBeNull();
       shouldDisplaySuccessSnackbar("Emails sent successfully!");
     });
 
@@ -613,14 +606,12 @@ describe('emailTable', () => {
       installParticipantNames("Alex", "Whitney");
       submitEmailForm();
 
-      await vi.waitFor(() => {
-        expect(document.querySelector("#retryEmailsBtn")).not.toBeNull();
-      });
+      await vi.advanceTimersByTimeAsync(0);
+      expect(document.querySelector("#retryEmailsBtn")).not.toBeNull();
       document.querySelector("#retryEmailsBtn").click();
 
-      await vi.waitFor(() => {
-        expect(document.querySelector("#failedEmails")).toBeNull();
-      });
+      await vi.advanceTimersByTimeAsync(0);
+      expect(document.querySelector("#failedEmails")).toBeNull();
       shouldDisplayErrorSnackbar("We're sorry, but we were unable to send the remaining emails. Please contact participants directly.");
     });
 
@@ -645,9 +636,8 @@ describe('emailTable', () => {
       installParticipantNames("Alex", "Whitney");
       submitEmailForm();
 
-      await vi.waitFor(() => {
-        expect(document.querySelector("#retryEmailsBtn")).not.toBeNull();
-      });
+      await vi.advanceTimersByTimeAsync(0);
+      expect(document.querySelector("#retryEmailsBtn")).not.toBeNull();
 
       const failedEl = document.querySelector("#failedEmails");
       expect(failedEl.textContent).toContain("alex@test.com");
@@ -655,12 +645,11 @@ describe('emailTable', () => {
 
       document.querySelector("#retryEmailsBtn").click();
 
-      await vi.waitFor(() => {
-        const updatedFailed = document.querySelector("#failedEmails");
-        expect(updatedFailed).not.toBeNull();
-        expect(updatedFailed.textContent).toContain("whitney@test.com");
-        expect(updatedFailed.textContent).not.toContain("alex@test.com");
-      });
+      await vi.advanceTimersByTimeAsync(0);
+      const updatedFailed = document.querySelector("#failedEmails");
+      expect(updatedFailed).not.toBeNull();
+      expect(updatedFailed.textContent).toContain("whitney@test.com");
+      expect(updatedFailed.textContent).not.toContain("alex@test.com");
     });
 
     it("removes failed emails on EXCHANGE_STARTED", async () => {
@@ -677,9 +666,8 @@ describe('emailTable', () => {
       installParticipantNames("Alex", "Whitney");
       submitEmailForm();
 
-      await vi.waitFor(() => {
-        expect(document.querySelector("#failedEmails")).not.toBeNull();
-      });
+      await vi.advanceTimersByTimeAsync(0);
+      expect(document.querySelector("#failedEmails")).not.toBeNull();
 
       startExchange(false);
 

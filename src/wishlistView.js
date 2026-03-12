@@ -1,10 +1,9 @@
 import {escape, escapeAttr, apiFetch} from './utils.js';
 
-const token = window.location.pathname.split("/").pop();
-const params = new URLSearchParams(window.location.search);
-const exchangeId = params.get("exchange");
-
 async function loadWishlist() {
+    const token = window.location.pathname.split("/").pop();
+    const params = new URLSearchParams(window.location.search);
+    const exchangeId = params.get("exchange");
     if (!token || !exchangeId) {
         redirectWithError("Invalid link");
         return;
@@ -49,4 +48,7 @@ function redirectWithError(message) {
     window.location.href = "/";
 }
 
-loadWishlist();
+export function main() {
+    loadWishlist();
+}
+

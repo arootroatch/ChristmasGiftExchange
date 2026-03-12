@@ -3,6 +3,7 @@ import fs from "fs";
 import path from "path";
 import {JSDOM} from "jsdom";
 import {serverErrorMessage} from "../src/utils";
+import {main} from "../src/reuse.js";
 
 const html = fs.readFileSync(
     path.resolve(__dirname, "../pages/reuse/index.html"),
@@ -12,6 +13,8 @@ const html = fs.readFileSync(
 let dom;
 let document;
 let window;
+
+const flush = () => new Promise(r => setTimeout(r, 0));
 
 function setupDOM() {
     dom = new JSDOM(html, {url: "http://localhost/reuse"});
@@ -58,10 +61,6 @@ function mockSessionStorage() {
     globalThis.sessionStorage = mock;
 }
 
-async function loadModule() {
-    await import("../src/reuse.js");
-}
-
 const sampleExchanges = [
     {
         exchangeId: "ex-1",
@@ -99,9 +98,9 @@ const sampleExchanges = [
 
 describe("Reuse Exchange Page", () => {
     beforeEach(() => {
-        vi.resetModules();
         setupDOM();
         mockSessionStorage();
+        main();
     });
 
     afterEach(() => {
@@ -111,38 +110,33 @@ describe("Reuse Exchange Page", () => {
     describe("search", () => {
         it("fetches exchanges by email when search button clicked", async () => {
             mockFetch({body: sampleExchanges});
-            await loadModule();
 
             document.getElementById("reuse-email").value = "john@test.com";
             document.getElementById("reuse-search-btn").click();
 
-            await vi.waitFor(() => {
-                expect(window.fetch).toHaveBeenCalledWith(
-                    "/.netlify/functions/api-exchange-get?email=john%40test.com",
-                    expect.objectContaining({})
-                );
-            });
+            await flush();
+            expect(window.fetch).toHaveBeenCalledWith(
+                "/.netlify/functions/api-exchange-get?email=john%40test.com",
+                expect.objectContaining({})
+            );
         });
 
         it("fetches exchanges when Enter key pressed in email input", async () => {
             mockFetch({body: sampleExchanges});
-            await loadModule();
 
             document.getElementById("reuse-email").value = "john@test.com";
             const event = new dom.window.KeyboardEvent("keydown", {key: "Enter", bubbles: true});
             document.getElementById("reuse-email").dispatchEvent(event);
 
-            await vi.waitFor(() => {
-                expect(window.fetch).toHaveBeenCalledWith(
-                    "/.netlify/functions/api-exchange-get?email=john%40test.com",
-                    expect.objectContaining({})
-                );
-            });
+            await flush();
+            expect(window.fetch).toHaveBeenCalledWith(
+                "/.netlify/functions/api-exchange-get?email=john%40test.com",
+                expect.objectContaining({})
+            );
         });
 
-        it("does not search when email is empty", async () => {
+        it("does not search when email is empty", () => {
             mockFetch({body: []});
-            await loadModule();
 
             document.getElementById("reuse-email").value = "";
             document.getElementById("reuse-search-btn").click();
@@ -152,118 +146,100 @@ describe("Reuse Exchange Page", () => {
 
         it("shows snackbar error when no exchanges found", async () => {
             mockFetch({body: []});
-            await loadModule();
 
             document.getElementById("reuse-email").value = "nobody@test.com";
             document.getElementById("reuse-search-btn").click();
 
-            await vi.waitFor(() => {
-                const snackbar = document.getElementById("snackbar");
-                expect(snackbar.textContent).toBe("No past exchanges found for that email");
-                expect(snackbar.classList.contains("show")).toBe(true);
-                expect(snackbar.style.color).toBe("rgb(255, 255, 255)");
-            });
+            await flush();
+            const snackbar = document.getElementById("snackbar");
+            expect(snackbar.textContent).toBe("No past exchanges found for that email");
+            expect(snackbar.classList.contains("show")).toBe(true);
+            expect(snackbar.style.color).toBe("rgb(255, 255, 255)");
         });
 
         it("shows snackbar error when fetch fails", async () => {
             mockFetch({ok: false, status: 500, body: {error: "Server error"}});
-            await loadModule();
 
             document.getElementById("reuse-email").value = "nobody@test.com";
             document.getElementById("reuse-search-btn").click();
 
-            await vi.waitFor(() => {
-                const snackbar = document.getElementById("snackbar");
-                expect(snackbar.textContent).toBe(serverErrorMessage);
-                expect(snackbar.classList.contains("show")).toBe(true);
-                expect(snackbar.style.color).toBe("rgb(255, 255, 255)");
-            });
+            await flush();
+            const snackbar = document.getElementById("snackbar");
+            expect(snackbar.textContent).toBe(serverErrorMessage);
+            expect(snackbar.classList.contains("show")).toBe(true);
+            expect(snackbar.style.color).toBe("rgb(255, 255, 255)");
         });
 
         it("shows generic error when non-ok response has no error field", async () => {
             mockFetch({ok: false, status: 400, body: {}});
-            await loadModule();
 
             document.getElementById("reuse-email").value = "test@test.com";
             document.getElementById("reuse-search-btn").click();
 
-            await vi.waitFor(() => {
-                const snackbar = document.getElementById("snackbar");
-                expect(snackbar.textContent).toBe("Failed to search exchanges. Please try again.");
-            });
+            await flush();
+            const snackbar = document.getElementById("snackbar");
+            expect(snackbar.textContent).toBe("Failed to search exchanges. Please try again.");
         });
 
         it("shows generic error on network failure", async () => {
-            mockFetch({body: []});
-            await loadModule();
-
             window.fetch = vi.fn(() => Promise.reject(new Error("Network error")));
             globalThis.fetch = window.fetch;
 
             document.getElementById("reuse-email").value = "test@test.com";
             document.getElementById("reuse-search-btn").click();
 
-            await vi.waitFor(() => {
-                const snackbar = document.getElementById("snackbar");
-                expect(snackbar.textContent).toBe(serverErrorMessage);
-            });
+            await flush();
+            const snackbar = document.getElementById("snackbar");
+            expect(snackbar.textContent).toBe(serverErrorMessage);
         });
     });
 
     describe("render results", () => {
         it("displays exchange date and participant names", async () => {
             mockFetch({body: sampleExchanges});
-            await loadModule();
 
             document.getElementById("reuse-email").value = "john@test.com";
             document.getElementById("reuse-search-btn").click();
 
-            await vi.waitFor(() => {
-                const results = document.getElementById("results-section");
-                expect(results.innerHTML).toContain("John");
-                expect(results.innerHTML).toContain("Jane");
-                expect(results.innerHTML).toContain("Bob");
-            });
+            await flush();
+            const results = document.getElementById("results-section");
+            expect(results.innerHTML).toContain("John");
+            expect(results.innerHTML).toContain("Jane");
+            expect(results.innerHTML).toContain("Bob");
         });
 
         it("displays house info when houses exist", async () => {
             mockFetch({body: sampleExchanges});
-            await loadModule();
 
             document.getElementById("reuse-email").value = "john@test.com";
             document.getElementById("reuse-search-btn").click();
 
-            await vi.waitFor(() => {
-                const results = document.getElementById("results-section");
-                expect(results.innerHTML).toContain("Smith Family");
-            });
+            await flush();
+            const results = document.getElementById("results-section");
+            expect(results.innerHTML).toContain("Smith Family");
         });
 
         it("renders a Use This Exchange button per result", async () => {
             mockFetch({body: sampleExchanges});
-            await loadModule();
 
             document.getElementById("reuse-email").value = "john@test.com";
             document.getElementById("reuse-search-btn").click();
 
-            await vi.waitFor(() => {
-                const buttons = document.querySelectorAll(".use-exchange-btn");
-                expect(buttons.length).toBe(2);
-            });
+            await flush();
+            const buttons = document.querySelectorAll(".use-exchange-btn");
+            expect(buttons.length).toBe(2);
         });
     });
 
     describe("use exchange", () => {
         it("stores exchange data in sessionStorage when Use This Exchange clicked", async () => {
             mockFetch({body: [sampleExchanges[0]]});
-            await loadModule();
 
             document.getElementById("reuse-email").value = "john@test.com";
             document.getElementById("reuse-search-btn").click();
 
-            await vi.waitFor(() => {
-                expect(document.querySelector(".use-exchange-btn")).not.toBeNull();
-            });
+            await flush();
+            expect(document.querySelector(".use-exchange-btn")).not.toBeNull();
 
             document.querySelector(".use-exchange-btn").click();
 
@@ -282,8 +258,6 @@ describe("Reuse Exchange Page", () => {
             }));
             globalThis.fetch = window.fetch;
 
-            await loadModule();
-
             document.getElementById("reuse-email").value = "john@test.com";
             document.getElementById("reuse-search-btn").click();
 
@@ -297,10 +271,9 @@ describe("Reuse Exchange Page", () => {
                 json: () => Promise.resolve(sampleExchanges),
             });
 
-            await vi.waitFor(() => {
-                expect(btn.textContent).toBe("Search");
-                expect(btn.disabled).toBe(false);
-            });
+            await flush();
+            expect(btn.textContent).toBe("Search");
+            expect(btn.disabled).toBe(false);
         });
     });
 });

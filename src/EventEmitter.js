@@ -17,4 +17,8 @@ export class EventEmitter {
       this.listeners[event].forEach(callback => callback(data));
     }
   }
+
+  clear() {
+    this.listeners = {};
+  }
 }

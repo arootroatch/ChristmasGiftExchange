@@ -3,6 +3,7 @@ import fs from "fs";
 import path from "path";
 import {JSDOM} from "jsdom";
 import {serverErrorMessage} from "../src/utils";
+import {main} from "../src/wishlistView.js";
 
 const html = fs.readFileSync(
     path.resolve(__dirname, "../pages/wishlist/view/index.html"),
@@ -12,6 +13,8 @@ const html = fs.readFileSync(
 let dom;
 let document;
 let window;
+
+const flush = () => new Promise(r => setTimeout(r, 0));
 
 function setupDOM(urlPath = "/wishlist/view/giver-token-123", query = "?exchange=exchange-id-456") {
     dom = new JSDOM(html, {url: `http://localhost${urlPath}${query}`});
@@ -58,15 +61,7 @@ function mockSessionStorage() {
     globalThis.sessionStorage = mock;
 }
 
-async function loadModule() {
-    await import("../src/wishlistView.js");
-}
-
 describe("Wishlist View Page", () => {
-    beforeEach(() => {
-        vi.resetModules();
-    });
-
     afterEach(() => {
         vi.restoreAllMocks();
     });
@@ -82,14 +77,13 @@ describe("Wishlist View Page", () => {
                 },
             });
             mockSessionStorage();
-            await loadModule();
+            main();
 
-            await vi.waitFor(() => {
-                expect(window.fetch).toHaveBeenCalledWith(
-                    "/.netlify/functions/api-user-wishlist-get/exchange-id-456?token=giver-token-123",
-                    expect.objectContaining({})
-                );
-            });
+            await flush();
+            expect(window.fetch).toHaveBeenCalledWith(
+                "/.netlify/functions/api-user-wishlist-get/exchange-id-456?token=giver-token-123",
+                expect.objectContaining({})
+            );
         });
 
         it("displays recipient name as heading", async () => {
@@ -102,11 +96,10 @@ describe("Wishlist View Page", () => {
                 },
             });
             mockSessionStorage();
-            await loadModule();
+            main();
 
-            await vi.waitFor(() => {
-                expect(document.getElementById("heading").textContent).toBe("Jane's Wishlist");
-            });
+            await flush();
+            expect(document.getElementById("heading").textContent).toBe("Jane's Wishlist");
         });
 
         it("renders wishlists as clickable links", async () => {
@@ -122,16 +115,15 @@ describe("Wishlist View Page", () => {
                 },
             });
             mockSessionStorage();
-            await loadModule();
+            main();
 
-            await vi.waitFor(() => {
-                const content = document.getElementById("wishlist-content");
-                expect(content.innerHTML).toContain("Amazon List");
-                expect(content.innerHTML).toContain("Target List");
-                const links = content.querySelectorAll("a");
-                expect(links.length).toBe(2);
-                expect(links[0].getAttribute("target")).toBe("_blank");
-            });
+            await flush();
+            const content = document.getElementById("wishlist-content");
+            expect(content.innerHTML).toContain("Amazon List");
+            expect(content.innerHTML).toContain("Target List");
+            const links = content.querySelectorAll("a");
+            expect(links.length).toBe(2);
+            expect(links[0].getAttribute("target")).toBe("_blank");
         });
 
         it("renders wish items as clickable links", async () => {
@@ -147,14 +139,13 @@ describe("Wishlist View Page", () => {
                 },
             });
             mockSessionStorage();
-            await loadModule();
+            main();
 
-            await vi.waitFor(() => {
-                const content = document.getElementById("wishlist-content");
-                expect(content.innerHTML).toContain("Product 1");
-                expect(content.innerHTML).toContain("Product 2");
-                expect(content.innerHTML).toContain("Individual Items");
-            });
+            await flush();
+            const content = document.getElementById("wishlist-content");
+            expect(content.innerHTML).toContain("Product 1");
+            expect(content.innerHTML).toContain("Product 2");
+            expect(content.innerHTML).toContain("Individual Items");
         });
 
         it("shows empty message when no wishlist submitted", async () => {
@@ -167,12 +158,11 @@ describe("Wishlist View Page", () => {
                 },
             });
             mockSessionStorage();
-            await loadModule();
+            main();
 
-            await vi.waitFor(() => {
-                const content = document.getElementById("wishlist-content");
-                expect(content.textContent).toContain("No wishlist submitted yet.");
-            });
+            await flush();
+            const content = document.getElementById("wishlist-content");
+            expect(content.textContent).toContain("No wishlist submitted yet.");
         });
     });
 
@@ -181,42 +171,39 @@ describe("Wishlist View Page", () => {
             setupDOM();
             mockFetch({ok: false, status: 403, body: {error: "Access denied"}});
             mockSessionStorage();
-            await loadModule();
+            main();
 
-            await vi.waitFor(() => {
-                expect(window.sessionStorage.setItem).toHaveBeenCalledWith(
-                    "snackbarError",
-                    "Access denied"
-                );
-            });
+            await flush();
+            expect(window.sessionStorage.setItem).toHaveBeenCalledWith(
+                "snackbarError",
+                "Access denied"
+            );
         });
 
         it("stores error in sessionStorage when exchangeId is missing", async () => {
             setupDOM("/wishlist/view/giver-token-123", "");
             mockFetch({body: {}});
             mockSessionStorage();
-            await loadModule();
+            main();
 
-            await vi.waitFor(() => {
-                expect(window.sessionStorage.setItem).toHaveBeenCalledWith(
-                    "snackbarError",
-                    "Invalid link"
-                );
-            });
+            await flush();
+            expect(window.sessionStorage.setItem).toHaveBeenCalledWith(
+                "snackbarError",
+                "Invalid link"
+            );
         });
 
         it("stores error in sessionStorage on non-403 error", async () => {
             setupDOM();
             mockFetch({ok: false, status: 500, body: {error: "Server error"}});
             mockSessionStorage();
-            await loadModule();
+            main();
 
-            await vi.waitFor(() => {
-                expect(window.sessionStorage.setItem).toHaveBeenCalledWith(
-                    "snackbarError",
-                    serverErrorMessage
-                );
-            });
+            await flush();
+            expect(window.sessionStorage.setItem).toHaveBeenCalledWith(
+                "snackbarError",
+                serverErrorMessage
+            );
         });
 
         it("stores error in sessionStorage on network failure", async () => {
@@ -224,43 +211,40 @@ describe("Wishlist View Page", () => {
             mockSessionStorage();
             window.fetch = vi.fn(() => Promise.reject(new Error("Network error")));
             globalThis.fetch = window.fetch;
-            await loadModule();
+            main();
 
-            await vi.waitFor(() => {
-                expect(window.sessionStorage.setItem).toHaveBeenCalledWith(
-                    "snackbarError",
-                    serverErrorMessage
-                );
-            });
+            await flush();
+            expect(window.sessionStorage.setItem).toHaveBeenCalledWith(
+                "snackbarError",
+                serverErrorMessage
+            );
         });
 
         it("shows generic error when non-ok response has no error field", async () => {
             setupDOM();
             mockFetch({ok: false, status: 400, body: {}});
             mockSessionStorage();
-            await loadModule();
+            main();
 
-            await vi.waitFor(() => {
-                expect(window.sessionStorage.setItem).toHaveBeenCalledWith(
-                    "snackbarError",
-                    "Something went wrong. Please try again."
-                );
-            });
+            await flush();
+            expect(window.sessionStorage.setItem).toHaveBeenCalledWith(
+                "snackbarError",
+                "Something went wrong. Please try again."
+            );
         });
 
         it("does not fetch when token is empty", async () => {
             setupDOM("/wishlist/view/", "?exchange=exchange-id-456");
             mockFetch({body: {}});
             mockSessionStorage();
-            await loadModule();
+            main();
 
-            await vi.waitFor(() => {
-                expect(window.sessionStorage.setItem).toHaveBeenCalledWith(
-                    "snackbarError",
-                    "Invalid link"
-                );
-                expect(window.fetch).not.toHaveBeenCalled();
-            });
+            await flush();
+            expect(window.sessionStorage.setItem).toHaveBeenCalledWith(
+                "snackbarError",
+                "Invalid link"
+            );
+            expect(window.fetch).not.toHaveBeenCalled();
         });
     });
 
@@ -275,13 +259,12 @@ describe("Wishlist View Page", () => {
                 },
             });
             mockSessionStorage();
-            await loadModule();
+            main();
 
-            await vi.waitFor(() => {
-                const content = document.getElementById("wishlist-content");
-                expect(content.innerHTML).not.toContain("<img");
-                expect(content.innerHTML).toContain("&lt;img");
-            });
+            await flush();
+            const content = document.getElementById("wishlist-content");
+            expect(content.innerHTML).not.toContain("<img");
+            expect(content.innerHTML).toContain("&lt;img");
         });
     });
 });

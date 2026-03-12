@@ -3,6 +3,8 @@ import fs from "fs";
 import path from "path";
 import {JSDOM} from "jsdom";
 import {serverErrorMessage} from "../../src/utils";
+import {wishlistEditEvents, resetState} from "../../src/wishlistEdit/state.js";
+import {main} from "../../src/wishlistEdit/index.js";
 
 const html = fs.readFileSync(
     path.resolve(__dirname, "../../pages/wishlist/edit/index.html"),
@@ -12,7 +14,8 @@ const html = fs.readFileSync(
 let dom;
 let document;
 let window;
-let module;
+
+const flush = () => new Promise(r => setTimeout(r, 0));
 
 function proxyWindow(domWindow) {
     const loc = domWindow.location;
@@ -29,8 +32,8 @@ function proxyWindow(domWindow) {
     });
 }
 
-function setupDOM() {
-    dom = new JSDOM(html, {url: "http://localhost/wishlist/edit/abc-123-token"});
+function setupDOM(url = "http://localhost/wishlist/edit/abc-123-token") {
+    dom = new JSDOM(html, {url});
     document = dom.window.document;
     window = proxyWindow(dom.window);
     globalThis.document = document;
@@ -47,14 +50,14 @@ function mockFetch(response) {
     globalThis.fetch = window.fetch;
 }
 
-async function loadModule() {
-    const {main} = await import("../../src/wishlistEdit/index.js");
+function loadModule() {
+    wishlistEditEvents.clear();
+    resetState();
     main();
 }
 
 describe("Wishlist Edit Page", () => {
     beforeEach(() => {
-        vi.resetModules();
         setupDOM();
     });
 
@@ -67,35 +70,32 @@ describe("Wishlist Edit Page", () => {
             mockFetch({
                 body: {name: "John", wishlists: [], wishItems: []},
             });
-            await loadModule();
-            await vi.waitFor(() => {
-                expect(document.getElementById("greeting").textContent).toBe(
-                    "Hi John, add your wishlist!"
-                );
-            });
+            loadModule();
+            await flush();
+            expect(document.getElementById("greeting").textContent).toBe(
+                "Hi John, add your wishlist!"
+            );
         });
 
         it("fetches user data using token from URL path", async () => {
             mockFetch({
                 body: {name: "John", wishlists: [], wishItems: []},
             });
-            await loadModule();
-            await vi.waitFor(() => {
-                expect(window.fetch).toHaveBeenCalledWith(
-                    "/.netlify/functions/api-user-get/abc-123-token"
-                );
-            });
+            loadModule();
+            await flush();
+            expect(window.fetch).toHaveBeenCalledWith(
+                "/.netlify/functions/api-user-get/abc-123-token"
+            );
         });
 
         it("sets snackbar error and redirects when user not found", async () => {
             window.sessionStorage.clear();
             mockFetch({ok: false, status: 404, body: {error: "User not found"}});
-            await loadModule();
-            await vi.waitFor(() => {
-                expect(window.sessionStorage.getItem("snackbarError")).toBe(
-                    "Invalid wishlist link"
-                );
-            });
+            loadModule();
+            await flush();
+            expect(window.sessionStorage.getItem("snackbarError")).toBe(
+                "Invalid wishlist link"
+            );
         });
 
         it("renders existing wishlists on load", async () => {
@@ -106,12 +106,11 @@ describe("Wishlist Edit Page", () => {
                     wishItems: [],
                 },
             });
-            await loadModule();
-            await vi.waitFor(() => {
-                const list = document.getElementById("wishlists-list");
-                expect(list.innerHTML).toContain("My Amazon List");
-                expect(list.innerHTML).toContain("https://amazon.com/list/1");
-            });
+            loadModule();
+            await flush();
+            const list = document.getElementById("wishlists-list");
+            expect(list.innerHTML).toContain("My Amazon List");
+            expect(list.innerHTML).toContain("https://amazon.com/list/1");
         });
 
         it("renders existing wish items on load", async () => {
@@ -122,24 +121,23 @@ describe("Wishlist Edit Page", () => {
                     wishItems: [{url: "https://example.com/product", title: "Cool Thing"}],
                 },
             });
-            await loadModule();
-            await vi.waitFor(() => {
-                const list = document.getElementById("items-list");
-                expect(list.innerHTML).toContain("Cool Thing");
-                expect(list.innerHTML).toContain("https://example.com/product");
-            });
+            loadModule();
+            await flush();
+            const list = document.getElementById("items-list");
+            expect(list.innerHTML).toContain("Cool Thing");
+            expect(list.innerHTML).toContain("https://example.com/product");
         });
     });
 
     describe("add wishlist", () => {
+        async function loadWithUser() {
+            mockFetch({body: {name: "John", wishlists: [], wishItems: []}});
+            loadModule();
+            await flush();
+        }
+
         it("adds a wishlist entry to the list", async () => {
-            mockFetch({
-                body: {name: "John", wishlists: [], wishItems: []},
-            });
-            await loadModule();
-            await vi.waitFor(() => {
-                expect(document.getElementById("greeting").textContent).toContain("John");
-            });
+            await loadWithUser();
 
             document.getElementById("wishlist-url").value = "https://amazon.com/list/2";
             document.getElementById("wishlist-title").value = "Birthday List";
@@ -151,13 +149,7 @@ describe("Wishlist Edit Page", () => {
         });
 
         it("clears inputs after adding", async () => {
-            mockFetch({
-                body: {name: "John", wishlists: [], wishItems: []},
-            });
-            await loadModule();
-            await vi.waitFor(() => {
-                expect(document.getElementById("greeting").textContent).toContain("John");
-            });
+            await loadWithUser();
 
             document.getElementById("wishlist-url").value = "https://amazon.com/list/2";
             document.getElementById("wishlist-title").value = "Birthday List";
@@ -168,13 +160,7 @@ describe("Wishlist Edit Page", () => {
         });
 
         it("does not add when URL is empty", async () => {
-            mockFetch({
-                body: {name: "John", wishlists: [], wishItems: []},
-            });
-            await loadModule();
-            await vi.waitFor(() => {
-                expect(document.getElementById("greeting").textContent).toContain("John");
-            });
+            await loadWithUser();
 
             document.getElementById("wishlist-url").value = "";
             document.getElementById("add-wishlist-btn").click();
@@ -184,13 +170,7 @@ describe("Wishlist Edit Page", () => {
         });
 
         it("uses URL as title when title is empty", async () => {
-            mockFetch({
-                body: {name: "John", wishlists: [], wishItems: []},
-            });
-            await loadModule();
-            await vi.waitFor(() => {
-                expect(document.getElementById("greeting").textContent).toContain("John");
-            });
+            await loadWithUser();
 
             document.getElementById("wishlist-url").value = "https://amazon.com/list/3";
             document.getElementById("wishlist-title").value = "";
@@ -203,14 +183,14 @@ describe("Wishlist Edit Page", () => {
     });
 
     describe("add item", () => {
+        async function loadWithUser() {
+            mockFetch({body: {name: "John", wishlists: [], wishItems: []}});
+            loadModule();
+            await flush();
+        }
+
         it("adds an item entry to the list", async () => {
-            mockFetch({
-                body: {name: "John", wishlists: [], wishItems: []},
-            });
-            await loadModule();
-            await vi.waitFor(() => {
-                expect(document.getElementById("greeting").textContent).toContain("John");
-            });
+            await loadWithUser();
 
             document.getElementById("item-url").value = "https://example.com/gadget";
             document.getElementById("item-title").value = "Cool Gadget";
@@ -222,13 +202,7 @@ describe("Wishlist Edit Page", () => {
         });
 
         it("clears inputs after adding", async () => {
-            mockFetch({
-                body: {name: "John", wishlists: [], wishItems: []},
-            });
-            await loadModule();
-            await vi.waitFor(() => {
-                expect(document.getElementById("greeting").textContent).toContain("John");
-            });
+            await loadWithUser();
 
             document.getElementById("item-url").value = "https://example.com/gadget";
             document.getElementById("item-title").value = "Cool Gadget";
@@ -239,13 +213,7 @@ describe("Wishlist Edit Page", () => {
         });
 
         it("does not add when URL is empty", async () => {
-            mockFetch({
-                body: {name: "John", wishlists: [], wishItems: []},
-            });
-            await loadModule();
-            await vi.waitFor(() => {
-                expect(document.getElementById("greeting").textContent).toContain("John");
-            });
+            await loadWithUser();
 
             document.getElementById("item-url").value = "";
             document.getElementById("add-item-btn").click();
@@ -267,10 +235,8 @@ describe("Wishlist Edit Page", () => {
                     wishItems: [],
                 },
             });
-            await loadModule();
-            await vi.waitFor(() => {
-                expect(document.getElementById("wishlists-list").innerHTML).toContain("List 1");
-            });
+            loadModule();
+            await flush();
 
             const deleteBtn = document.querySelector(
                 '#wishlists-list .delete-btn[data-index="0"]'
@@ -293,10 +259,8 @@ describe("Wishlist Edit Page", () => {
                     ],
                 },
             });
-            await loadModule();
-            await vi.waitFor(() => {
-                expect(document.getElementById("items-list").innerHTML).toContain("Item A");
-            });
+            loadModule();
+            await flush();
 
             const deleteBtn = document.querySelector(
                 '#items-list .delete-btn[data-index="0"]'
@@ -310,143 +274,106 @@ describe("Wishlist Edit Page", () => {
     });
 
     describe("save wishlist", () => {
+        async function loadWithUser() {
+            mockFetch({body: {name: "John", wishlists: [], wishItems: []}});
+            loadModule();
+            await flush();
+        }
+
         it("sends PUT request with wishlists and items", async () => {
-            mockFetch({
-                body: {name: "John", wishlists: [], wishItems: []},
-            });
-            await loadModule();
-            await vi.waitFor(() => {
-                expect(document.getElementById("greeting").textContent).toContain("John");
-            });
+            await loadWithUser();
 
             document.getElementById("wishlist-url").value = "https://amazon.com/list/1";
             document.getElementById("wishlist-title").value = "My List";
             document.getElementById("add-wishlist-btn").click();
 
-            // Reset fetch mock for save call
             mockFetch({body: {success: true, notifiedGivers: false}});
             document.getElementById("save-wishlist-btn").click();
 
-            await vi.waitFor(() => {
-                expect(window.fetch).toHaveBeenCalledWith(
-                    "/.netlify/functions/api-user-wishlist-put/abc-123-token",
-                    expect.objectContaining({
-                        method: "PUT",
-                        body: JSON.stringify({
-                            wishlists: [{url: "https://amazon.com/list/1", title: "My List"}],
-                            wishItems: [],
-                        }),
-                    })
-                );
-            });
+            await flush();
+            expect(window.fetch).toHaveBeenCalledWith(
+                "/.netlify/functions/api-user-wishlist-put/abc-123-token",
+                expect.objectContaining({
+                    method: "PUT",
+                    body: JSON.stringify({
+                        wishlists: [{url: "https://amazon.com/list/1", title: "My List"}],
+                        wishItems: [],
+                    }),
+                })
+            );
         });
 
         it("shows success snackbar on successful save", async () => {
-            mockFetch({
-                body: {name: "John", wishlists: [], wishItems: []},
-            });
-            await loadModule();
-            await vi.waitFor(() => {
-                expect(document.getElementById("greeting").textContent).toContain("John");
-            });
+            await loadWithUser();
 
             mockFetch({body: {success: true, notifiedGivers: false}});
             document.getElementById("save-wishlist-btn").click();
 
-            await vi.waitFor(() => {
-                const snackbar = document.getElementById("snackbar");
-                expect(snackbar.textContent).toBe("Wishlist saved!");
-                expect(snackbar.classList.contains("show")).toBe(true);
-                expect(snackbar.style.color).toBe("rgb(255, 255, 255)");
-            });
+            await flush();
+            const snackbar = document.getElementById("snackbar");
+            expect(snackbar.textContent).toBe("Wishlist saved!");
+            expect(snackbar.classList.contains("show")).toBe(true);
+            expect(snackbar.style.color).toBe("rgb(255, 255, 255)");
         });
 
         it("shows error snackbar on failed save", async () => {
-            mockFetch({
-                body: {name: "John", wishlists: [], wishItems: []},
-            });
-            await loadModule();
-            await vi.waitFor(() => {
-                expect(document.getElementById("greeting").textContent).toContain("John");
-            });
+            await loadWithUser();
 
             mockFetch({ok: false, status: 500, body: {error: "Server error"}});
             document.getElementById("save-wishlist-btn").click();
 
-            await vi.waitFor(() => {
-                const snackbar = document.getElementById("snackbar");
-                expect(snackbar.textContent).toBe(serverErrorMessage);
-                expect(snackbar.classList.contains("show")).toBe(true);
-                expect(snackbar.style.color).toBe("rgb(255, 255, 255)");
-            });
+            await flush();
+            const snackbar = document.getElementById("snackbar");
+            expect(snackbar.textContent).toBe(serverErrorMessage);
+            expect(snackbar.classList.contains("show")).toBe(true);
+            expect(snackbar.style.color).toBe("rgb(255, 255, 255)");
         });
 
         it("shows API error message on failed save", async () => {
-            mockFetch({
-                body: {name: "John", wishlists: [], wishItems: []},
-            });
-            await loadModule();
-            await vi.waitFor(() => {
-                expect(document.getElementById("greeting").textContent).toContain("John");
-            });
+            await loadWithUser();
 
             mockFetch({ok: false, status: 400, body: {error: "Database unavailable"}});
             document.getElementById("save-wishlist-btn").click();
 
-            await vi.waitFor(() => {
-                const snackbar = document.getElementById("snackbar");
-                expect(snackbar.textContent).toBe("Database unavailable");
-            });
+            await flush();
+            const snackbar = document.getElementById("snackbar");
+            expect(snackbar.textContent).toBe("Database unavailable");
         });
 
         it("shows generic error on network failure during save", async () => {
-            mockFetch({
-                body: {name: "John", wishlists: [], wishItems: []},
-            });
-            await loadModule();
-            await vi.waitFor(() => {
-                expect(document.getElementById("greeting").textContent).toContain("John");
-            });
+            await loadWithUser();
 
             window.fetch = vi.fn(() => Promise.reject(new Error("Network error")));
             globalThis.fetch = window.fetch;
             document.getElementById("save-wishlist-btn").click();
 
-            await vi.waitFor(() => {
-                const snackbar = document.getElementById("snackbar");
-                expect(snackbar.textContent).toBe(serverErrorMessage);
-            });
+            await flush();
+            const snackbar = document.getElementById("snackbar");
+            expect(snackbar.textContent).toBe(serverErrorMessage);
         });
 
         it("re-enables save button after error", async () => {
-            mockFetch({
-                body: {name: "John", wishlists: [], wishItems: []},
-            });
-            await loadModule();
-            await vi.waitFor(() => {
-                expect(document.getElementById("greeting").textContent).toContain("John");
-            });
+            await loadWithUser();
 
             mockFetch({ok: false, status: 500, body: {error: "Error"}});
             document.getElementById("save-wishlist-btn").click();
 
-            await vi.waitFor(() => {
-                const btn = document.getElementById("save-wishlist-btn");
-                expect(btn.disabled).toBe(false);
-                expect(btn.textContent).toBe("Save Wishlist");
-            });
+            await flush();
+            const btn = document.getElementById("save-wishlist-btn");
+            expect(btn.disabled).toBe(false);
+            expect(btn.textContent).toBe("Save Wishlist");
         });
     });
 
     describe("send contact info", () => {
+        async function loadWithUser() {
+            mockFetch({body: {name: "John", wishlists: [], wishItems: []}});
+            loadModule();
+            await flush();
+        }
+
         it("sends POST request with contact info", async () => {
-            mockFetch({
-                body: {name: "John", wishlists: [], wishItems: []},
-            });
-            await loadModule();
-            await vi.waitFor(() => {
-                expect(document.getElementById("greeting").textContent).toContain("John");
-            });
+            await loadWithUser();
 
             document.getElementById("contact-address").value = "123 Main St";
             document.getElementById("contact-phone").value = "555-1234";
@@ -455,29 +382,22 @@ describe("Wishlist Edit Page", () => {
             mockFetch({body: {success: true}});
             document.getElementById("send-contact-btn").click();
 
-            await vi.waitFor(() => {
-                expect(window.fetch).toHaveBeenCalledWith(
-                    "/.netlify/functions/api-user-contact-post/abc-123-token",
-                    expect.objectContaining({
-                        method: "POST",
-                        body: JSON.stringify({
-                            address: "123 Main St",
-                            phone: "555-1234",
-                            notes: "Ring the doorbell",
-                        }),
-                    })
-                );
-            });
+            await flush();
+            expect(window.fetch).toHaveBeenCalledWith(
+                "/.netlify/functions/api-user-contact-post/abc-123-token",
+                expect.objectContaining({
+                    method: "POST",
+                    body: JSON.stringify({
+                        address: "123 Main St",
+                        phone: "555-1234",
+                        notes: "Ring the doorbell",
+                    }),
+                })
+            );
         });
 
         it("shows success snackbar and clears form on success", async () => {
-            mockFetch({
-                body: {name: "John", wishlists: [], wishItems: []},
-            });
-            await loadModule();
-            await vi.waitFor(() => {
-                expect(document.getElementById("greeting").textContent).toContain("John");
-            });
+            await loadWithUser();
 
             document.getElementById("contact-address").value = "123 Main St";
             document.getElementById("contact-phone").value = "555-1234";
@@ -486,45 +406,31 @@ describe("Wishlist Edit Page", () => {
             mockFetch({body: {success: true}});
             document.getElementById("send-contact-btn").click();
 
-            await vi.waitFor(() => {
-                const snackbar = document.getElementById("snackbar");
-                expect(snackbar.textContent).toBe(
-                    "Contact info sent to your Secret Santa!"
-                );
-                expect(document.getElementById("contact-address").value).toBe("");
-                expect(document.getElementById("contact-phone").value).toBe("");
-                expect(document.getElementById("contact-notes").value).toBe("");
-            });
+            await flush();
+            const snackbar = document.getElementById("snackbar");
+            expect(snackbar.textContent).toBe(
+                "Contact info sent to your Secret Santa!"
+            );
+            expect(document.getElementById("contact-address").value).toBe("");
+            expect(document.getElementById("contact-phone").value).toBe("");
+            expect(document.getElementById("contact-notes").value).toBe("");
         });
 
         it("shows API error message on failed send", async () => {
-            mockFetch({
-                body: {name: "John", wishlists: [], wishItems: []},
-            });
-            await loadModule();
-            await vi.waitFor(() => {
-                expect(document.getElementById("greeting").textContent).toContain("John");
-            });
+            await loadWithUser();
 
             document.getElementById("contact-address").value = "123 Main St";
 
             mockFetch({ok: false, status: 400, body: {error: "Email service down"}});
             document.getElementById("send-contact-btn").click();
 
-            await vi.waitFor(() => {
-                const snackbar = document.getElementById("snackbar");
-                expect(snackbar.textContent).toBe("Email service down");
-            });
+            await flush();
+            const snackbar = document.getElementById("snackbar");
+            expect(snackbar.textContent).toBe("Email service down");
         });
 
         it("shows generic error on network failure during send", async () => {
-            mockFetch({
-                body: {name: "John", wishlists: [], wishItems: []},
-            });
-            await loadModule();
-            await vi.waitFor(() => {
-                expect(document.getElementById("greeting").textContent).toContain("John");
-            });
+            await loadWithUser();
 
             document.getElementById("contact-address").value = "123 Main St";
 
@@ -532,41 +438,27 @@ describe("Wishlist Edit Page", () => {
             globalThis.fetch = window.fetch;
             document.getElementById("send-contact-btn").click();
 
-            await vi.waitFor(() => {
-                const snackbar = document.getElementById("snackbar");
-                expect(snackbar.textContent).toBe(serverErrorMessage);
-            });
+            await flush();
+            const snackbar = document.getElementById("snackbar");
+            expect(snackbar.textContent).toBe(serverErrorMessage);
         });
 
         it("re-enables send button after error", async () => {
-            mockFetch({
-                body: {name: "John", wishlists: [], wishItems: []},
-            });
-            await loadModule();
-            await vi.waitFor(() => {
-                expect(document.getElementById("greeting").textContent).toContain("John");
-            });
+            await loadWithUser();
 
             document.getElementById("contact-address").value = "123 Main St";
 
             mockFetch({ok: false, status: 500, body: {error: "Error"}});
             document.getElementById("send-contact-btn").click();
 
-            await vi.waitFor(() => {
-                const btn = document.getElementById("send-contact-btn");
-                expect(btn.disabled).toBe(false);
-                expect(btn.textContent).toBe("Send to My Secret Santa");
-            });
+            await flush();
+            const btn = document.getElementById("send-contact-btn");
+            expect(btn.disabled).toBe(false);
+            expect(btn.textContent).toBe("Send to My Secret Santa");
         });
 
         it("shows error when all fields are empty", async () => {
-            mockFetch({
-                body: {name: "John", wishlists: [], wishItems: []},
-            });
-            await loadModule();
-            await vi.waitFor(() => {
-                expect(document.getElementById("greeting").textContent).toContain("John");
-            });
+            await loadWithUser();
 
             document.getElementById("contact-address").value = "";
             document.getElementById("contact-phone").value = "";
@@ -597,16 +489,16 @@ describe("Wishlist Edit Page", () => {
 
         it("sets snackbar error and does not fetch when URL is /wishlist/edit/", async () => {
             setupNoTokenDOM("http://localhost/wishlist/edit/");
-            const {main} = await import("../../src/wishlistEdit/index.js");
-            main();
+            const {main: freshMain} = await import("../../src/wishlistEdit/index.js");
+            freshMain();
             expect(window.fetch).not.toHaveBeenCalled();
             expect(window.sessionStorage.getItem("snackbarError")).toBe("Invalid wishlist link");
         });
 
         it("sets snackbar error and does not fetch when URL is /wishlist/edit", async () => {
             setupNoTokenDOM("http://localhost/wishlist/edit");
-            const {main} = await import("../../src/wishlistEdit/index.js");
-            main();
+            const {main: freshMain} = await import("../../src/wishlistEdit/index.js");
+            freshMain();
             expect(window.fetch).not.toHaveBeenCalled();
             expect(window.sessionStorage.getItem("snackbarError")).toBe("Invalid wishlist link");
         });
@@ -618,11 +510,10 @@ describe("Wishlist Edit Page", () => {
                 json: () => Promise.resolve({error: "User not found"}),
             }));
             globalThis.fetch = window.fetch;
-            const {main} = await import("../../src/wishlistEdit/index.js");
-            main();
-            await vi.waitFor(() => {
-                expect(window.sessionStorage.getItem("snackbarError")).toBe("Invalid wishlist link");
-            });
+            const {main: freshMain} = await import("../../src/wishlistEdit/index.js");
+            freshMain();
+            await flush();
+            expect(window.sessionStorage.getItem("snackbarError")).toBe("Invalid wishlist link");
         });
     });
 
@@ -635,12 +526,11 @@ describe("Wishlist Edit Page", () => {
                     wishItems: [],
                 },
             });
-            await loadModule();
-            await vi.waitFor(() => {
-                const list = document.getElementById("wishlists-list");
-                expect(list.innerHTML).not.toContain("<script>");
-                expect(list.innerHTML).toContain("&lt;script&gt;");
-            });
+            loadModule();
+            await flush();
+            const list = document.getElementById("wishlists-list");
+            expect(list.innerHTML).not.toContain("<script>");
+            expect(list.innerHTML).toContain("&lt;script&gt;");
         });
 
         it("escapes HTML in wishlist URLs used as href", async () => {
@@ -651,11 +541,10 @@ describe("Wishlist Edit Page", () => {
                     wishItems: [],
                 },
             });
-            await loadModule();
-            await vi.waitFor(() => {
-                const list = document.getElementById("wishlists-list");
-                expect(list.innerHTML).not.toContain('href="https://example.com/"><script>');
-            });
+            loadModule();
+            await flush();
+            const list = document.getElementById("wishlists-list");
+            expect(list.innerHTML).not.toContain('href="https://example.com/"><script>');
         });
     });
 });

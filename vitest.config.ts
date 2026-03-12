@@ -3,19 +3,27 @@ import {defineConfig} from 'vitest/config';
 export default defineConfig({
   test: {
     globalSetup: ['spec/netlify-functions/mongoSetup.js'],
-    fileParallelism: false,
     projects: [
       {
         test: {
           name: 'frontend',
           environment: 'jsdom',
+          isolate: false,
           setupFiles: ['spec/setupTests.js'],
           include: [
             'spec/exchange/**/*.spec.js',
-            'spec/wishlistEdit/**/*.spec.js',
             'spec/Snackbar.spec.js',
             'spec/utils.spec.js',
             'spec/viteMultiPagePlugin.spec.js',
+          ],
+        },
+      },
+      {
+        test: {
+          name: 'frontend-pages',
+          environment: 'jsdom',
+          include: [
+            'spec/wishlistEdit/**/*.spec.js',
             'spec/wishlistView.spec.js',
             'spec/reuse.spec.js',
           ],
