@@ -1,21 +1,14 @@
 import {ExchangeEvents as Events, exchangeEvents as stateEvents, getExchangePayload} from "../../state.js";
 import {addEventListener, pushHTML, selectElement, setLoadingState, escapeAttr, apiFetch} from "../../../utils.js";
 import {showError, showSuccess} from "../../../Snackbar.js";
+import {removeFailedEmails, showFailedEmails} from "./FailedEmails.js";
+import {confirmId, sendResultsFormId, showConfirmation, removeAll as removeAllSendResults} from "./SendResults.js";
 
 const emailTableId = "emailTable";
 const emailTableBodyId = "emailTableBody";
 const hideEmailsId = "hideEmails";
 const submitEmailsId = "submitEmails";
 const sendResultsBtnId = "sendResultsBtn";
-const confirmId = "sendResultsConfirm";
-const confirmBtnId = "sendResultsConfirmBtn";
-const cancelBtnId = "sendResultsCancelBtn";
-const sendResultsFormId = "sendResults";
-const sendResultsNameId = "sendResultsName";
-const sendResultsEmailId = "sendResultsEmail";
-const sendResultsSubmitId = "sendResultsSubmit";
-const failedEmailsId = "failedEmails";
-const retryEmailsBtnId = "retryEmailsBtn";
 
 export function init() {
   stateEvents.on(Events.RECIPIENTS_ASSIGNED, (state) => {
@@ -31,9 +24,8 @@ export function init() {
   stateEvents.on(Events.EXCHANGE_STARTED, () => {
     const emailTable = selectElement(`#${emailTableId}`);
     if (emailTable) emailTable.remove();
-    selectElement(`#${confirmId}`)?.remove();
-    selectElement(`#${sendResultsFormId}`)?.remove();
-    selectElement(`#${failedEmailsId}`)?.remove();
+    removeAllSendResults();
+    removeFailedEmails();
   });
 }
 
@@ -153,144 +145,5 @@ function getEmails() {
       email: input.value.trim(),
       index: input.id
     };
-  });
-}
-
-// Failed Emails — retry UI
-
-function failedEmailsTemplate(emailsFailed) {
-  return `
-    <div id="${failedEmailsId}" class="sendEmails show">
-      <p>Your exchange data has been saved. You can retrieve it by entering a participant's email in the recipient search on the home page.</p>
-      <p>However, we were unable to send emails to the following addresses:</p>
-      <ul>${emailsFailed.map(e => `<li>${escapeAttr(e)}</li>`).join('')}</ul>
-      <button class="button" id="${retryEmailsBtnId}">Retry</button>
-    </div>`;
-}
-
-function showFailedEmails(emailsFailed, payload) {
-  const failedAssignments = payload.assignments.filter(a => {
-    const participant = payload.participants.find(p => p.name === a.giver);
-    return participant && emailsFailed.includes(participant.email);
-  });
-  const failedParticipants = payload.participants.filter(p =>
-    emailsFailed.includes(p.email)
-  );
-
-  pushHTML("body", failedEmailsTemplate(emailsFailed));
-  addEventListener(`#${retryEmailsBtnId}`, "click", () =>
-    retryFailedEmails(failedParticipants, failedAssignments)
-  );
-}
-
-async function retryFailedEmails(participants, assignments) {
-  setLoadingState(`#${retryEmailsBtnId}`);
-
-  await apiFetch("/.netlify/functions/api-giver-notify-post", {
-    method: "POST",
-    body: {participants, assignments},
-    onSuccess: () => {
-      selectElement(`#${failedEmailsId}`)?.remove();
-      showSuccess("Emails sent successfully!");
-    },
-    onError: () => {
-      selectElement(`#${failedEmailsId}`)?.remove();
-      showError("We're sorry, but we were unable to send the remaining emails. Please contact participants directly.");
-    },
-    fallbackMessage: "Retry failed.",
-  });
-}
-
-// Send Results — confirmation + form
-
-function confirmationTemplate({isSecretSanta}) {
-  let html = `
-    <div id="${confirmId}" class="sendEmails show">
-      <p>Your exchange will not be saved. Recipients will not be able to look up wishlists or contact info. Be sure to save your results email or take a screenshot!</p>`;
-  if (isSecretSanta) {
-    html += `<p>This will reveal all gift exchange assignments on your screen.</p>`;
-  }
-  html += `
-      <div>
-        <button class="button" id="${confirmBtnId}">Continue</button>
-        <button class="button" id="${cancelBtnId}">Cancel</button>
-      </div>
-    </div>`;
-  return html;
-}
-
-function showConfirmation(state) {
-  pushHTML("body", confirmationTemplate(state));
-  addEventListener(`#${confirmBtnId}`, "click", () => showResultsForm(state));
-  addEventListener(`#${cancelBtnId}`, "click", () => {
-    selectElement(`#${confirmId}`)?.remove();
-  });
-}
-
-function resultsTableHtml({assignments}) {
-  let html = '<div class="results-card" style="margin: 0 auto;"><h2>Results</h2><div class="results-header"><span>Giver</span><span></span><span>Recipient</span></div><div>';
-  for (const a of assignments) {
-    html += `<div class="result-row"><span>${a.giver}</span><span class="result-arrow">&#8594;</span><span>${a.recipient}</span></div>`;
-  }
-  html += '</div></div>';
-  return html;
-}
-
-function resultsFormTemplate({isSecretSanta, participants, assignments}) {
-  let html = `<div id="${sendResultsFormId}" class="sendEmails show">`;
-  if (isSecretSanta) {
-    html += resultsTableHtml({assignments});
-  }
-  html += `
-      <div style="display:flex; flex-direction:column; align-items:center; gap:8px; padding:10px;">
-      <div><label for="${sendResultsNameId}">Your name: </label><select id="${sendResultsNameId}" required>
-          <option disabled selected value="">-- Select your name --</option>
-          ${participants.map(p => `<option value="${p.name}">${p.name}</option>`).join("")}
-      </select></div>
-      <div><label for="${sendResultsEmailId}">Your email: </label><input type="email" id="${sendResultsEmailId}" placeholder="your@email.com" required/></div>
-      <button class="button" id="${sendResultsSubmitId}">Send</button>
-      </div>
-    </div>`;
-  return html;
-}
-
-function showResultsForm(state) {
-  selectElement(`#${confirmId}`)?.remove();
-  selectElement(`#${emailTableId}`)?.remove();
-  pushHTML("body", resultsFormTemplate(state));
-  addEventListener(`#${sendResultsSubmitId}`, "click", () => submitResults(state));
-}
-
-async function submitResults({assignments}) {
-  const nameSelect = selectElement(`#${sendResultsNameId}`);
-  const emailInput = selectElement(`#${sendResultsEmailId}`);
-  const name = nameSelect.value;
-  const email = emailInput.value.trim();
-
-  if (!name || name === "") {
-    showError("Please select your name");
-    return;
-  }
-  if (!email) {
-    showError("Please enter your email");
-    return;
-  }
-
-  setLoadingState(`#${sendResultsSubmitId}`);
-
-  await apiFetch("/.netlify/functions/api-results-email-post", {
-    method: "POST",
-    body: {name, email, assignments},
-    onSuccess: () => {
-      showSuccess("Results sent!");
-      selectElement(`#${sendResultsFormId}`)?.remove();
-    },
-    onError: (msg) => {
-      showError(msg);
-      const btn = selectElement(`#${sendResultsSubmitId}`);
-      btn.textContent = "Send";
-      btn.style.color = "";
-    },
-    fallbackMessage: "Failed to send results. Please try again.",
   });
 }

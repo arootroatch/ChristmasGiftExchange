@@ -624,6 +624,45 @@ describe('emailTable', () => {
       shouldDisplayErrorSnackbar("We're sorry, but we were unable to send the remaining emails. Please contact participants directly.");
     });
 
+    it("shows updated failed emails when retry partially fails", async () => {
+      global.fetch = vi.fn()
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 200,
+          json: () => Promise.resolve({exchangeId: "test-id", participants: [], emailsFailed: ["alex@test.com", "whitney@test.com"]})
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 200,
+          json: () => Promise.resolve({sent: 1, total: 2, emailsFailed: ["whitney@test.com"]})
+        });
+
+      triggerEmailTableRender();
+      renderEmailTableInputs([
+        {name: "Alex", email: "alex@test.com"},
+        {name: "Whitney", email: "whitney@test.com"}
+      ]);
+      installParticipantNames("Alex", "Whitney");
+      submitEmailForm();
+
+      await vi.waitFor(() => {
+        expect(document.querySelector("#retryEmailsBtn")).not.toBeNull();
+      });
+
+      const failedEl = document.querySelector("#failedEmails");
+      expect(failedEl.textContent).toContain("alex@test.com");
+      expect(failedEl.textContent).toContain("whitney@test.com");
+
+      document.querySelector("#retryEmailsBtn").click();
+
+      await vi.waitFor(() => {
+        const updatedFailed = document.querySelector("#failedEmails");
+        expect(updatedFailed).not.toBeNull();
+        expect(updatedFailed.textContent).toContain("whitney@test.com");
+        expect(updatedFailed.textContent).not.toContain("alex@test.com");
+      });
+    });
+
     it("removes failed emails on EXCHANGE_STARTED", async () => {
       global.fetch = vi.fn(() => Promise.resolve({
         ok: true,
