@@ -20,6 +20,43 @@ export async function forEachGiverOf(recipientUser, callback) {
     }
 }
 
+export async function sendEmailsWithRetry(participants, assignments, userByEmail) {
+    const emailsFailed = [];
+
+    for (const assignment of assignments) {
+        const participant = participants.find(p => p.name === assignment.giver);
+        const user = userByEmail[participant.email];
+        const wishlistEditUrl = user
+            ? `${process.env.URL}/wishlist/edit/${user.token}`
+            : null;
+
+        let sent = false;
+        for (let attempt = 0; attempt < 3; attempt++) {
+            try {
+                await sendNotificationEmail(
+                    "secret-santa",
+                    participant.email,
+                    "Your gift exchange recipient name has arrived!",
+                    {
+                        name: assignment.giver,
+                        recipient: assignment.recipient,
+                        wishlistEditUrl,
+                    }
+                );
+                sent = true;
+                break;
+            } catch (err) {
+                console.error(`Attempt ${attempt + 1}/3 failed for ${participant.email}:`, err.message);
+            }
+        }
+        if (!sent) {
+            emailsFailed.push(participant.email);
+        }
+    }
+
+    return {emailsFailed};
+}
+
 export async function sendNotificationEmail(templateName, to, subject, parameters) {
     if (process.env.CONTEXT !== "production") {
         console.log(`[DEV EMAIL] Template: ${templateName} | To: ${to} | Subject: ${subject}`);
