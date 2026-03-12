@@ -46,6 +46,7 @@
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 6px;
   margin-bottom: 5px;
+  animation: cardSlide 0.4s ease-out both;
 }
 
 .result-row span:first-child {
