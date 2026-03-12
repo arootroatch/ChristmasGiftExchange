@@ -12,7 +12,8 @@
     "unit": "vitest --exclude 'spec/integration/**'",
     "integration": "vitest spec/integration/",
     "e2e": "npx playwright test --config e2e/playwright.config.js",
-    "coverage": "vitest run --coverage"
+    "coverage": "vitest run --coverage",
+    "repl": "node dev/repl.mjs"
   },
   "repository": {
     "type": "git",

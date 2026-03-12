@@ -1,9 +1,8 @@
 import {MongoMemoryServer} from "mongodb-memory-server";
 import {MongoClient} from "mongodb";
-import repl from "node:repl";
 import fs from "node:fs";
 import {seed} from "./seed.mjs";
-import {wishlistEditPath, wishlistViewPath} from "../netlify/shared/links.mjs";
+import {startRepl} from "./repl.mjs";
 
 const DB_NAME = "gift-exchange";
 const ENV_FILE = ".env.local";
@@ -24,7 +23,7 @@ function updateEnvUri(content, uri) {
     return content ? `${content}\n${uriLine}\n` : `${uriLine}\n`;
 }
 
-async function main() {
+async function startMongo() {
     const mongod = await MongoMemoryServer.create();
     const uri = mongod.getUri();
 
@@ -39,42 +38,7 @@ async function main() {
 
     await seed(db);
 
-    console.log("\nREPL ready. Available: db, users, exchanges, seed(), find(), findOne(), links()");
-    console.log("Example: find(users, {name: 'Alice'})")
-    console.log("Example: await links('user-token-uuid')\n");
-
-    const r = repl.start({prompt: "dev-db> ", useGlobal: true});
-    r.context.db = db;
-    r.context.users = db.collection("users");
-    r.context.exchanges = db.collection("exchanges");
-    r.context.seed = () => seed(db);
-    r.context.find = async (collection, query = {}) => {
-        const results = await collection.find(query).toArray();
-        console.log(JSON.stringify(results, null, 2));
-    };
-    r.context.findOne = async (collection, query = {}) => {
-        const result = await collection.findOne(query);
-        console.log(JSON.stringify(result, null, 2));
-    };
-    r.context.links = async (token) => {
-        const base = "http://localhost:8888";
-        const user = await db.collection("users").findOne({token});
-        if (!user) { console.log("User not found"); return; }
-        console.log(`\nLinks for ${user.name} (${user.email}):`);
-        console.log(`  Edit wishlist: ${base}${wishlistEditPath(token)}`);
-        const exs = await db.collection("exchanges").find({participants: user._id}).toArray();
-        for (const ex of exs) {
-            console.log(`  View wishlist: ${base}${wishlistViewPath(token, ex.exchangeId)}`);
-        }
-        console.log();
-    };
-
-    r.on("exit", async () => {
-        console.log("\nShutting down...");
-        await client.close();
-        await mongod.stop();
-        process.exit(0);
-    });
+    startRepl(db, client, () => mongod.stop());
 }
 
-main().catch(console.error);
+startMongo().catch(console.error);
