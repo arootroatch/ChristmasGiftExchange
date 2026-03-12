@@ -49,4 +49,7 @@
       color: #f0f0f0;
     }
   }
+  .emailInput.duplicate-email {
+    border-color: red;
+  }
 }

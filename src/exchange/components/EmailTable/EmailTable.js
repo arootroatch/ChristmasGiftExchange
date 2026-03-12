@@ -71,6 +71,11 @@ function render() {
   if (!cachedIsSecretSanta) selectElement(`#${hideEmailsId}`).style.display = "block";
   addEventListener(`#${emailTableBodyId}`, "submit", submitEmails);
   addEventListener(`#${hideEmailsId}`, "click", hideEmailTable);
+  selectElement(`#${emailTableBodyId}`).addEventListener("input", (e) => {
+    if (e.target.classList.contains("emailInput")) {
+      e.target.classList.remove("duplicate-email");
+    }
+  });
 }
 
 function hideEmailTable() {
@@ -83,8 +88,31 @@ function hideEmailTable() {
   }, 500);
 }
 
+function findDuplicateEmails() {
+  const inputs = Array.from(document.getElementsByClassName("emailInput"));
+  const emailCounts = {};
+  inputs.forEach(input => {
+    const email = input.value.trim().toLowerCase();
+    emailCounts[email] = (emailCounts[email] || 0) + 1;
+  });
+  const duplicates = new Set(
+    Object.keys(emailCounts).filter(email => emailCounts[email] > 1)
+  );
+  return {inputs, duplicates};
+}
+
 async function submitEmails(event) {
   event.preventDefault();
+  const {inputs, duplicates} = findDuplicateEmails();
+  if (duplicates.size > 0) {
+    inputs.forEach(input => {
+      if (duplicates.has(input.value.trim().toLowerCase())) {
+        input.classList.add("duplicate-email");
+      }
+    });
+    showError("Each participant must have a unique email address");
+    return;
+  }
   setLoadingState(`#${submitEmailsId}`);
   const emails = getEmails();
   const payload = getExchangePayload();

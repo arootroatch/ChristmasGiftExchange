@@ -235,6 +235,55 @@ describe('emailTable', () => {
     });
   });
 
+  describe("duplicate email validation", () => {
+    beforeEach(() => {
+      triggerEmailTableRender();
+      const body = document.querySelector("#emailTableBody");
+      body.querySelectorAll(".emailDiv").forEach(el => el.remove());
+      getState().participants = [];
+      installParticipantNames("Alex", "Whitney", "Hunter");
+      renderEmailTableInputs([
+        {name: "Alex", email: "same@test.com"},
+        {name: "Whitney", email: "same@test.com"},
+        {name: "Hunter", email: "hunter@test.com"},
+      ]);
+    });
+
+    it("prevents submission when emails are duplicated", () => {
+      submitEmailForm();
+
+      expect(global.fetch).not.toHaveBeenCalled();
+    });
+
+    it("shows error snackbar for duplicate emails", () => {
+      submitEmailForm();
+
+      shouldDisplayErrorSnackbar("Each participant must have a unique email address");
+    });
+
+    it("adds duplicate-email class to inputs with duplicate emails", () => {
+      submitEmailForm();
+
+      const inputs = document.querySelectorAll(".emailInput");
+      // renderEmailTableInputs uses afterbegin, so DOM order is reversed: Hunter, Whitney, Alex
+      expect(inputs[0].classList).not.toContain("duplicate-email");
+      expect(inputs[1].classList).toContain("duplicate-email");
+      expect(inputs[2].classList).toContain("duplicate-email");
+    });
+
+    it("removes duplicate-email class on input event", () => {
+      submitEmailForm();
+      // inputs[1] is Whitney (same@test.com) — has duplicate class
+      const input = document.querySelectorAll(".emailInput")[1];
+      expect(input.classList).toContain("duplicate-email");
+
+      input.value = "different@test.com";
+      input.dispatchEvent(new Event("input", {bubbles: true}));
+
+      expect(input.classList).not.toContain("duplicate-email");
+    });
+  });
+
   it("emailInput returns correct HTML template", () => {
     getState().participants = [{name: "Alex", email: ""}, {name: "Whitney", email: ""}];
     const result = emailInput(getState().participants[0], 0);

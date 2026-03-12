@@ -174,6 +174,34 @@ describe('api-exchange-post', () => {
         expect(body.error).toContain('Missing required field');
     });
 
+    it('returns 400 when participants have duplicate emails', async () => {
+        const event = buildEvent({
+            ...exchangePayload,
+            participants: [
+                {name: 'Alex', email: 'same@test.com'},
+                {name: 'Whitney', email: 'same@test.com'},
+                {name: 'Hunter', email: 'hunter@test.com'},
+            ],
+        });
+        const response = await handler(event);
+        expect(response.statusCode).toBe(400);
+        const body = JSON.parse(response.body);
+        expect(body.error).toContain('unique');
+    });
+
+    it('returns 400 when participant emails differ only by case', async () => {
+        const event = buildEvent({
+            ...exchangePayload,
+            participants: [
+                {name: 'Alex', email: 'Same@Test.com'},
+                {name: 'Whitney', email: 'same@test.com'},
+                {name: 'Hunter', email: 'hunter@test.com'},
+            ],
+        });
+        const response = await handler(event);
+        expect(response.statusCode).toBe(400);
+    });
+
     it('updates user name on upsert if different', async () => {
         const existingToken = crypto.randomUUID();
         await db.collection('users').insertOne({

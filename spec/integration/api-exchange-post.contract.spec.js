@@ -74,6 +74,21 @@ describe('api-exchange-post contract', () => {
             const response = await handler(event);
             expect(response.statusCode).toBe(400);
         });
+
+        it('rejects payload with duplicate participant emails', async () => {
+            const event = buildEvent('POST', {
+                body: {
+                    ...fePayload,
+                    participants: [
+                        {name: 'Alice', email: 'same@test.com'},
+                        {name: 'Bob', email: 'same@test.com'},
+                        {name: 'Carol', email: 'carol@test.com'},
+                    ],
+                },
+            });
+            const response = await handler(event);
+            expect(response.statusCode).toBe(400);
+        });
     });
 
     describe('response contract (BE → FE)', () => {

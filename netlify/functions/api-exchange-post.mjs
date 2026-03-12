@@ -44,6 +44,20 @@ const exchangePostRequestSchema = z.object({
             });
         }
     });
+}).check(ctx => {
+    const emails = ctx.value.participants.map(p => p.email.toLowerCase());
+    const seen = new Set();
+    for (const email of emails) {
+        if (seen.has(email)) {
+            ctx.issues.push({
+                code: "custom",
+                message: "All participant emails must be unique",
+                path: ["participants"],
+            });
+            return;
+        }
+        seen.add(email);
+    }
 });
 
 async function upsertParticipants(usersCol, participants) {
