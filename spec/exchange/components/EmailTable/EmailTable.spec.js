@@ -7,10 +7,11 @@ import {
   resetState,
   shouldDisplayEmailTable,
   shouldDisplayErrorSnackbar,
+  shouldDisplaySuccessSnackbar,
 } from "../../../specHelper";
 import "../../../../src/exchange/components/Name";
 import {assignRecipients, nextStep, startExchange, getState} from "../../../../src/exchange/state";
-import {alex, whitney} from "../../../testData";
+import {alex, whitney, hunter} from "../../../testData";
 import {
   emailInput,
   init,
@@ -44,6 +45,19 @@ function triggerEmailTableRender() {
   assignRecipients(["Whitney", "Alex"]);
 }
 
+function triggerEmailTableRenderWith3() {
+  installGivers([{...alex}, {...whitney}, {...hunter}]);
+  assignRecipients(["Whitney", "Hunter", "Alex"]);
+}
+
+function triggerNonSecretSantaStep4() {
+  getState().isSecretSanta = false;
+  installGivers([{...alex}, {...whitney}]);
+  assignRecipients(["Whitney", "Alex"]);
+  getState().step = 3;
+  nextStep();
+}
+
 function submitEmailForm() {
   const emailTableBody = document.getElementById("emailTableBody");
   const submitEvent = new Event("submit", {bubbles: true, cancelable: true});
@@ -63,6 +77,8 @@ describe('emailTable', () => {
     stubExchangeApiFetch();
     resetState();
     getState().isSecretSanta = true;
+    document.querySelector("#sendResultsConfirm")?.remove();
+    document.querySelector("#sendResults")?.remove();
   });
 
   describe("reactive rendering", () => {
@@ -131,6 +147,14 @@ describe('emailTable', () => {
       const hideButton = document.querySelector("#hideEmails");
       expect(hideButton.style.display).toBe("none");
     });
+
+    it("includes send results button in template", () => {
+      triggerEmailTableRender();
+
+      const btn = document.querySelector("#emailTable #sendResultsBtn");
+      expect(btn).not.toBeNull();
+      expect(document.querySelector("#emailTable").textContent).toContain("Don't want to send out emails to everyone?");
+    });
   });
 
   describe("submitEmails", () => {
@@ -160,18 +184,6 @@ describe('emailTable', () => {
       expectColor(submitEmailsButton.style.color, "rgb(128, 128, 128)", "#808080");
     })
 
-    it("sets email for each participant", async () => {
-      await vi.waitFor(() => {
-        expect(getState().participants[0].email).toBe("arootroatch@gmail.com");
-      });
-
-      const expectedEmails = ["arootroatch@gmail.com", "whitney@gmail.com", "hunter@gmail.com", "megan@gmail.com"];
-
-      getState().participants.forEach((participant, i) => {
-        expect(participant.email).toBe(expectedEmails[i]);
-      })
-    })
-
     it("posts exchange data to new API endpoint", () => {
       expect(global.fetch).toHaveBeenCalledWith("/.netlify/functions/api-exchange-post", expect.objectContaining({
         method: "POST",
@@ -182,18 +194,6 @@ describe('emailTable', () => {
       expect(body.exchangeId).toBe(getState().exchangeId);
       expect(body.isSecretSanta).toBe(getState().isSecretSanta);
       expect(body.participants.length).toBe(4);
-    })
-
-    it("hides email table on EMAILS_ADDED", async () => {
-      const table = document.querySelector("#emailTable");
-
-      await vi.waitFor(() => {
-        expect(table.classList).toContain("hide");
-      });
-
-      vi.advanceTimersByTime(500);
-
-      expect(document.querySelector("#emailTable")).toBeNull();
     })
 
   })
@@ -211,19 +211,6 @@ describe('emailTable', () => {
         {name: "Whitney", email: "whitney@test.com"}
       ]);
       installParticipantNames("Alex", "Whitney");
-    });
-
-    it("does not add emails to participants when postToServer returns non-200 status", async () => {
-      const initialEmail0 = getState().participants[0].email;
-      const initialEmail1 = getState().participants[1].email;
-
-      submitEmailForm();
-
-      await vi.waitFor(() => {
-        expect(global.fetch).toHaveBeenCalled();
-      });
-      expect(getState().participants[0].email).toBe(initialEmail0);
-      expect(getState().participants[1].email).toBe(initialEmail1);
     });
 
     it("displays error snackbar when postToServer returns non-200 status", async () => {
@@ -281,6 +268,197 @@ describe('emailTable', () => {
       input.dispatchEvent(new Event("input", {bubbles: true}));
 
       expect(input.classList).not.toContain("duplicate-email");
+    });
+  });
+
+  describe("send results confirmation", () => {
+    beforeEach(() => {
+      triggerEmailTableRender();
+    });
+
+    it("shows as modal overlay on body when button clicked", () => {
+      document.querySelector("#sendResultsBtn").click();
+
+      const confirm = document.querySelector("#sendResultsConfirm");
+      expect(confirm).not.toBeNull();
+      expect(confirm.classList).toContain("sendEmails");
+      expect(confirm.textContent).toContain("Your exchange will not be saved");
+    });
+
+    it("shows reveal warning in secret santa mode", () => {
+      document.querySelector("#sendResultsBtn").click();
+      expect(document.querySelector("#sendResultsConfirm").textContent).toContain("reveal all gift exchange assignments");
+    });
+
+    it("does not show reveal warning in non-secret-santa mode", () => {
+      document.querySelector("#emailTable")?.remove();
+      triggerNonSecretSantaStep4();
+
+      document.querySelector("#sendResultsBtn").click();
+      expect(document.querySelector("#sendResultsConfirm").textContent).not.toContain("reveal all gift exchange assignments");
+    });
+
+    it("Cancel dismisses the confirmation modal", () => {
+      document.querySelector("#sendResultsBtn").click();
+      expect(document.querySelector("#sendResultsConfirm")).not.toBeNull();
+
+      document.querySelector("#sendResultsCancelBtn").click();
+
+      expect(document.querySelector("#sendResultsConfirm")).toBeNull();
+      expect(document.querySelector("#emailTable")).not.toBeNull();
+    });
+
+    it("is removed on EXCHANGE_STARTED", () => {
+      document.querySelector("#sendResultsBtn").click();
+      expect(document.querySelector("#sendResultsConfirm")).not.toBeNull();
+
+      startExchange(false);
+
+      expect(document.querySelector("#sendResultsConfirm")).toBeNull();
+    });
+  });
+
+  describe("send results form", () => {
+    beforeEach(() => {
+      triggerEmailTableRenderWith3();
+      document.querySelector("#sendResultsBtn").click();
+      document.querySelector("#sendResultsConfirmBtn").click();
+    });
+
+    it("removes emailTable and shows form as standalone component", () => {
+      expect(document.querySelector("#emailTable")).toBeNull();
+      expect(document.querySelector("#sendResultsConfirm")).toBeNull();
+      const form = document.querySelector("#sendResults");
+      expect(form).not.toBeNull();
+      expect(form.classList).toContain("sendEmails");
+    });
+
+    it("shows form with participant select and email input", () => {
+      const select = document.querySelector("#sendResultsName");
+      const emailInput = document.querySelector("#sendResultsEmail");
+
+      expect(select).not.toBeNull();
+      expect(emailInput).not.toBeNull();
+      expect(select.options.length).toBe(4);
+      expect(select.options[1].textContent).toBe("Alex");
+    });
+
+    it("shows results table in secret santa mode", () => {
+      const resultsCard = document.querySelector("#sendResults .results-card");
+      expect(resultsCard).not.toBeNull();
+      expect(resultsCard.textContent).toContain("Alex");
+      expect(resultsCard.textContent).toContain("Whitney");
+    });
+
+    it("is removed on EXCHANGE_STARTED", () => {
+      expect(document.querySelector("#sendResults")).not.toBeNull();
+
+      startExchange(false);
+
+      expect(document.querySelector("#sendResults")).toBeNull();
+    });
+  });
+
+  describe("send results form non-secret-santa", () => {
+    beforeEach(() => {
+      document.querySelector("#emailTable")?.remove();
+      triggerNonSecretSantaStep4();
+      document.querySelector("#sendResultsBtn").click();
+      document.querySelector("#sendResultsConfirmBtn").click();
+    });
+
+    it("does not show results table", () => {
+      expect(document.querySelector("#sendResults .results-card")).toBeNull();
+    });
+
+    it("shows form with select and email input", () => {
+      expect(document.querySelector("#sendResultsName")).not.toBeNull();
+      expect(document.querySelector("#sendResultsEmail")).not.toBeNull();
+    });
+  });
+
+  describe("send results submit", () => {
+    beforeEach(() => {
+      global.fetch = vi.fn(() => Promise.resolve({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve({success: true})
+      }));
+      triggerEmailTableRenderWith3();
+      document.querySelector("#sendResultsBtn").click();
+      document.querySelector("#sendResultsConfirmBtn").click();
+      document.querySelector("#sendResultsName").value = "Alex";
+      document.querySelector("#sendResultsEmail").value = "alex@test.com";
+    });
+
+    it("sends request to api-results-email-post", () => {
+      document.querySelector("#sendResultsSubmit").click();
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        "/.netlify/functions/api-results-email-post",
+        expect.objectContaining({method: "POST"})
+      );
+      const body = JSON.parse(global.fetch.mock.calls[0][1].body);
+      expect(body.name).toBe("Alex");
+      expect(body.email).toBe("alex@test.com");
+      expect(body.assignments).toHaveLength(3);
+    });
+
+    it("shows loading state on submit button", () => {
+      document.querySelector("#sendResultsSubmit").click();
+      expect(document.querySelector("#sendResultsSubmit").textContent).toBe("Loading...");
+    });
+
+    it("shows success snackbar and removes component on success", async () => {
+      document.querySelector("#sendResultsSubmit").click();
+      await vi.advanceTimersByTimeAsync(0);
+
+      shouldDisplaySuccessSnackbar("Results sent!");
+      expect(document.querySelector("#sendResults")).toBeNull();
+    });
+
+    it("shows error snackbar on API failure", async () => {
+      global.fetch = vi.fn(() => Promise.resolve({
+        ok: false,
+        status: 500,
+        json: () => Promise.resolve({error: "Server error"})
+      }));
+      document.querySelector("#sendResultsSubmit").click();
+
+      const {serverErrorMessage} = await import("../../../../src/utils");
+      await vi.waitFor(() => {
+        shouldDisplayErrorSnackbar(serverErrorMessage);
+      });
+    });
+
+    it("re-enables send button on API failure", async () => {
+      global.fetch = vi.fn(() => Promise.resolve({
+        ok: false,
+        status: 400,
+        json: () => Promise.resolve({error: "Bad request"})
+      }));
+      document.querySelector("#sendResultsSubmit").click();
+
+      await vi.waitFor(() => {
+        const btn = document.querySelector("#sendResultsSubmit");
+        expect(btn.textContent).toBe("Send");
+      });
+    });
+
+    it("shows error when no name selected", () => {
+      document.querySelector("#sendResultsName").value = "";
+      document.querySelector("#sendResultsSubmit").click();
+
+      shouldDisplayErrorSnackbar("Please select your name");
+      expect(global.fetch).not.toHaveBeenCalled();
+    });
+
+    it("shows error when no email entered", () => {
+      document.querySelector("#sendResultsEmail").value = "";
+      document.querySelector("#sendResultsSubmit").click();
+
+      shouldDisplayErrorSnackbar("Please enter your email");
+      expect(global.fetch).not.toHaveBeenCalled();
     });
   });
 

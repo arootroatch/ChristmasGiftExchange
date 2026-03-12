@@ -5,35 +5,27 @@ import {showError, showSuccess} from "../../../Snackbar.js";
 const sendEmailsId = "sendEmails";
 const sendEmailsBtnId = "sendEmailsBtn";
 
-let cachedParticipants;
-let cachedAssignments;
-
 export function init() {
-  stateEvents.on(Events.EMAILS_ADDED, ({participants, assignments}) => {
-    cachedParticipants = participants;
-    cachedAssignments = assignments;
-    render();
-  });
   stateEvents.on(Events.EXCHANGE_STARTED, () => {
     const el = selectElement(`#${sendEmailsId}`);
     if (el) el.remove();
   });
 }
 
-function template() {
+function template({participants}) {
   return `
     <div id="${sendEmailsId}" class="sendEmails show">
-      <p>${cachedParticipants.length} email addresses added successfully!</p>
+      <p>${participants.length} email addresses added successfully!</p>
       <p>Now let's send out those emails:</p>
       <button class="button" id="${sendEmailsBtnId}">Send Emails</button>
     </div>`;
 }
 
-function render() {
+function render(state) {
   const existing = selectElement(`#${sendEmailsId}`);
   if (existing) existing.remove();
-  pushHTML("body", template());
-  addEventListener(`#${sendEmailsBtnId}`, "click", batchEmails);
+  pushHTML("body", template(state));
+  addEventListener(`#${sendEmailsBtnId}`, "click", () => batchEmails(state));
 }
 
 function hideElement() {
@@ -44,22 +36,19 @@ function hideElement() {
   }, 500);
 }
 
-async function batchEmails() {
+async function batchEmails({participants, assignments}) {
   setLoadingState(`#${sendEmailsBtnId}`);
 
   await apiFetch("/.netlify/functions/api-giver-notify-post", {
     method: "POST",
-    body: {
-      participants: cachedParticipants,
-      assignments: cachedAssignments,
-    },
+    body: {participants, assignments},
     onSuccess: (data) => {
       hideElement();
       showSuccess(`Sent ${data.sent} of ${data.total} emails successfully!`);
     },
     onError: (msg) => {
       showError(msg);
-      render();
+      render({participants, assignments});
     },
     fallbackMessage: "Failed to send emails. Please try again.",
   });

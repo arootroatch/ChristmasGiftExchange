@@ -13,7 +13,6 @@ export const ExchangeEvents = {
   NAME_ADDED_TO_HOUSE: 'name:addedToHouse',
   NAME_REMOVED_FROM_HOUSE: 'name:removedFromHouse',
   RECIPIENTS_ASSIGNED: 'recipients:assigned',
-  EMAILS_ADDED: 'emails:added',
 };
 
 const state = {
@@ -145,14 +144,6 @@ export function assignRecipients(recipientNames) {
     recipient
   }));
   exchangeEvents.emit(ExchangeEvents.RECIPIENTS_ASSIGNED, {...state, isGenerated: true});
-}
-
-export function addEmailsToParticipants(emails) {
-  emails.forEach((obj) => {
-    let i = parseInt(obj.index);
-    state.participants[i].email = obj.email;
-  });
-  exchangeEvents.emit(ExchangeEvents.EMAILS_ADDED, {...state});
 }
 
 export function nextNameNumber() {

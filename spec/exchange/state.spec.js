@@ -5,7 +5,6 @@ import {
   addParticipant,
   addHouseToState,
   addNameToHouse,
-  addEmailsToParticipants,
   assignRecipients,
   getHousesArray,
   getExchangePayload,
@@ -374,61 +373,6 @@ describe('state helper functions', () => {
       getState().step = 3;
       nextStep(3);
       expect(getState().step).toBe(0);
-    });
-  });
-
-  describe('addEmailsToParticipants', () => {
-    beforeEach(() => {
-      getState().participants = [];
-      installParticipantNames("Alex", "Whitney", "Hunter");
-    });
-
-    it('should set email on each participant by index', () => {
-      const emails = [
-        {name: "Alex", email: "alex@example.com", index: 0},
-        {name: "Whitney", email: "whitney@example.com", index: 1}
-      ];
-
-      addEmailsToParticipants(emails);
-
-      expect(getState().participants[0].email).toBe("alex@example.com");
-      expect(getState().participants[1].email).toBe("whitney@example.com");
-      expect(getState().participants[2].email).toBe("");
-    });
-
-    it('should handle multiple emails at once', () => {
-      const emails = [
-        {name: "Alex", email: "alex@example.com", index: 0},
-        {name: "Whitney", email: "whitney@example.com", index: 1},
-        {name: "Hunter", email: "hunter@example.com", index: 2}
-      ];
-
-      addEmailsToParticipants(emails);
-
-      expect(getState().participants[0].email).toBe("alex@example.com");
-      expect(getState().participants[1].email).toBe("whitney@example.com");
-      expect(getState().participants[2].email).toBe("hunter@example.com");
-    });
-
-    it('should emit EMAILS_ADDED event', () => {
-      const spy = vi.fn();
-      const unsubscribe = stateEvents.on(Events.EMAILS_ADDED, spy);
-      const emails = [
-        {name: "Alex", email: "alex@example.com", index: 0}
-      ];
-
-      addEmailsToParticipants(emails);
-
-      expect(spy).toHaveBeenCalledWith(expect.objectContaining({participants: getState().participants}));
-      unsubscribe();
-    });
-
-    it('should handle empty emails array', () => {
-      const originalParticipants = [...getState().participants];
-
-      addEmailsToParticipants([]);
-
-      expect(getState().participants).toEqual(originalParticipants);
     });
   });
 
