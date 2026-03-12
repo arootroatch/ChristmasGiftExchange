@@ -35,27 +35,31 @@ export function init() {
         remove();
     });
     stateEvents.on(Events.EMAILS_ADDED, () => {
-        hideAndRemove();
+        remove();
     });
 }
 
+const emailTableId = "emailTable";
+
 function collapsedTemplate() {
     return `
-    <div id="${sendResultsId}" class="sendEmails show">
-        <p>Don't want to send out emails to everyone? Send yourself a summary of the results instead.</p>
-        <button class="button" id="${sendResultsBtnId}">Send Me the Results</button>
+    <div id="${sendResultsId}">
+        <hr style="border-color: rgba(255,255,255,0.1); margin: 10px 0;"/>
+        <p style="text-align:center;">Don't want to send out emails to everyone?</p>
+        <div style="text-align:center;"><button class="button" id="${sendResultsBtnId}">Send Me the Results</button></div>
     </div>`;
 }
 
 function confirmationTemplate() {
     let html = `
-    <div id="${sendResultsId}" class="sendEmails show">
-        <p>Your exchange will not be saved. Recipients will not be able to look up wishlists or contact info. Be sure to save your results email or take a screenshot!</p>`;
+    <div id="${sendResultsId}">
+        <hr style="border-color: rgba(255,255,255,0.1); margin: 10px 0;"/>
+        <p style="text-align:center;">Your exchange will not be saved. Recipients will not be able to look up wishlists or contact info. Be sure to save your results email or take a screenshot!</p>`;
     if (cachedIsSecretSanta) {
-        html += `<p>This will reveal all gift exchange assignments on your screen.</p>`;
+        html += `<p style="text-align:center;">This will reveal all gift exchange assignments on your screen.</p>`;
     }
     html += `
-        <div>
+        <div style="text-align:center;">
             <button class="button" id="${confirmBtnId}">Continue</button>
             <button class="button" id="${cancelBtnId}">Cancel</button>
         </div>
@@ -73,11 +77,13 @@ function resultsTableHtml() {
 }
 
 function formTemplate() {
-    let html = `<div id="${sendResultsId}" class="sendEmails show">`;
+    let html = `<div id="${sendResultsId}">
+        <hr style="border-color: rgba(255,255,255,0.1); margin: 10px 0;"/>`;
     if (cachedIsSecretSanta) {
         html += resultsTableHtml();
     }
     html += `
+        <div style="text-align:center; padding: 0 10px;">
         <label for="${sendResultsNameId}">Your name:</label>
         <select id="${sendResultsNameId}" required>
             <option disabled selected value="">-- Select your name --</option>
@@ -86,13 +92,14 @@ function formTemplate() {
         <label for="${sendResultsEmailId}">Your email:</label>
         <input type="email" id="${sendResultsEmailId}" placeholder="your@email.com" required/>
         <button class="button" id="${sendResultsSubmitId}">Send</button>
+        </div>
     </div>`;
     return html;
 }
 
 function render() {
     remove();
-    pushHTML("body", collapsedTemplate());
+    pushHTML(`#${emailTableId}`, collapsedTemplate());
     addEventListener(`#${sendResultsBtnId}`, "click", showConfirmation);
 }
 
@@ -101,19 +108,9 @@ function remove() {
     if (el) el.remove();
 }
 
-function hideAndRemove() {
-    const el = selectElement(`#${sendResultsId}`);
-    if (el) {
-        el.classList.add("hide");
-        setTimeout(() => {
-            el.remove();
-        }, 500);
-    }
-}
-
 function showConfirmation() {
     remove();
-    pushHTML("body", confirmationTemplate());
+    pushHTML(`#${emailTableId}`, confirmationTemplate());
     addEventListener(`#${confirmBtnId}`, "click", showForm);
     addEventListener(`#${cancelBtnId}`, "click", () => {
         remove();
@@ -123,7 +120,7 @@ function showConfirmation() {
 
 function showForm() {
     remove();
-    pushHTML("body", formTemplate());
+    pushHTML(`#${emailTableId}`, formTemplate());
     addEventListener(`#${sendResultsSubmitId}`, "click", submitResults);
 }
 
@@ -149,7 +146,7 @@ async function submitResults() {
         body: {name, email, assignments: cachedAssignments},
         onSuccess: () => {
             showSuccess("Results sent!");
-            hideAndRemove();
+            remove();
         },
         onError: (msg) => {
             showError(msg);

@@ -17,6 +17,10 @@ describe("SendResults", () => {
         resetState();
         const existing = document.querySelector("#sendResults");
         if (existing) existing.remove();
+        // SendResults renders inside #emailTable, ensure it exists
+        if (!document.querySelector("#emailTable")) {
+            document.body.insertAdjacentHTML("beforeend", '<div id="emailTable"></div>');
+        }
     });
 
     function triggerSecretSantaAssign() {
@@ -61,21 +65,16 @@ describe("SendResults", () => {
             expect(document.querySelector("#sendResults")).toBeNull();
         });
 
-        it("hides with animation on EMAILS_ADDED", async () => {
+        it("removes on EMAILS_ADDED", async () => {
             const {addEmailsToParticipants} = await import("../../../../src/exchange/state");
             triggerSecretSantaAssign();
-            const el = document.querySelector("#sendResults");
-            expect(el).not.toBeNull();
+            expect(document.querySelector("#sendResults")).not.toBeNull();
 
             addEmailsToParticipants([
                 {name: alex.name, email: alex.email, index: 0},
                 {name: whitney.name, email: whitney.email, index: 1},
                 {name: hunter.name, email: hunter.email, index: 2},
             ]);
-
-            expect(el.classList).toContain("hide");
-
-            vi.advanceTimersByTime(500);
 
             expect(document.querySelector("#sendResults")).toBeNull();
         });
@@ -213,15 +212,11 @@ describe("SendResults", () => {
             expect(btn.textContent).toBe("Loading...");
         });
 
-        it("shows success snackbar and hides component on success", async () => {
+        it("shows success snackbar and removes component on success", async () => {
             document.querySelector("#sendResultsSubmit").click();
             await vi.advanceTimersByTimeAsync(0);
 
             shouldDisplaySuccessSnackbar("Results sent!");
-            const el = document.querySelector("#sendResults");
-            expect(el.classList).toContain("hide");
-
-            vi.advanceTimersByTime(500);
             expect(document.querySelector("#sendResults")).toBeNull();
         });
 
