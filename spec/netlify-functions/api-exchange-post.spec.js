@@ -1,22 +1,33 @@
-import {afterAll, afterEach, beforeAll, describe, expect, it} from 'vitest';
+import {afterAll, afterEach, beforeAll, describe, expect, it, vi} from 'vitest';
 import {setupMongo, teardownMongo, cleanCollections} from './mongoHelper.js';
 
 describe('api-exchange-post', () => {
     let client, db, handler;
     let mongo;
+    let mockFetch;
 
     beforeAll(async () => {
         mongo = await setupMongo();
         ({client, db} = mongo);
+        process.env.URL = 'https://test.netlify.app';
+        process.env.NETLIFY_EMAILS_SECRET = 'test-secret';
+        process.env.CONTEXT = 'production';
+        mockFetch = vi.fn().mockResolvedValue({ok: true});
+        vi.stubGlobal('fetch', mockFetch);
         const module = await import('../../netlify/functions/api-exchange-post.mjs');
         handler = module.handler;
     });
 
     afterEach(async () => {
         await cleanCollections(db, 'users', 'exchanges');
+        mockFetch.mockClear();
     });
 
     afterAll(async () => {
+        vi.unstubAllGlobals();
+        delete process.env.URL;
+        delete process.env.NETLIFY_EMAILS_SECRET;
+        delete process.env.CONTEXT;
         await teardownMongo(mongo);
     });
 
@@ -200,6 +211,14 @@ describe('api-exchange-post', () => {
         });
         const response = await handler(event);
         expect(response.statusCode).toBe(400);
+    });
+
+    it('returns emailsFailed as empty array when all emails succeed', async () => {
+        const event = buildEvent(exchangePayload);
+        const response = await handler(event);
+        const body = JSON.parse(response.body);
+
+        expect(body.emailsFailed).toEqual([]);
     });
 
     it('updates user name on upsert if different', async () => {

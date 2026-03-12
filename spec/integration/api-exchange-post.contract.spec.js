@@ -1,4 +1,4 @@
-import {afterAll, afterEach, beforeAll, describe, expect, it} from 'vitest';
+import {afterAll, afterEach, beforeAll, describe, expect, it, vi} from 'vitest';
 import {setupMongo, teardownMongo, cleanCollections, buildEvent} from './contractHelper.js';
 
 describe('api-exchange-post contract', () => {
@@ -7,12 +7,22 @@ describe('api-exchange-post contract', () => {
     beforeAll(async () => {
         mongo = await setupMongo();
         db = mongo.db;
+        process.env.URL = 'https://test.netlify.app';
+        process.env.NETLIFY_EMAILS_SECRET = 'test-secret';
+        process.env.CONTEXT = 'production';
+        vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ok: true}));
         const module = await import('../../netlify/functions/api-exchange-post.mjs');
         handler = module.handler;
     });
 
     afterEach(() => cleanCollections(db, 'users', 'exchanges'));
-    afterAll(() => teardownMongo(mongo));
+    afterAll(() => {
+        vi.unstubAllGlobals();
+        delete process.env.URL;
+        delete process.env.NETLIFY_EMAILS_SECRET;
+        delete process.env.CONTEXT;
+        return teardownMongo(mongo);
+    });
 
     // This mirrors the shape returned by getExchangePayload() in src/exchange/state.js:166-174
     const fePayload = {
@@ -113,6 +123,15 @@ describe('api-exchange-post contract', () => {
                 expect(p).not.toHaveProperty('token');
                 expect(p).not.toHaveProperty('_id');
             });
+        });
+
+        it('response contains emailsFailed array', async () => {
+            const event = buildEvent('POST', {body: fePayload});
+            const response = await handler(event);
+            const body = JSON.parse(response.body);
+
+            expect(body).toHaveProperty('emailsFailed');
+            expect(Array.isArray(body.emailsFailed)).toBe(true);
         });
     });
 });

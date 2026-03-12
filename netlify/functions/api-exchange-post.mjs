@@ -1,6 +1,7 @@
 import {getExchangesCollection, getUsersCollection} from "../shared/db.mjs";
 import {apiHandler, validateBody} from "../shared/middleware.mjs";
 import {badRequest, ok} from "../shared/responses.mjs";
+import {sendEmailsWithRetry} from "../shared/giverNotification.mjs";
 import {z} from "zod";
 import crypto from "crypto";
 
@@ -122,5 +123,12 @@ export const handler = apiHandler("POST", async (event) => {
     const exchangeDoc = buildExchangeDoc(data.exchangeId, data.isSecretSanta, data.houses, data.participants, data.assignments, userMap);
     await exchangesCol.insertOne(exchangeDoc);
 
-    return ok(buildResponse(data.exchangeId, data.participants));
+    const userByEmail = {};
+    data.participants.forEach(p => {
+        userByEmail[p.email] = userMap[p.name];
+    });
+
+    const {emailsFailed} = await sendEmailsWithRetry(data.participants, data.assignments, userByEmail);
+
+    return ok({...buildResponse(data.exchangeId, data.participants), emailsFailed});
 });
