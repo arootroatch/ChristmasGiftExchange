@@ -153,6 +153,15 @@ Local development requires the Netlify CLI and a MongoDB instance.
 
    This runs `netlify dev`, which starts the Vite dev server and proxies serverless function requests. Environment variables are loaded from `.env.local`.
 
+4. **Preview email templates** (optional):
+
+   ```bash
+   netlify build
+   npm run dev
+   ```
+
+   Then visit `localhost:8888/.netlify/functions/emails` to see rendered email previews.
+
 ### Submit a pull request
 
 If you'd like to contribute, please fork the repository and open a pull request to the 'main' branch.
