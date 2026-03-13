@@ -59,7 +59,7 @@ export async function sendEmailsWithRetry(participants, assignments, userByEmail
 }
 
 export async function sendNotificationEmail(templateName, to, subject, parameters) {
-    if (process.env.CONTEXT !== "production") {
+    if (process.env.CONTEXT === "dev") {
         console.log(`[DEV EMAIL] Template: ${templateName} | To: ${to} | Subject: ${subject}`);
         console.log("[DEV EMAIL] Parameters:", JSON.stringify(parameters, null, 2));
         return;
