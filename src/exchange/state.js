@@ -183,4 +183,7 @@ export function loadExchange(exchangeData) {
     if (house) house.name = h.name;
     h.members.forEach(name => addNameToHouse(houseID, name));
   });
+
+  state.step = 3;
+  exchangeEvents.emit(ExchangeEvents.NEXT_STEP, {isReuse: true, ...state});
 }

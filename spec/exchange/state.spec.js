@@ -495,6 +495,24 @@ describe('state helper functions', () => {
       unsubscribe();
     });
 
+    it('sets step to 3', () => {
+      loadExchange(exchangeData);
+
+      expect(getState().step).toBe(3);
+    });
+
+    it('emits NEXT_STEP with step 3 and isReuse flag', () => {
+      const spy = vi.fn();
+      const unsubscribe = stateEvents.on(Events.NEXT_STEP, spy);
+
+      loadExchange(exchangeData);
+
+      expect(spy).toHaveBeenCalledWith(
+        expect.objectContaining({step: 3, isReuse: true})
+      );
+      unsubscribe();
+    });
+
     it('handles exchange data with no houses', () => {
       const noHousesData = {
         isSecretSanta: false,

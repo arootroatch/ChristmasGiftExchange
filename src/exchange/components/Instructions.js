@@ -7,6 +7,8 @@ export const instructions = [
   `<span style="font-weight:bold">Step 3 / 4:</span> Click "Generate List!"`,
 ];
 
+export const reuseInstruction = `<span style="font-weight:bold">Welcome back!</span><br><br>You can make any changes to the exchange that you wish -- add or delete a house, add or delete a participant, move participants around between houses -- then click "Generate List"!`;
+
 const introId = "intro";
 let animating = false;
 
@@ -50,12 +52,19 @@ function attachButtonHandlers() {
   if (secretSantaBtn) secretSantaBtn.onclick = secretSantaMode;
 }
 
-function renderStepInstructions({step}) {
+function renderStepInstructions({step, isReuse}) {
   if (!step || step < 1 || step > instructions.length) return;
   const introDiv = selectElement(`#${introId}`);
   if (!introDiv) return;
 
-  const newContent = `<p class="slide-in-right">${instructions[step - 1]}</p>`;
+  const text = isReuse ? reuseInstruction : instructions[step - 1];
+  const newContent = `<p class="slide-in-right">${text}</p>`;
+
+  if (isReuse) {
+    introDiv.innerHTML = newContent;
+    return;
+  }
+
   const paragraph = introDiv.querySelector('p.slide-in-right');
 
   // First render or no animated paragraph yet — just replace

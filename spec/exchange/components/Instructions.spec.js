@@ -1,6 +1,6 @@
 import {beforeAll, beforeEach, describe, expect, it} from "vitest";
 import {init as initInstructions, render as renderInstructions, resetAnimating} from "../../../src/exchange/components/Instructions";
-import {nextStep} from "../../../src/exchange/state";
+import {loadExchange, nextStep} from "../../../src/exchange/state";
 import {resetDOM, resetState} from "../../specHelper";
 
 describe("instructions", () => {
@@ -72,6 +72,35 @@ describe("instructions", () => {
 
       const newP = document.querySelector("#intro p");
       expect(newP.innerHTML).toContain("Step 2 / 4");
+    });
+  });
+
+  describe("reuse exchange instructions", () => {
+    const exchangeData = {
+      isSecretSanta: false,
+      houses: [{name: "Group 1", members: ["Alex"]}],
+      participants: [{name: "Alex", email: "alex@test.com"}, {name: "Whitney", email: "w@test.com"}]
+    };
+
+    it("shows welcome back message when loading a reused exchange", () => {
+      loadExchange(exchangeData);
+
+      const intro = document.querySelector("#intro p");
+      expect(intro.textContent).toContain("Welcome back!");
+    });
+
+    it("shows instructions to modify exchange and generate", () => {
+      loadExchange(exchangeData);
+
+      const intro = document.querySelector("#intro p");
+      expect(intro.textContent).toContain("Generate List");
+    });
+
+    it("does not show step 1 instructions", () => {
+      loadExchange(exchangeData);
+
+      const intro = document.querySelector("#intro p");
+      expect(intro.textContent).not.toContain("Step 1");
     });
   });
 });
