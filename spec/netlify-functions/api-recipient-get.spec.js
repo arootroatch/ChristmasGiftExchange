@@ -131,7 +131,7 @@ describe('api-recipient-get', () => {
     });
 
     it('falls back to legacy collection when not in new collections', async () => {
-        await db.collection('legacy-names').insertOne({
+        await db.collection('names').insertOne({
             email: 'old@test.com',
             recipient: 'Legacy Recipient',
             date: new Date('2023-12-01'),

@@ -8,10 +8,8 @@ const dryRun = process.argv.includes('--dry-run');
 async function main() {
     const uri = process.env.MONGO_DB_URI;
     const dbName = process.env.MONGODB_DATABASE;
-    const collectionName = process.env.MONGODB_COLLECTION;
-
-    if (!uri || !dbName || !collectionName) {
-        console.error('Missing required env vars: MONGO_DB_URI, MONGODB_DATABASE, MONGODB_COLLECTION');
+    if (!uri || !dbName) {
+        console.error('Missing required env vars: MONGO_DB_URI, MONGODB_DATABASE');
         process.exit(1);
     }
 
@@ -22,7 +20,7 @@ async function main() {
     try {
         await client.connect();
         const db = client.db(dbName);
-        const result = await migrateLegacyData(db, collectionName, {dryRun});
+        const result = await migrateLegacyData(db, "names", {dryRun});
         console.log('Result:', JSON.stringify(result, null, 2));
     } finally {
         await client.close();

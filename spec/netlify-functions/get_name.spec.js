@@ -9,13 +9,13 @@ describe('get_name', () => {
     beforeAll(async () => {
         mongo = await setupMongo();
         ({db} = mongo);
-        collection = db.collection(process.env.MONGODB_COLLECTION);
+        collection = db.collection("names");
         const module = await import('../../netlify/functions/get_name.mjs');
         handler = module.handler;
     });
 
     afterEach(async () => {
-        await cleanCollections(db, process.env.MONGODB_COLLECTION);
+        await cleanCollections(db, "names");
     });
 
     afterAll(async () => {

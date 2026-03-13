@@ -7,7 +7,7 @@ const handler = async (event) => {
   let docs = JSON.parse(event.body);
   try {
     const database = (await clientPromise).db(process.env.MONGODB_DATABASE);
-    const collection = database.collection(process.env.MONGODB_COLLECTION);
+    const collection = database.collection("names");
 
     return collection.insertMany(docs).then((result) => {
       return {

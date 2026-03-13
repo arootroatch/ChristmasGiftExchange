@@ -4,7 +4,7 @@ import * as snackbar from '../../Snackbar.js';
 function template() {
     return `<section id="contact-section">
         <h2>Send Contact Info to Your Secret Santa</h2>
-        <p class="helper-text">This information will be emailed directly to your Secret Santa and will NOT be stored.</p>
+        <p class="helper-text">This information will be emailed directly to your Secret Santa and will NOT be stored in our database. Our email servers automatically delete email history after 45 days.</p>
         <label for="contact-address">Shipping Address</label>
         <textarea id="contact-address" rows="3" placeholder="123 Main St, City, State 12345"></textarea>
         <label for="contact-phone">Phone Number</label>

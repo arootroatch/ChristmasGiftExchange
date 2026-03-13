@@ -179,6 +179,8 @@ Pushes to `main` trigger a GitHub Actions workflow:
 3. **Staging deploy** — Netlify draft deploy (requires both test jobs to pass)
 4. **Production deploy** — Manual approval gate via GitHub environment protection rules
 
+Non-production deploys use a separate staging database so preview and branch deploy activity doesn't affect production data.
+
 ### Submit a pull request
 
 If you'd like to contribute, please fork the repository and open a pull request to the 'main' branch.

@@ -27,5 +27,5 @@ export async function getExchangesCollection() {
 
 export async function getLegacyCollection() {
     const db = await getDb();
-    return db.collection(process.env.MONGODB_COLLECTION);
+    return db.collection("names");
 }

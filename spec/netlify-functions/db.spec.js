@@ -54,10 +54,10 @@ describe('db utility', () => {
     });
 
     describe('getLegacyCollection', () => {
-        it('returns the legacy collection using MONGODB_COLLECTION env var', async () => {
+        it('returns the legacy "names" collection', async () => {
             const collection = await getLegacyCollection();
             expect(collection).toBeDefined();
-            expect(collection.collectionName).toBe('legacy-names');
+            expect(collection.collectionName).toBe('names');
         });
     });
 });

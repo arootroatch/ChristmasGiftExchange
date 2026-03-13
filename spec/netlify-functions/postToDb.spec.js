@@ -13,7 +13,7 @@ describe('postToDb', () => {
     });
 
     afterEach(async () => {
-        await cleanCollections(db, process.env.MONGODB_COLLECTION);
+        await cleanCollections(db, "names");
     });
 
     afterAll(async () => {
@@ -38,7 +38,7 @@ describe('postToDb', () => {
             expect(response.result.insertedCount).toBe(2);
 
             // Verify documents were actually inserted
-            const collection = db.collection(process.env.MONGODB_COLLECTION);
+            const collection = db.collection("names");
             const insertedDocs = await collection.find({}).toArray();
 
             expect(insertedDocs).toHaveLength(2);
@@ -58,7 +58,7 @@ describe('postToDb', () => {
 
             await handler(event);
 
-            const collection = db.collection(process.env.MONGODB_COLLECTION);
+            const collection = db.collection("names");
             const insertedDocs = await collection.find({}).toArray();
 
             expect(insertedDocs).toHaveLength(2);
@@ -89,7 +89,7 @@ describe('postToDb', () => {
             expect(response.statusCode).toBe(200);
             expect(response.result.insertedCount).toBe(1);
 
-            const collection = db.collection(process.env.MONGODB_COLLECTION);
+            const collection = db.collection("names");
             const insertedDocs = await collection.find({}).toArray();
 
             expect(insertedDocs).toHaveLength(1);
@@ -113,7 +113,7 @@ describe('postToDb', () => {
             expect(response.statusCode).toBe(200);
             expect(response.result.insertedCount).toBe(4);
 
-            const collection = db.collection(process.env.MONGODB_COLLECTION);
+            const collection = db.collection("names");
             const insertedDocs = await collection.find({}).toArray();
 
             expect(insertedDocs).toHaveLength(4);
@@ -133,7 +133,7 @@ describe('postToDb', () => {
 
             await handler(event);
 
-            const collection = db.collection(process.env.MONGODB_COLLECTION);
+            const collection = db.collection("names");
             const insertedDocs = await collection.find({}).toArray();
 
             expect(insertedDocs[0].name).toBe('Test User');
@@ -158,7 +158,7 @@ describe('postToDb', () => {
 
             expect(response.statusCode).toBe(200);
 
-            const collection = db.collection(process.env.MONGODB_COLLECTION);
+            const collection = db.collection("names");
             const insertedDocs = await collection.find({}).toArray();
 
             expect(insertedDocs[0].name).toBe("O'Brien");

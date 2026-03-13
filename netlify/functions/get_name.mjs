@@ -7,7 +7,7 @@ const handler = async (event) => {
   let email = String(event.body).trim();
   try {
     const database = (await clientPromise).db(process.env.MONGODB_DATABASE);
-    const collection = database.collection(process.env.MONGODB_COLLECTION);
+    const collection = database.collection("names");
 
     const results = await collection
       .find({ email: email })
