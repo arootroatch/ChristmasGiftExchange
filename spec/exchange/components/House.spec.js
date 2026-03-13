@@ -61,7 +61,7 @@ describe('addHouse', () => {
     const scrollSpy = vi.spyOn(window.Element.prototype, 'scrollIntoView');
     addHouseToDOM();
 
-    expect(scrollSpy).toHaveBeenLastCalledWith({behavior: 'smooth', block: 'nearest'});
+    expect(scrollSpy).toHaveBeenLastCalledWith({behavior: 'smooth', block: 'end'});
     scrollSpy.mockRestore();
   });
 });

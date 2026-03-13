@@ -102,5 +102,25 @@ describe("instructions", () => {
       const intro = document.querySelector("#intro p");
       expect(intro.textContent).not.toContain("Step 1");
     });
+
+    it("adds secret class to left-container when reusing secret santa exchange", () => {
+      const secretExchangeData = {
+        isSecretSanta: true,
+        houses: [{name: "Group 1", members: ["Alex"]}],
+        participants: [{name: "Alex", email: "alex@test.com"}, {name: "Whitney", email: "w@test.com"}]
+      };
+
+      loadExchange(secretExchangeData);
+
+      const leftContainer = document.querySelector("#left-container");
+      expect(leftContainer.classList.contains("secret")).toBe(true);
+    });
+
+    it("does not add secret class when reusing non-secret-santa exchange", () => {
+      loadExchange(exchangeData);
+
+      const leftContainer = document.querySelector("#left-container");
+      expect(leftContainer.classList.contains("secret")).toBe(false);
+    });
   });
 });

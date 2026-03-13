@@ -7,7 +7,7 @@ export const instructions = [
   `<span style="font-weight:bold">Step 3 / 4:</span> Click "Generate List!"`,
 ];
 
-export const reuseInstruction = `<span style="font-weight:bold">Welcome back!</span><br><br>You can make any changes to the exchange that you wish -- add or delete a house, add or delete a participant, move participants around between houses -- then click "Generate List"!`;
+export const reuseInstruction = `<span style="font-weight:bold">Welcome back!</span><br><br>You can make any changes to the exchange that you wish -- add or delete a group, add or delete a participant, move participants around between groups -- then click "Generate List"!<br><br>Remember, names under "Participant Names" can be matched with anybody, and names in a group won't be matched with anyone in the same group.`;
 
 const introId = "intro";
 let animating = false;
@@ -52,7 +52,7 @@ function attachButtonHandlers() {
   if (secretSantaBtn) secretSantaBtn.onclick = secretSantaMode;
 }
 
-function renderStepInstructions({step, isReuse}) {
+function renderStepInstructions({step, isReuse, isSecretSanta}) {
   if (!step || step < 1 || step > instructions.length) return;
   const introDiv = selectElement(`#${introId}`);
   if (!introDiv) return;
@@ -61,6 +61,9 @@ function renderStepInstructions({step, isReuse}) {
   const newContent = `<p class="slide-in-right">${text}</p>`;
 
   if (isReuse) {
+    if (isSecretSanta) {
+      selectElement(`#${leftContainerId}`).classList.add("secret");
+    }
     introDiv.innerHTML = newContent;
     return;
   }

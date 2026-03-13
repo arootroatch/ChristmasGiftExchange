@@ -17,7 +17,7 @@ function onHouseAdded({houseID, houses}) {
   const html = template(houseID, house.name);
   pushHTML(`#${leftContainerId}`, html);
   attachListeners(houseID);
-  selectElement(`#${houseID}`)?.scrollIntoView({behavior: 'smooth', block: 'nearest'});
+  selectElement(`#${houseID}`)?.scrollIntoView({behavior: 'smooth', block: 'end'});
 }
 
 function onHouseRemoved({houseID}) {
