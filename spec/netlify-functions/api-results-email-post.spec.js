@@ -1,11 +1,18 @@
-import {afterAll, beforeAll, describe, expect, it, vi} from 'vitest';
+import {afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi} from 'vitest';
 
 describe('api-results-email-post', () => {
     let handler;
+    const originalContext = process.env.CONTEXT;
 
     beforeAll(async () => {
+        process.env.CONTEXT = 'dev';
         const module = await import('../../netlify/functions/api-results-email-post.mjs');
         handler = module.handler;
+    });
+
+    afterAll(() => {
+        if (originalContext === undefined) delete process.env.CONTEXT;
+        else process.env.CONTEXT = originalContext;
     });
 
     function buildEvent(body) {
