@@ -1,7 +1,7 @@
 import {ExchangeEvents as Events, exchangeEvents as stateEvents, startExchange} from "../state.js";
 import {leftContainerId, selectElement} from "../../utils.js";
 
-export const reuseInstruction = `<span style="font-weight:bold">Welcome back!</span><br><br>You can make any changes to the exchange that you wish -- add or delete a group, add or delete a participant, move participants around between groups -- then click "Generate List"!<br><br>Remember, names under "Participant Names" can be matched with anybody, and names in a group won't be matched with anyone in the same group.`;
+const reuseInstruction = `<span style="font-weight:bold">Welcome back!</span><br><br>You can make any changes to the exchange that you wish -- add or delete a group, add or delete a participant, move participants around between groups -- then click "Generate List"!<br><br>Remember, names under "Participant Names" can be matched with anybody, and names in a group won't be matched with anyone in the same group.`;
 
 const introId = "intro";
 let animating = false;

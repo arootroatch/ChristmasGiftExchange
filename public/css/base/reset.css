@@ -106,16 +106,6 @@ h1 {
   }
 }
 
-/* Desktop: always show full, hide summary */
-#intro.instruction-collapsed .instruction-summary,
-#intro.instruction-expanded .instruction-summary {
-  display: none;
-}
-
-#intro.instruction-collapsed .instruction-full,
-#intro.instruction-expanded .instruction-full {
-  display: block;
-}
 
 @keyframes slideOutLeft {
   from { opacity: 1; transform: translateX(0); }
