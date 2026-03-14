@@ -4,6 +4,7 @@ import {
   click,
   enterName,
   initReactiveSystem,
+  installParticipantNames,
   moveNameToHouse,
   removeAllHouses,
   removeAllNames,
@@ -15,7 +16,6 @@ import {
 } from "../../../specHelper";
 import * as generateButtonModule from "../../../../src/exchange/components/ControlStrip/GenerateButton";
 import {init as initControlStrip} from "../../../../src/exchange/components/ControlStrip/ControlStrip";
-import {init as initNextStepButton} from "../../../../src/exchange/components/ControlStrip/NextStepButton";
 import {init as initGenerateButton, generateList} from "../../../../src/exchange/components/ControlStrip/GenerateButton";
 import {init as initResultsTable} from "../../../../src/exchange/components/ResultsTable";
 import {init as initEmailTable} from "../../../../src/exchange/components/EmailTable/EmailTable";
@@ -28,7 +28,6 @@ describe("generateButton", () => {
   beforeAll(() => {
     initReactiveSystem();
     initControlStrip();
-    initNextStepButton();
     initGenerateButton();
     initEmailTable();
   });
@@ -41,25 +40,14 @@ describe("generateButton", () => {
     vi.restoreAllMocks();
   });
 
-  it("is not rendered at step 1", () => {
+  it("is not rendered before any participants added", () => {
     resetState();
     expect(selectElement("#generate")).toBeNull();
   });
 
-  it("is not rendered at step 2", () => {
+  it("renders after first participant added", () => {
     resetState();
     addParticipant("Alex");
-    click("#nextStep"); // step 2
-    expect(getState().step).toBe(2);
-    expect(selectElement("#generate")).toBeNull();
-  });
-
-  it("renders at step 3", () => {
-    resetState();
-    addParticipant("Alex");
-    click("#nextStep"); // step 2
-    click("#nextStep"); // step 3
-    expect(getState().step).toBe(3);
     expect(selectElement("#generate")).not.toBeNull();
   });
 
@@ -67,20 +55,24 @@ describe("generateButton", () => {
     const spy = vi.spyOn(generateButtonModule, "generateList").mockImplementation(() => {});
     resetState();
     addParticipant("Alex");
-    click("#nextStep"); // step 2
-    click("#nextStep"); // step 3
     click("#generate");
     expect(spy).toHaveBeenCalledTimes(1);
   });
 
-  it("is removed at step 4", () => {
+  it("is removed after recipients assigned in non-secret-santa mode", () => {
     resetState();
     addParticipant("Alex");
-    click("#nextStep"); // step 2
-    click("#nextStep"); // step 3
-    assignRecipients(["Whitney"]);
-    click("#nextStep"); // step 4
-    expect(getState().step).toBe(4);
+    installParticipantNames("Whitney");
+    assignRecipients(["Whitney", "Alex"]);
+    expect(selectElement("#generate")).toBeNull();
+  });
+
+  it("is removed after recipients assigned in secret santa mode", () => {
+    resetState();
+    getState().isSecretSanta = true;
+    addParticipant("Alex");
+    installParticipantNames("Whitney");
+    assignRecipients(["Whitney", "Alex"]);
     expect(selectElement("#generate")).toBeNull();
   });
 
@@ -96,21 +88,17 @@ describe("generateButton", () => {
       resetState();
     });
 
-    it("triggers at step 3 (button rendered)", () => {
+    it("triggers when button is rendered", () => {
       const spy = vi.spyOn(generateButtonModule, "generateList").mockImplementation(() => {});
       resetState();
       addParticipant("Alex");
-      click("#nextStep"); // step 2
-      click("#nextStep"); // step 3
       dispatchCtrlEnter();
       expect(spy).toHaveBeenCalledTimes(1);
     });
 
-    it("does not trigger at step 2 (button not rendered)", () => {
+    it("does not trigger before participants added", () => {
       const spy = vi.spyOn(generateButtonModule, "generateList");
       resetState();
-      addParticipant("Alex");
-      click("#nextStep"); // step 2
       dispatchCtrlEnter();
       expect(spy).not.toHaveBeenCalled();
     });
@@ -124,8 +112,6 @@ describe("generateButton", () => {
       resetDOM();
       resetState();
       addParticipant("Alex");
-      click("#nextStep"); // step 2
-      click("#nextStep"); // step 3
       dispatchCtrlEnter();
       expect(spy).not.toHaveBeenCalled();
       Object.defineProperty(navigator, "userAgent", { value: originalUA, configurable: true });
@@ -172,11 +158,9 @@ describe("generateList", () => {
   it('works properly with event listener', () => {
     enterName("Alex");
     enterName("Whitney");
-    click("#nextStep"); // step 2
     addHouseToDOM();
     moveNameToHouse("#house-0-select", "Alex");
     moveNameToHouse("#house-0-select", "Whitney");
-    click("#nextStep"); // step 3 — generate button renders
     click("#generate");
     shouldDisplayErrorSnackbar(noPossibleComboError);
   });
@@ -234,14 +218,13 @@ describe("generateList", () => {
     shouldDisplayEmailTable("Alex", "Whitney");
   });
 
-  it('should hide secretGenerate and nextStep buttons in Secret Santa mode after generating', () => {
+  it('should hide generate button in Secret Santa mode after generating', () => {
     getState().isSecretSanta = true;
     enterName("Alex");
     enterName("Whitney");
 
     generateList();
     shouldNotSelect("#generate");
-    shouldNotSelect("#nextStep");
   });
 
   it('calls assignRecipients when not secret santa', async () => {
