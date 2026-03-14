@@ -15,7 +15,6 @@ function template() {
       <div id="btn-div">
         <div data-slot="generate"></div>
         <div data-slot="addHouse"></div>
-        <div data-slot="nextStep"></div>
       </div>
     </div>
   `;

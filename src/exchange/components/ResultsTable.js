@@ -1,5 +1,5 @@
-import {pushHTML, selectElement} from "../../utils.js";
-import {ExchangeEvents as Events, exchangeEvents as stateEvents} from "../state.js";
+import {addEventListener, pushHTML, selectElement} from "../../utils.js";
+import {ExchangeEvents as Events, exchangeEvents as stateEvents, requestEmailResults} from "../state.js";
 
 const tableId = "results-table";
 const tableBodyId = "table-body";
@@ -7,7 +7,10 @@ const flexDivSelector = "#flex-div";
 
 function template() {
   return `<div class="results-card" id="${tableId}">
-    <h2>Results</h2>
+    <div class="results-card-header">
+      <h2>Results</h2>
+      <div id="email-results-slot"></div>
+    </div>
     <div class="results-header">
       <span>Giver</span>
       <span></span>
@@ -15,6 +18,13 @@ function template() {
     </div>
     <div id="${tableBodyId}"></div>
   </div>`;
+}
+
+function renderEmailResultsButton() {
+  const slot = selectElement("#email-results-slot");
+  if (!slot) return;
+  slot.innerHTML = `<button class="btn-bottom" id="email-results-btn">Email Results</button>`;
+  addEventListener("#email-results-btn", "click", requestEmailResults);
 }
 
 function render() {
@@ -59,6 +69,7 @@ export function init() {
   stateEvents.on(Events.RECIPIENTS_ASSIGNED, ({isGenerated, isSecretSanta, assignments}) => {
     if (isGenerated && !isSecretSanta) {
       renderResults(assignments);
+      renderEmailResultsButton();
     }
   });
 }

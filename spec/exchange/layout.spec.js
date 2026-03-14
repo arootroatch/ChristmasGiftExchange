@@ -1,5 +1,5 @@
 import {afterEach, beforeAll, beforeEach, describe, expect, it, vi} from 'vitest';
-import {addParticipant, getState, startExchange} from '../../src/exchange/state';
+import {getState} from '../../src/exchange/state';
 import {initReactiveSystem, resetDOM} from "../specHelper";
 import {secretSantaMode, render as renderInstructions} from "../../src/exchange/components/Instructions";
 
@@ -61,16 +61,6 @@ describe('layout', () => {
       secretSantaBtn.click();
 
       expect(getState().isSecretSanta).toBe(true);
-    });
-
-    it('nextStep button has click listener attached', () => {
-      startExchange(false);
-      addParticipant("Alex");
-      const nextStepBtn = document.querySelector("#nextStep");
-
-      nextStepBtn.click();
-
-      expect(getState().step).toBeGreaterThan(1);
     });
   });
 });

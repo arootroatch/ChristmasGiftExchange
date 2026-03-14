@@ -35,10 +35,6 @@ vi.mock('../../src/exchange/components/ControlStrip/ControlStrip', () => ({
   init: vi.fn(),
 }));
 
-vi.mock('../../src/exchange/components/ControlStrip/NextStepButton', () => ({
-  init: vi.fn(),
-}));
-
 vi.mock('../../src/exchange/components/ControlStrip/AddHouseButton', () => ({
   init: vi.fn(),
 }));
@@ -114,14 +110,6 @@ it('calls controlStrip.init', async () => {
   expect(init).toHaveBeenCalledTimes(1);
 });
 
-it('calls nextStepButton.init', async () => {
-  const {init} = await import('../../src/exchange/components/ControlStrip/NextStepButton');
-
-  main();
-
-  expect(init).toHaveBeenCalledTimes(1);
-});
-
 it('calls addHouseButton.init', async () => {
   const {init} = await import('../../src/exchange/components/ControlStrip/AddHouseButton');
 
@@ -191,7 +179,6 @@ it('calls generateButton.init', async () => {
     const select = await import('../../src/exchange/components/Select');
     const resultsTable = await import('../../src/exchange/components/ResultsTable');
     const controlStrip = await import('../../src/exchange/components/ControlStrip/ControlStrip');
-    const nextStepButton = await import('../../src/exchange/components/ControlStrip/NextStepButton');
     const addHouseButton = await import('../../src/exchange/components/ControlStrip/AddHouseButton');
     const generateButton = await import('../../src/exchange/components/ControlStrip/GenerateButton');
     const emailTable = await import('../../src/exchange/components/EmailTable/EmailTable');
@@ -208,7 +195,6 @@ it('calls generateButton.init', async () => {
     expect(select.init).toHaveBeenCalledTimes(1);
     expect(resultsTable.init).toHaveBeenCalledTimes(1);
     expect(controlStrip.init).toHaveBeenCalledTimes(1);
-    expect(nextStepButton.init).toHaveBeenCalledTimes(1);
     expect(addHouseButton.init).toHaveBeenCalledTimes(1);
     expect(generateButton.init).toHaveBeenCalledTimes(1);
     expect(emailTable.init).toHaveBeenCalledTimes(1);
@@ -223,7 +209,6 @@ it('calls generateButton.init', async () => {
     const selectOrder = select.init.mock.invocationCallOrder[0];
     const resultsTableOrder = resultsTable.init.mock.invocationCallOrder[0];
     const controlStripOrder = controlStrip.init.mock.invocationCallOrder[0];
-    const nextStepOrder = nextStepButton.init.mock.invocationCallOrder[0];
     const addHouseOrder = addHouseButton.init.mock.invocationCallOrder[0];
     const generateOrder = generateButton.init.mock.invocationCallOrder[0];
     const instructionsOrder = instructions.init.mock.invocationCallOrder[0];
@@ -237,8 +222,7 @@ it('calls generateButton.init', async () => {
     expect(nameOrder).toBeLessThan(selectOrder);
     expect(selectOrder).toBeLessThan(resultsTableOrder);
     expect(resultsTableOrder).toBeLessThan(controlStripOrder);
-    expect(controlStripOrder).toBeLessThan(nextStepOrder);
-    expect(nextStepOrder).toBeLessThan(addHouseOrder);
+    expect(controlStripOrder).toBeLessThan(addHouseOrder);
     expect(addHouseOrder).toBeLessThan(generateOrder);
     expect(generateOrder).toBeLessThan(instructionsOrder);
     expect(instructionsOrder).toBeLessThan(emailTableOrder);

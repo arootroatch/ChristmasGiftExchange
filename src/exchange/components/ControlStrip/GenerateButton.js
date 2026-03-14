@@ -15,17 +15,14 @@ function enterGenerate(evt) {
 }
 
 export function init() {
-  stateEvents.on(Events.NEXT_STEP, ({step}) => {
-    if (step === 3) {
-      render();
-    } else {
-      remove();
-    }
+  stateEvents.on(Events.EXCHANGE_STARTED, () => {
+    remove();
   });
-  stateEvents.on(Events.RECIPIENTS_ASSIGNED, ({isSecretSanta}) => {
-    if (isSecretSanta) {
-      remove();
-    }
+  stateEvents.on(Events.PARTICIPANT_ADDED, () => {
+    render();
+  });
+  stateEvents.on(Events.RECIPIENTS_ASSIGNED, () => {
+    remove();
   });
 }
 

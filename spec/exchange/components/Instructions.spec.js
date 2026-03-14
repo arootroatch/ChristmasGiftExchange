@@ -1,7 +1,17 @@
 import {beforeAll, beforeEach, describe, expect, it} from "vitest";
-import {init as initInstructions, render as renderInstructions, resetAnimating} from "../../../src/exchange/components/Instructions";
-import {loadExchange, nextStep} from "../../../src/exchange/state";
-import {resetDOM, resetState} from "../../specHelper";
+import {
+  init as initInstructions,
+  render as renderInstructions,
+  resetAnimating
+} from "../../../src/exchange/components/Instructions";
+import {
+  addParticipant,
+  assignRecipients,
+  startExchange,
+  loadExchange,
+  getState
+} from "../../../src/exchange/state";
+import {installParticipantNames, resetDOM, resetState} from "../../specHelper";
 
 describe("instructions", () => {
   beforeAll(() => {
@@ -30,48 +40,133 @@ describe("instructions", () => {
     });
   });
 
-  describe("step instructions", () => {
-    it("renders Step 1 after exchange starts", () => {
-      resetState();
+  describe("exchange started", () => {
+    it("shows 'Add Participants' instruction after exchange starts", () => {
+      startExchange(false);
       const intro = document.querySelector("#intro");
-      expect(intro.innerHTML).toContain("Step 1 / 4");
+      expect(intro.textContent).toContain("Add Participants");
     });
 
-    it("applies slide-in-right class on first render", () => {
-      resetState();
-      const p = document.querySelector("#intro p");
-      expect(p.classList.contains("slide-in-right")).toBe(true);
+    it("shows instruction about unique names", () => {
+      startExchange(false);
+      const intro = document.querySelector("#intro");
+      expect(intro.textContent).toContain("unique");
     });
 
-    it("updates content on NEXT_STEP after animationend", () => {
-      resetState();
-      nextStep(3);
+    it("renders summary and full text for mobile collapsible", () => {
+      startExchange(false);
+      const summary = document.querySelector(".instruction-summary");
+      const full = document.querySelector(".instruction-full");
+      expect(summary).not.toBeNull();
+      expect(full).not.toBeNull();
+    });
+  });
 
-      const oldP = document.querySelector("#intro p");
-      expect(oldP.classList.contains("slide-out-left")).toBe(true);
-      expect(oldP.textContent).toContain("Step 1 / 4");
+  describe("first participant added", () => {
+    it("updates to exclusion groups instruction", () => {
+      startExchange(false);
+      addParticipant("Alex");
 
-      oldP.dispatchEvent(new Event("animationend"));
+      const animatingEl = document.querySelector('.slide-out-left');
+      if (animatingEl) animatingEl.dispatchEvent(new Event('animationend'));
 
-      const newP = document.querySelector("#intro p");
-      expect(newP.innerHTML).toContain("Step 2 / 4");
-      expect(newP.classList.contains("slide-in-right")).toBe(true);
+      const intro = document.querySelector("#intro");
+      expect(intro.textContent).toContain("Exclusion Groups");
     });
 
-    it("drops rapid clicks while animating", () => {
-      resetState();
-      nextStep(3);
+    it("mentions Generate List", () => {
+      startExchange(false);
+      addParticipant("Alex");
 
-      const oldP = document.querySelector("#intro p");
-      nextStep(3);
+      const animatingEl = document.querySelector('.slide-out-left');
+      if (animatingEl) animatingEl.dispatchEvent(new Event('animationend'));
 
-      expect(oldP.classList.contains("slide-out-left")).toBe(true);
-      expect(oldP.textContent).toContain("Step 1 / 4");
+      const intro = document.querySelector("#intro");
+      expect(intro.textContent).toContain("Generate List");
+    });
 
-      oldP.dispatchEvent(new Event("animationend"));
+    it("does not update on subsequent participant adds", () => {
+      startExchange(false);
+      addParticipant("Alex");
 
-      const newP = document.querySelector("#intro p");
-      expect(newP.innerHTML).toContain("Step 2 / 4");
+      const animatingEl = document.querySelector('.slide-out-left');
+      if (animatingEl) animatingEl.dispatchEvent(new Event('animationend'));
+
+      const firstContent = document.querySelector("#intro").innerHTML;
+
+      addParticipant("Whitney");
+      expect(document.querySelector("#intro").innerHTML).toBe(firstContent);
+    });
+  });
+
+  describe("recipients assigned", () => {
+    it("updates to results instruction", () => {
+      startExchange(false);
+      addParticipant("Alex");
+
+      let animatingEl = document.querySelector('.slide-out-left');
+      if (animatingEl) animatingEl.dispatchEvent(new Event('animationend'));
+
+      installParticipantNames("Whitney");
+      assignRecipients(["Whitney", "Alex"]);
+
+      animatingEl = document.querySelector('.slide-out-left');
+      if (animatingEl) animatingEl.dispatchEvent(new Event('animationend'));
+
+      const intro = document.querySelector("#intro");
+      expect(intro.textContent).toContain("Results");
+    });
+
+    it("mentions Email Results for non-secret-santa", () => {
+      startExchange(false);
+      addParticipant("Alex");
+
+      let animatingEl = document.querySelector('.slide-out-left');
+      if (animatingEl) animatingEl.dispatchEvent(new Event('animationend'));
+
+      installParticipantNames("Whitney");
+      assignRecipients(["Whitney", "Alex"]);
+
+      animatingEl = document.querySelector('.slide-out-left');
+      if (animatingEl) animatingEl.dispatchEvent(new Event('animationend'));
+
+      const intro = document.querySelector("#intro");
+      expect(intro.textContent).toContain("Email Results");
+    });
+
+    it("shows secret santa specific text in secret santa mode", () => {
+      startExchange(true);
+      addParticipant("Alex");
+
+      let animatingEl = document.querySelector('.slide-out-left');
+      if (animatingEl) animatingEl.dispatchEvent(new Event('animationend'));
+
+      installParticipantNames("Whitney");
+      assignRecipients(["Whitney", "Alex"]);
+
+      animatingEl = document.querySelector('.slide-out-left');
+      if (animatingEl) animatingEl.dispatchEvent(new Event('animationend'));
+
+      const intro = document.querySelector("#intro");
+      expect(intro.textContent).toContain("Secret Santa");
+      expect(intro.textContent).not.toContain("Email Results");
+    });
+  });
+
+  describe("mobile collapsible", () => {
+    it("toggles collapsed/expanded on click", () => {
+      startExchange(false);
+      const intro = document.querySelector("#intro");
+
+      expect(intro.classList.contains("instruction-collapsed")).toBe(true);
+
+      intro.click();
+      expect(intro.classList.contains("instruction-expanded")).toBe(true);
+      expect(intro.classList.contains("instruction-collapsed")).toBe(false);
+
+      intro.click();
+      expect(intro.classList.contains("instruction-collapsed")).toBe(true);
+      expect(intro.classList.contains("instruction-expanded")).toBe(false);
     });
   });
 
@@ -85,29 +180,21 @@ describe("instructions", () => {
     it("shows welcome back message when loading a reused exchange", () => {
       loadExchange(exchangeData);
 
-      const intro = document.querySelector("#intro p");
+      const intro = document.querySelector("#intro p, #intro .instruction-full");
       expect(intro.textContent).toContain("Welcome back!");
     });
 
     it("shows instructions to modify exchange and generate", () => {
       loadExchange(exchangeData);
 
-      const intro = document.querySelector("#intro p");
+      const intro = document.querySelector("#intro");
       expect(intro.textContent).toContain("Generate List");
-    });
-
-    it("does not show step 1 instructions", () => {
-      loadExchange(exchangeData);
-
-      const intro = document.querySelector("#intro p");
-      expect(intro.textContent).not.toContain("Step 1");
     });
 
     it("adds secret class to left-container when reusing secret santa exchange", () => {
       const secretExchangeData = {
+        ...exchangeData,
         isSecretSanta: true,
-        houses: [{name: "Group 1", members: ["Alex"]}],
-        participants: [{name: "Alex", email: "alex@test.com"}, {name: "Whitney", email: "w@test.com"}]
       };
 
       loadExchange(secretExchangeData);

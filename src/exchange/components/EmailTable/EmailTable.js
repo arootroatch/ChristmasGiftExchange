@@ -16,10 +16,8 @@ export function init() {
       render(state);
     }
   });
-  stateEvents.on(Events.NEXT_STEP, (state) => {
-    if (state.step === 4) {
-      render(state);
-    }
+  stateEvents.on(Events.EMAIL_RESULTS_REQUESTED, (state) => {
+    render(state);
   });
   stateEvents.on(Events.EXCHANGE_STARTED, () => {
     const emailTable = selectElement(`#${emailTableId}`);

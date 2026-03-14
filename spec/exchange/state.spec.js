@@ -12,7 +12,6 @@ import {
   getIndividualParticipants,
   getParticipantNames,
   loadExchange,
-  nextStep,
   removeParticipant,
   removeHouseFromState,
   removeNameFromHouse,
@@ -31,11 +30,20 @@ test('state exists as an object before exchange starts', () => {
 test('startExchange initializes state', () => {
   startExchange();
   expect(getState().houses).toEqual([]);
-  expect(getState().step).toEqual(1);
   expect(getState().isSecretSanta).toEqual(false);
   expect(getState().participants).toEqual([]);
   expect(getState().assignments).toEqual([]);
   expect(getState().nameNumber).toEqual(1);
+})
+
+it('emits EXCHANGE_STARTED with isReuse false for normal start', () => {
+  const spy = vi.fn();
+  const unsubscribe = stateEvents.on(Events.EXCHANGE_STARTED, spy);
+
+  startExchange(false);
+
+  expect(spy).toHaveBeenCalledWith(expect.objectContaining({isReuse: false}));
+  unsubscribe();
 })
 
 describe('exchangeId', () => {
@@ -357,25 +365,6 @@ describe('state helper functions', () => {
     });
   });
 
-  describe('nextStep', () => {
-    it('increments step and emits NEXT_STEP', () => {
-      const spy = vi.fn();
-      const unsubscribe = stateEvents.on(Events.NEXT_STEP, spy);
-
-      nextStep();
-
-      expect(getState().step).toBe(2);
-      expect(spy).toHaveBeenCalledWith(expect.objectContaining({step: 2}));
-      unsubscribe();
-    });
-
-    it('wraps to 0 when maxSteps is provided', () => {
-      getState().step = 3;
-      nextStep(3);
-      expect(getState().step).toBe(0);
-    });
-  });
-
   describe('getExchangePayload', () => {
     it('returns exchange data for POST body', () => {
       installParticipantNames("Alex", "Whitney");
@@ -495,21 +484,13 @@ describe('state helper functions', () => {
       unsubscribe();
     });
 
-    it('sets step to 3', () => {
-      loadExchange(exchangeData);
-
-      expect(getState().step).toBe(3);
-    });
-
-    it('emits NEXT_STEP with step 3 and isReuse flag', () => {
+    it('emits EXCHANGE_STARTED with isReuse true', () => {
       const spy = vi.fn();
-      const unsubscribe = stateEvents.on(Events.NEXT_STEP, spy);
+      const unsubscribe = stateEvents.on(Events.EXCHANGE_STARTED, spy);
 
       loadExchange(exchangeData);
 
-      expect(spy).toHaveBeenCalledWith(
-        expect.objectContaining({step: 3, isReuse: true})
-      );
+      expect(spy).toHaveBeenCalledWith(expect.objectContaining({isReuse: true}));
       unsubscribe();
     });
 

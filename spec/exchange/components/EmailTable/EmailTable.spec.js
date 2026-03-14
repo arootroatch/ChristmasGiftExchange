@@ -10,7 +10,7 @@ import {
   shouldDisplaySuccessSnackbar,
 } from "../../../specHelper";
 import "../../../../src/exchange/components/Name";
-import {assignRecipients, nextStep, startExchange, getState} from "../../../../src/exchange/state";
+import {assignRecipients, startExchange, getState, requestEmailResults} from "../../../../src/exchange/state";
 import {alex, whitney, hunter} from "../../../testData";
 import {
   emailInput,
@@ -50,12 +50,11 @@ function triggerEmailTableRenderWith3() {
   assignRecipients(["Whitney", "Hunter", "Alex"]);
 }
 
-function triggerNonSecretSantaStep4() {
+function triggerNonSecretSantaEmailTable() {
   getState().isSecretSanta = false;
   installGivers([{...alex}, {...whitney}]);
   assignRecipients(["Whitney", "Alex"]);
-  getState().step = 3;
-  nextStep();
+  requestEmailResults();
 }
 
 function submitEmailForm() {
@@ -100,22 +99,14 @@ describe('emailTable', () => {
       expect(document.querySelector("#emailTable")).toBeNull();
     });
 
-    it("renders on NEXT_STEP when step is 4", () => {
+    it("renders on EMAIL_RESULTS_REQUESTED", () => {
+      getState().isSecretSanta = false;
       installGivers([{...alex}, {...whitney}]);
-      getState().step = 3;
+      assignRecipients(["Whitney", "Alex"]);
 
-      nextStep();
+      requestEmailResults();
 
       shouldDisplayEmailTable("Alex", "Whitney");
-    });
-
-    it("does not render on NEXT_STEP when step is not 4", () => {
-      installGivers([{...alex}, {...whitney}]);
-      getState().step = 1;
-
-      nextStep();
-
-      expect(document.querySelector("#emailTable")).toBeNull();
     });
 
     it("clears container on EXCHANGE_STARTED", () => {
@@ -130,9 +121,9 @@ describe('emailTable', () => {
     it("displays dismiss button when not secret santa", () => {
       getState().isSecretSanta = false;
       installGivers([{...alex}, {...whitney}]);
-      getState().step = 3;
+      assignRecipients(["Whitney", "Alex"]);
 
-      nextStep();
+      requestEmailResults();
 
       const hideButton = document.querySelector("#hideEmails");
       expect(hideButton.style.display).toBe("block");
@@ -291,7 +282,7 @@ describe('emailTable', () => {
 
     it("does not show reveal warning in non-secret-santa mode", () => {
       document.querySelector("#emailTable")?.remove();
-      triggerNonSecretSantaStep4();
+      triggerNonSecretSantaEmailTable();
 
       document.querySelector("#sendResultsBtn").click();
       expect(document.querySelector("#sendResultsConfirm").textContent).not.toContain("reveal all gift exchange assignments");
@@ -361,7 +352,7 @@ describe('emailTable', () => {
   describe("send results form non-secret-santa", () => {
     beforeEach(() => {
       document.querySelector("#emailTable")?.remove();
-      triggerNonSecretSantaStep4();
+      triggerNonSecretSantaEmailTable();
       document.querySelector("#sendResultsBtn").click();
       document.querySelector("#sendResultsConfirmBtn").click();
     });
