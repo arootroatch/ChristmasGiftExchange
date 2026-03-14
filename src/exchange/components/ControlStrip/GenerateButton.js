@@ -21,8 +21,8 @@ export function init() {
   stateEvents.on(Events.PARTICIPANT_ADDED, () => {
     render();
   });
-  stateEvents.on(Events.RECIPIENTS_ASSIGNED, () => {
-    remove();
+  stateEvents.on(Events.RECIPIENTS_ASSIGNED, ({isSecretSanta}) => {
+    if (isSecretSanta) remove();
   });
 }
 

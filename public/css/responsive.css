@@ -1,5 +1,29 @@
 /* Responsive Media Queries */
 
+/* Medium screens: instructions become static banner, two-column layout */
+@media screen and (max-width: 1120px) {
+  #flex-div {
+    flex-wrap: wrap;
+    max-width: 800px;
+  }
+  [data-slot="instructions"]:has(.instruction-collapsed),
+  [data-slot="instructions"]:has(.instruction-expanded) {
+    position: static;
+    flex-basis: 100%;
+  }
+  #intro.instruction-collapsed,
+  #intro.instruction-expanded {
+    width: 100%;
+    min-width: auto;
+    max-width: 600px;
+    margin: 0 auto 12px;
+  }
+  .results-card {
+    width: 45%;
+    min-width: 300px;
+  }
+}
+
 @media screen and (max-width: 740px) {
   #container {
     overflow-x: hidden;
@@ -24,12 +48,19 @@
     width: 100%;
     max-width: 350px;
   }
+  .results-card {
+    position: static;
+    margin: 0 auto;
+    max-width: 320px;
+    width: 100%;
+    min-width: auto;
+  }
   body {
     background-attachment: scroll;
   }
   .household,
   #name-list {
-    margin: 0 auto;
+    margin: 0 auto 12px;
     max-width: 320px;
   }
   .household h2,
@@ -47,11 +78,7 @@
 
   #intro.instruction-collapsed,
   #intro.instruction-expanded {
-    position: static;
-    width: 100%;
-    min-width: auto;
     max-width: 320px;
-    margin: 0 auto 12px;
   }
 
   #intro.instruction-collapsed .instruction-summary {
@@ -63,11 +90,15 @@
   }
 
   #intro.instruction-expanded .instruction-summary {
-    display: none;
+    display: block;
   }
 
   #intro.instruction-expanded .instruction-full {
     display: block;
+  }
+
+  #intro.instruction-expanded .chevron {
+    transform: translateY(-50%) rotate(180deg);
   }
 }
 

@@ -4,7 +4,6 @@ import {leftContainerId, selectElement} from "../../utils.js";
 const reuseInstruction = `<span style="font-weight:bold">Welcome back!</span><br><br>You can make any changes to the exchange that you wish -- add or delete a group, add or delete a participant, move participants around between groups -- then click "Generate List"!<br><br>Remember, names under "Participant Names" can be matched with anybody, and names in a group won't be matched with anyone in the same group.`;
 
 const introId = "intro";
-let animating = false;
 let hasParticipant = false;
 let hasResults = false;
 
@@ -85,24 +84,13 @@ function updateInstructions(html) {
   const introDiv = selectElement(`#${introId}`);
   if (!introDiv) return;
 
-  const existing = introDiv.querySelector('.slide-in-right');
+  introDiv.innerHTML = html;
 
-  if (!existing) {
-    introDiv.innerHTML = html;
+  if (!introDiv.classList.contains("instruction-collapsed") &&
+      !introDiv.classList.contains("instruction-expanded")) {
     introDiv.classList.add("instruction-collapsed");
     introDiv.onclick = toggleCollapse;
-    return;
   }
-
-  if (animating) return;
-  animating = true;
-
-  existing.classList.remove('slide-in-right');
-  existing.classList.add('slide-out-left');
-  existing.addEventListener('animationend', () => {
-    introDiv.innerHTML = html;
-    animating = false;
-  }, {once: true});
 }
 
 function toggleCollapse() {
@@ -141,7 +129,6 @@ function onRecipientsAssigned({isSecretSanta}) {
 }
 
 export function resetAnimating() {
-  animating = false;
   hasParticipant = false;
   hasResults = false;
 }

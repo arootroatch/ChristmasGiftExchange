@@ -67,9 +67,6 @@ describe("instructions", () => {
       startExchange(false);
       addParticipant("Alex");
 
-      const animatingEl = document.querySelector('.slide-out-left');
-      if (animatingEl) animatingEl.dispatchEvent(new Event('animationend'));
-
       const intro = document.querySelector("#intro");
       expect(intro.textContent).toContain("Exclusion Groups");
     });
@@ -78,9 +75,6 @@ describe("instructions", () => {
       startExchange(false);
       addParticipant("Alex");
 
-      const animatingEl = document.querySelector('.slide-out-left');
-      if (animatingEl) animatingEl.dispatchEvent(new Event('animationend'));
-
       const intro = document.querySelector("#intro");
       expect(intro.textContent).toContain("Generate List");
     });
@@ -88,10 +82,6 @@ describe("instructions", () => {
     it("does not update on subsequent participant adds", () => {
       startExchange(false);
       addParticipant("Alex");
-
-      const animatingEl = document.querySelector('.slide-out-left');
-      if (animatingEl) animatingEl.dispatchEvent(new Event('animationend'));
-
       const firstContent = document.querySelector("#intro").innerHTML;
 
       addParticipant("Whitney");
@@ -103,15 +93,8 @@ describe("instructions", () => {
     it("updates to results instruction", () => {
       startExchange(false);
       addParticipant("Alex");
-
-      let animatingEl = document.querySelector('.slide-out-left');
-      if (animatingEl) animatingEl.dispatchEvent(new Event('animationend'));
-
       installParticipantNames("Whitney");
       assignRecipients(["Whitney", "Alex"]);
-
-      animatingEl = document.querySelector('.slide-out-left');
-      if (animatingEl) animatingEl.dispatchEvent(new Event('animationend'));
 
       const intro = document.querySelector("#intro");
       expect(intro.textContent).toContain("Results");
@@ -120,15 +103,8 @@ describe("instructions", () => {
     it("mentions Email Results for non-secret-santa", () => {
       startExchange(false);
       addParticipant("Alex");
-
-      let animatingEl = document.querySelector('.slide-out-left');
-      if (animatingEl) animatingEl.dispatchEvent(new Event('animationend'));
-
       installParticipantNames("Whitney");
       assignRecipients(["Whitney", "Alex"]);
-
-      animatingEl = document.querySelector('.slide-out-left');
-      if (animatingEl) animatingEl.dispatchEvent(new Event('animationend'));
 
       const intro = document.querySelector("#intro");
       expect(intro.textContent).toContain("Email Results");
@@ -137,15 +113,8 @@ describe("instructions", () => {
     it("shows secret santa specific text in secret santa mode", () => {
       startExchange(true);
       addParticipant("Alex");
-
-      let animatingEl = document.querySelector('.slide-out-left');
-      if (animatingEl) animatingEl.dispatchEvent(new Event('animationend'));
-
       installParticipantNames("Whitney");
       assignRecipients(["Whitney", "Alex"]);
-
-      animatingEl = document.querySelector('.slide-out-left');
-      if (animatingEl) animatingEl.dispatchEvent(new Event('animationend'));
 
       const intro = document.querySelector("#intro");
       expect(intro.textContent).toContain("Secret Santa");

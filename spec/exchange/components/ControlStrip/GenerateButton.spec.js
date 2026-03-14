@@ -59,12 +59,12 @@ describe("generateButton", () => {
     expect(spy).toHaveBeenCalledTimes(1);
   });
 
-  it("is removed after recipients assigned in non-secret-santa mode", () => {
+  it("stays rendered after recipients assigned in non-secret-santa mode", () => {
     resetState();
     addParticipant("Alex");
     installParticipantNames("Whitney");
     assignRecipients(["Whitney", "Alex"]);
-    expect(selectElement("#generate")).toBeNull();
+    expect(selectElement("#generate")).not.toBeNull();
   });
 
   it("is removed after recipients assigned in secret santa mode", () => {

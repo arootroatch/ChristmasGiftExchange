@@ -50,13 +50,13 @@ describe("addHouseButton", () => {
     expect(spy).toHaveBeenCalledTimes(1);
   });
 
-  it("is removed when recipients assigned in non-secret-santa mode", () => {
+  it("stays rendered when recipients assigned in non-secret-santa mode", () => {
     resetState();
     addParticipant("Alex");
     expect(selectElement("#addHouse")).not.toBeNull();
     installParticipantNames("Whitney");
     assignRecipients(["Whitney", "Alex"]);
-    expect(selectElement("#addHouse")).toBeNull();
+    expect(selectElement("#addHouse")).not.toBeNull();
   });
 
   it("is removed when recipients assigned in secret santa mode", () => {
@@ -96,9 +96,10 @@ describe("addHouseButton", () => {
       expect(spy).not.toHaveBeenCalled();
     });
 
-    it("does not trigger after recipients assigned", () => {
+    it("does not trigger after recipients assigned in secret santa mode", () => {
       const spy = vi.spyOn(stateModule, "addHouseToState");
       resetState();
+      getState().isSecretSanta = true;
       addParticipant("Alex");
       installParticipantNames("Whitney");
       assignRecipients(["Whitney", "Alex"]);

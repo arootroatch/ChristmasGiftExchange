@@ -6,9 +6,12 @@
   border-radius: 16px;
   padding: 1rem;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-  margin-left: 10px;
-  min-width: 300px;
-  width: 45%;
+  width: 300px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 10px;
+  align-self: flex-start;
+  z-index: 5;
 }
 
 .results-card h2 {
