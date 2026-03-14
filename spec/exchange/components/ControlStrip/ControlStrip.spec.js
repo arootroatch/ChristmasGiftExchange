@@ -21,7 +21,6 @@ describe("controlStrip", () => {
     expect(selectElement("#control-strip")).not.toBeNull();
     expect(selectElement('[data-slot="generate"]')).not.toBeNull();
     expect(selectElement('[data-slot="addHouse"]')).not.toBeNull();
-    expect(selectElement('[data-slot="nextStep"]')).not.toBeNull();
   });
 
   it("renders only once on repeated EXCHANGE_STARTED", () => {
