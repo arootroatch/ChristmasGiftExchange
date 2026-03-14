@@ -44,6 +44,31 @@
       }
     }
   }
+
+  #intro.instruction-collapsed,
+  #intro.instruction-expanded {
+    position: static;
+    width: 100%;
+    min-width: auto;
+    max-width: 320px;
+    margin: 0 auto 12px;
+  }
+
+  #intro.instruction-collapsed .instruction-summary {
+    display: block;
+  }
+
+  #intro.instruction-collapsed .instruction-full {
+    display: none;
+  }
+
+  #intro.instruction-expanded .instruction-summary {
+    display: none;
+  }
+
+  #intro.instruction-expanded .instruction-full {
+    display: block;
+  }
 }
 
 @media screen and (max-width: 553px) {
@@ -59,9 +84,6 @@
 
   .shortcut {
     display: none;
-  }
-  #nextStep {
-    padding: 10px;
   }
 }
 

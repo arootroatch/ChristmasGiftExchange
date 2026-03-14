@@ -49,14 +49,72 @@ h1 {
   border: 1px solid rgba(255, 255, 255, 0.15);
   color: rgba(255, 255, 255, 0.85);
   border-radius: 16px;
-  margin: 20px auto;
   line-height: 1.5em;
-  text-align: justify;
-  max-width: 600px;
-  transition: height 1s;
   padding: 5px 10px;
   position: relative;
   overflow: hidden;
+  transition: height 1s;
+}
+
+/* Intro mode (before exchange starts) — centered */
+#intro:not(.instruction-collapsed):not(.instruction-expanded) {
+  margin: 20px auto;
+  text-align: justify;
+  max-width: 600px;
+}
+
+/* Sidebar mode (after exchange starts) — sticky left column */
+#intro.instruction-collapsed,
+#intro.instruction-expanded {
+  position: sticky;
+  top: 20px;
+  width: 220px;
+  min-width: 220px;
+  font-size: 0.85em;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  margin: 0;
+  align-self: flex-start;
+}
+
+#intro.instruction-collapsed,
+#intro.instruction-expanded {
+  & h3 {
+    font-size: 0.95em;
+    margin-bottom: 8px;
+  }
+
+  & .instruction-summary {
+    display: none;
+    margin: 0;
+    position: relative;
+    padding-right: 20px;
+  }
+
+  & .instruction-full {
+    display: block;
+  }
+
+  & .chevron {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(255, 255, 255, 0.35);
+    font-size: 0.8em;
+  }
+}
+
+/* Desktop: always show full, hide summary */
+#intro.instruction-collapsed .instruction-summary,
+#intro.instruction-expanded .instruction-summary {
+  display: none;
+}
+
+#intro.instruction-collapsed .instruction-full,
+#intro.instruction-expanded .instruction-full {
+  display: block;
 }
 
 @keyframes slideOutLeft {
