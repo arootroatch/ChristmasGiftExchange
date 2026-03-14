@@ -4,7 +4,7 @@ export const exchangeEvents = new EventEmitter();
 
 export const ExchangeEvents = {
   EXCHANGE_STARTED: 'exchange:started',
-  NEXT_STEP: 'exchange:nextStep',
+  EMAIL_RESULTS_REQUESTED: 'email:resultsRequested',
   PARTICIPANT_ADDED: 'participant:added',
   PARTICIPANT_REMOVED: 'participant:removed',
   HOUSE_ADDED: 'house:added',
@@ -18,7 +18,6 @@ export const ExchangeEvents = {
 const state = {
   exchangeId: '',
   houses: [],
-  step: 1,
   isSecretSanta: false,
   participants: [],
   assignments: [],
@@ -32,7 +31,6 @@ export function getState() {
 export function startExchange(isSecretSanta = false) {
   state.exchangeId = crypto.randomUUID();
   state.houses = [];
-  state.step = 1;
   state.isSecretSanta = isSecretSanta;
   state.participants = [];
   state.assignments = [];
@@ -40,13 +38,8 @@ export function startExchange(isSecretSanta = false) {
   exchangeEvents.emit(ExchangeEvents.EXCHANGE_STARTED, {...state});
 }
 
-export function nextStep(maxSteps = null) {
-  if (typeof maxSteps === "number") {
-    state.step + 1 > maxSteps ? (state.step = 0) : state.step++;
-  } else {
-    state.step++;
-  }
-  exchangeEvents.emit(ExchangeEvents.NEXT_STEP, {...state});
+export function requestEmailResults() {
+  exchangeEvents.emit(ExchangeEvents.EMAIL_RESULTS_REQUESTED, {...state});
 }
 
 
@@ -184,6 +177,4 @@ export function loadExchange(exchangeData) {
     h.members.forEach(name => addNameToHouse(houseID, name));
   });
 
-  state.step = 3;
-  exchangeEvents.emit(ExchangeEvents.NEXT_STEP, {isReuse: true, ...state});
 }
