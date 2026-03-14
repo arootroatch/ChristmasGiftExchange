@@ -1,16 +1,15 @@
 import {afterEach, beforeAll, beforeEach, describe, expect, it, vi} from "vitest";
-import {click, installParticipantNames, resetDOM, resetState} from "../../../specHelper";
+import {resetDOM, resetState} from "../../../specHelper";
 import * as stateModule from "../../../../src/exchange/state";
 import {init as initControlStrip} from "../../../../src/exchange/components/ControlStrip/ControlStrip";
-import {init as initNextStepButton} from "../../../../src/exchange/components/ControlStrip/NextStepButton";
 import {init as initAddHouseButton} from "../../../../src/exchange/components/ControlStrip/AddHouseButton";
 import {addParticipant, assignRecipients, getState} from "../../../../src/exchange/state";
+import {installParticipantNames} from "../../../specHelper";
 import {selectElement} from "../../../../src/utils";
 
 describe("addHouseButton", () => {
   beforeAll(() => {
     initControlStrip();
-    initNextStepButton();
     initAddHouseButton();
   });
 
@@ -22,59 +21,50 @@ describe("addHouseButton", () => {
     vi.restoreAllMocks();
   });
 
-  it("is not rendered at step 1", () => {
+  it("is not rendered before any participants added", () => {
     resetState();
     expect(selectElement("#addHouse")).toBeNull();
   });
 
-  it("renders at step 2", () => {
+  it("renders after first participant added", () => {
     resetState();
     addParticipant("Alex");
-    click("#nextStep"); // step 2
-    expect(getState().step).toBe(2);
     expect(selectElement("#addHouse")).not.toBeNull();
   });
 
-  it("is removed at step 4", () => {
+  it("stays rendered on subsequent participant adds", () => {
     resetState();
     addParticipant("Alex");
-    click("#nextStep");
+    addParticipant("Whitney");
     expect(selectElement("#addHouse")).not.toBeNull();
-    click("#nextStep");
-    expect(getState().step).toBe(3);
-    expect(selectElement("#addHouse")).not.toBeNull();
-    assignRecipients(["Whitney"]);
-    click("#nextStep");
-    expect(getState().step).toBe(4);
-    expect(selectElement("#addHouse")).toBeNull();
   });
 
   it("click calls addHouseToState", () => {
     const spy = vi.spyOn(stateModule, "addHouseToState").mockImplementation(() => {});
     resetState();
     addParticipant("Alex");
-    click("#nextStep"); // step 2
-    click("#addHouse");
+
+    const btn = selectElement("#addHouse");
+    btn.click();
+
     expect(spy).toHaveBeenCalledTimes(1);
   });
 
-  it("is not removed when recipients assigned in non-secret-santa mode", () => {
+  it("is removed when recipients assigned in non-secret-santa mode", () => {
     resetState();
     addParticipant("Alex");
-    click("#nextStep"); // step 2
     expect(selectElement("#addHouse")).not.toBeNull();
-    installParticipantNames("Alex", "Whitney");
+    installParticipantNames("Whitney");
     assignRecipients(["Whitney", "Alex"]);
-    expect(selectElement("#addHouse")).not.toBeNull();
+    expect(selectElement("#addHouse")).toBeNull();
   });
 
   it("is removed when recipients assigned in secret santa mode", () => {
     resetState();
     getState().isSecretSanta = true;
     addParticipant("Alex");
-    click("#nextStep"); // step 2
     expect(selectElement("#addHouse")).not.toBeNull();
-    installParticipantNames("Alex", "Whitney");
+    installParticipantNames("Whitney");
     assignRecipients(["Whitney", "Alex"]);
     expect(selectElement("#addHouse")).toBeNull();
   });
@@ -91,30 +81,27 @@ describe("addHouseButton", () => {
       resetState();
     });
 
-    it("triggers at step 2 (button rendered)", () => {
+    it("triggers when button is rendered", () => {
       const spy = vi.spyOn(stateModule, "addHouseToState").mockImplementation(() => {});
       resetState();
       addParticipant("Alex");
-      click("#nextStep"); // step 2
       dispatchShiftEnter();
       expect(spy).toHaveBeenCalledTimes(1);
     });
 
-    it("does not trigger at step 1 (button not rendered)", () => {
+    it("does not trigger before participants added", () => {
       const spy = vi.spyOn(stateModule, "addHouseToState");
       resetState();
       dispatchShiftEnter();
       expect(spy).not.toHaveBeenCalled();
     });
 
-    it("does not trigger at step 4 (button removed)", () => {
+    it("does not trigger after recipients assigned", () => {
       const spy = vi.spyOn(stateModule, "addHouseToState");
       resetState();
       addParticipant("Alex");
-      click("#nextStep"); // step 2
-      click("#nextStep"); // step 3
-      assignRecipients(["Whitney"]);
-      click("#nextStep"); // step 4
+      installParticipantNames("Whitney");
+      assignRecipients(["Whitney", "Alex"]);
       dispatchShiftEnter();
       expect(spy).not.toHaveBeenCalled();
     });
@@ -128,7 +115,6 @@ describe("addHouseButton", () => {
       resetDOM();
       resetState();
       addParticipant("Alex");
-      click("#nextStep"); // step 2
       dispatchShiftEnter();
       expect(spy).not.toHaveBeenCalled();
       Object.defineProperty(navigator, "userAgent", { value: originalUA, configurable: true });
