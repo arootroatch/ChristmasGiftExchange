@@ -19,6 +19,8 @@ import {insertNameFromSelect} from "../../../src/exchange/components/Select";
 import {addHouseToState, getState} from "../../../src/exchange/state";
 import * as stateModule from "../../../src/exchange/state";
 
+window.scrollTo = vi.fn();
+
 describe('addHouse', () => {
   vi.mock(import("/src/utils.js"), async (importOriginal) => {
     const original = await importOriginal();
@@ -57,12 +59,16 @@ describe('addHouse', () => {
     expect(addEventListener).toHaveBeenCalledWith("#house-0-select", "change", insertNameFromSelect);
   });
 
-  it("scrolls new house into view", () => {
-    const scrollSpy = vi.spyOn(window.Element.prototype, 'scrollIntoView');
+  it("scrolls page to bottom after other event handlers complete", () => {
+    vi.useFakeTimers();
+    window.scrollTo.mockClear();
     addHouseToDOM();
 
-    expect(scrollSpy).toHaveBeenLastCalledWith({behavior: 'smooth', block: 'end'});
-    scrollSpy.mockRestore();
+    expect(window.scrollTo).not.toHaveBeenCalled();
+    vi.runAllTimers();
+
+    expect(window.scrollTo).toHaveBeenLastCalledWith({top: document.body.scrollHeight, behavior: 'smooth'});
+    vi.useRealTimers();
   });
 });
 

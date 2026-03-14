@@ -42,5 +42,6 @@
 }
 
 .name-container {
+  min-height: 3rem;
   padding-bottom: 10px;
 }

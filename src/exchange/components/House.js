@@ -17,7 +17,7 @@ function onHouseAdded({houseID, houses}) {
   const html = template(houseID, house.name);
   pushHTML(`#${leftContainerId}`, html);
   attachListeners(houseID);
-  selectElement(`#${houseID}`)?.scrollIntoView({behavior: 'smooth', block: 'end'});
+  setTimeout(() => window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'}));
 }
 
 function onHouseRemoved({houseID}) {

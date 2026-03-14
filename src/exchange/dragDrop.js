@@ -1,6 +1,36 @@
 import {leftContainerId, participantsId, selectElement} from "../utils";
 import { addNameToHouse, removeNameFromHouse } from "./state.js";
 
+const SCROLL_ZONE = 80;
+const SCROLL_SPEED = 20;
+const CONTROL_STRIP_HEIGHT = 60;
+let scrollAnimationId = null;
+
+function autoScroll(clientY) {
+  stopAutoScroll();
+
+  const bottomEdge = window.innerHeight - CONTROL_STRIP_HEIGHT;
+
+  if (clientY < SCROLL_ZONE) {
+    const intensity = 1 - (clientY / SCROLL_ZONE);
+    scrollAnimationId = requestAnimationFrame(function scrollUp() {
+      window.scrollBy(0, -SCROLL_SPEED * intensity);
+      scrollAnimationId = requestAnimationFrame(scrollUp);
+    });
+  } else if (clientY > bottomEdge - SCROLL_ZONE) {
+    const intensity = 1 - ((bottomEdge - clientY) / SCROLL_ZONE);
+    scrollAnimationId = requestAnimationFrame(function scrollDown() {
+      window.scrollBy(0, SCROLL_SPEED * intensity);
+      scrollAnimationId = requestAnimationFrame(scrollDown);
+    });
+  }
+}
+
+function stopAutoScroll() {
+  cancelAnimationFrame(scrollAnimationId);
+  scrollAnimationId = null;
+}
+
 export function allowDrop(e) {
   if (e.target.className === 'name-container'){
     e.preventDefault();
@@ -62,12 +92,14 @@ export function initDragDrop() {
   });
 
   container.addEventListener('dragover', (e) => {
+    autoScroll(e.clientY);
     if (e.target.classList.contains('name-container')) {
       allowDrop(e);
     }
   });
 
   container.addEventListener('drop', (e) => {
+    stopAutoScroll();
     if (e.target.classList.contains('name-container')) {
       drop(e);
     }
@@ -78,6 +110,8 @@ export function initDragDrop() {
       dragLeave(e);
     }
   });
+
+  container.addEventListener('dragend', stopAutoScroll);
 }
 
 

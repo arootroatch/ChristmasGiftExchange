@@ -1,4 +1,4 @@
-import {beforeAll, beforeEach, describe, expect, it, vi} from 'vitest';
+import {afterEach, beforeAll, beforeEach, describe, expect, it, vi} from 'vitest';
 import {allowDrop, drag, dragLeave, drop, initDragDrop} from '../../src/exchange/dragDrop';
 import {getState, addNameToHouse} from '../../src/exchange/state';
 import {
@@ -8,6 +8,7 @@ import {
   initReactiveSystem,
   removeAllHouses,
   removeAllNames,
+  resetDOM,
   resetState,
   shouldSelect
 } from '../specHelper';
@@ -215,6 +216,124 @@ describe('dragDrop', () => {
       if (container) container.remove();
 
       expect(() => initDragDrop()).not.toThrow();
+    });
+  });
+
+  describe('auto-scroll during drag', () => {
+    let scrollBySpy;
+    let rafCallbacks;
+
+    beforeAll(() => {
+      initReactiveSystem();
+    });
+
+    beforeEach(() => {
+      resetDOM();
+      resetState();
+      scrollBySpy = vi.fn();
+      window.scrollBy = scrollBySpy;
+
+      rafCallbacks = [];
+      vi.stubGlobal('requestAnimationFrame', vi.fn((cb) => {
+        rafCallbacks.push(cb);
+        return rafCallbacks.length;
+      }));
+      vi.stubGlobal('cancelAnimationFrame', vi.fn(() => {
+        rafCallbacks = [];
+      }));
+
+      initDragDrop();
+    });
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    function fireDragOver(clientY) {
+      const event = new Event('dragover', {bubbles: true});
+      event.clientY = clientY;
+      document.querySelector('#left-container').dispatchEvent(event);
+    }
+
+    it('scrolls down when dragging near the bottom of the viewport', () => {
+      fireDragOver(750);
+
+      expect(rafCallbacks.length).toBeGreaterThan(0);
+      rafCallbacks[0]();
+
+      expect(scrollBySpy).toHaveBeenCalledWith(0, expect.any(Number));
+      expect(scrollBySpy.mock.calls[0][1]).toBeGreaterThan(0);
+    });
+
+    it('scrolls up when dragging near the top of the viewport', () => {
+      fireDragOver(30);
+
+      expect(rafCallbacks.length).toBeGreaterThan(0);
+      rafCallbacks[0]();
+
+      expect(scrollBySpy).toHaveBeenCalledWith(0, expect.any(Number));
+      expect(scrollBySpy.mock.calls[0][1]).toBeLessThan(0);
+    });
+
+    it('does not scroll when dragging in the middle of the viewport', () => {
+      fireDragOver(400);
+
+      expect(rafCallbacks.length).toBe(0);
+      expect(scrollBySpy).not.toHaveBeenCalled();
+    });
+
+    it('stops scrolling on drop', () => {
+      fireDragOver(750);
+      expect(rafCallbacks.length).toBeGreaterThan(0);
+
+      cancelAnimationFrame.mockClear();
+
+      const container = document.querySelector('#left-container');
+      container.dispatchEvent(new Event('drop', {bubbles: true}));
+
+      expect(cancelAnimationFrame).toHaveBeenCalled();
+    });
+
+    it('stops scrolling on dragend', () => {
+      fireDragOver(750);
+      expect(rafCallbacks.length).toBeGreaterThan(0);
+
+      cancelAnimationFrame.mockClear();
+
+      const container = document.querySelector('#left-container');
+      container.dispatchEvent(new Event('dragend', {bubbles: true}));
+
+      expect(cancelAnimationFrame).toHaveBeenCalled();
+    });
+
+    it('scrolls faster when closer to the edge', () => {
+      fireDragOver(790);
+      rafCallbacks[0]();
+      const nearEdgeSpeed = scrollBySpy.mock.calls[0][1];
+
+      scrollBySpy.mockClear();
+      rafCallbacks = [];
+
+      fireDragOver(750);
+      rafCallbacks[0]();
+      const furtherFromEdgeSpeed = scrollBySpy.mock.calls[0][1];
+
+      expect(nearEdgeSpeed).toBeGreaterThan(furtherFromEdgeSpeed);
+    });
+
+    it('scrolls at least 10px per frame near the viewport edge', () => {
+      fireDragOver(760);
+      rafCallbacks[0]();
+
+      expect(scrollBySpy.mock.calls[0][1]).toBeGreaterThanOrEqual(10);
+    });
+
+    it('accounts for control strip when calculating bottom scroll zone', () => {
+      // clientY=700 is above the ~60px control strip but should still scroll fast
+      fireDragOver(700);
+      rafCallbacks[0]();
+
+      expect(scrollBySpy.mock.calls[0][1]).toBeGreaterThanOrEqual(10);
     });
   });
 });
