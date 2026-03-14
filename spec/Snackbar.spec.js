@@ -55,6 +55,31 @@ describe("snackbar", () => {
     });
   });
 
+  describe("init", () => {
+    it("displays snackbar error from sessionStorage", () => {
+      sessionStorage.setItem("snackbarError", "Test error message");
+
+      snackbar.init();
+
+      shouldDisplayErrorSnackbar("Test error message");
+    });
+
+    it("removes snackbarError from sessionStorage after displaying", () => {
+      sessionStorage.setItem("snackbarError", "Test error message");
+
+      snackbar.init();
+
+      expect(sessionStorage.getItem("snackbarError")).toBeNull();
+    });
+
+    it("does not show snackbar when no error in sessionStorage", () => {
+      snackbar.init();
+
+      expect(bar.textContent).toBe("");
+      expect(bar.classList).toContain("hidden");
+    });
+  });
+
   describe("showSuccess", () => {
     it("displays the success message", () => {
       snackbar.showSuccess("Names generated!");

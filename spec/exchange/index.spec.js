@@ -283,21 +283,5 @@ it('calls generateButton.init', async () => {
       expect(loadExchange).not.toHaveBeenCalled();
     });
 
-    it('displays snackbar error from sessionStorage', async () => {
-      sessionStorage.setItem("snackbarError", "Test error message");
-      const snackbar = await import('../../src/Snackbar');
-
-      main();
-
-      expect(snackbar.showError).toHaveBeenCalledWith("Test error message");
-    });
-
-    it('removes snackbarError from sessionStorage after displaying', () => {
-      sessionStorage.setItem("snackbarError", "Test error message");
-
-      main();
-
-      expect(sessionStorage.getItem("snackbarError")).toBeNull();
-    });
-  });
+});
 });

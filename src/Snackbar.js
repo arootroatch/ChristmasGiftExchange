@@ -2,6 +2,11 @@ let bar;
 
 export function init() {
   bar = document.querySelector("#snackbar");
+  const snackbarError = sessionStorage.getItem("snackbarError");
+  if (snackbarError) {
+    sessionStorage.removeItem("snackbarError");
+    showError(snackbarError);
+  }
 }
 
 export function showError(message) {

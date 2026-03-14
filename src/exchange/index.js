@@ -40,9 +40,5 @@ export default function main() {
     loadExchange(JSON.parse(reuseData));
   }
 
-  const snackbarError = sessionStorage.getItem("snackbarError");
-  if (snackbarError) {
-    sessionStorage.removeItem("snackbarError");
-    snackbar.showError(snackbarError);
-  }
+
 }
