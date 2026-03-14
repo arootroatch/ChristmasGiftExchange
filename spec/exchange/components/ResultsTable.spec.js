@@ -1,7 +1,8 @@
-import {beforeAll, beforeEach, describe, expect, it} from "vitest";
+import {beforeAll, beforeEach, describe, expect, it, vi} from "vitest";
 import {init} from "../../../src/exchange/components/ResultsTable";
 import {initReactiveSystem, installParticipantNames, resetDOM, resetState} from "../../specHelper";
 import {assignRecipients, startExchange, getState} from "../../../src/exchange/state";
+import * as stateModule from "../../../src/exchange/state";
 
 describe('resultsTable', () => {
   beforeAll(() => {
@@ -90,5 +91,35 @@ describe('resultsTable', () => {
     expect(rows[0].style.animationDelay).toBe('');
     expect(rows[1].style.animationDelay).toBe('0.07s');
     expect(rows[2].style.animationDelay).toBe('0.14s');
+  });
+
+  it('renders "Email Results" button after recipients assigned', () => {
+    startExchange(false);
+    installParticipantNames("Alex", "Whitney");
+    assignRecipients(["Whitney", "Alex"]);
+
+    const btn = document.querySelector("#email-results-btn");
+    expect(btn).not.toBeNull();
+    expect(btn.textContent).toBe("Email Results");
+  });
+
+  it('does not render "Email Results" button in secret santa mode', () => {
+    startExchange(true);
+    installParticipantNames("Alex", "Whitney");
+    assignRecipients(["Whitney", "Alex"]);
+
+    expect(document.querySelector("#email-results-btn")).toBeNull();
+  });
+
+  it('"Email Results" button calls requestEmailResults', () => {
+    const spy = vi.spyOn(stateModule, "requestEmailResults").mockImplementation(() => {});
+    startExchange(false);
+    installParticipantNames("Alex", "Whitney");
+    assignRecipients(["Whitney", "Alex"]);
+
+    document.querySelector("#email-results-btn").click();
+
+    expect(spy).toHaveBeenCalledTimes(1);
+    spy.mockRestore();
   });
 });
