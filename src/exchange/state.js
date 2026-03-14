@@ -24,6 +24,8 @@ const state = {
   nameNumber: 1,
 };
 
+let isReuse = false;
+
 export function getState() {
   return state;
 }
@@ -35,7 +37,7 @@ export function startExchange(isSecretSanta = false) {
   state.participants = [];
   state.assignments = [];
   state.nameNumber = 1;
-  exchangeEvents.emit(ExchangeEvents.EXCHANGE_STARTED, {...state});
+  exchangeEvents.emit(ExchangeEvents.EXCHANGE_STARTED, {isReuse, ...state});
 }
 
 export function requestEmailResults() {
@@ -162,7 +164,9 @@ export function getParticipantNames() {
 }
 
 export function loadExchange(exchangeData) {
+  isReuse = true;
   startExchange(exchangeData.isSecretSanta);
+  isReuse = false;
 
   exchangeData.participants.forEach(p => {
     addParticipant(p.name);

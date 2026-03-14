@@ -1,16 +1,35 @@
 import {ExchangeEvents as Events, exchangeEvents as stateEvents, startExchange} from "../state.js";
 import {leftContainerId, selectElement} from "../../utils.js";
 
-export const instructions = [
-  `<span style="font-weight:bold">Step 1 / 4:</span> Enter the names of everyone participating in the gift exchange. Make sure all names are unique. If two people have the same name, please add a last initial or nickname.`,
-  `<span style="font-weight:bold">Step 2 / 4</span> (optional): Who should NOT get who? <br><br>For example, a couple may not want to be able to get each other's names at the family gift exchange because they will already be getting each other gifts outside the exchange. <br><br> In that case, you can put them in an exclusion group together. Names in the same group will not get each other as recipients.<br><br> Click "Add Group." Then,  you can drag and drop to move people around or select their name from the drop-down in each box.`,
-  `<span style="font-weight:bold">Step 3 / 4:</span> Click "Generate List!"`,
-];
-
 export const reuseInstruction = `<span style="font-weight:bold">Welcome back!</span><br><br>You can make any changes to the exchange that you wish -- add or delete a group, add or delete a participant, move participants around between groups -- then click "Generate List"!<br><br>Remember, names under "Participant Names" can be matched with anybody, and names in a group won't be matched with anyone in the same group.`;
 
 const introId = "intro";
 let animating = false;
+let hasParticipant = false;
+let hasResults = false;
+
+const instructionContent = {
+  started: {
+    heading: "Add Participants",
+    summary: "Enter the names of everyone in the exchange.",
+    full: `Enter the names of everyone participating in the gift exchange. Make sure all names are unique. If two people share a name, add a last initial or nickname.`,
+  },
+  participantAdded: {
+    heading: "Exclusion Groups",
+    summary: "Create exclusion groups or click Generate List when ready.",
+    full: `Want to prevent certain people from getting each other? Create an exclusion group and put them together.<br><br>Click <strong>"Add Group"</strong> to create one, then drag names in or use the dropdown.<br><br><em>When you're ready, click "Generate List."</em>`,
+  },
+  results: {
+    heading: "Your Results",
+    summary: 'Click "Email Results" to send assignments.',
+    full: `Here are the gift exchange assignments!<br><br>Click <strong>"Email Results"</strong> to send each person an email with the name of their recipient.`,
+  },
+  secretSantaResults: {
+    heading: "Secret Santa Complete",
+    summary: "Enter emails below to send assignments.",
+    full: `Secret Santa assignments have been generated!<br><br>Enter each participant's email address below to send them their recipient.`,
+  },
+};
 
 function introTemplate() {
   return `<div id="${introId}">
@@ -52,45 +71,79 @@ function attachButtonHandlers() {
   if (secretSantaBtn) secretSantaBtn.onclick = secretSantaMode;
 }
 
-function renderStepInstructions({step, isReuse, isSecretSanta}) {
-  if (!step || step < 1 || step > instructions.length) return;
+function sidebarHTML(content) {
+  return `<p class="instruction-summary slide-in-right"><strong>${content.heading}</strong> — ${content.summary}<span class="chevron">&#9660;</span></p>
+    <div class="instruction-full slide-in-right"><h3>${content.heading}</h3><p>${content.full}</p></div>`;
+}
+
+function reuseHTML() {
+  return `<div class="instruction-full slide-in-right"><p>${reuseInstruction}</p></div>
+    <p class="instruction-summary slide-in-right"><strong>Welcome back!</strong> — Modify the exchange and click Generate List.<span class="chevron">&#9660;</span></p>`;
+}
+
+function updateInstructions(html) {
   const introDiv = selectElement(`#${introId}`);
   if (!introDiv) return;
 
-  const text = isReuse ? reuseInstruction : instructions[step - 1];
-  const newContent = `<p class="slide-in-right">${text}</p>`;
+  const existing = introDiv.querySelector('.slide-in-right');
 
-  if (isReuse) {
-    if (isSecretSanta) {
-      selectElement(`#${leftContainerId}`).classList.add("secret");
-    }
-    introDiv.innerHTML = newContent;
+  if (!existing) {
+    introDiv.innerHTML = html;
+    introDiv.classList.add("instruction-collapsed");
+    introDiv.onclick = toggleCollapse;
     return;
   }
 
-  const paragraph = introDiv.querySelector('p.slide-in-right');
-
-  // First render or no animated paragraph yet — just replace
-  if (!paragraph) {
-    introDiv.innerHTML = newContent;
-    return;
-  }
-
-  // Guard against rapid clicks during animation
   if (animating) return;
   animating = true;
 
-  // Animate out, then swap and animate in
-  paragraph.classList.remove('slide-in-right');
-  paragraph.classList.add('slide-out-left');
-  paragraph.addEventListener('animationend', () => {
-    introDiv.innerHTML = newContent;
+  existing.classList.remove('slide-in-right');
+  existing.classList.add('slide-out-left');
+  existing.addEventListener('animationend', () => {
+    introDiv.innerHTML = html;
     animating = false;
   }, {once: true});
 }
 
+function toggleCollapse() {
+  const introDiv = selectElement(`#${introId}`);
+  if (!introDiv) return;
+  const isCollapsed = introDiv.classList.contains("instruction-collapsed");
+  introDiv.classList.toggle("instruction-collapsed", !isCollapsed);
+  introDiv.classList.toggle("instruction-expanded", isCollapsed);
+}
+
+function onExchangeStarted({isSecretSanta, isReuse}) {
+  hasParticipant = false;
+  hasResults = false;
+  if (isReuse) {
+    if (isSecretSanta) {
+      selectElement(`#${leftContainerId}`).classList.add("secret");
+    }
+    updateInstructions(reuseHTML());
+    hasParticipant = true;
+    return;
+  }
+  updateInstructions(sidebarHTML(instructionContent.started));
+}
+
+function onParticipantAdded() {
+  if (hasParticipant) return;
+  hasParticipant = true;
+  updateInstructions(sidebarHTML(instructionContent.participantAdded));
+}
+
+function onRecipientsAssigned({isSecretSanta}) {
+  if (hasResults) return;
+  hasResults = true;
+  const content = isSecretSanta ? instructionContent.secretSantaResults : instructionContent.results;
+  updateInstructions(sidebarHTML(content));
+}
+
 export function resetAnimating() {
   animating = false;
+  hasParticipant = false;
+  hasResults = false;
 }
 
 export function render() {
@@ -103,6 +156,7 @@ export function render() {
 
 export function init() {
   render();
-  stateEvents.on(Events.EXCHANGE_STARTED, renderStepInstructions);
-  stateEvents.on(Events.NEXT_STEP, renderStepInstructions);
+  stateEvents.on(Events.EXCHANGE_STARTED, onExchangeStarted);
+  stateEvents.on(Events.PARTICIPANT_ADDED, onParticipantAdded);
+  stateEvents.on(Events.RECIPIENTS_ASSIGNED, onRecipientsAssigned);
 }

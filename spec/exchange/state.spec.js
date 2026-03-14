@@ -36,6 +36,16 @@ test('startExchange initializes state', () => {
   expect(getState().nameNumber).toEqual(1);
 })
 
+it('emits EXCHANGE_STARTED with isReuse false for normal start', () => {
+  const spy = vi.fn();
+  const unsubscribe = stateEvents.on(Events.EXCHANGE_STARTED, spy);
+
+  startExchange(false);
+
+  expect(spy).toHaveBeenCalledWith(expect.objectContaining({isReuse: false}));
+  unsubscribe();
+})
+
 describe('exchangeId', () => {
   it('generates a UUID when exchange starts', () => {
     startExchange();
@@ -471,6 +481,16 @@ describe('state helper functions', () => {
       loadExchange(exchangeData);
 
       expect(spy).toHaveBeenCalledTimes(2);
+      unsubscribe();
+    });
+
+    it('emits EXCHANGE_STARTED with isReuse true', () => {
+      const spy = vi.fn();
+      const unsubscribe = stateEvents.on(Events.EXCHANGE_STARTED, spy);
+
+      loadExchange(exchangeData);
+
+      expect(spy).toHaveBeenCalledWith(expect.objectContaining({isReuse: true}));
       unsubscribe();
     });
 
