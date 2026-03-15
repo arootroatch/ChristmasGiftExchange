@@ -70,6 +70,9 @@ export function init() {
     if (isGenerated && !isSecretSanta) {
       renderResults(assignments);
       renderEmailResultsButton();
+      setTimeout(() => {
+        selectElement(`#${tableId}`)?.scrollIntoView({behavior: 'smooth', block: 'start'});
+      });
     }
   });
 }
