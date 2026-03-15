@@ -29,7 +29,6 @@ function confirmationTemplate({isSecretSanta}) {
       <div>
         <button class="button" id="${confirmBtnId}">Continue</button>
         <button class="button" id="${cancelBtnId}">Cancel</button>
-        <button class="button" id="${sendResultsBackBtnId}">\u2190 Back</button>
       </div>
     </div>`;
   return html;
@@ -40,10 +39,6 @@ export function showConfirmation(state) {
   addEventListener(`#${confirmBtnId}`, "click", () => showResultsForm(state));
   addEventListener(`#${cancelBtnId}`, "click", () => {
     selectElement(`#${confirmId}`)?.remove();
-  });
-  addEventListener(`#${sendResultsBackBtnId}`, "click", () => {
-    selectElement(`#${confirmId}`)?.remove();
-    renderEmailTable(state);
   });
 }
 

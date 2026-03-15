@@ -35,7 +35,7 @@
     padding: 5px;
     margin-bottom: 0;
   }
-  & div {
+  & div:has(input) {
     display: flex;
     align-items: stretch;
     gap: 8px;

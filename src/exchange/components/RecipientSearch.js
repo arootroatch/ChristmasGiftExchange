@@ -35,7 +35,7 @@ export function recipientSearchResult(date, giverName, recipient) {
   return `
     <div>
         <p>${who} buying a gift for <span>${escapeAttr(recipient)}!</span></p>
-        <p class="date-secondary">${escapeAttr(date.toDateString())}</p>
+        <p class="date-secondary">As of ${escapeAttr(date.toDateString())}</p>
     </div>
     ${recipientSearchInput}`;
 }

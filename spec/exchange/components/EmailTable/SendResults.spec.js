@@ -31,25 +31,19 @@ describe("SendResults", () => {
     document.querySelector("#emailTable")?.remove();
   });
 
-  describe("showConfirmation back button", () => {
-    it("shows back button on confirmation screen", () => {
+  describe("showConfirmation cancel button", () => {
+    it("does not show back button on confirmation screen", () => {
       showConfirmation(mockState);
-
-      const backBtn = document.querySelector("#sendResultsBackBtn");
-      expect(backBtn).not.toBeNull();
-      expect(backBtn.textContent).toContain("\u2190");
+      expect(document.querySelector("#sendResultsBackBtn")).toBeNull();
     });
 
-    it("back button removes confirmation and re-renders email table", () => {
-      triggerEmailTableRender();
-      document.querySelector("#sendResultsBtn").click();
-
+    it("cancel button removes confirmation", () => {
+      showConfirmation(mockState);
       expect(document.querySelector("#sendResultsConfirm")).not.toBeNull();
 
-      document.querySelector("#sendResultsBackBtn").click();
+      document.querySelector("#sendResultsCancelBtn").click();
 
       expect(document.querySelector("#sendResultsConfirm")).toBeNull();
-      expect(document.querySelector("#emailTable")).not.toBeNull();
     });
   });
 

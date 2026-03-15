@@ -62,7 +62,7 @@ describe("getName", () => {
             expect(query.innerHTML).toContain("Alex");
             expect(query.innerHTML).toContain("is buying a gift for");
             expect(query.innerHTML).toContain("Whitney!");
-            expect(query.innerHTML).toContain("Thu Jun 15 2023");
+            expect(query.innerHTML).toContain("As of Thu Jun 15 2023");
         });
     })
 
