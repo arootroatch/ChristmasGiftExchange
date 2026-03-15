@@ -102,10 +102,11 @@
   }
 }
 
-@media screen and (max-width: 400px) {
+@media screen and (max-width: 625px) {
   #top-actions {
     flex-direction: column;
-    align-items: center;
+    align-items: stretch;
+    padding: 0 10px;
   }
 }
 
