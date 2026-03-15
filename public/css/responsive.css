@@ -107,6 +107,15 @@
     flex-direction: column;
     align-items: stretch;
     padding: 0 10px;
+    max-width: 100%;
+  }
+  #top-actions > [data-slot] {
+    width: 100%;
+  }
+  .recipientSearch,
+  .reuseLink {
+    width: 100%;
+    box-sizing: border-box;
   }
 }
 
