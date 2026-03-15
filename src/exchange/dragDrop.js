@@ -111,7 +111,9 @@ export function initDragDrop() {
     if (e.target.classList.contains('name-wrapper')) {
       document.body.classList.add('dragging');
       drag(e);
-      e.target.classList.add('dragging-source');
+      requestAnimationFrame(() => {
+        e.target.classList.add('dragging-source');
+      });
     }
   });
 

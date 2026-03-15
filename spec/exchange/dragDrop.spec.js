@@ -185,9 +185,10 @@ describe('dragDrop', () => {
       expect(document.body.classList.contains("dragging")).toBe(false);
     });
 
-    it("hides the source element during drag", () => {
+    it("hides the source element during drag", async () => {
       const wrapper = document.querySelector("#wrapper-Alex");
       wrapper.dispatchEvent(createDragStartEvent());
+      await new Promise(resolve => requestAnimationFrame(resolve));
       expect(wrapper.classList.contains("dragging-source")).toBe(true);
     });
 
