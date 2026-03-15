@@ -27,13 +27,11 @@ test.describe('Create Exchange → View Wishlist', () => {
             await addButton.click();
         }
 
-        await page.locator('#nextStep').click();
-        await page.locator('#nextStep').click();
-
         await expect(page.locator('#generate')).toBeVisible();
         await page.locator('#generate').click();
 
-        await page.locator('#nextStep').click();
+        await expect(page.locator('#email-results-btn')).toBeVisible();
+        await page.locator('#email-results-btn').click();
 
         await expect(page.locator('#emailTable')).toBeVisible();
 
