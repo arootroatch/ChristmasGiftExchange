@@ -24,16 +24,14 @@ function initialTemplate() {
     <div id="${ghostHouseId}" class="ghost-house">
       <p class="ghost-text">Want to prevent certain people from being matched?
       Create an exclusion group and drag their names in — or use the dropdown.</p>
-      <button class="${btnClass}">+ Add Group</button>
-      <span class="shortcut">(Shift+Enter)</span>
+      <button class="${btnClass}">+ Add Group<br><span class="shortcut">(Shift+Enter)</span></button>
     </div>`;
 }
 
 function minimalTemplate() {
   return `
     <div id="${ghostHouseId}" class="ghost-house ghost-house-minimal">
-      <button class="${btnClass}">+ Add another group</button>
-      <span class="shortcut">(Shift+Enter)</span>
+      <button class="${btnClass}">+ Add another group<br><span class="shortcut">(Shift+Enter)</span></button>
     </div>`;
 }
 
