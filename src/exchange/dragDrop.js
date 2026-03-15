@@ -31,10 +31,29 @@ function stopAutoScroll() {
   scrollAnimationId = null;
 }
 
+function findContainer(target) {
+  return target.closest('.name-container');
+}
+
+function addDropPreview(container) {
+  if (container.querySelector('.drop-preview')) return;
+  const placeholder = container.querySelector('.house-placeholder');
+  if (placeholder) placeholder.style.display = 'none';
+  container.insertAdjacentHTML('beforeend', '<div class="drop-preview"></div>');
+}
+
+function removeDropPreview(container) {
+  const preview = container.querySelector('.drop-preview');
+  if (preview) preview.remove();
+  const placeholder = container.querySelector('.house-placeholder');
+  if (placeholder) placeholder.style.display = '';
+}
+
 export function allowDrop(e) {
-  if (e.target.className === 'name-container'){
+  const container = findContainer(e.target);
+  if (container) {
     e.preventDefault();
-    e.target.style.backgroundColor = "#ffffff9e";
+    addDropPreview(container);
   }
 }
 
@@ -48,24 +67,24 @@ function getSourceHouse(nameWrapper){
   return sourceHouse?.id
 }
 
-function getDestHouse(e){
-  const destContainer = e.target;
-  const destHouse = destContainer.closest('.household');
-  const isDestMainList = (destContainer.id === participantsId);
+function getDestHouse(container){
+  const destHouse = container.closest('.household');
+  const isDestMainList = (container.id === participantsId);
   return isDestMainList ? null : destHouse?.id;
 }
 
 export function drop(e) {
-  if (e.target.className === 'name-container'){
+  const container = findContainer(e.target);
+  if (container) {
     e.preventDefault();
+    removeDropPreview(container);
 
     const data = e.dataTransfer.getData("text");
     const nameWrapper = selectElement(`#${data}`);
     const name = data.replace("wrapper-", "");
     const sourceHouseID = getSourceHouse(nameWrapper);
-    const destHouseID = getDestHouse(e);
+    const destHouseID = getDestHouse(container);
 
-    // Only update state - events trigger DOM updates
     if (sourceHouseID) {
       removeNameFromHouse(sourceHouseID, name);
     }
@@ -73,12 +92,15 @@ export function drop(e) {
       addNameToHouse(destHouseID, name);
     }
 
-    e.target.style.backgroundColor = "transparent";
+    container.style.backgroundColor = "transparent";
   }
 }
 
-export function dragLeave(e){
-  e.target.style.backgroundColor="transparent";
+export function dragLeave(e) {
+  const container = findContainer(e.target);
+  if (container && !container.contains(e.relatedTarget)) {
+    removeDropPreview(container);
+  }
 }
 
 export function initDragDrop() {
@@ -94,22 +116,16 @@ export function initDragDrop() {
 
   container.addEventListener('dragover', (e) => {
     autoScroll(e.clientY);
-    if (e.target.classList.contains('name-container')) {
-      allowDrop(e);
-    }
+    allowDrop(e);
   });
 
   container.addEventListener('drop', (e) => {
     stopAutoScroll();
-    if (e.target.classList.contains('name-container')) {
-      drop(e);
-    }
+    drop(e);
   });
 
   container.addEventListener('dragleave', (e) => {
-    if (e.target.classList.contains('name-container')) {
-      dragLeave(e);
-    }
+    dragLeave(e);
   });
 
   container.addEventListener('dragend', () => {
@@ -117,6 +133,3 @@ export function initDragDrop() {
     document.body.classList.remove('dragging');
   });
 }
-
-
-

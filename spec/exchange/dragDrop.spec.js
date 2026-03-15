@@ -15,43 +15,6 @@ import {
 
 
 describe('dragDrop', () => {
-  describe('allowDrop', () => {
-    it('prevents default and changes background color when target is name-container', () => {
-      const mockEvent = {
-        target: {
-          className: 'name-container',
-          style: {}
-        },
-        preventDefault: vi.fn()
-      };
-
-      allowDrop(mockEvent);
-
-      expect(mockEvent.preventDefault).toHaveBeenCalled();
-      expectColor(
-        mockEvent.target.style.backgroundColor,
-        "#ffffff9e",
-        "rgba(255, 255, 255, 0.62)",
-        "rgb(255, 255, 255)"
-      );
-    });
-
-    it('does nothing when target is not name-container', () => {
-      const mockEvent = {
-        target: {
-          className: 'other-class',
-          style: {}
-        },
-        preventDefault: vi.fn()
-      };
-
-      allowDrop(mockEvent);
-
-      expect(mockEvent.preventDefault).not.toHaveBeenCalled();
-      expect(mockEvent.target.style.backgroundColor).toBeUndefined();
-    });
-  });
-
   describe('drag', () => {
     it('sets data transfer with element id', () => {
       const mockEvent = {
@@ -171,36 +134,6 @@ describe('dragDrop', () => {
       expect(mockEvent.preventDefault).not.toHaveBeenCalled();
       expect(mockEvent.dataTransfer.getData).not.toHaveBeenCalled();
       expect(nameWrapper.parentElement).toBe(initialParent);
-    });
-  });
-
-  describe('dragLeave', () => {
-    it('resets background color to transparent', () => {
-      const mockEvent = {
-        target: {
-          style: {
-            backgroundColor: '#ffffff9e'
-          }
-        }
-      };
-
-      dragLeave(mockEvent);
-
-      expectColor(mockEvent.target.style.backgroundColor, "transparent", "rgba(0, 0, 0, 0)", "#00000000");
-    });
-
-    it('sets background color to transparent even if it was already transparent', () => {
-      const mockEvent = {
-        target: {
-          style: {
-            backgroundColor: 'transparent'
-          }
-        }
-      };
-
-      dragLeave(mockEvent);
-
-      expectColor(mockEvent.target.style.backgroundColor, "transparent", "rgba(0, 0, 0, 0)", "#00000000");
     });
   });
 
@@ -362,6 +295,76 @@ describe('dragDrop', () => {
       rafCallbacks[0]();
 
       expect(scrollBySpy.mock.calls[0][1]).toBeGreaterThanOrEqual(10);
+    });
+  });
+
+  describe("drop zone preview", () => {
+    beforeAll(() => {
+      initReactiveSystem();
+    });
+
+    beforeEach(() => {
+      resetDOM();
+      resetState();
+      removeAllNames();
+      removeAllHouses();
+      initDragDrop();
+      enterName("Alex");
+      addHouseToDOM();
+    });
+
+    it("inserts drop preview on dragover of name-container", () => {
+      const houseContainer = document.querySelector("#house-0 .name-container");
+      const event = new Event("dragover", {bubbles: true, cancelable: true});
+      Object.defineProperty(event, "target", {value: houseContainer});
+      event.clientY = 400;
+      houseContainer.dispatchEvent(event);
+      expect(houseContainer.querySelector(".drop-preview")).not.toBeNull();
+    });
+
+    it("removes drop preview on dragleave when leaving container", () => {
+      const houseContainer = document.querySelector("#house-0 .name-container");
+      const overEvent = new Event("dragover", {bubbles: true, cancelable: true});
+      Object.defineProperty(overEvent, "target", {value: houseContainer});
+      overEvent.clientY = 400;
+      houseContainer.dispatchEvent(overEvent);
+      expect(houseContainer.querySelector(".drop-preview")).not.toBeNull();
+
+      const leaveEvent = new Event("dragleave", {bubbles: true});
+      Object.defineProperty(leaveEvent, "target", {value: houseContainer});
+      Object.defineProperty(leaveEvent, "relatedTarget", {value: document.body});
+      houseContainer.dispatchEvent(leaveEvent);
+      expect(houseContainer.querySelector(".drop-preview")).toBeNull();
+    });
+
+    it("does not remove preview on dragleave when moving to child element", () => {
+      const houseContainer = document.querySelector("#house-0 .name-container");
+      const overEvent = new Event("dragover", {bubbles: true, cancelable: true});
+      Object.defineProperty(overEvent, "target", {value: houseContainer});
+      overEvent.clientY = 400;
+      houseContainer.dispatchEvent(overEvent);
+      const preview = houseContainer.querySelector(".drop-preview");
+
+      const leaveEvent = new Event("dragleave", {bubbles: true});
+      Object.defineProperty(leaveEvent, "target", {value: houseContainer});
+      Object.defineProperty(leaveEvent, "relatedTarget", {value: preview});
+      houseContainer.dispatchEvent(leaveEvent);
+      expect(houseContainer.querySelector(".drop-preview")).not.toBeNull();
+    });
+
+    it("removes preview on drop", () => {
+      const participants = document.querySelector("#participants");
+      const overEvent = new Event("dragover", {bubbles: true, cancelable: true});
+      Object.defineProperty(overEvent, "target", {value: participants});
+      overEvent.clientY = 400;
+      participants.dispatchEvent(overEvent);
+      expect(participants.querySelector(".drop-preview")).not.toBeNull();
+
+      const dropEvent = new Event("drop", {bubbles: true, cancelable: true});
+      Object.defineProperty(dropEvent, "target", {value: participants});
+      Object.defineProperty(dropEvent, "dataTransfer", {value: {getData: () => "wrapper-Alex"}});
+      participants.dispatchEvent(dropEvent);
+      expect(participants.querySelector(".drop-preview")).toBeNull();
     });
   });
 });
