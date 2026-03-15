@@ -20,7 +20,15 @@ describe("controlStrip", () => {
     resetState();
     expect(selectElement("#control-strip")).not.toBeNull();
     expect(selectElement('[data-slot="generate"]')).not.toBeNull();
-    expect(selectElement('[data-slot="addHouse"]')).not.toBeNull();
+    expect(selectElement('[data-slot="addHouse"]')).toBeNull();
+    expect(selectElement("#generate-hint")).not.toBeNull();
+  });
+
+  it("renders generate-hint span in template", () => {
+    resetState();
+    const hint = document.querySelector("#generate-hint");
+    expect(hint).not.toBeNull();
+    expect(hint.textContent).toBe("");
   });
 
   it("renders only once on repeated EXCHANGE_STARTED", () => {

@@ -5,7 +5,7 @@ import * as nameList from "./components/NameList.js";
 import * as select from "./components/Select.js";
 import * as resultsTable from "./components/ResultsTable.js";
 import * as controlStrip from "./components/ControlStrip/ControlStrip.js";
-import * as addHouseButton from "./components/ControlStrip/AddHouseButton.js";
+import * as ghostHouse from "./components/GhostHouse.js";
 import * as generateButton from "./components/ControlStrip/GenerateButton.js";
 import * as instructions from "./components/Instructions.js";
 import * as emailTable from "./components/EmailTable/EmailTable.js";
@@ -22,8 +22,8 @@ export default function main() {
   select.init();
   resultsTable.init();
   controlStrip.init();
-  addHouseButton.init();
   generateButton.init();
+  ghostHouse.init();
   instructions.init();
 
   emailTable.init();

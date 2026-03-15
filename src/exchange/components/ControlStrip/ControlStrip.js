@@ -13,8 +13,8 @@ function template() {
   return `
     <div id="${controlStripId}">
       <div id="btn-div">
+        <span id="generate-hint"></span>
         <div data-slot="generate"></div>
-        <div data-slot="addHouse"></div>
       </div>
     </div>
   `;
