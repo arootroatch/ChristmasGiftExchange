@@ -46,7 +46,9 @@ describe('api-recipient-get contract', () => {
 
             expect(body).toHaveProperty('recipient');
             expect(body).toHaveProperty('date');
+            expect(body).toHaveProperty('giverName');
             expect(typeof body.recipient).toBe('string');
+            expect(typeof body.giverName).toBe('string');
         });
 
         it('includes wishlistViewUrl when recipient has wishlist', async () => {

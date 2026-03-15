@@ -82,6 +82,7 @@ describe('api-recipient-get', () => {
         expect(body.recipient).toBe('Whitney');
         expect(body.date).toBeDefined();
         expect(body.wishlistViewUrl).toBe(`/wishlist/view/${giverToken}?exchange=exchange-new`);
+        expect(body.giverName).toBe('Alex');
     });
 
     it('does not include wishlist URL when recipient has no wishlist', async () => {
@@ -128,6 +129,7 @@ describe('api-recipient-get', () => {
 
         expect(body.recipient).toBe('Whitney');
         expect(body.wishlistViewUrl).toBeUndefined();
+        expect(body.giverName).toBe('Alex');
     });
 
     it('falls back to legacy collection when not in new collections', async () => {
@@ -149,6 +151,7 @@ describe('api-recipient-get', () => {
         expect(body.recipient).toBe('Legacy Recipient');
         expect(body.date).toBeDefined();
         expect(body.wishlistViewUrl).toBeUndefined();
+        expect(body.giverName).toBeUndefined();
     });
 
     it('returns 404 when not found in any collection', async () => {

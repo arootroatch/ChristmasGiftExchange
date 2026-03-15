@@ -29,6 +29,7 @@ async function lookupFromNewCollections(email) {
     const hasWishlist = recipient.wishlists.length > 0 || recipient.wishItems.length > 0;
 
     const result = {
+        giverName: user.name,
         recipient: recipient.name,
         date: latestExchange.createdAt,
     };
