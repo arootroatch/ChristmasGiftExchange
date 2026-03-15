@@ -43,6 +43,14 @@
   margin-right: 10px;
 }
 
+#generate-hint {
+  color: rgba(255, 255, 255, 0.3);
+  font-style: italic;
+  font-size: 12px;
+  max-width: 200px;
+  padding: 5px 10px;
+}
+
 #get-started {
   margin: 0 auto;
   width: -webkit-fit-content;

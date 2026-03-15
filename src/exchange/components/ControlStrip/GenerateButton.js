@@ -7,6 +7,15 @@ import * as self from "./GenerateButton.js";
 const generateId = "generate";
 const slotSelector = '[data-slot="generate"]';
 
+let participantCount = 0;
+let hintShown = false;
+let initialized = false;
+
+function updateHint(text) {
+  const hint = selectElement("#generate-hint");
+  if (hint) hint.textContent = text;
+}
+
 function enterGenerate(evt) {
   if (evt.ctrlKey && evt.keyCode === 13) {
     evt.preventDefault();
@@ -15,14 +24,29 @@ function enterGenerate(evt) {
 }
 
 export function init() {
+  if (initialized) return;
+  initialized = true;
   stateEvents.on(Events.EXCHANGE_STARTED, () => {
+    participantCount = 0;
+    hintShown = false;
     remove();
+    updateHint("");
   });
   stateEvents.on(Events.PARTICIPANT_ADDED, () => {
+    participantCount++;
     render();
+    if (!hintShown && participantCount >= 3) {
+      hintShown = true;
+      updateHint("When you're ready, click here!");
+    }
   });
   stateEvents.on(Events.RECIPIENTS_ASSIGNED, ({isSecretSanta}) => {
-    if (isSecretSanta) remove();
+    if (isSecretSanta) {
+      remove();
+      updateHint("");
+    } else {
+      updateHint("Click as many times as you like to see different combinations!");
+    }
   });
 }
 

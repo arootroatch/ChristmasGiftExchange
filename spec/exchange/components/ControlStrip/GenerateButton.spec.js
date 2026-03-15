@@ -19,7 +19,7 @@ import {init as initControlStrip} from "../../../../src/exchange/components/Cont
 import {init as initGenerateButton, generateList} from "../../../../src/exchange/components/ControlStrip/GenerateButton";
 import {init as initResultsTable} from "../../../../src/exchange/components/ResultsTable";
 import {init as initEmailTable} from "../../../../src/exchange/components/EmailTable/EmailTable";
-import {addParticipant, assignRecipients, getState} from "../../../../src/exchange/state";
+import {addParticipant, assignRecipients, getState, removeParticipant} from "../../../../src/exchange/state";
 import {selectElement} from "../../../../src/utils";
 
 const noPossibleComboError = "No possible combinations! Please try a different configuration/number of names."
@@ -115,6 +115,58 @@ describe("generateButton", () => {
       dispatchCtrlEnter();
       expect(spy).not.toHaveBeenCalled();
       Object.defineProperty(navigator, "userAgent", { value: originalUA, configurable: true });
+    });
+  });
+
+  describe("generate hint text", () => {
+    it("does not show hint text before 3rd participant", () => {
+      resetState();
+      addParticipant("Alex");
+      addParticipant("Whitney");
+      const hint = document.querySelector("#generate-hint");
+      expect(hint.textContent).toBe("");
+    });
+
+    it("shows hint text after 3rd participant", () => {
+      resetState();
+      addParticipant("Alex");
+      addParticipant("Whitney");
+      addParticipant("Carol");
+      const hint = document.querySelector("#generate-hint");
+      expect(hint.textContent).toContain("When you're ready");
+    });
+
+    it("updates hint text after generation in normal mode", () => {
+      resetState();
+      addParticipant("Alex");
+      addParticipant("Whitney");
+      addParticipant("Carol");
+      installParticipantNames("Dave");
+      assignRecipients(["Whitney", "Carol", "Dave", "Alex"]);
+      const hint = document.querySelector("#generate-hint");
+      expect(hint.textContent).toContain("different combinations");
+    });
+
+    it("clears hint text after generation in secret santa mode", () => {
+      resetState();
+      getState().isSecretSanta = true;
+      addParticipant("Alex");
+      addParticipant("Whitney");
+      addParticipant("Carol");
+      installParticipantNames("Dave");
+      assignRecipients(["Whitney", "Carol", "Dave", "Alex"]);
+      const hint = document.querySelector("#generate-hint");
+      expect(hint.textContent).toBe("");
+    });
+
+    it("persists hint text when participants removed below 3", () => {
+      resetState();
+      addParticipant("Alex");
+      addParticipant("Whitney");
+      addParticipant("Carol");
+      expect(document.querySelector("#generate-hint").textContent).toContain("When you're ready");
+      removeParticipant("Carol");
+      expect(document.querySelector("#generate-hint").textContent).toContain("When you're ready");
     });
   });
 });
