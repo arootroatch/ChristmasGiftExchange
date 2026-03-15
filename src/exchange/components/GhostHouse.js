@@ -22,16 +22,15 @@ function enterAddHouse(evt) {
 function initialTemplate() {
   return `
     <div id="${ghostHouseId}" class="ghost-house">
-      <p class="ghost-text">Want to prevent certain people from being matched?
-      Create an exclusion group and drag their names in — or use the dropdown.</p>
-      <button class="${btnClass}">+ Add Group<br><span class="shortcut">(Shift+Enter)</span></button>
+      <p class="ghost-text">Need to make sure people from the same household (like a husband and a wife) don't get matched with each other? Create a House and drag their names in — or use the dropdown. You can even name the House (e.g. "The Smiths").</p>
+      <button class="${btnClass}">+ Add House<br><span class="shortcut">(Shift+Enter)</span></button>
     </div>`;
 }
 
 function minimalTemplate() {
   return `
     <div id="${ghostHouseId}" class="ghost-house ghost-house-minimal">
-      <button class="${btnClass}">+ Add another group<br><span class="shortcut">(Shift+Enter)</span></button>
+      <button class="${btnClass}">+ Add another House<br><span class="shortcut">(Shift+Enter)</span></button>
     </div>`;
 }
 

@@ -59,7 +59,7 @@ function findHouse(houseID) {
 export function addHouseToState() {
   const houseID = `house-${state.houses.length}`;
   const displayNumber = state.houses.length + 1;
-  state.houses.push({id: houseID, name: `Group ${displayNumber}`, members: []});
+  state.houses.push({id: houseID, name: `House ${displayNumber}`, members: []});
   exchangeEvents.emit(ExchangeEvents.HOUSE_ADDED, {houseID, ...state});
   return houseID;
 }

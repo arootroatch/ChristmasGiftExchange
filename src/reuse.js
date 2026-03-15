@@ -31,7 +31,7 @@ function renderResults(exchanges) {
         <div class="exchange-result">
             <h3>${new Date(ex.createdAt).toLocaleDateString()}</h3>
             <p><strong>Participants:</strong> ${escape(ex.participantNames.join(", "))}</p>
-            ${ex.houses.length > 0 ? `<p><strong>Groups:</strong> ${ex.houses.map(h => `${escape(h.name)} (${escape(h.members.join(", "))})`).join("; ")}</p>` : ""}
+            ${ex.houses.length > 0 ? `<p><strong>Households:</strong> ${ex.houses.map(h => `${escape(h.name)} (${escape(h.members.join(", "))})`).join("; ")}</p>` : ""}
             <button class="button use-exchange-btn" data-exchange='${escapeAttr(JSON.stringify(ex))}'>
                 Use This Exchange
             </button>

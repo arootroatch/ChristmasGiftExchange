@@ -12,7 +12,7 @@ function introTemplate() {
     </p>
     <ol>
       <li>Add all participant names</li>
-      <li>Sort people into exclusion groups (optional)</li>
+      <li>Separate people who live together into Houses (optional)</li>
       <li>Generate the list</li>
       <li>Send everyone an email with the name of their recipient (optional)</li>
     </ol>

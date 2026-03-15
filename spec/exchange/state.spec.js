@@ -78,15 +78,15 @@ describe('state helper functions', () => {
       addHouseToState();
       expect(getState().houses.length).toBe(1);
       expect(getState().houses[0].id).toMatch(/^house-/);
-      expect(getState().houses[0].name).toBe("Group 1");
+      expect(getState().houses[0].name).toBe("House 1");
       expect(getState().houses[0].members).toEqual([]);
     });
 
     it('should assign incrementing display names', () => {
       addHouseToState();
       addHouseToState();
-      expect(getState().houses[0].name).toBe("Group 1");
-      expect(getState().houses[1].name).toBe("Group 2");
+      expect(getState().houses[0].name).toBe("House 1");
+      expect(getState().houses[1].name).toBe("House 2");
     });
 
     it('returns the generated houseID', () => {

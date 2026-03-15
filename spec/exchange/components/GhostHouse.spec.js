@@ -56,10 +56,10 @@ describe("GhostHouse", () => {
       addParticipant("Whitney");
       addParticipant("Carol");
       const ghost = selectElement("#ghost-house");
-      expect(ghost.textContent).toContain("prevent certain people");
+      expect(ghost.textContent).toContain("same household");
     });
 
-    it("shows Add Group button in initial state", () => {
+    it("shows Add House button in initial state", () => {
       addParticipant("Alex");
       addParticipant("Whitney");
       addParticipant("Carol");
@@ -94,8 +94,8 @@ describe("GhostHouse", () => {
       addParticipant("Carol");
       addHouseToDOM();
       const ghost = selectElement("#ghost-house");
-      expect(ghost.textContent).not.toContain("prevent certain people");
-      expect(ghost.textContent).toContain("Add another group");
+      expect(ghost.textContent).not.toContain("same household");
+      expect(ghost.textContent).toContain("Add another House");
     });
 
     it("reverts to initial state when all groups removed", () => {
@@ -105,7 +105,7 @@ describe("GhostHouse", () => {
       addHouseToDOM();
       selectElement("#house-0-delete").click();
       const ghost = selectElement("#ghost-house");
-      expect(ghost.textContent).toContain("prevent certain people");
+      expect(ghost.textContent).toContain("same household");
     });
   });
 
@@ -170,8 +170,8 @@ describe("GhostHouse", () => {
       loadExchange(exchangeData);
       const ghost = selectElement("#ghost-house");
       expect(ghost).not.toBeNull();
-      expect(ghost.textContent).toContain("Add another group");
-      expect(ghost.textContent).not.toContain("prevent certain people");
+      expect(ghost.textContent).toContain("Add another House");
+      expect(ghost.textContent).not.toContain("same household");
     });
   });
 });

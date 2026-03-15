@@ -34,7 +34,7 @@ function template(houseID, displayName) {
           <p class="house-placeholder ghost-text">Drop names here or select them from the dropdown</p>
         </div>
         <div data-slot="select-${houseID}"></div>
-        <button class="button deleteHouse" id="${houseID}-delete">Delete Group</button>
+        <button class="button deleteHouse" id="${houseID}-delete">Delete House</button>
       </div>`;
 }
 
