@@ -179,6 +179,57 @@ describe('insertNameFromSelect', () => {
   })
 });
 
+describe("house select filtering", () => {
+  beforeAll(() => {
+    initReactiveSystem();
+  });
+
+  beforeEach(() => {
+    resetState();
+    removeAllNames();
+    removeAllHouses();
+    enterName("Alex");
+    enterName("Whitney");
+    enterName("Carol");
+    addHouseToDOM();
+  });
+
+  it("shows all participants in house select initially", () => {
+    const options = document.querySelectorAll("#house-0-select option:not([value='default'])");
+    const names = Array.from(options).map(o => o.value);
+    expect(names).toContain("Alex");
+    expect(names).toContain("Whitney");
+    expect(names).toContain("Carol");
+  });
+
+  it("excludes names already in the house from that house's select", () => {
+    moveNameToHouse("#house-0-select", "Alex");
+    const options = document.querySelectorAll("#house-0-select option:not([value='default'])");
+    const names = Array.from(options).map(o => o.value);
+    expect(names).not.toContain("Alex");
+    expect(names).toContain("Whitney");
+    expect(names).toContain("Carol");
+  });
+
+  it("re-adds name to select when removed from house", () => {
+    moveNameToHouse("#house-0-select", "Alex");
+    change("#name-list-select", "Alex");
+    const options = document.querySelectorAll("#house-0-select option:not([value='default'])");
+    const names = Array.from(options).map(o => o.value);
+    expect(names).toContain("Alex");
+  });
+
+  it("does not affect other house selects", () => {
+    addHouseToDOM();
+    moveNameToHouse("#house-0-select", "Alex");
+    const house1Options = document.querySelectorAll("#house-1-select option:not([value='default'])");
+    const names = Array.from(house1Options).map(o => o.value);
+    expect(names).toContain("Alex");
+    expect(names).toContain("Whitney");
+    expect(names).toContain("Carol");
+  });
+});
+
 describe("empty house placeholder", () => {
   beforeAll(() => {
     initReactiveSystem();

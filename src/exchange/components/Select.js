@@ -2,19 +2,17 @@ import {addEventListener, nameListId, selectElement} from "../../utils.js";
 import {ExchangeEvents as Events, exchangeEvents as stateEvents, addNameToHouse, removeNameFromHouse} from "../state.js";
 
 export function init() {
-  stateEvents.on(Events.PARTICIPANT_ADDED, ({participants}) => updateAllSelects(participants));
-  stateEvents.on(Events.PARTICIPANT_REMOVED, ({participants}) => updateAllSelects(participants));
-  stateEvents.on(Events.HOUSE_ADDED, ({houseID, participants}) => {
+  stateEvents.on(Events.PARTICIPANT_ADDED, ({participants, houses}) => updateAllSelects(participants, houses));
+  stateEvents.on(Events.PARTICIPANT_REMOVED, ({participants, houses}) => updateAllSelects(participants, houses));
+  stateEvents.on(Events.HOUSE_ADDED, ({houseID, participants, houses}) => {
     const slot = document.querySelector(`[data-slot="select-${houseID}"]`);
-    if (slot) renderIntoSlot(slot, participants);
+    if (slot) renderIntoSlot(slot, participants, houses);
   });
-  stateEvents.on(Events.NAME_ADDED_TO_HOUSE, ({houseID, participants}) => {
-    const slot = document.querySelector(`[data-slot="select-${houseID}"]`);
-    if (slot) renderIntoSlot(slot, participants);
+  stateEvents.on(Events.NAME_ADDED_TO_HOUSE, ({participants, houses}) => {
+    updateAllHouseSelects(participants, houses);
   });
-  stateEvents.on(Events.NAME_REMOVED_FROM_HOUSE, ({houseID, participants}) => {
-    const slot = document.querySelector(`[data-slot="select-${houseID}"]`);
-    if (slot) renderIntoSlot(slot, participants);
+  stateEvents.on(Events.NAME_REMOVED_FROM_HOUSE, ({participants, houses}) => {
+    updateAllHouseSelects(participants, houses);
   });
 }
 
@@ -40,10 +38,14 @@ export function insertNameFromSelect() {
   this.value = "default";
 }
 
-function updateAllSelects(participants) {
-  const slots = document.querySelectorAll('[data-slot^="select-"]');
-  slots.forEach(slot => renderIntoSlot(slot, participants));
+function updateAllSelects(participants, houses) {
+  updateAllHouseSelects(participants, houses);
   updateNameListSelect(participants);
+}
+
+function updateAllHouseSelects(participants, houses) {
+  const slots = document.querySelectorAll('[data-slot^="select-"]');
+  slots.forEach(slot => renderIntoSlot(slot, participants, houses));
 }
 
 function updateNameListSelect(participants) {
@@ -55,18 +57,25 @@ function updateNameListSelect(participants) {
       ${allNameOptions(participants)}`;
 }
 
-function renderIntoSlot(slot, participants) {
+function filterParticipantsForHouse(participants, houses, houseID) {
+  const house = houses.find(h => h.id === houseID);
+  const members = house ? house.members : [];
+  return participants.filter(p => !members.includes(p.name));
+}
+
+function renderIntoSlot(slot, participants, houses) {
   const slotId = slot.getAttribute('data-slot');
   const houseID = slotId.replace('select-', '');
+  const filtered = filterParticipantsForHouse(participants, houses, houseID);
   let select = slot.querySelector(`#${houseID}-select`);
 
   if (!select) {
-    slot.innerHTML = template(houseID, participants);
+    slot.innerHTML = template(houseID, filtered);
     addEventListener(`#${houseID}-select`, 'change', insertNameFromSelect);
   } else {
     select.innerHTML = `
         ${defaultOption()}
-        ${allNameOptions(participants)}`;
+        ${allNameOptions(filtered)}`;
   }
 }
 
