@@ -65,7 +65,7 @@ export function init() {
     rendered = false;
     remove();
     if (isReuse) {
-      rendered = true;
+      renderInitialOrMinimal();
     }
   });
 

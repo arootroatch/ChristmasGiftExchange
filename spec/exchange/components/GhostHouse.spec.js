@@ -13,6 +13,8 @@ import {init as initGhostHouse} from "../../../src/exchange/components/GhostHous
 import {
   addParticipant,
   assignRecipients,
+  exchangeEvents,
+  ExchangeEvents,
   getState,
   loadExchange,
   removeParticipant,
@@ -152,6 +154,27 @@ describe("GhostHouse", () => {
       addParticipant("Alex");
       dispatchShiftEnter();
       expect(spy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("on reuse", () => {
+    it("renders initial template when exchange is reused", () => {
+      exchangeEvents.emit(ExchangeEvents.EXCHANGE_STARTED, {isReuse: true});
+      const ghostHouse = document.querySelector("#ghost-house");
+      expect(ghostHouse).not.toBeNull();
+      expect(ghostHouse.textContent).toContain("household");
+    });
+
+    it("transitions to minimal when houses are added after reuse", () => {
+      exchangeEvents.emit(ExchangeEvents.EXCHANGE_STARTED, {isReuse: true});
+      exchangeEvents.emit(ExchangeEvents.HOUSE_ADDED, {
+        houseID: "house-0",
+        houses: [{id: "house-0", name: "Group 1", members: []}],
+        participants: [],
+      });
+      const ghostHouse = document.querySelector("#ghost-house");
+      expect(ghostHouse).not.toBeNull();
+      expect(ghostHouse.textContent).toContain("another House");
     });
   });
 
