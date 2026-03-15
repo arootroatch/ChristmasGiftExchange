@@ -184,6 +184,20 @@ describe('dragDrop', () => {
       container.dispatchEvent(new Event("dragend", {bubbles: true}));
       expect(document.body.classList.contains("dragging")).toBe(false);
     });
+
+    it("hides the source element during drag", () => {
+      const wrapper = document.querySelector("#wrapper-Alex");
+      wrapper.dispatchEvent(createDragStartEvent());
+      expect(wrapper.classList.contains("dragging-source")).toBe(true);
+    });
+
+    it("restores the source element on dragend", () => {
+      const wrapper = document.querySelector("#wrapper-Alex");
+      wrapper.classList.add("dragging-source");
+      const container = document.querySelector("#left-container");
+      container.dispatchEvent(new Event("dragend", {bubbles: true}));
+      expect(wrapper.classList.contains("dragging-source")).toBe(false);
+    });
   });
 
   describe('auto-scroll during drag', () => {

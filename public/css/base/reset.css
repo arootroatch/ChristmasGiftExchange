@@ -109,6 +109,10 @@ body.dragging * {
   cursor: grabbing !important;
 }
 
+.dragging-source {
+  display: none;
+}
+
 @keyframes slideOutLeft {
   from { opacity: 1; transform: translateX(0); }
   to { opacity: 0; transform: translateX(-40px); }

@@ -111,6 +111,7 @@ export function initDragDrop() {
     if (e.target.classList.contains('name-wrapper')) {
       document.body.classList.add('dragging');
       drag(e);
+      e.target.classList.add('dragging-source');
     }
   });
 
@@ -128,8 +129,10 @@ export function initDragDrop() {
     dragLeave(e);
   });
 
-  container.addEventListener('dragend', () => {
+  container.addEventListener('dragend', (e) => {
     stopAutoScroll();
     document.body.classList.remove('dragging');
+    const source = container.querySelector('.dragging-source');
+    if (source) source.classList.remove('dragging-source');
   });
 }
