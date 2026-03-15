@@ -45,3 +45,8 @@
   min-height: 3rem;
   padding-bottom: 10px;
 }
+
+#name-list .name-container:empty {
+  min-height: 0;
+  padding-bottom: 0;
+}
