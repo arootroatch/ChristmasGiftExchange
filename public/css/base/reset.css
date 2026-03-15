@@ -51,9 +51,6 @@ h1 {
   border-radius: 16px;
   line-height: 1.5em;
   padding: 5px 10px;
-  position: relative;
-  overflow: hidden;
-  transition: height 1s;
   margin: 20px auto;
   text-align: justify;
   max-width: 600px;
