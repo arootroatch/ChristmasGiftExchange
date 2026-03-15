@@ -13,7 +13,7 @@ import {
   addHouseToDOM,
   moveNameToHouse,
 } from "../../specHelper";
-import {getState} from "../../../src/exchange/state";
+import {getState, removeParticipant} from "../../../src/exchange/state";
 
 describe('nameList', () => {
 
@@ -92,6 +92,28 @@ describe('nameList', () => {
       const deleteBtn = document.querySelector("#participants [id^='delete-Alex']");
       click(`#${deleteBtn.id}`);
       expect(getState().participants.length).toBe(0);
+    });
+  });
+
+  describe("ghost text", () => {
+    it("shows ghost text when name list is empty", () => {
+      resetState();
+      const ghost = document.querySelector("#name-list .ghost-text");
+      expect(ghost).not.toBeNull();
+      expect(ghost.textContent).toContain("Enter the names of everyone participating");
+    });
+
+    it("removes ghost text after first participant is added", () => {
+      resetState();
+      enterName("Alex");
+      expect(document.querySelector("#name-list .ghost-text")).toBeNull();
+    });
+
+    it("does not reappear after removing all names", () => {
+      resetState();
+      enterName("Alex");
+      removeParticipant("Alex");
+      expect(document.querySelector("#name-list .ghost-text")).toBeNull();
     });
   });
 
