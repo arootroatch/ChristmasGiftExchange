@@ -1,10 +1,12 @@
 import {addEventListener, pushHTML, selectElement, setLoadingState, escapeAttr, apiFetch} from "../../../utils.js";
 import {showError, showSuccess} from "../../../Snackbar.js";
+import {render as renderEmailTable} from "./EmailTable.js";
 
 const confirmId = "sendResultsConfirm";
 const confirmBtnId = "sendResultsConfirmBtn";
 const cancelBtnId = "sendResultsCancelBtn";
 const sendResultsFormId = "sendResults";
+const sendResultsBackBtnId = "sendResultsBackBtn";
 const sendResultsNameId = "sendResultsName";
 const sendResultsEmailId = "sendResultsEmail";
 const sendResultsSubmitId = "sendResultsSubmit";
@@ -27,6 +29,7 @@ function confirmationTemplate({isSecretSanta}) {
       <div>
         <button class="button" id="${confirmBtnId}">Continue</button>
         <button class="button" id="${cancelBtnId}">Cancel</button>
+        <button class="button" id="${sendResultsBackBtnId}">\u2190 Back</button>
       </div>
     </div>`;
   return html;
@@ -37,6 +40,10 @@ export function showConfirmation(state) {
   addEventListener(`#${confirmBtnId}`, "click", () => showResultsForm(state));
   addEventListener(`#${cancelBtnId}`, "click", () => {
     selectElement(`#${confirmId}`)?.remove();
+  });
+  addEventListener(`#${sendResultsBackBtnId}`, "click", () => {
+    selectElement(`#${confirmId}`)?.remove();
+    renderEmailTable(state);
   });
 }
 
@@ -62,16 +69,21 @@ function resultsFormTemplate({isSecretSanta, participants, assignments}) {
       </select></div>
       <div><label for="${sendResultsEmailId}">Your email: </label><input type="email" id="${sendResultsEmailId}" placeholder="your@email.com" required/></div>
       <button class="button" id="${sendResultsSubmitId}">Send</button>
+      <button class="button" id="${sendResultsBackBtnId}">\u2190 Back</button>
       </div>
     </div>`;
   return html;
 }
 
-function showResultsForm(state) {
+export function showResultsForm(state) {
   selectElement(`#${confirmId}`)?.remove();
   selectElement("#emailTable")?.remove();
   pushHTML("body", resultsFormTemplate(state));
   addEventListener(`#${sendResultsSubmitId}`, "click", () => submitResults(state));
+  addEventListener(`#${sendResultsBackBtnId}`, "click", () => {
+    selectElement(`#${sendResultsFormId}`)?.remove();
+    renderEmailTable(state);
+  });
 }
 
 async function submitResults({assignments}) {

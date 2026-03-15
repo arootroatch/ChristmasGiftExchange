@@ -73,7 +73,7 @@ export function emailInput(participant, i) {
     </div>`;
 }
 
-function render(state) {
+export function render(state) {
   const {isSecretSanta} = state;
   const existing = selectElement(`#${emailTableId}`);
   if (existing) existing.remove();
