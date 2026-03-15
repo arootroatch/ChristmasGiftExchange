@@ -62,9 +62,9 @@ h1 {
 .ghost-text {
   color: rgba(255, 255, 255, 0.3);
   font-style: italic;
-  font-size: 13px;
+  font-size: 0.9em;
   text-align: center;
-  padding: 12px 8px;
+  padding: 4px 8px;
   line-height: 1.5;
 }
 
@@ -73,7 +73,9 @@ h1 {
   border: 2px dashed rgba(255, 255, 255, 0.12);
   border-radius: 8px;
   padding: 20px 16px;
+  margin-top: 1rem;
   margin-bottom: 12px;
+  max-width: 347px;
   text-align: center;
 }
 
@@ -122,11 +124,9 @@ body.dragging * {
 .slide-in-right { animation: slideInRight 0.3s ease-out both; }
 
 .drop-preview {
-  display: inline-block;
-  width: 60px;
-  height: 28px;
+  display: flex;
+  height: 36px;
   border: 2px dashed rgba(255, 255, 255, 0.3);
-  border-radius: 4px;
-  margin: 3px;
-  vertical-align: middle;
+  border-radius: 6px;
+  margin-bottom: 5px;
 }

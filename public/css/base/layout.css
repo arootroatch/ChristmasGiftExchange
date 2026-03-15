@@ -2,8 +2,9 @@
 #flex-div {
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
+  justify-content: center;
   align-items: flex-start;
+  gap: 20px;
   max-width: 800px;
   margin: 0 auto;
 }
@@ -33,6 +34,7 @@
   flex-wrap: wrap;
   height: auto;
   justify-content: center;
+  align-items: center;
 }
 
 #btn-div:first-child {
@@ -46,7 +48,7 @@
 #generate-hint {
   color: rgba(255, 255, 255, 0.3);
   font-style: italic;
-  font-size: 12px;
+  font-size: 14px;
   max-width: 200px;
   padding: 5px 10px;
 }
