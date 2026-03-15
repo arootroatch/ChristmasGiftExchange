@@ -43,7 +43,9 @@
     width: 100%;
     min-width: auto;
   }
+  html,
   body {
+    overscroll-behavior-y: auto;
     background-attachment: scroll;
   }
   .household,
