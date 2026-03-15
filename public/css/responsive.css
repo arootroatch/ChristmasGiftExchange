@@ -37,6 +37,7 @@
     padding: 12px 20px;
     font-size: 1em;
     min-height: 44px;
+    max-height: none;
     box-sizing: border-box;
   }
   #get-started .button,
