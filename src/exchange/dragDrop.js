@@ -87,6 +87,7 @@ export function initDragDrop() {
 
   container.addEventListener('dragstart', (e) => {
     if (e.target.classList.contains('name-wrapper')) {
+      document.body.classList.add('dragging');
       drag(e);
     }
   });
@@ -111,7 +112,10 @@ export function initDragDrop() {
     }
   });
 
-  container.addEventListener('dragend', stopAutoScroll);
+  container.addEventListener('dragend', () => {
+    stopAutoScroll();
+    document.body.classList.remove('dragging');
+  });
 }
 
 

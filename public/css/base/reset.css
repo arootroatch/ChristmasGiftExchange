@@ -99,6 +99,15 @@ h1 {
   padding: 12px 16px;
 }
 
+.name-wrapper {
+  cursor: grab;
+}
+
+body.dragging,
+body.dragging * {
+  cursor: grabbing !important;
+}
+
 @keyframes slideOutLeft {
   from { opacity: 1; transform: translateX(0); }
   to { opacity: 0; transform: translateX(-40px); }

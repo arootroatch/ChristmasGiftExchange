@@ -219,6 +219,34 @@ describe('dragDrop', () => {
     });
   });
 
+  describe("drag cursors", () => {
+    beforeAll(() => {
+      initReactiveSystem();
+    });
+
+    beforeEach(() => {
+      resetDOM();
+      resetState();
+      initDragDrop();
+      enterName("Alex");
+    });
+
+    it("adds dragging class to body on dragstart", () => {
+      const wrapper = document.querySelector("#wrapper-Alex");
+      wrapper.dispatchEvent(new Event("dragstart", {bubbles: true}));
+      expect(document.body.classList.contains("dragging")).toBe(true);
+    });
+
+    it("removes dragging class from body on dragend", () => {
+      const wrapper = document.querySelector("#wrapper-Alex");
+      wrapper.dispatchEvent(new Event("dragstart", {bubbles: true}));
+      expect(document.body.classList.contains("dragging")).toBe(true);
+      const container = document.querySelector("#left-container");
+      container.dispatchEvent(new Event("dragend", {bubbles: true}));
+      expect(document.body.classList.contains("dragging")).toBe(false);
+    });
+  });
+
   describe('auto-scroll during drag', () => {
     let scrollBySpy;
     let rafCallbacks;
