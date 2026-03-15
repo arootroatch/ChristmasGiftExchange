@@ -56,10 +56,21 @@ describe("getName", () => {
     })
 
     it("displays recipient and date", async () => {
+        stubRecipientFetch({recipient: "Whitney", date: "2023-06-15T12:00:00.000Z", giverName: "Alex"});
+        click("#recipientSearchBtn");
+        await waitFor(() => {
+            expect(query.innerHTML).toContain("Alex");
+            expect(query.innerHTML).toContain("is buying a gift for");
+            expect(query.innerHTML).toContain("Whitney!");
+            expect(query.innerHTML).toContain("Thu Jun 15 2023");
+        });
+    })
+
+    it("displays 'You're' when giverName is missing (legacy)", async () => {
         stubRecipientFetch({recipient: "Whitney", date: "2023-06-15T12:00:00.000Z"});
         click("#recipientSearchBtn");
         await waitFor(() => {
-            expect(query.innerHTML).toContain("As of Thu Jun 15 2023, you're buying a gift for");
+            expect(query.innerHTML).toContain("You're buying a gift for");
             expect(query.innerHTML).toContain("Whitney!");
         });
     })

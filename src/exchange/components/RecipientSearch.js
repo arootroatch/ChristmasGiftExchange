@@ -28,10 +28,14 @@ export const recipientSearchInit =
     </label>
     ${recipientSearchInput}`
 
-export function recipientSearchResult(date, recipient) {
+export function recipientSearchResult(date, giverName, recipient) {
+  const who = giverName
+    ? `<span>${escapeAttr(giverName)}</span> is`
+    : `You're`;
   return `
     <div>
-        As of ${escapeAttr(date.toDateString())}, you're buying a gift for <span>${escapeAttr(recipient)}!</span>
+        <p>${who} buying a gift for <span>${escapeAttr(recipient)}!</span></p>
+        <p class="date-secondary">${escapeAttr(date.toDateString())}</p>
     </div>
     ${recipientSearchInput}`;
 }
@@ -41,7 +45,7 @@ function renderResult(results) {
   const date = new Date(timestamp);
   const queryDiv = selectElement(`#${queryDivId}`);
 
-  let html = recipientSearchResult(date, results.recipient);
+  let html = recipientSearchResult(date, results.giverName, results.recipient);
   if (results.wishlistViewUrl) {
     html += `<a href="${escapeAttr(results.wishlistViewUrl)}" class="button" style="margin-top: 10px; display: inline-block;">View Wishlist</a>`;
   }
