@@ -8,6 +8,10 @@ export const test = base.extend({
     baseURL: async ({}, use) => {
         await use(`http://localhost:${state.port}`);
     },
+    page: async ({page}, use) => {
+        await page.route('**/verifalia-widget**', route => route.abort());
+        await use(page);
+    },
 });
 
 export {expect};
