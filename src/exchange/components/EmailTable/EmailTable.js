@@ -1,7 +1,7 @@
 import {ExchangeEvents as Events, exchangeEvents as stateEvents, getExchangePayload} from "../../state.js";
 import {addEventListener, pushHTML, selectElement, setLoadingState, escapeAttr, apiFetch} from "../../../utils.js";
 import {showError, showSuccess} from "../../../Snackbar.js";
-import {removeFailedEmails, showFailedEmails} from "./FailedEmails.js";
+import {removeFailedEmails, showFailedEmails, resetRetryCount} from "./FailedEmails.js";
 import {confirmId, sendResultsFormId, showConfirmation, removeAll as removeAllSendResults} from "./SendResults.js";
 
 const emailTableId = "emailTable";
@@ -24,6 +24,7 @@ export function init() {
     if (emailTable) emailTable.remove();
     removeAllSendResults();
     removeFailedEmails();
+    resetRetryCount();
   });
 }
 

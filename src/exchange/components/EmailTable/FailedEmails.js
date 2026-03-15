@@ -59,6 +59,7 @@ export function showFailedEmails(emailsFailed, payload, {onBack} = {}) {
       retryFailedEmails(failedParticipants, failedAssignments, onBack)
     );
     addEventListener(`#${backToEmailsBtnId}`, "click", () => {
+      removeFailedEmails();
       if (onBack) onBack(failedParticipants, failedAssignments);
     });
   }
