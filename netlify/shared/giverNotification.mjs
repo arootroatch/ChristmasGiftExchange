@@ -65,8 +65,9 @@ export async function sendNotificationEmail(templateName, to, subject, parameter
         return;
     }
 
+    const baseUrl = process.env.DEPLOY_PRIME_URL || process.env.URL;
     const response = await fetch(
-        `${process.env.URL}/.netlify/functions/emails/${templateName}`,
+        `${baseUrl}/.netlify/functions/emails/${templateName}`,
         {
             headers: {"netlify-emails-secret": process.env.NETLIFY_EMAILS_SECRET},
             method: "POST",

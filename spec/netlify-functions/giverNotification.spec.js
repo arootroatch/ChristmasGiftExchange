@@ -86,3 +86,51 @@ describe('sendEmailsWithRetry', () => {
         expect(body.parameters.wishlistEditUrl).toBeNull();
     });
 });
+
+describe('sendNotificationEmail', () => {
+    let sendNotificationEmail;
+
+    beforeAll(async () => {
+        process.env.CONTEXT = 'production';
+        process.env.URL = 'https://production.netlify.app';
+        process.env.NETLIFY_EMAILS_SECRET = 'test-secret';
+        vi.stubGlobal('fetch', vi.fn());
+        const module = await import('../../netlify/shared/giverNotification.mjs');
+        sendNotificationEmail = module.sendNotificationEmail;
+    });
+
+    beforeEach(() => {
+        fetch.mockReset();
+        fetch.mockResolvedValue({ok: true});
+    });
+
+    afterAll(() => {
+        vi.unstubAllGlobals();
+        delete process.env.CONTEXT;
+        delete process.env.URL;
+        delete process.env.NETLIFY_EMAILS_SECRET;
+        delete process.env.DEPLOY_PRIME_URL;
+    });
+
+    it('uses DEPLOY_PRIME_URL over URL when available', async () => {
+        process.env.DEPLOY_PRIME_URL = 'https://preview.netlify.app';
+
+        await sendNotificationEmail('secret-santa', 'user@test.com', 'Subject', {});
+
+        expect(fetch).toHaveBeenCalledWith(
+            'https://preview.netlify.app/.netlify/functions/emails/secret-santa',
+            expect.any(Object)
+        );
+    });
+
+    it('falls back to URL when DEPLOY_PRIME_URL is not set', async () => {
+        delete process.env.DEPLOY_PRIME_URL;
+
+        await sendNotificationEmail('secret-santa', 'user@test.com', 'Subject', {});
+
+        expect(fetch).toHaveBeenCalledWith(
+            'https://production.netlify.app/.netlify/functions/emails/secret-santa',
+            expect.any(Object)
+        );
+    });
+});
