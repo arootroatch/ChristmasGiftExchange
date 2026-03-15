@@ -178,3 +178,36 @@ describe('insertNameFromSelect', () => {
     expect(removeNameSpy).toHaveBeenCalledWith("house-0", "Alex");
   })
 });
+
+describe("empty house placeholder", () => {
+  beforeAll(() => {
+    initReactiveSystem();
+  });
+
+  beforeEach(() => {
+    resetState();
+    removeAllNames();
+    removeAllHouses();
+    enterName("Alex");
+    addHouseToDOM();
+  });
+
+  it("shows placeholder text when house is empty", () => {
+    const placeholder = document.querySelector("#house-0 .house-placeholder");
+    expect(placeholder).not.toBeNull();
+    expect(placeholder.textContent).toContain("Drop names here");
+  });
+
+  it("hides placeholder when a name is added to the house", () => {
+    moveNameToHouse("#house-0-select", "Alex");
+    const placeholder = document.querySelector("#house-0 .house-placeholder");
+    expect(placeholder.style.display).toBe("none");
+  });
+
+  it("shows placeholder again when all names are removed from house", () => {
+    moveNameToHouse("#house-0-select", "Alex");
+    expect(document.querySelector("#house-0 .house-placeholder").style.display).toBe("none");
+    change("#name-list-select", "Alex");
+    expect(document.querySelector("#house-0 .house-placeholder").style.display).not.toBe("none");
+  });
+});

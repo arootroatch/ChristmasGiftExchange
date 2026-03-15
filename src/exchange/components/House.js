@@ -9,6 +9,8 @@ import {addEventListener, leftContainerId, pushHTML, selectElement} from "../../
 export function init() {
   stateEvents.on(Events.HOUSE_ADDED, onHouseAdded);
   stateEvents.on(Events.HOUSE_REMOVED, onHouseRemoved);
+  stateEvents.on(Events.NAME_ADDED_TO_HOUSE, onNameChange);
+  stateEvents.on(Events.NAME_REMOVED_FROM_HOUSE, onNameChange);
 }
 
 function onHouseAdded({houseID, houses}) {
@@ -28,7 +30,9 @@ function template(houseID, displayName) {
   return `
       <div class="household" id="${houseID}">
         <h2 contenteditable="true">${displayName} <span class="edit-span">(Click here to rename)</span></h2>
-        <div data-slot="names-${houseID}" class="name-container"></div>
+        <div data-slot="names-${houseID}" class="name-container">
+          <p class="house-placeholder ghost-text">Drop names here or select them from the dropdown</p>
+        </div>
         <div data-slot="select-${houseID}"></div>
         <button class="button deleteHouse" id="${houseID}-delete">Delete Group</button>
       </div>`;
@@ -44,6 +48,12 @@ function onHouseRenamed() {
   const houseID = houseDiv.id;
   const newName = this.textContent.trim();
   renameHouse(houseID, newName);
+}
+
+function onNameChange({houseID, members}) {
+  const placeholder = selectElement(`#${houseID} .house-placeholder`);
+  if (!placeholder) return;
+  placeholder.style.display = members.length > 0 ? "none" : "";
 }
 
 function deleteHouse() {
