@@ -15,6 +15,7 @@ import {alex, whitney, hunter} from "../../../testData";
 import {
   emailInput,
   init,
+  renderWithSubset,
 } from "../../../../src/exchange/components/EmailTable/EmailTable";
 import {init as initSnackbar} from "../../../../src/Snackbar";
 
@@ -477,6 +478,54 @@ describe('emailTable', () => {
     const result = emailInput(participant, 0);
 
     expect(result).toContain('value=""');
+  });
+
+  describe("renderWithSubset", () => {
+    const subsetParticipants = [
+      {name: "Alex", email: "alex@test.com"},
+    ];
+    const subsetAssignments = [
+      {giver: "Alex", recipient: "Whitney"},
+    ];
+
+    beforeEach(() => {
+      document.querySelector("#emailTable")?.remove();
+      document.querySelector("#failedEmails")?.remove();
+    });
+
+    it("renders an email table with the subset participants", () => {
+      renderWithSubset(subsetParticipants, subsetAssignments);
+
+      const table = document.querySelector("#emailTable");
+      expect(table).not.toBeNull();
+      expect(table.textContent).toContain("Alex");
+    });
+
+    it("does not show the Send Me the Results section", () => {
+      renderWithSubset(subsetParticipants, subsetAssignments);
+
+      expect(document.querySelector("#sendResultsBtn")).toBeNull();
+    });
+
+    it("does not show the Dismiss button", () => {
+      renderWithSubset(subsetParticipants, subsetAssignments);
+
+      const dismissBtn = document.querySelector("#hideEmails");
+      expect(dismissBtn === null || dismissBtn.style.display === "none").toBe(true);
+    });
+
+    it("submits to api-giver-notify-post on submit", () => {
+      renderWithSubset(subsetParticipants, subsetAssignments);
+
+      const emailTableBody = document.getElementById("emailTableBody");
+      const submitEvent = new Event("submit", {bubbles: true, cancelable: true});
+      emailTableBody.dispatchEvent(submitEvent);
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        "/.netlify/functions/api-giver-notify-post",
+        expect.objectContaining({method: "POST"})
+      );
+    });
   });
 
   it("hideEmailTable hides the table and button", () => {

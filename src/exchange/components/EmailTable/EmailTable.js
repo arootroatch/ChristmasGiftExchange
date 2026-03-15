@@ -44,6 +44,19 @@ function template({participants}) {
     </div>`;
 }
 
+function subsetTemplate({participants}) {
+  return `
+    <div id="${emailTableId}" class="show">
+      <h3>Please correct the email addresses below and try again</h3>
+      <form id="${emailTableBodyId}">
+      ${participants.map((participant, i) => emailInput(participant, i)).join("")}
+        <div id="emailBtnDiv">
+          <button type="submit" class="button" id="${submitEmailsId}">Submit Emails</button>
+        </div>
+      </form>
+    </div>`;
+}
+
 export function emailInput(participant, i) {
   const safeName = escapeAttr(participant.name);
   return `
@@ -69,6 +82,21 @@ function render(state) {
   addEventListener(`#${emailTableBodyId}`, "submit", submitEmails);
   addEventListener(`#${hideEmailsId}`, "click", hideEmailTable);
   addEventListener(`#${sendResultsBtnId}`, "click", () => showConfirmation(state));
+  selectElement(`#${emailTableBodyId}`).addEventListener("input", (e) => {
+    if (e.target.classList.contains("emailInput")) {
+      e.target.classList.remove("duplicate-email");
+    }
+  });
+}
+
+export function renderWithSubset(participants, assignments) {
+  const existing = selectElement(`#${emailTableId}`);
+  if (existing) existing.remove();
+  removeFailedEmails();
+  pushHTML("body", subsetTemplate({participants}));
+  addEventListener(`#${emailTableBodyId}`, "submit", (event) =>
+    submitSubsetEmails(event, participants, assignments)
+  );
   selectElement(`#${emailTableBodyId}`).addEventListener("input", (e) => {
     if (e.target.classList.contains("emailInput")) {
       e.target.classList.remove("duplicate-email");
@@ -125,9 +153,51 @@ async function submitEmails(event) {
     onSuccess: (data) => {
       hideEmailTable();
       if (data.emailsFailed && data.emailsFailed.length > 0) {
-        showFailedEmails(data.emailsFailed, payload);
+        showFailedEmails(data.emailsFailed, payload, {
+          onBack: (failedParticipants, failedAssignments) =>
+            renderWithSubset(failedParticipants, failedAssignments),
+        });
       } else {
         showSuccess("Exchange saved and emails sent!");
+      }
+    },
+    onError: (msg) => showError(msg),
+    fallbackMessage: "Failed to submit emails. Please try again.",
+  });
+}
+
+async function submitSubsetEmails(event, originalParticipants, originalAssignments) {
+  event.preventDefault();
+  const {inputs, duplicates} = findDuplicateEmails();
+  if (duplicates.size > 0) {
+    inputs.forEach(input => {
+      if (duplicates.has(input.value.trim().toLowerCase())) {
+        input.classList.add("duplicate-email");
+      }
+    });
+    showError("Each participant must have a unique email address");
+    return;
+  }
+  setLoadingState(`#${submitEmailsId}`);
+  const emails = getEmails();
+  const participants = originalParticipants.map((p, i) => ({
+    ...p,
+    email: emails[i]?.email || p.email,
+  }));
+  const assignments = originalAssignments;
+
+  await apiFetch("/.netlify/functions/api-giver-notify-post", {
+    method: "POST",
+    body: {participants, assignments},
+    onSuccess: (data) => {
+      hideEmailTable();
+      if (data.emailsFailed && data.emailsFailed.length > 0) {
+        showFailedEmails(data.emailsFailed, {participants, assignments}, {
+          onBack: (failedParticipants, failedAssignments) =>
+            renderWithSubset(failedParticipants, failedAssignments),
+        });
+      } else {
+        showSuccess("Emails sent successfully!");
       }
     },
     onError: (msg) => showError(msg),
