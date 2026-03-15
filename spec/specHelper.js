@@ -8,6 +8,7 @@ import * as nameList from "../src/exchange/components/NameList";
 import * as select from "../src/exchange/components/Select";
 import * as controlStrip from "../src/exchange/components/ControlStrip/ControlStrip";
 import * as generateButton from "../src/exchange/components/ControlStrip/GenerateButton";
+import * as ghostHouse from "../src/exchange/components/GhostHouse";
 import * as instructions from "../src/exchange/components/Instructions";
 import * as snackbar from "../src/Snackbar";
 
@@ -22,6 +23,7 @@ export function initReactiveSystem() {
     select.init();
     controlStrip.init();
     generateButton.init();
+    ghostHouse.init();
     instructions.init();
     isReactiveSystemInitialized = true;
   }
