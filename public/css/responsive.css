@@ -31,11 +31,17 @@
   #flex-div {
     display: block;
   }
+  .button,
+  .btn-bottom,
+  .ghost-house-btn {
+    padding: 12px 20px;
+    font-size: 1em;
+    min-height: 44px;
+  }
   #get-started .button,
   #get-started .btn-bottom {
     width: 100%;
     max-width: 280px;
-    padding: 12px 20px;
     font-size: 1.1em;
   }
   .table {
