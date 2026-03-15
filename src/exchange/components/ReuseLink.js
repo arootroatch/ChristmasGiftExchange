@@ -5,7 +5,7 @@ function template() {
     return `<div class="reuseLink">
         <label>Been here before?</label>
         <div>
-            <a href="/reuse" class="button" style="text-decoration: none; width: auto; white-space: nowrap;">Reuse a Previous Exchange</a>
+            <a href="/reuse" class="button" style="text-decoration: none; width: auto;">Reuse a Previous Exchange</a>
         </div>
     </div>`;
 }
