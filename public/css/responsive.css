@@ -1,22 +1,10 @@
 /* Responsive Media Queries */
 
-/* Medium screens: instructions become static banner, two-column layout */
+/* Medium screens */
 @media screen and (max-width: 1120px) {
   #flex-div {
     flex-wrap: wrap;
     max-width: 800px;
-  }
-  [data-slot="instructions"]:has(.instruction-collapsed),
-  [data-slot="instructions"]:has(.instruction-expanded) {
-    position: static;
-    flex-basis: 100%;
-  }
-  #intro.instruction-collapsed,
-  #intro.instruction-expanded {
-    width: 100%;
-    min-width: auto;
-    max-width: 600px;
-    margin: 0 auto 12px;
   }
   .results-card {
     width: 45%;
@@ -76,30 +64,6 @@
     }
   }
 
-  #intro.instruction-collapsed,
-  #intro.instruction-expanded {
-    max-width: 320px;
-  }
-
-  #intro.instruction-collapsed .instruction-summary {
-    display: block;
-  }
-
-  #intro.instruction-collapsed .instruction-full {
-    display: none;
-  }
-
-  #intro.instruction-expanded .instruction-summary {
-    display: block;
-  }
-
-  #intro.instruction-expanded .instruction-full {
-    display: block;
-  }
-
-  #intro.instruction-expanded .chevron {
-    transform: translateY(-50%) rotate(180deg);
-  }
 }
 
 @media screen and (max-width: 553px) {
