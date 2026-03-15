@@ -164,15 +164,21 @@ describe('dragDrop', () => {
       enterName("Alex");
     });
 
+    function createDragStartEvent() {
+      const event = new Event("dragstart", {bubbles: true});
+      event.dataTransfer = {setData: vi.fn()};
+      return event;
+    }
+
     it("adds dragging class to body on dragstart", () => {
       const wrapper = document.querySelector("#wrapper-Alex");
-      wrapper.dispatchEvent(new Event("dragstart", {bubbles: true}));
+      wrapper.dispatchEvent(createDragStartEvent());
       expect(document.body.classList.contains("dragging")).toBe(true);
     });
 
     it("removes dragging class from body on dragend", () => {
       const wrapper = document.querySelector("#wrapper-Alex");
-      wrapper.dispatchEvent(new Event("dragstart", {bubbles: true}));
+      wrapper.dispatchEvent(createDragStartEvent());
       expect(document.body.classList.contains("dragging")).toBe(true);
       const container = document.querySelector("#left-container");
       container.dispatchEvent(new Event("dragend", {bubbles: true}));

@@ -14,4 +14,5 @@ if (typeof document !== 'undefined') {
     globalThis.window = dom.window;
     globalThis.navigator = dom.window.navigator;
     dom.window.Element.prototype.scrollIntoView = function () {};
+    dom.window.scrollTo = function () {};
 }
