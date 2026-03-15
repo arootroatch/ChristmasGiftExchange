@@ -46,9 +46,9 @@
 }
 
 #generate-hint {
-  color: rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.45);
   font-style: italic;
-  font-size: 14px;
+  font-size: 1em;
   max-width: 200px;
   padding: 5px 10px;
 }
