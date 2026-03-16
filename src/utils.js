@@ -36,8 +36,16 @@ export function unshiftHTML(selector, html) {
 
 export function setLoadingState(selector) {
     const btn = document.querySelector(selector);
-    btn.textContent = "Loading...";
-    btn.style.color = "#808080";
+    btn.dataset.originalText = btn.textContent;
+    btn.innerHTML = '<div class="spinner"></div>';
+    btn.disabled = true;
+}
+
+export function clearLoadingState(selector) {
+    const btn = document.querySelector(selector);
+    btn.textContent = btn.dataset.originalText || "";
+    delete btn.dataset.originalText;
+    btn.disabled = false;
 }
 
 export function isMobileDevice(userAgent = navigator.userAgent) {

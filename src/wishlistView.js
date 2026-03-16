@@ -11,7 +11,11 @@ async function loadWishlist() {
 
     await apiFetch(`/.netlify/functions/api-user-wishlist-get/${exchangeId}?token=${token}`, {
         onSuccess: (data) => {
-            document.getElementById("heading").textContent = `${data.recipientName}'s Wishlist`;
+            const spinner = document.getElementById("loading-spinner");
+            if (spinner) spinner.remove();
+            const heading = document.getElementById("heading");
+            heading.textContent = `${data.recipientName}'s Wishlist`;
+            heading.hidden = false;
             const content = document.getElementById("wishlist-content");
 
             if (data.wishlists.length === 0 && data.wishItems.length === 0) {
@@ -32,7 +36,8 @@ async function loadWishlist() {
             if (data.wishItems.length > 0) {
                 html += "<h2>Individual Items</h2><ul>";
                 data.wishItems.forEach(item => {
-                    html += `<li><a href="${escapeAttr(item.url)}" target="_blank">${escape(item.title || item.url)}</a></li>`;
+                    const price = item.price ? ` <span class="item-price">${escape(item.price)}</span>` : '';
+                    html += `<li><a href="${escapeAttr(item.url)}" target="_blank">${escape(item.title || item.url)}</a>${price}</li>`;
                 });
                 html += "</ul>";
             }

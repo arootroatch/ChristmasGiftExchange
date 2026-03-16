@@ -71,7 +71,7 @@ describe('api-user-wishlist-put', () => {
 
         const event = buildEvent(alexToken, {
             wishlists: [{url: 'https://amazon.com/list', title: 'My Amazon List'}],
-            wishItems: [{url: 'https://amazon.com/item', title: 'Cool Gadget'}],
+            wishItems: [{url: 'https://amazon.com/item', title: 'Cool Gadget', price: '$30'}],
         });
 
         const response = await handler(event);

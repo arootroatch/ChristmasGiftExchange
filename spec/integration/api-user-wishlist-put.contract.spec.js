@@ -29,7 +29,7 @@ describe('api-user-wishlist-put contract', () => {
                 path: `/.netlify/functions/api-user-wishlist-put/${user.token}`,
                 body: {
                     wishlists: [{url: 'https://amazon.com/list', title: 'My List'}],
-                    wishItems: [{url: 'https://amazon.com/item', title: 'A Thing'}],
+                    wishItems: [{url: 'https://amazon.com/item', title: 'A Thing', price: '$15'}],
                 },
             });
             const response = await handler(event);

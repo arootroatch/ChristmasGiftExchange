@@ -133,8 +133,8 @@ describe("Wishlist View Page", () => {
                     recipientName: "Jane",
                     wishlists: [],
                     wishItems: [
-                        {url: "https://example.com/product1", title: "Product 1"},
-                        {url: "https://example.com/product2", title: "Product 2"},
+                        {url: "https://example.com/product1", title: "Product 1", price: "$10"},
+                        {url: "https://example.com/product2", title: "Product 2", price: "$20"},
                     ],
                 },
             });

@@ -103,7 +103,7 @@ describe('migrateLegacyData', () => {
             email: 'alex@test.com',
             token: 'existing-token-123',
             wishlists: [{url: 'https://amazon.com/list', title: 'My List'}],
-            wishItems: [{url: 'https://amazon.com/item', title: 'Cool Thing'}],
+            wishItems: [{url: 'https://amazon.com/item', title: 'Cool Thing', price: '$25'}],
         });
 
         await db.collection('names').insertMany([

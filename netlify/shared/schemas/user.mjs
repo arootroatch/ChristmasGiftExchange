@@ -9,6 +9,7 @@ export const wishlistSchema = z.object({
 export const wishItemSchema = z.object({
     url: z.url(),
     title: z.string(),
+    price: z.string().default(''),
 });
 
 export const userSchema = z.object({

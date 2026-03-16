@@ -118,7 +118,7 @@ describe("Wishlist Edit Page", () => {
                 body: {
                     name: "John",
                     wishlists: [],
-                    wishItems: [{url: "https://example.com/product", title: "Cool Thing"}],
+                    wishItems: [{url: "https://example.com/product", title: "Cool Thing", price: "$25"}],
                 },
             });
             loadModule();
@@ -194,11 +194,13 @@ describe("Wishlist Edit Page", () => {
 
             document.getElementById("item-url").value = "https://example.com/gadget";
             document.getElementById("item-title").value = "Cool Gadget";
+            document.getElementById("item-price").value = "$29.99";
             document.getElementById("add-item-btn").click();
 
             const list = document.getElementById("items-list");
             expect(list.innerHTML).toContain("Cool Gadget");
             expect(list.innerHTML).toContain("https://example.com/gadget");
+            expect(list.innerHTML).toContain("$29.99");
         });
 
         it("clears inputs after adding", async () => {
@@ -206,20 +208,60 @@ describe("Wishlist Edit Page", () => {
 
             document.getElementById("item-url").value = "https://example.com/gadget";
             document.getElementById("item-title").value = "Cool Gadget";
+            document.getElementById("item-price").value = "$29.99";
             document.getElementById("add-item-btn").click();
 
             expect(document.getElementById("item-url").value).toBe("");
             expect(document.getElementById("item-title").value).toBe("");
+            expect(document.getElementById("item-price").value).toBe("");
         });
 
         it("does not add when URL is empty", async () => {
             await loadWithUser();
 
             document.getElementById("item-url").value = "";
+            document.getElementById("item-title").value = "Cool Gadget";
+            document.getElementById("item-price").value = "$29.99";
             document.getElementById("add-item-btn").click();
 
             const list = document.getElementById("items-list");
             expect(list.innerHTML).toBe("");
+        });
+
+        it("does not add when title is empty", async () => {
+            await loadWithUser();
+
+            document.getElementById("item-url").value = "https://example.com/gadget";
+            document.getElementById("item-title").value = "";
+            document.getElementById("item-price").value = "$29.99";
+            document.getElementById("add-item-btn").click();
+
+            const list = document.getElementById("items-list");
+            expect(list.innerHTML).toBe("");
+        });
+
+        it("does not add when price is empty", async () => {
+            await loadWithUser();
+
+            document.getElementById("item-url").value = "https://example.com/gadget";
+            document.getElementById("item-title").value = "Cool Gadget";
+            document.getElementById("item-price").value = "";
+            document.getElementById("add-item-btn").click();
+
+            const list = document.getElementById("items-list");
+            expect(list.innerHTML).toBe("");
+        });
+
+        it("shows error snackbar when fields are missing", async () => {
+            await loadWithUser();
+
+            document.getElementById("item-url").value = "https://example.com/gadget";
+            document.getElementById("item-title").value = "";
+            document.getElementById("item-price").value = "";
+            document.getElementById("add-item-btn").click();
+
+            const snackbar = document.getElementById("snackbar");
+            expect(snackbar.textContent).toBe("Please fill in all fields");
         });
     });
 
@@ -254,8 +296,8 @@ describe("Wishlist Edit Page", () => {
                     name: "John",
                     wishlists: [],
                     wishItems: [
-                        {url: "https://example.com/a", title: "Item A"},
-                        {url: "https://example.com/b", title: "Item B"},
+                        {url: "https://example.com/a", title: "Item A", price: "$10"},
+                        {url: "https://example.com/b", title: "Item B", price: "$20"},
                     ],
                 },
             });

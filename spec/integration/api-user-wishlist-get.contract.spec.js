@@ -17,7 +17,7 @@ describe('api-user-wishlist-get contract', () => {
             name: 'Bob',
             email: 'bob@test.com',
             wishlists: [{url: 'https://amazon.com/list', title: 'My List'}],
-            wishItems: [{url: 'https://amazon.com/item', title: 'Cool Thing'}],
+            wishItems: [{url: 'https://amazon.com/item', title: 'Cool Thing', price: '$25'}],
         });
         exchangeId = crypto.randomUUID();
         await seedUsers(db, giver, recipient);
@@ -66,12 +66,13 @@ describe('api-user-wishlist-get contract', () => {
             expect(body.wishlists[0]).toHaveProperty('title');
         });
 
-        it('wishItems contain url and title', async () => {
+        it('wishItems contain url, title, and price', async () => {
             const response = await handler(exchangeGetEvent());
             const body = JSON.parse(response.body);
 
             expect(body.wishItems[0]).toHaveProperty('url');
             expect(body.wishItems[0]).toHaveProperty('title');
+            expect(body.wishItems[0]).toHaveProperty('price');
         });
     });
 });

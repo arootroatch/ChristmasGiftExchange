@@ -1,4 +1,4 @@
-import {addEventListener, pushHTML, selectElement, setLoadingState, escapeAttr, apiFetch} from "../../../utils.js";
+import {addEventListener, pushHTML, selectElement, setLoadingState, clearLoadingState, escapeAttr, apiFetch} from "../../../utils.js";
 import {showError, showSuccess} from "../../../Snackbar.js";
 import {render as renderEmailTable} from "./EmailTable.js";
 
@@ -107,9 +107,7 @@ async function submitResults({assignments}) {
     },
     onError: (msg) => {
       showError(msg);
-      const btn = selectElement(`#${sendResultsSubmitId}`);
-      btn.textContent = "Send";
-      btn.style.color = "";
+      clearLoadingState(`#${sendResultsSubmitId}`);
     },
     fallbackMessage: "Failed to send results. Please try again.",
   });

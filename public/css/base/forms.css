@@ -57,3 +57,30 @@ textarea {
   resize: vertical;
   min-height: 60px;
 }
+
+/* ── Loading Spinner ────────────────────────────────────────── */
+.spinner {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  border: 3px solid rgba(255, 255, 255, 0.2);
+  border-top-color: rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+.spinner-container {
+  display: flex;
+  justify-content: center;
+  padding: 8px 0;
+}
+
+.button .spinner {
+  width: 16px;
+  height: 16px;
+  border-width: 2px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

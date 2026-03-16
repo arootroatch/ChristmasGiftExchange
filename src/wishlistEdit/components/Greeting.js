@@ -2,7 +2,7 @@ import {wishlistEditEvents, WishlistEditEvents} from '../state.js';
 import {selectElement} from '../../utils.js';
 
 function template() {
-    return '<h1 id="greeting">Loading...</h1>';
+    return '<div class="spinner-container"><div class="spinner"></div></div><h1 id="greeting" hidden></h1>';
 }
 
 export function init() {
@@ -11,5 +11,9 @@ export function init() {
 }
 
 function render({userName}) {
-    selectElement("#greeting").textContent = `Hi ${userName}, add your wishlist!`;
+    const spinner = selectElement('[data-slot="greeting"] .spinner-container');
+    if (spinner) spinner.remove();
+    const greeting = selectElement("#greeting");
+    greeting.textContent = `Hi ${userName}, add your wishlist!`;
+    greeting.hidden = false;
 }

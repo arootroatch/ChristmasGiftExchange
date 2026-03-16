@@ -1,5 +1,6 @@
 import {wishlistEditEvents, WishlistEditEvents, addItem, deleteItem} from '../state.js';
 import {escape, escapeAttr, selectElement, addEventListener} from '../../utils.js';
+import {showError} from '../../Snackbar.js';
 
 function template() {
     return `<section id="items-section">
@@ -7,22 +8,27 @@ function template() {
         <p class="helper-text">Add links to specific products you'd like</p>
         <div id="items-list"></div>
         <div id="add-item-form">
-            <div>
+            <div class="item-form-url">
                 <label for="item-url">Product URL</label>
                 <input type="url" id="item-url" placeholder="https://amazon.com/dp/..."/>
             </div>
             <div>
-                <label for="item-title">Title (optional)</label>
+                <label for="item-title">Title</label>
                 <input type="text" id="item-title" placeholder="Bluetooth Headphones"/>
+            </div>
+            <div>
+                <label for="item-price">Price</label>
+                <input type="text" id="item-price" placeholder="$25.00"/>
             </div>
             <button id="add-item-btn" class="button">Add</button>
         </div>
     </section>`;
 }
 
-const entryTemplate = (url, title, index) => `
+const entryTemplate = (url, title, price, index) => `
     <div class="wishlist-entry">
-        <a href="${escapeAttr(url)}" target="_blank">${escape(title || url)}</a>
+        <a href="${escapeAttr(url)}" target="_blank">${escape(title)}</a>
+        ${price ? `<span class="item-price">${escape(price)}</span>` : ''}
         <button class="delete-btn" data-type="wishItems" data-index="${index}">X</button>
     </div>`;
 
@@ -36,17 +42,22 @@ export function init() {
 
 function render({userData}) {
     selectElement("#items-list").innerHTML = userData.wishItems.map((item, i) =>
-        entryTemplate(item.url, item.title, i)
+        entryTemplate(item.url, item.title, item.price, i)
     ).join("");
 }
 
 function handleAdd() {
     const url = selectElement("#item-url").value.trim();
     const title = selectElement("#item-title").value.trim();
-    if (!url) return;
-    addItem({url, title: title || url});
+    const price = selectElement("#item-price").value.trim();
+    if (!url || !title || !price) {
+        showError("Please fill in all fields");
+        return;
+    }
+    addItem({url, title, price});
     selectElement("#item-url").value = "";
     selectElement("#item-title").value = "";
+    selectElement("#item-price").value = "";
 }
 
 function handleDelete(event) {

@@ -150,6 +150,14 @@ textarea {
   align-items: start;
 }
 
+#add-item-form {
+  grid-template-columns: 1fr auto auto;
+}
+
+#add-item-form .item-form-url {
+  grid-column: 1 / -1;
+}
+
 #add-wishlist-form input,
 #add-item-form input {
   margin-bottom: 0;
@@ -165,6 +173,19 @@ textarea {
   height: 40px;
   padding: 0 16px;
   white-space: nowrap;
+  align-self: end;
+}
+
+/* ── Item Price ────────────────────────────────────────────── */
+.item-price {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  white-space: nowrap;
+  margin-right: 12px;
+}
+
+#item-price {
+  width: 100px;
 }
 
 /* ── Wishlist Entries ───────────────────────────────────────── */
@@ -412,6 +433,14 @@ textarea {
   #add-wishlist-form,
   #add-item-form {
     grid-template-columns: 1fr;
+  }
+
+  #add-item-form .item-form-url {
+    grid-column: 1;
+  }
+
+  #item-price {
+    width: 100%;
   }
 
   #add-wishlist-form .button,

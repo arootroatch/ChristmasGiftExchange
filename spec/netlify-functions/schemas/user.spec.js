@@ -15,13 +15,19 @@ describe('wishlistSchema', () => {
 
 describe('wishItemSchema', () => {
     it('rejects invalid URLs', () => {
-        const result = wishItemSchema.safeParse({url: 'not-a-url', title: 'Cool Gadget'});
+        const result = wishItemSchema.safeParse({url: 'not-a-url', title: 'Cool Gadget', price: '$25.00'});
         expect(result.success).toBe(false);
     });
 
     it('accepts valid URLs', () => {
+        const result = wishItemSchema.safeParse({url: 'https://amazon.com/item/123', title: 'Cool Gadget', price: '$25.00'});
+        expect(result.success).toBe(true);
+    });
+
+    it('defaults price to empty string', () => {
         const result = wishItemSchema.safeParse({url: 'https://amazon.com/item/123', title: 'Cool Gadget'});
         expect(result.success).toBe(true);
+        expect(result.data.price).toBe('');
     });
 });
 

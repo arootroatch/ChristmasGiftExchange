@@ -17,7 +17,7 @@ describe('wishlistEditState', () => {
 
   describe('resetState', () => {
     it('resets state to defaults', () => {
-      setUserData({name: 'John', wishlists: [{url: 'https://a.com', title: 'A'}], wishItems: [{url: 'https://b.com', title: 'B'}]});
+      setUserData({name: 'John', wishlists: [{url: 'https://a.com', title: 'A'}], wishItems: [{url: 'https://b.com', title: 'B', price: '$10'}]});
       resetState();
 
       const spy = vi.fn();
@@ -82,10 +82,10 @@ describe('wishlistEditState', () => {
       const spy = vi.fn();
       const unsub = wishlistEditEvents.on(WishlistEditEvents.ITEMS_CHANGED, spy);
 
-      addItem({url: 'https://example.com/thing', title: 'Thing'});
+      addItem({url: 'https://example.com/thing', title: 'Thing', price: '$15'});
 
       expect(spy).toHaveBeenCalledWith(expect.objectContaining({
-        userData: {wishlists: [], wishItems: [{url: 'https://example.com/thing', title: 'Thing'}]},
+        userData: {wishlists: [], wishItems: [{url: 'https://example.com/thing', title: 'Thing', price: '$15'}]},
       }));
       unsub();
     });
@@ -93,15 +93,15 @@ describe('wishlistEditState', () => {
 
   describe('deleteItem', () => {
     it('removes item at index and emits ITEMS_CHANGED', () => {
-      addItem({url: 'https://a.com', title: 'A'});
-      addItem({url: 'https://b.com', title: 'B'});
+      addItem({url: 'https://a.com', title: 'A', price: '$5'});
+      addItem({url: 'https://b.com', title: 'B', price: '$10'});
 
       const spy = vi.fn();
       const unsub = wishlistEditEvents.on(WishlistEditEvents.ITEMS_CHANGED, spy);
       deleteItem(0);
 
       expect(spy).toHaveBeenCalledWith(expect.objectContaining({
-        userData: {wishlists: [], wishItems: [{url: 'https://b.com', title: 'B'}]},
+        userData: {wishlists: [], wishItems: [{url: 'https://b.com', title: 'B', price: '$10'}]},
       }));
       unsub();
     });

@@ -37,11 +37,11 @@ describe("getName", () => {
         }));
     }
 
-    it("sets button text to Loading...", () => {
+    it("shows spinner and disables button", () => {
         stubRecipientFetch({recipient: "Whitney", date: "2023-06-15T12:00:00.000Z"});
         click("#recipientSearchBtn");
-        expect(recipientSearchBtn.innerHTML).toContain('Loading...');
-        expectColor(recipientSearchBtn.style.color, "rgb(128, 128, 128)", "#808080");
+        expect(recipientSearchBtn.innerHTML).toContain('class="spinner"');
+        expect(recipientSearchBtn.disabled).toBe(true);
     })
 
     it("fetches from api-recipient-get with email query param", () => {

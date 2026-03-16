@@ -166,14 +166,10 @@ describe('emailTable', () => {
       submitEmailForm();
     });
 
-    it('sets button text to Loading...', () => {
+    it('shows spinner and disables button', () => {
       const submitEmailsButton = document.querySelector("#submitEmails");
-      expect(submitEmailsButton.innerHTML).toBe('Loading...');
-    })
-
-    it("sets button color to #808080", () => {
-      const submitEmailsButton = document.querySelector("#submitEmails");
-      expectColor(submitEmailsButton.style.color, "rgb(128, 128, 128)", "#808080");
+      expect(submitEmailsButton.innerHTML).toContain('class="spinner"');
+      expect(submitEmailsButton.disabled).toBe(true);
     })
 
     it("posts exchange data to new API endpoint", () => {
@@ -395,9 +391,10 @@ describe('emailTable', () => {
       expect(body.assignments).toHaveLength(3);
     });
 
-    it("shows loading state on submit button", () => {
+    it("shows spinner on submit button", () => {
       document.querySelector("#sendResultsSubmit").click();
-      expect(document.querySelector("#sendResultsSubmit").textContent).toBe("Loading...");
+      expect(document.querySelector("#sendResultsSubmit").innerHTML).toContain('class="spinner"');
+      expect(document.querySelector("#sendResultsSubmit").disabled).toBe(true);
     });
 
     it("shows success snackbar and removes component on success", async () => {

@@ -34,7 +34,7 @@ describe('api-user-get contract', () => {
                 name: 'Alice',
                 email: 'alice@test.com',
                 wishlists: [{url: 'https://amazon.com/list', title: 'My List'}],
-                wishItems: [{url: 'https://amazon.com/item', title: 'A Thing'}],
+                wishItems: [{url: 'https://amazon.com/item', title: 'A Thing', price: '$15'}],
             });
             await seedUsers(db, user);
 
@@ -58,7 +58,7 @@ describe('api-user-get contract', () => {
                 name: 'Alice',
                 email: 'alice@test.com',
                 wishlists: [{url: 'https://amazon.com/list', title: 'My List'}],
-                wishItems: [{url: 'https://amazon.com/item', title: 'A Thing'}],
+                wishItems: [{url: 'https://amazon.com/item', title: 'A Thing', price: '$15'}],
             });
             await seedUsers(db, user);
 
@@ -72,6 +72,7 @@ describe('api-user-get contract', () => {
             expect(body.wishlists[0]).toHaveProperty('title');
             expect(body.wishItems[0]).toHaveProperty('url');
             expect(body.wishItems[0]).toHaveProperty('title');
+            expect(body.wishItems[0]).toHaveProperty('price');
         });
 
         it('returns empty arrays for wishlists/wishItems when user has none', async () => {
