@@ -109,11 +109,11 @@ describe('sendNotificationEmail', () => {
         delete process.env.CONTEXT;
         delete process.env.URL;
         delete process.env.NETLIFY_EMAILS_SECRET;
-        delete process.env.DEPLOY_PRIME_URL;
+        delete process.env.DEPLOY_URL;
     });
 
-    it('uses DEPLOY_PRIME_URL over URL when available', async () => {
-        process.env.DEPLOY_PRIME_URL = 'https://preview.netlify.app';
+    it('uses DEPLOY_URL over URL when available', async () => {
+        process.env.DEPLOY_URL = 'https://preview.netlify.app';
 
         await sendNotificationEmail('secret-santa', 'user@test.com', 'Subject', {});
 
@@ -123,8 +123,8 @@ describe('sendNotificationEmail', () => {
         );
     });
 
-    it('falls back to URL when DEPLOY_PRIME_URL is not set', async () => {
-        delete process.env.DEPLOY_PRIME_URL;
+    it('falls back to URL when DEPLOY_URL is not set', async () => {
+        delete process.env.DEPLOY_URL;
 
         await sendNotificationEmail('secret-santa', 'user@test.com', 'Subject', {});
 

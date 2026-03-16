@@ -65,7 +65,8 @@ export async function sendNotificationEmail(templateName, to, subject, parameter
         return;
     }
 
-    const baseUrl = process.env.DEPLOY_PRIME_URL || process.env.URL;
+    const baseUrl = process.env.DEPLOY_URL || process.env.URL;
+    console.log(`[EMAIL] baseUrl=${baseUrl} | DEPLOY_URL=${process.env.DEPLOY_URL} | URL=${process.env.URL} | CONTEXT=${process.env.CONTEXT}`);
     const response = await fetch(
         `${baseUrl}/.netlify/functions/emails/${templateName}`,
         {
