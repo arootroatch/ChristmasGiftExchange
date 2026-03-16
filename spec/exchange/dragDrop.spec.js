@@ -114,6 +114,49 @@ describe('dragDrop', () => {
       shouldSelect('#house-1 .name-container #wrapper-Alex');
     });
 
+    it('positions dropped name at preview location instead of bottom', () => {
+      enterName('Alex');
+      enterName('Beth');
+      enterName('Carl');
+      addHouseToDOM();
+
+      const houseContainer = document.querySelector('#house-0 .name-container');
+
+      // Move Alex and Carl into the house first
+      drop({
+        target: houseContainer,
+        dataTransfer: {getData: () => 'wrapper-Alex'},
+        preventDefault: vi.fn()
+      });
+      drop({
+        target: houseContainer,
+        dataTransfer: {getData: () => 'wrapper-Carl'},
+        preventDefault: vi.fn()
+      });
+
+      // Verify initial order: Alex, Carl
+      const wrappersBefore = houseContainer.querySelectorAll('.name-wrapper');
+      expect(wrappersBefore[0].id).toBe('wrapper-Alex');
+      expect(wrappersBefore[1].id).toBe('wrapper-Carl');
+
+      // Insert a drop preview before Carl (simulating dragging Beth between Alex and Carl)
+      const preview = document.createElement('div');
+      preview.className = 'drop-preview';
+      houseContainer.insertBefore(preview, document.getElementById('wrapper-Carl'));
+
+      // Drop Beth into the house — should land where the preview was (before Carl)
+      drop({
+        target: houseContainer,
+        dataTransfer: {getData: () => 'wrapper-Beth'},
+        preventDefault: vi.fn()
+      });
+
+      const wrappersAfter = houseContainer.querySelectorAll('.name-wrapper');
+      expect(wrappersAfter[0].id).toBe('wrapper-Alex');
+      expect(wrappersAfter[1].id).toBe('wrapper-Beth');
+      expect(wrappersAfter[2].id).toBe('wrapper-Carl');
+    });
+
     it('does nothing when target is not name-container', () => {
       enterName('Alex');
       const nameWrapper = document.querySelector('#wrapper-Alex');
