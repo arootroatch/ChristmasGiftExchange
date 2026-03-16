@@ -1,5 +1,5 @@
 import {getUsersCollection, getExchangesCollection} from "./db.mjs";
-import {wishlistEditPath, absoluteUrl} from "./links.mjs";
+import {wishlistEditPath, wishlistViewPath, absoluteUrl} from "./links.mjs";
 
 export async function forEachGiverOf(recipientUser, callback) {
     const exchangesCol = await getExchangesCollection();
@@ -21,7 +21,7 @@ export async function forEachGiverOf(recipientUser, callback) {
     }
 }
 
-export async function sendEmailsWithRetry(participants, assignments, userByEmail) {
+export async function sendEmailsWithRetry(participants, assignments, userByEmail, exchangeId) {
     const emailsFailed = [];
 
     for (const assignment of assignments) {
@@ -29,6 +29,9 @@ export async function sendEmailsWithRetry(participants, assignments, userByEmail
         const user = userByEmail[participant.email];
         const wishlistEditUrl = user
             ? absoluteUrl(wishlistEditPath(user.token))
+            : null;
+        const wishlistViewUrl = user
+            ? absoluteUrl(wishlistViewPath(user.token, exchangeId))
             : null;
 
         let sent = false;
@@ -42,6 +45,7 @@ export async function sendEmailsWithRetry(participants, assignments, userByEmail
                         name: assignment.giver,
                         recipient: assignment.recipient,
                         wishlistEditUrl,
+                        wishlistViewUrl,
                     }
                 );
                 sent = true;

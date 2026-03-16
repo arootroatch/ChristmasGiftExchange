@@ -36,7 +36,7 @@ describe('sendEmailsWithRetry', () => {
 
     it('returns empty emailsFailed when all emails succeed', async () => {
         fetch.mockResolvedValue({ok: true});
-        const result = await sendEmailsWithRetry(participants, assignments, userByEmail);
+        const result = await sendEmailsWithRetry(participants, assignments, userByEmail, 'exchange-123');
         expect(result.emailsFailed).toEqual([]);
     });
 
@@ -47,7 +47,7 @@ describe('sendEmailsWithRetry', () => {
             .mockResolvedValueOnce({ok: true})
             .mockResolvedValue({ok: true});
 
-        const result = await sendEmailsWithRetry(participants, assignments, userByEmail);
+        const result = await sendEmailsWithRetry(participants, assignments, userByEmail, 'exchange-123');
         expect(result.emailsFailed).toEqual([]);
     });
 
@@ -58,13 +58,13 @@ describe('sendEmailsWithRetry', () => {
             .mockRejectedValueOnce(new Error('fail'))
             .mockResolvedValue({ok: true});
 
-        const result = await sendEmailsWithRetry(participants, assignments, userByEmail);
+        const result = await sendEmailsWithRetry(participants, assignments, userByEmail, 'exchange-123');
         expect(result.emailsFailed).toEqual(['alex@test.com']);
     });
 
     it('sends correct email parameters', async () => {
         fetch.mockResolvedValue({ok: true});
-        await sendEmailsWithRetry(participants, assignments, userByEmail);
+        await sendEmailsWithRetry(participants, assignments, userByEmail, 'exchange-123');
 
         const calls = fetch.mock.calls;
         const alexBody = JSON.parse(calls.find(c => {
@@ -75,11 +75,12 @@ describe('sendEmailsWithRetry', () => {
         expect(alexBody.to).toBe('alex@test.com');
         expect(alexBody.parameters.recipient).toBe('Whitney');
         expect(alexBody.parameters.wishlistEditUrl).toBe('https://test.netlify.app/wishlist/edit/alex-token');
+        expect(alexBody.parameters.wishlistViewUrl).toBe('https://test.netlify.app/wishlist/view/alex-token?exchange=exchange-123');
     });
 
     it('sets wishlistEditUrl to null when user not in userByEmail', async () => {
         fetch.mockResolvedValue({ok: true});
-        await sendEmailsWithRetry(participants, assignments, {});
+        await sendEmailsWithRetry(participants, assignments, {}, 'exchange-123');
 
         const calls = fetch.mock.calls;
         const body = JSON.parse(calls[0][1].body);
