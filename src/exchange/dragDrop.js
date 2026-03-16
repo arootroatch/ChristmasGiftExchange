@@ -101,6 +101,9 @@ export function drop(e) {
   const container = findContainer(e.target);
   if (container) {
     e.preventDefault();
+
+    const preview = container.querySelector('.drop-preview');
+    const insertBeforeId = preview?.nextElementSibling?.id;
     removeDropPreview(container);
 
     const data = e.dataTransfer.getData("text");
@@ -114,6 +117,14 @@ export function drop(e) {
     }
     if (destHouseID) {
       addNameToHouse(destHouseID, name);
+    }
+
+    const droppedWrapper = document.getElementById(`wrapper-${name}`);
+    if (droppedWrapper && insertBeforeId) {
+      const refElement = document.getElementById(insertBeforeId);
+      if (refElement && container.contains(refElement)) {
+        container.insertBefore(droppedWrapper, refElement);
+      }
     }
 
     container.style.backgroundColor = "transparent";
