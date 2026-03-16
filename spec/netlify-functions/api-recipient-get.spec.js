@@ -33,7 +33,7 @@ describe('api-recipient-get', () => {
         expect(response.statusCode).toBe(400);
     });
 
-    it('queries new collections and returns recipient with wishlist URL', async () => {
+    it('queries new collections and returns recipient name and giver name', async () => {
         const giverId = new ObjectId();
         const recipientId = new ObjectId();
         const giverToken = crypto.randomUUID();
@@ -81,53 +81,6 @@ describe('api-recipient-get', () => {
         const body = JSON.parse(response.body);
         expect(body.recipient).toBe('Whitney');
         expect(body.date).toBeDefined();
-        expect(body.wishlistViewUrl).toBe(`/wishlist/view/${giverToken}?exchange=exchange-new`);
-        expect(body.giverName).toBe('Alex');
-    });
-
-    it('does not include wishlist URL when recipient has no wishlist', async () => {
-        const giverId = new ObjectId();
-        const recipientId = new ObjectId();
-        const giverToken = crypto.randomUUID();
-        const recipientToken = crypto.randomUUID();
-
-        await db.collection('users').insertMany([
-            {
-                _id: giverId,
-                email: 'alex@test.com',
-                name: 'Alex',
-                token: giverToken,
-                wishlists: [],
-                wishItems: [],
-            },
-            {
-                _id: recipientId,
-                email: 'whitney@test.com',
-                name: 'Whitney',
-                token: recipientToken,
-                wishlists: [],
-                wishItems: [],
-            },
-        ]);
-
-        await db.collection('exchanges').insertOne({
-            exchangeId: 'exchange-no-wishlist',
-            createdAt: new Date('2025-12-01'),
-            isSecretSanta: true,
-            participants: [giverId, recipientId],
-            assignments: [{giverId: giverId, recipientId: recipientId}],
-            houses: [],
-        });
-
-        const event = {
-            httpMethod: 'GET',
-            queryStringParameters: {email: 'alex@test.com'},
-        };
-
-        const response = await handler(event);
-        const body = JSON.parse(response.body);
-
-        expect(body.recipient).toBe('Whitney');
         expect(body.wishlistViewUrl).toBeUndefined();
         expect(body.giverName).toBe('Alex');
     });

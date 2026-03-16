@@ -46,15 +46,14 @@ test.describe('Recipient Search', () => {
         await expect(result).toContainText('As of');
     });
 
-    test('shows wishlist view link when recipient has wishlist', async ({page}) => {
+    test('does not expose wishlist view link', async ({page}) => {
         await page.goto('/');
 
         await page.locator('#recipientSearch').fill('alice@test.com');
         await page.locator('#recipientSearchBtn').click();
 
-        const link = page.locator('#query a');
-        await expect(link).toBeVisible();
-        await expect(link).toHaveAttribute('href', /\/wishlist\/view\//);
+        await expect(page.locator('#query')).toContainText('Bob');
+        await expect(page.locator('#query a')).not.toBeVisible();
     });
 
     test('shows error for unknown email', async ({page}) => {

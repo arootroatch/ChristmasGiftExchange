@@ -1,8 +1,6 @@
 import {getUsersCollection, getExchangesCollection, getLegacyCollection} from "../shared/db.mjs";
-import {wishlistViewPath} from "../shared/links.mjs";
 import {apiHandler} from "../shared/middleware.mjs";
 import {ok, badRequest, notFound} from "../shared/responses.mjs";
-import {userSchema} from "../shared/schemas/user.mjs";
 
 async function lookupFromNewCollections(email) {
     const usersCol = await getUsersCollection();
@@ -25,20 +23,12 @@ async function lookupFromNewCollections(email) {
 
     const doc = await usersCol.findOne({_id: assignment.recipientId});
     if (!doc) return null;
-    const recipient = userSchema.parse(doc);
-    const hasWishlist = recipient.wishlists.length > 0 || recipient.wishItems.length > 0;
 
-    const result = {
+    return ok({
         giverName: user.name,
-        recipient: recipient.name,
+        recipient: doc.name,
         date: latestExchange.createdAt,
-    };
-
-    if (hasWishlist) {
-        result.wishlistViewUrl = wishlistViewPath(user.token, latestExchange.exchangeId);
-    }
-
-    return ok(result);
+    });
 }
 
 async function lookupFromLegacy(email) {

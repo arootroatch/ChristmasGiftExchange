@@ -45,12 +45,7 @@ function renderResult(results) {
   const date = new Date(timestamp);
   const queryDiv = selectElement(`#${queryDivId}`);
 
-  let html = recipientSearchResult(date, results.giverName, results.recipient);
-  if (results.wishlistViewUrl) {
-    html += `<a href="${escapeAttr(results.wishlistViewUrl)}" class="button" style="margin-top: 10px; display: inline-block;">View Wishlist</a>`;
-  }
-
-  queryDiv.innerHTML = html;
+  queryDiv.innerHTML = recipientSearchResult(date, results.giverName, results.recipient);
   addEventListener(`#${recipientSearchBtnId}`, "click", getName);
 }
 

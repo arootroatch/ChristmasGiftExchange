@@ -40,7 +40,7 @@ describe('api-recipient-get contract', () => {
     });
 
     describe('response contract (BE → FE)', () => {
-        it('response contains recipient and date', async () => {
+        it('response contains recipient, date, and giverName but not wishlistViewUrl', async () => {
             const response = await handler(recipientGetEvent(giver.email));
             const body = JSON.parse(response.body);
 
@@ -49,30 +49,6 @@ describe('api-recipient-get contract', () => {
             expect(body).toHaveProperty('giverName');
             expect(typeof body.recipient).toBe('string');
             expect(typeof body.giverName).toBe('string');
-        });
-
-        it('includes wishlistViewUrl when recipient has wishlist', async () => {
-            const response = await handler(recipientGetEvent(giver.email));
-            const body = JSON.parse(response.body);
-
-            expect(body).toHaveProperty('wishlistViewUrl');
-            expect(typeof body.wishlistViewUrl).toBe('string');
-        });
-
-        it('omits wishlistViewUrl when recipient has no wishlist', async () => {
-            await cleanCollections(db, 'users', 'exchanges');
-
-            const noWishlistGiver = makeUser({name: 'Alice', email: 'alice2@test.com'});
-            const noWishlistRecipient = makeUser({name: 'Bob', email: 'bob2@test.com'});
-            await seedUsers(db, noWishlistGiver, noWishlistRecipient);
-            await seedExchange(db, makeExchange({
-                participants: [noWishlistGiver._id, noWishlistRecipient._id],
-                assignments: [{giverId: noWishlistGiver._id, recipientId: noWishlistRecipient._id}],
-            }));
-
-            const response = await handler(recipientGetEvent(noWishlistGiver.email));
-            const body = JSON.parse(response.body);
-
             expect(body).not.toHaveProperty('wishlistViewUrl');
         });
     });

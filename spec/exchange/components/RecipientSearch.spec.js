@@ -75,32 +75,6 @@ describe("getName", () => {
         });
     })
 
-    it("displays View Wishlist link when wishlistViewUrl is present", async () => {
-        stubRecipientFetch({
-            recipient: "Whitney",
-            date: "2023-06-15T12:00:00.000Z",
-            wishlistViewUrl: "/wishlist/view/token-abc?exchange=ex123"
-        });
-        click("#recipientSearchBtn");
-        await waitFor(() => {
-            expect(query.innerHTML).toContain("Whitney!");
-            expect(query.innerHTML).toContain("View Wishlist");
-            expect(query.innerHTML).toContain('href="/wishlist/view/token-abc?exchange=ex123"');
-        });
-    })
-
-    it("does not display View Wishlist link when wishlistViewUrl is absent", async () => {
-        stubRecipientFetch({
-            recipient: "Whitney",
-            date: "2023-06-15T12:00:00.000Z"
-        });
-        click("#recipientSearchBtn");
-        await waitFor(() => {
-            expect(query.innerHTML).toContain("Whitney!");
-            expect(query.innerHTML).not.toContain("View Wishlist");
-        });
-    })
-
     it("allows multiple searches", async () => {
         stubRecipientFetch({recipient: "Whitney", date: "2023-06-15T12:00:00.000Z"});
         click("#recipientSearchBtn");
