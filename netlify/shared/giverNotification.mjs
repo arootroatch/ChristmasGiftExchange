@@ -72,7 +72,6 @@ export async function sendNotificationEmail(templateName, to, subject, parameter
     }
 
     const baseUrl = process.env.URL;
-    console.log(`[EMAIL] baseUrl=${baseUrl} | URL=${process.env.URL}`);
     const response = await fetch(
         `${baseUrl}/.netlify/functions/emails/${templateName}`,
         {
