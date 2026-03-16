@@ -189,11 +189,11 @@ async function submitSubsetEmails(event, originalParticipants, originalAssignmen
 
   await apiFetch("/.netlify/functions/api-giver-notify-post", {
     method: "POST",
-    body: {participants, assignments},
+    body: {exchangeId: getExchangePayload().exchangeId, participants, assignments},
     onSuccess: (data) => {
       hideEmailTable();
       if (data.emailsFailed && data.emailsFailed.length > 0) {
-        showFailedEmails(data.emailsFailed, {participants, assignments}, {
+        showFailedEmails(data.emailsFailed, {exchangeId: getExchangePayload().exchangeId, participants, assignments}, {
           onBack: (failedParticipants, failedAssignments) =>
             renderWithSubset(failedParticipants, failedAssignments),
         });

@@ -40,6 +40,7 @@ function finalFailureTemplate(emailsFailed) {
 }
 
 export function showFailedEmails(emailsFailed, payload, {onBack} = {}) {
+  const {exchangeId} = payload;
   const failedAssignments = payload.assignments.filter(a => {
     const participant = payload.participants.find(p => p.name === a.giver);
     return participant && emailsFailed.includes(participant.email);
@@ -56,7 +57,7 @@ export function showFailedEmails(emailsFailed, payload, {onBack} = {}) {
   } else {
     pushHTML("body", failedEmailsTemplate(emailsFailed));
     addEventListener(`#${retryEmailsBtnId}`, "click", () =>
-      retryFailedEmails(failedParticipants, failedAssignments, onBack)
+      retryFailedEmails(failedParticipants, failedAssignments, exchangeId, onBack)
     );
     addEventListener(`#${backToEmailsBtnId}`, "click", () => {
       removeFailedEmails();
@@ -65,17 +66,17 @@ export function showFailedEmails(emailsFailed, payload, {onBack} = {}) {
   }
 }
 
-async function retryFailedEmails(participants, assignments, onBack) {
+async function retryFailedEmails(participants, assignments, exchangeId, onBack) {
   setLoadingState(`#${retryEmailsBtnId}`);
 
   await apiFetch("/.netlify/functions/api-giver-notify-post", {
     method: "POST",
-    body: {participants, assignments},
+    body: {exchangeId, participants, assignments},
     onSuccess: (data) => {
       removeFailedEmails();
       if (data.emailsFailed && data.emailsFailed.length > 0) {
         retryCount++;
-        showFailedEmails(data.emailsFailed, {participants, assignments}, {onBack});
+        showFailedEmails(data.emailsFailed, {exchangeId, participants, assignments}, {onBack});
       } else {
         showSuccess("Emails sent successfully!");
       }
