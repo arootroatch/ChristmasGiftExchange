@@ -1,10 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import {fileURLToPath} from 'node:url';
 import {getDb} from '../shared/db.mjs';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const emailsDir = path.join(__dirname, '..', 'shared', 'emails');
+const emailsDir = path.resolve(process.cwd(), 'netlify', 'shared', 'emails');
 
 function listTemplates() {
     return fs.readdirSync(emailsDir)

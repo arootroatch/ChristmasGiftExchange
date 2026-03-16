@@ -6,12 +6,12 @@ function humanize(camelCase) {
 }
 
 async function fetchTemplateList() {
-    const response = await fetch('/api/email-preview');
+    const response = await fetch('/.netlify/functions/api-email-preview-get');
     return response.json();
 }
 
 async function fetchRenderedEmail(templateName) {
-    const response = await fetch(`/api/email-preview?template=${templateName}`);
+    const response = await fetch(`/.netlify/functions/api-email-preview-get?template=${templateName}`);
     return response.text();
 }
 

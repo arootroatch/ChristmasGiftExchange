@@ -41,5 +41,15 @@
   to = "/pages/reuse/index.html"
   status = 200
 
+[[redirects]]
+  from = "/dev/emails"
+  to = "/pages/dev/emails/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/dev/emails/*"
+  to = "/pages/dev/emails/index.html"
+  status = 200
+
 [[plugins]]
   package = "@netlify/plugin-emails"

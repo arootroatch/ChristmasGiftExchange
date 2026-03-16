@@ -161,14 +161,15 @@ Local development requires the Netlify CLI and a MongoDB instance.
 
    This runs `netlify dev`, which starts the Vite dev server and proxies serverless function requests. Environment variables are loaded from `.env.local`.
 
-4. **Preview email templates** (optional):
+4. **Preview email templates** (dev-only):
 
-   ```bash
-   netlify build
-   npm run dev
+   With both `bin/db` and `npm run dev` running, visit:
+
+   ```
+   http://localhost:8888/dev/emails/
    ```
 
-   Then visit `localhost:8888/.netlify/functions/emails` to see rendered email previews.
+   This opens a split-view preview tool with a sidebar listing all email templates. Click any template to see it rendered with real data from the seeded database. Email templates live in `netlify/shared/emails/` as JS modules — edit them and refresh to see changes.
 
 ### CI/CD Pipeline
 
