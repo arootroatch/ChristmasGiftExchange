@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Preview</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { display: flex; height: 100vh; font-family: Arial, sans-serif; }
+        #sidebar {
+            width: 220px;
+            background: #1a1a2e;
+            color: #e0e0e0;
+            flex-shrink: 0;
+            overflow-y: auto;
+        }
+        #sidebar-header {
+            padding: 16px;
+            font-size: 11px;
+            text-transform: uppercase;
+            color: #888;
+            letter-spacing: 1px;
+            border-bottom: 1px solid #333;
+        }
+        .template-link {
+            display: block;
+            padding: 12px 16px;
+            color: #ccc;
+            cursor: pointer;
+            font-size: 14px;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+        }
+        .template-link:hover { background: #16213e; color: #fff; }
+        .template-link.active { background: #2e7d32; color: #fff; }
+        #preview-pane {
+            flex: 1;
+            background: #f5f5f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+        #preview-frame {
+            width: 100%;
+            max-width: 700px;
+            height: 100%;
+            border: none;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <nav id="sidebar">
+        <div id="sidebar-header">Email Templates</div>
+        <div id="template-list"></div>
+    </nav>
+    <main id="preview-pane">
+        <iframe id="preview-frame"></iframe>
+    </main>
+    <script type="module">
+        import {main} from '/src/dev/emailPreview.js';
+        main();
+    </script>
+</body>
+</html>
