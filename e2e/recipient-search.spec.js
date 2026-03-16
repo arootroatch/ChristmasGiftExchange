@@ -30,7 +30,7 @@ test.describe('Recipient Search', () => {
         await disconnectDB();
     });
 
-    test('entering giver email shows recipient name', async ({page}) => {
+    test('entering giver email shows giver name, recipient, and date', async ({page}) => {
         await page.goto('/');
 
         const emailInput = page.locator('#recipientSearch');
@@ -40,7 +40,10 @@ test.describe('Recipient Search', () => {
         await submitBtn.click();
 
         const result = page.locator('#query');
+        await expect(result).toContainText('Alice');
+        await expect(result).toContainText('is buying a gift for');
         await expect(result).toContainText('Bob');
+        await expect(result).toContainText('As of');
     });
 
     test('shows wishlist view link when recipient has wishlist', async ({page}) => {

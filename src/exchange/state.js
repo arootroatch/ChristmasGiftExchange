@@ -177,7 +177,11 @@ export function loadExchange(exchangeData) {
   exchangeData.houses.forEach(h => {
     const houseID = addHouseToState();
     const house = findHouse(houseID);
-    if (house) house.name = h.name;
+    if (house) {
+      house.name = h.name;
+      const heading = document.querySelector(`#${houseID} h2`);
+      if (heading) heading.childNodes[0].textContent = `${h.name} `;
+    }
     h.members.forEach(name => addNameToHouse(houseID, name));
   });
 

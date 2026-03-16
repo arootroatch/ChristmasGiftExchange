@@ -57,6 +57,80 @@ test.describe('Create Exchange → View Wishlist', () => {
         expect(exchange.assignments).toHaveLength(3);
     });
 
+    test('Send Me Results back button returns to email table', async ({page}) => {
+        await page.goto('/');
+        await page.locator('#letsGo').click();
+
+        const nameInput = page.locator('#name-input');
+        const addButton = page.locator('#add-name-btn');
+        await expect(nameInput).toBeVisible();
+
+        for (const name of ['Alice', 'Bob', 'Carol']) {
+            await nameInput.fill(name);
+            await addButton.click();
+        }
+
+        await page.locator('#generate').click();
+        await expect(page.locator('#email-results-btn')).toBeVisible();
+        await page.locator('#email-results-btn').click();
+        await expect(page.locator('#emailTable')).toBeVisible();
+
+        // Click "Send Me the Results"
+        await page.locator('#sendResultsBtn').click();
+
+        // Confirmation modal appears
+        await expect(page.locator('#sendResultsConfirm')).toBeVisible();
+
+        // Cancel dismisses confirmation
+        await page.locator('#sendResultsCancelBtn').click();
+        await expect(page.locator('#sendResultsConfirm')).not.toBeVisible();
+        await expect(page.locator('#emailTable')).toBeVisible();
+
+        // Go through again — Continue to results form
+        await page.locator('#sendResultsBtn').click();
+        await page.locator('#sendResultsConfirmBtn').click();
+
+        // Results form appears with back button
+        await expect(page.locator('#sendResults')).toBeVisible();
+        await expect(page.locator('#sendResultsBackBtn')).toBeVisible();
+
+        // Back button returns to email table
+        await page.locator('#sendResultsBackBtn').click();
+        await expect(page.locator('#sendResults')).not.toBeVisible();
+        await expect(page.locator('#emailTable')).toBeVisible();
+    });
+
+    test('drag name into house moves it from participants to house', async ({page}) => {
+        await page.goto('/');
+        await page.locator('#letsGo').click();
+
+        const nameInput = page.locator('#name-input');
+        const addButton = page.locator('#add-name-btn');
+        await expect(nameInput).toBeVisible();
+
+        for (const name of ['Alice', 'Bob', 'Carol']) {
+            await nameInput.fill(name);
+            await addButton.click();
+        }
+
+        // Ghost house should appear after 3 names
+        await expect(page.locator('#ghost-house')).toBeVisible();
+
+        // Add a house
+        await page.locator('.ghost-house-btn').click();
+        const house = page.locator('.household').first();
+        await expect(house).toBeVisible();
+
+        // Drag Alice into the house
+        const aliceWrapper = page.locator('#wrapper-Alice');
+        const houseContainer = house.locator('.name-container');
+        await aliceWrapper.dragTo(houseContainer);
+
+        // Alice should now be in the house, not in the participants list
+        await expect(house.locator('#wrapper-Alice')).toBeVisible();
+        await expect(page.locator(`#name-list #wrapper-Alice`)).not.toBeVisible();
+    });
+
     test('giver can view recipient wishlist page', async ({page}) => {
         const giver = makeUser({name: 'Alice', email: 'alice@test.com'});
         const recipient = makeUser({name: 'Bob', email: 'bob@test.com'});

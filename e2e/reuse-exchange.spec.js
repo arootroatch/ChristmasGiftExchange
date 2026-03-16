@@ -33,7 +33,7 @@ test.describe('Reuse Exchange', () => {
         await disconnectDB();
     });
 
-    test('search by email shows past exchange details', async ({page}) => {
+    test('search by email shows past exchange details with Households label', async ({page}) => {
         await page.goto('/reuse');
 
         await page.locator('#reuse-email').fill('alice@test.com');
@@ -42,6 +42,7 @@ test.describe('Reuse Exchange', () => {
         const results = page.locator('#results-section');
         await expect(results).toContainText('Alice');
         await expect(results).toContainText('Bob');
+        await expect(results).toContainText('Households:');
         await expect(results).toContainText('Family');
     });
 
@@ -76,5 +77,29 @@ test.describe('Reuse Exchange', () => {
         expect(stored).not.toBeNull();
         const parsed = JSON.parse(stored);
         expect(parsed.exchangeId).toBe(exchangeId);
+    });
+
+    test('reusing exchange populates participants, houses, and ghost house', async ({page}) => {
+        await page.goto('/reuse');
+
+        await page.locator('#reuse-email').fill('alice@test.com');
+        await page.locator('#reuse-search-btn').click();
+        await expect(page.locator('.use-exchange-btn')).toBeVisible();
+
+        await page.locator('.use-exchange-btn').first().click();
+        await page.waitForURL('/');
+
+        // Participants should be loaded
+        await expect(page.locator('#wrapper-Alice')).toBeVisible();
+        await expect(page.locator('#wrapper-Bob')).toBeVisible();
+
+        // House should appear with correct name
+        const house = page.locator('.household').first();
+        await expect(house).toBeVisible();
+        await expect(house.locator('h2')).toContainText('Family');
+
+        // Ghost house minimal template should be visible
+        await expect(page.locator('#ghost-house')).toBeVisible();
+        await expect(page.locator('.ghost-house-btn')).toContainText('Add another House');
     });
 });
