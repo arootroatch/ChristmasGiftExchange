@@ -148,7 +148,7 @@ describe("Wishlist View Page", () => {
             expect(content.innerHTML).toContain("Individual Items");
         });
 
-        it("shows empty message when no wishlist submitted", async () => {
+        it("shows styled empty state when no wishlist submitted", async () => {
             setupDOM();
             mockFetch({
                 body: {
@@ -162,7 +162,10 @@ describe("Wishlist View Page", () => {
 
             await flush();
             const content = document.getElementById("wishlist-content");
-            expect(content.textContent).toContain("No wishlist submitted yet.");
+            expect(content.innerHTML).toContain("Jane hasn't added any wishlists yet");
+            expect(content.innerHTML).toContain("Check back later");
+            expect(content.innerHTML).toContain("send you an email");
+            expect(content.querySelector("section")).not.toBeNull();
         });
     });
 
