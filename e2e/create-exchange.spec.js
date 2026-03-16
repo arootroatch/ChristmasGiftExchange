@@ -100,7 +100,7 @@ test.describe('Create Exchange → View Wishlist', () => {
         await expect(page.locator('#emailTable')).toBeVisible();
     });
 
-    test('drag name into house moves it from participants to house', async ({page}) => {
+    test('moving name into house via dropdown removes it from participants', async ({page}) => {
         await page.goto('/');
         await page.locator('#letsGo').click();
 
@@ -121,14 +121,12 @@ test.describe('Create Exchange → View Wishlist', () => {
         const house = page.locator('.household').first();
         await expect(house).toBeVisible();
 
-        // Drag Alice into the house
-        const aliceWrapper = page.locator('#wrapper-Alice');
-        const houseContainer = house.locator('.name-container');
-        await aliceWrapper.dragTo(houseContainer);
+        // Move Alice into the house via dropdown
+        await house.locator('select').selectOption('Alice');
 
         // Alice should now be in the house, not in the participants list
         await expect(house.locator('#wrapper-Alice')).toBeVisible();
-        await expect(page.locator(`#name-list #wrapper-Alice`)).not.toBeVisible();
+        await expect(page.locator('#name-list #wrapper-Alice')).not.toBeVisible();
     });
 
     test('giver can view recipient wishlist page', async ({page}) => {
