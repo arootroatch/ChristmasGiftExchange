@@ -5,6 +5,7 @@ import {sendNotificationEmail, sendEmailsWithRetry} from "../shared/giverNotific
 import {getUsersCollection} from "../shared/db.mjs";
 
 const giverNotifyRequestSchema = z.object({
+    exchangeId: z.string(),
     participants: z.array(z.object({
         name: z.string(),
         email: z.email(),
@@ -26,7 +27,7 @@ export const handler = apiHandler("POST", async (event) => {
     const userByEmail = {};
     users.forEach(u => { userByEmail[u.email] = u; });
 
-    const {emailsFailed} = await sendEmailsWithRetry(data.participants, data.assignments, userByEmail);
+    const {emailsFailed} = await sendEmailsWithRetry(data.participants, data.assignments, userByEmail, data.exchangeId);
 
     const sent = data.assignments.length - emailsFailed.length;
 

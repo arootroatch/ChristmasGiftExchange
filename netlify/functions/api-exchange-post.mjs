@@ -128,7 +128,7 @@ export const handler = apiHandler("POST", async (event) => {
         userByEmail[p.email] = userMap[p.name];
     });
 
-    const {emailsFailed} = await sendEmailsWithRetry(data.participants, data.assignments, userByEmail);
+    const {emailsFailed} = await sendEmailsWithRetry(data.participants, data.assignments, userByEmail, data.exchangeId);
 
     return ok({...buildResponse(data.exchangeId, data.participants), emailsFailed});
 });

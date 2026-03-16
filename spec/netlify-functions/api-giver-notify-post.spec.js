@@ -56,6 +56,7 @@ describe('api-giver-notify-post', () => {
     }
 
     const bulkPayload = {
+        exchangeId: 'test-exchange-id',
         participants: [
             {name: 'Alex', email: 'alex@test.com'},
             {name: 'Whitney', email: 'whitney@test.com'},
@@ -226,6 +227,7 @@ describe('api-giver-notify-post', () => {
         });
 
         const event = buildEvent({
+            exchangeId: 'test-exchange-id',
             participants: [{name: "O'Brien", email: 'obrien@test.com'}],
             assignments: [{giver: "O'Brien", recipient: 'Whitney'}],
         });
