@@ -31,6 +31,21 @@ describe('secretSanta', () => {
             expect(html).not.toContain('Add Your Wishlist');
         });
 
+        it('includes wishlist view CTA with URL and recipient name', () => {
+            const html = render({
+                name: 'Alex',
+                recipient: 'Hunter',
+                wishlistViewUrl: 'https://example.com/wishlist/view/abc?exchange=123',
+            });
+            expect(html).toContain("View Hunter's Wish List");
+            expect(html).toContain('https://example.com/wishlist/view/abc?exchange=123');
+        });
+
+        it('omits wishlist view CTA when wishlistViewUrl is null', () => {
+            const html = render({name: 'Alex', recipient: 'Hunter'});
+            expect(html).not.toContain("Wish List");
+        });
+
         it('includes shared layout footer', () => {
             const html = render({name: 'Alex', recipient: 'Hunter'});
             expect(html).toContain('Happy gift giving!');
@@ -58,17 +73,18 @@ describe('secretSanta', () => {
             await teardownMongo(mongo);
         });
 
-        it('returns giver name, recipient name, and wishlistEditUrl', async () => {
+        it('returns giver name, recipient name, wishlistEditUrl, and wishlistViewUrl', async () => {
             const giverId = new ObjectId();
             const recipientId = new ObjectId();
             const giverToken = crypto.randomUUID();
+            const exchangeId = crypto.randomUUID();
 
             await db.collection('users').insertMany([
                 {_id: giverId, name: 'Alex', email: 'a@test.com', token: giverToken, wishlists: [], wishItems: []},
                 {_id: recipientId, name: 'Hunter', email: 'h@test.com', token: crypto.randomUUID(), wishlists: [], wishItems: []},
             ]);
             await db.collection('exchanges').insertOne({
-                exchangeId: crypto.randomUUID(),
+                exchangeId,
                 createdAt: new Date(),
                 isSecretSanta: true,
                 participants: [giverId, recipientId],
@@ -81,6 +97,8 @@ describe('secretSanta', () => {
             expect(data.name).toBe('Alex');
             expect(data.recipient).toBe('Hunter');
             expect(data.wishlistEditUrl).toContain(`/wishlist/edit/${giverToken}`);
+            expect(data.wishlistViewUrl).toContain(`/wishlist/view/${giverToken}`);
+            expect(data.wishlistViewUrl).toContain(`exchange=${exchangeId}`);
         });
     });
 });
