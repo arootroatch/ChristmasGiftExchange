@@ -28,6 +28,7 @@ async function lookupFromNewCollections(email) {
         giverName: user.name,
         recipient: doc.name,
         date: latestExchange.createdAt,
+        exchangeId: latestExchange.exchangeId,
     });
 }
 

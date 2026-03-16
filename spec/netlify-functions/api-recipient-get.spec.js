@@ -83,6 +83,7 @@ describe('api-recipient-get', () => {
         expect(body.date).toBeDefined();
         expect(body.wishlistViewUrl).toBeUndefined();
         expect(body.giverName).toBe('Alex');
+        expect(body.exchangeId).toBe('exchange-new');
     });
 
     it('falls back to legacy collection when not in new collections', async () => {
@@ -105,6 +106,7 @@ describe('api-recipient-get', () => {
         expect(body.date).toBeDefined();
         expect(body.wishlistViewUrl).toBeUndefined();
         expect(body.giverName).toBeUndefined();
+        expect(body.exchangeId).toBeUndefined();
     });
 
     it('returns 404 when not found in any collection', async () => {
@@ -162,5 +164,6 @@ describe('api-recipient-get', () => {
         const body = JSON.parse(response.body);
 
         expect(body.recipient).toBe('New Recipient');
+        expect(body.exchangeId).toBe('new-exchange');
     });
 });
