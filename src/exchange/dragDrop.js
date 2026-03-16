@@ -35,11 +35,35 @@ function findContainer(target) {
   return target.closest('.name-container');
 }
 
-function addDropPreview(container) {
-  if (container.querySelector('.drop-preview')) return;
+function createDropPreview() {
+  const div = document.createElement('div');
+  div.className = 'drop-preview';
+  return div;
+}
+
+function addDropPreview(container, clientY) {
   const placeholder = container.querySelector('.house-placeholder');
   if (placeholder) placeholder.style.display = 'none';
-  container.insertAdjacentHTML('beforeend', '<div class="drop-preview"></div>');
+
+  const existing = container.querySelector('.drop-preview');
+  const siblings = Array.from(container.querySelectorAll('.name-wrapper:not(.dragging-source)'));
+  const nextSibling = siblings.find(el => {
+    const rect = el.getBoundingClientRect();
+    return clientY < rect.top + rect.height / 2;
+  });
+
+  if (existing) {
+    const currentNext = existing.nextElementSibling;
+    if (currentNext === nextSibling || (!nextSibling && !currentNext)) return;
+    existing.remove();
+  }
+
+  const preview = createDropPreview();
+  if (nextSibling) {
+    container.insertBefore(preview, nextSibling);
+  } else {
+    container.appendChild(preview);
+  }
 }
 
 function removeDropPreview(container) {
@@ -53,7 +77,7 @@ export function allowDrop(e) {
   const container = findContainer(e.target);
   if (container) {
     e.preventDefault();
-    addDropPreview(container);
+    addDropPreview(container, e.clientY);
   }
 }
 
@@ -113,6 +137,11 @@ export function initDragDrop() {
       drag(e);
       requestAnimationFrame(() => {
         e.target.classList.add('dragging-source');
+        const sourceContainer = e.target.parentNode;
+        if (sourceContainer?.classList.contains('name-container')) {
+          const preview = createDropPreview();
+          sourceContainer.insertBefore(preview, e.target.nextSibling);
+        }
       });
     }
   });
@@ -136,5 +165,6 @@ export function initDragDrop() {
     document.body.classList.remove('dragging');
     const source = container.querySelector('.dragging-source');
     if (source) source.classList.remove('dragging-source');
+    container.querySelectorAll('.drop-preview').forEach(p => p.remove());
   });
 }
