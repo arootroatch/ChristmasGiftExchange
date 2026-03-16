@@ -58,6 +58,12 @@ export async function sendEmailsWithRetry(participants, assignments, userByEmail
     return {emailsFailed};
 }
 
+let _requestOrigin = null;
+
+export function setRequestOrigin(event) {
+    _requestOrigin = event?.rawUrl ? new URL(event.rawUrl).origin : null;
+}
+
 export async function sendNotificationEmail(templateName, to, subject, parameters) {
     if (process.env.CONTEXT === "dev") {
         console.log(`[DEV EMAIL] Template: ${templateName} | To: ${to} | Subject: ${subject}`);
@@ -65,8 +71,8 @@ export async function sendNotificationEmail(templateName, to, subject, parameter
         return;
     }
 
-    const baseUrl = process.env.DEPLOY_URL || process.env.URL;
-    console.log(`[EMAIL] baseUrl=${baseUrl} | DEPLOY_URL=${process.env.DEPLOY_URL} | URL=${process.env.URL} | CONTEXT=${process.env.CONTEXT}`);
+    const baseUrl = _requestOrigin || process.env.URL;
+    console.log(`[EMAIL] baseUrl=${baseUrl} | origin=${_requestOrigin} | URL=${process.env.URL}`);
     const response = await fetch(
         `${baseUrl}/.netlify/functions/emails/${templateName}`,
         {

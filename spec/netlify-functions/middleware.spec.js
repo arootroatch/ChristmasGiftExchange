@@ -2,6 +2,7 @@ import {describe, it, expect, vi} from 'vitest';
 
 vi.mock('../../netlify/shared/giverNotification.mjs', () => ({
     sendNotificationEmail: vi.fn(() => Promise.resolve()),
+    setRequestOrigin: vi.fn(),
 }));
 
 import {apiHandler} from '../../netlify/shared/middleware.mjs';

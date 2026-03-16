@@ -1,5 +1,5 @@
 import {methodNotAllowed, serverError} from "./responses.mjs";
-import {sendNotificationEmail} from "./giverNotification.mjs";
+import {sendNotificationEmail, setRequestOrigin} from "./giverNotification.mjs";
 
 export function formatZodError(zodError) {
     const issue = zodError.issues[0];
@@ -26,6 +26,7 @@ export function apiHandler(method, fn) {
         if (event.httpMethod !== method) {
             return methodNotAllowed();
         }
+        setRequestOrigin(event);
         try {
             return await fn(event);
         } catch (error) {

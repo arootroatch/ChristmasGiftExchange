@@ -88,7 +88,7 @@ describe('sendEmailsWithRetry', () => {
 });
 
 describe('sendNotificationEmail', () => {
-    let sendNotificationEmail;
+    let sendNotificationEmail, setRequestOrigin;
 
     beforeAll(async () => {
         process.env.CONTEXT = 'production';
@@ -97,11 +97,13 @@ describe('sendNotificationEmail', () => {
         vi.stubGlobal('fetch', vi.fn());
         const module = await import('../../netlify/shared/giverNotification.mjs');
         sendNotificationEmail = module.sendNotificationEmail;
+        setRequestOrigin = module.setRequestOrigin;
     });
 
     beforeEach(() => {
         fetch.mockReset();
         fetch.mockResolvedValue({ok: true});
+        setRequestOrigin(null);
     });
 
     afterAll(() => {
@@ -109,22 +111,21 @@ describe('sendNotificationEmail', () => {
         delete process.env.CONTEXT;
         delete process.env.URL;
         delete process.env.NETLIFY_EMAILS_SECRET;
-        delete process.env.DEPLOY_URL;
     });
 
-    it('uses DEPLOY_URL over URL when available', async () => {
-        process.env.DEPLOY_URL = 'https://preview.netlify.app';
+    it('uses request origin from setRequestOrigin when available', async () => {
+        setRequestOrigin({rawUrl: 'https://deploy-preview-42--mysite.netlify.app/.netlify/functions/api-exchange-post'});
 
         await sendNotificationEmail('secret-santa', 'user@test.com', 'Subject', {});
 
         expect(fetch).toHaveBeenCalledWith(
-            'https://preview.netlify.app/.netlify/functions/emails/secret-santa',
+            'https://deploy-preview-42--mysite.netlify.app/.netlify/functions/emails/secret-santa',
             expect.any(Object)
         );
     });
 
-    it('falls back to URL when DEPLOY_URL is not set', async () => {
-        delete process.env.DEPLOY_URL;
+    it('falls back to URL when no request origin is set', async () => {
+        setRequestOrigin(null);
 
         await sendNotificationEmail('secret-santa', 'user@test.com', 'Subject', {});
 
