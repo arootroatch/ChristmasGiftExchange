@@ -136,4 +136,90 @@ describe("getName", () => {
         expect(slot.innerHTML).toBe("");
     });
 
+    it("shows wishlist email button for modern exchanges", async () => {
+        stubRecipientFetch({recipient: "Whitney", date: "2023-06-15T12:00:00.000Z", giverName: "Alex", exchangeId: "ex-123"});
+        click("#recipientSearchBtn");
+        await waitFor(() => {
+            expect(query.innerHTML).toContain("Email Me Whitney's Wish List");
+        });
+    });
+
+    it("does not show wishlist email button for legacy results", async () => {
+        stubRecipientFetch({recipient: "Whitney", date: "2023-06-15T12:00:00.000Z"});
+        click("#recipientSearchBtn");
+        await waitFor(() => {
+            expect(query.innerHTML).toContain("Whitney!");
+            expect(query.innerHTML).not.toContain("Email Me");
+        });
+    });
+
+    it("sends wishlist email on button click", async () => {
+        stubRecipientFetch({recipient: "Whitney", date: "2023-06-15T12:00:00.000Z", giverName: "Alex", exchangeId: "ex-123"});
+        const emailInput = document.querySelector("#recipientSearch");
+        emailInput.value = "alex@test.com";
+        click("#recipientSearchBtn");
+        await waitFor(() => {
+            expect(query.innerHTML).toContain("Email Me");
+        });
+
+        global.fetch = vi.fn(() => Promise.resolve({
+            ok: true,
+            status: 200,
+            json: () => Promise.resolve({sent: true})
+        }));
+
+        click("#wishlistEmailBtn");
+        await waitFor(() => {
+            expect(global.fetch).toHaveBeenCalledWith(
+                "/.netlify/functions/api-wishlist-email-post",
+                expect.objectContaining({
+                    method: "POST",
+                    body: JSON.stringify({email: "alex@test.com", exchangeId: "ex-123"}),
+                })
+            );
+        });
+    });
+
+    it("shows success message after email sent", async () => {
+        stubRecipientFetch({recipient: "Whitney", date: "2023-06-15T12:00:00.000Z", giverName: "Alex", exchangeId: "ex-123"});
+        const emailInput = document.querySelector("#recipientSearch");
+        emailInput.value = "alex@test.com";
+        click("#recipientSearchBtn");
+        await waitFor(() => expect(query.innerHTML).toContain("Email Me"));
+
+        global.fetch = vi.fn(() => Promise.resolve({
+            ok: true,
+            status: 200,
+            json: () => Promise.resolve({sent: true})
+        }));
+
+        click("#wishlistEmailBtn");
+        await waitFor(() => {
+            const btn = document.querySelector("#wishlistEmailBtn");
+            expect(btn.textContent).toBe("Email sent!");
+            expect(btn.disabled).toBe(true);
+        });
+    });
+
+    it("shows error message when wishlist email fails", async () => {
+        stubRecipientFetch({recipient: "Whitney", date: "2023-06-15T12:00:00.000Z", giverName: "Alex", exchangeId: "ex-123"});
+        const emailInput = document.querySelector("#recipientSearch");
+        emailInput.value = "alex@test.com";
+        click("#recipientSearchBtn");
+        await waitFor(() => expect(query.innerHTML).toContain("Email Me"));
+
+        global.fetch = vi.fn(() => Promise.resolve({
+            ok: false,
+            status: 404,
+            json: () => Promise.resolve({error: "User not found"})
+        }));
+
+        click("#wishlistEmailBtn");
+        await waitFor(() => {
+            const btn = document.querySelector("#wishlistEmailBtn");
+            expect(btn.textContent).toBe("User not found");
+            expect(btn.disabled).toBe(true);
+        });
+    });
+
 })

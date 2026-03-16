@@ -4,6 +4,7 @@ import {ExchangeEvents as Events, exchangeEvents as stateEvents} from "../state.
 const recipientSearchId = "recipientSearch";
 const recipientSearchBtnId = "recipientSearchBtn";
 const queryDivId = "query";
+const wishlistEmailBtnId = "wishlistEmailBtn";
 
 export const recipientSearchInput =
   `<div>
@@ -28,25 +29,35 @@ export const recipientSearchInit =
     </label>
     ${recipientSearchInput}`
 
-export function recipientSearchResult(date, giverName, recipient) {
+export function recipientSearchResult(date, giverName, recipient, exchangeId) {
   const who = giverName
     ? `<span>${escapeAttr(giverName)}</span> is`
     : `You're`;
+  const wishlistBtn = exchangeId
+    ? `<button class="button queryBtn" id="${wishlistEmailBtnId}">Email Me ${escapeAttr(recipient)}'s Wish List</button>`
+    : '';
   return `
     <div>
         <p>${who} buying a gift for <span>${escapeAttr(recipient)}!</span></p>
         <p class="date-secondary">As of ${escapeAttr(date.toDateString())}</p>
+        ${wishlistBtn}
     </div>
     ${recipientSearchInput}`;
 }
 
-function renderResult(results) {
+function renderResult(results, email) {
   const timestamp = Date.parse(results.date);
   const date = new Date(timestamp);
   const queryDiv = selectElement(`#${queryDivId}`);
 
-  queryDiv.innerHTML = recipientSearchResult(date, results.giverName, results.recipient);
+  queryDiv.innerHTML = recipientSearchResult(date, results.giverName, results.recipient, results.exchangeId);
   addEventListener(`#${recipientSearchBtnId}`, "click", getName);
+
+  if (results.exchangeId) {
+    addEventListener(`#${wishlistEmailBtnId}`, "click", (e) =>
+      sendWishlistEmail(e, email, results.exchangeId)
+    );
+  }
 }
 
 function renderError(message = "Email address not found!") {
@@ -70,9 +81,30 @@ async function getName(e) {
   renderLoadingState();
 
   await apiFetch(`/.netlify/functions/api-recipient-get?email=${encodeURIComponent(email)}`, {
-    onSuccess: (data) => renderResult(data),
+    onSuccess: (data) => renderResult(data, email),
     onError: (msg) => renderError(msg),
     fallbackMessage: "Email address not found. Please try again.",
+  });
+}
+
+async function sendWishlistEmail(e, email, exchangeId) {
+  e.preventDefault();
+  setLoadingState(`#${wishlistEmailBtnId}`);
+
+  await apiFetch("/.netlify/functions/api-wishlist-email-post", {
+    method: "POST",
+    body: {email, exchangeId},
+    onSuccess: () => {
+      const btn = selectElement(`#${wishlistEmailBtnId}`);
+      btn.textContent = "Email sent!";
+      btn.disabled = true;
+    },
+    onError: (msg) => {
+      const btn = selectElement(`#${wishlistEmailBtnId}`);
+      btn.textContent = msg || "Failed to send email";
+      btn.disabled = true;
+    },
+    fallbackMessage: "Failed to send email. Please try again.",
   });
 }
 
