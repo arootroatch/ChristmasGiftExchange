@@ -113,19 +113,8 @@ describe('sendNotificationEmail', () => {
         delete process.env.NETLIFY_EMAILS_SECRET;
     });
 
-    it('uses request origin from setRequestOrigin when available', async () => {
+    it('always uses process.env.URL for email function calls', async () => {
         setRequestOrigin({rawUrl: 'https://deploy-preview-42--mysite.netlify.app/.netlify/functions/api-exchange-post'});
-
-        await sendNotificationEmail('secret-santa', 'user@test.com', 'Subject', {});
-
-        expect(fetch).toHaveBeenCalledWith(
-            'https://deploy-preview-42--mysite.netlify.app/.netlify/functions/emails/secret-santa',
-            expect.any(Object)
-        );
-    });
-
-    it('falls back to URL when no request origin is set', async () => {
-        setRequestOrigin(null);
 
         await sendNotificationEmail('secret-santa', 'user@test.com', 'Subject', {});
 
