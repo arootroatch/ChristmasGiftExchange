@@ -20,9 +20,10 @@ Located in `netlify/shared/giverNotification.mjs`. The only function that sends 
    - Look up template module by name from a static map
    - Dynamic-import the module and call `render(parameters)` to get HTML
    - POST to `https://api.postmarkapp.com/email` with:
-     - Header: `X-Postmark-Server-Token: ${POSTMARK_SERVER_TOKEN}`
-     - Body: `{From, To, Subject, HtmlBody}`
-   - On failure, include Postmark's response body in the error message
+     - Headers: `X-Postmark-Server-Token: ${POSTMARK_SERVER_TOKEN}`, `Content-Type: application/json`, `Accept: application/json`
+     - Body: `{From: "alex@soundrootsproductions.com", To, Subject, HtmlBody}`
+   - `From` address must be a verified sender in Postmark
+   - On failure, include Postmark's response body and template name in the error message
 
 ### Template name → module map
 
@@ -67,14 +68,12 @@ Update all 6 template `render()` functions to escape user-supplied interpolated 
 
 | Template | Values to escape |
 |---|---|
-| `secretSanta` | `name`, `recipient` (URLs are href attributes, escape with `escapeHtml` too) |
+| `secretSanta` | `name`, `recipient`, `wishlistEditUrl`, `wishlistViewUrl` |
 | `resultsSummary` | `name`, each `assignment.giver`, each `assignment.recipient` |
-| `wishlistNotification` | `recipientName` |
+| `wishlistNotification` | `recipientName`, `wishlistViewUrl` |
 | `contactInfo` | `recipientName`, `address`, `phone`, `notes` |
-| `errorAlert` | `endpoint`, `stackTrace` |
-| `wishlistLink` | `recipientName` |
-
-URLs (`wishlistEditUrl`, `wishlistViewUrl`) should also be escaped since they appear in `href` attributes and display text.
+| `errorAlert` | `endpoint`, `timestamp`, `stackTrace` (standalone HTML, no layout wrapper) |
+| `wishlistLink` | `recipientName`, `wishlistViewUrl` |
 
 ## Cleanup
 
@@ -106,12 +105,16 @@ All test files that mock email sending need updates:
 
 - `spec/netlify-functions/giverNotification.spec.js`
 - `spec/netlify-functions/api-giver-notify-post.spec.js`
+- `spec/netlify-functions/api-exchange-post.spec.js` (sets `NETLIFY_EMAILS_SECRET`)
 - `spec/netlify-functions/api-user-wishlist-put.spec.js`
 - `spec/netlify-functions/api-user-contact-post.spec.js`
 - `spec/netlify-functions/api-wishlist-email-post.spec.js`
 - `spec/netlify-functions/api-results-email-post.spec.js`
-- Integration/contract tests in `spec/integration/` that mock email sending
 - `spec/netlify-functions/middleware.spec.js` (if it tests error-alert sending)
+- `spec/integration/api-exchange-post.contract.spec.js` (sets `NETLIFY_EMAILS_SECRET`)
+- `spec/integration/api-giver-notify-post.contract.spec.js`
+- `spec/integration/api-user-contact-post.contract.spec.js`
+- `spec/integration/api-user-wishlist-put.contract.spec.js`
 
 ### What changes in each test
 
