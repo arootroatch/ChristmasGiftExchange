@@ -5,7 +5,7 @@ import {escapeHtml} from './escapeHtml.mjs';
 export function render({recipientName, wishlistViewUrl}) {
     return layout(`
     <tr>
-        <td align="center" style="padding: 30px; font-size: 36px; color: #2e7d32;">
+        <td align="center" style="padding: 30px; font-size: 36px; color: #198c0a;">
             Wishlist Alert!
         </td>
     </tr>
@@ -17,8 +17,8 @@ export function render({recipientName, wishlistViewUrl}) {
     <tr>
         <td align="center" style="padding: 20px 50px;">
             <a href="${escapeHtml(wishlistViewUrl)}"
-               style="display: inline-block; padding: 12px 24px; background-color: #2e7d32;
-                      color: white; text-decoration: none; border-radius: 4px; font-size: 16px;">
+               style="display: inline-block; padding: 12px 28px; background-color: #198c0a;
+                      color: white; text-decoration: none; border-radius: 6px; font-size: 15px; font-weight: bold;">
                 View Their Wishlist
             </a>
         </td>
