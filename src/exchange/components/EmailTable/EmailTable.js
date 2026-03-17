@@ -1,6 +1,6 @@
 import {ExchangeEvents as Events, exchangeEvents as stateEvents, getExchangePayload, completeExchange} from "../../state.js";
 import {addEventListener, pushHTML, selectElement, setLoadingState, escapeAttr, apiFetch} from "../../../utils.js";
-import {showError, showSuccess} from "../../../Snackbar.js";
+import {showError} from "../../../Snackbar.js";
 import {removeFailedEmails, showFailedEmails, resetRetryCount} from "./FailedEmails.js";
 import {confirmId, sendResultsFormId, showConfirmation, removeAll as removeAllSendResults} from "./SendResults.js";
 
@@ -28,33 +28,20 @@ export function init() {
   });
 }
 
-function template({participants}) {
+function template({participants, heading, showDismiss = false, showSendResults = false}) {
   return `
     <div id="${emailTableId}" class="show">
-      <h3>Please enter each participant's email address</h3>
+      <h3>${heading}</h3>
       <form id="${emailTableBodyId}">
       ${participants.map((participant, i) => emailInput(participant, i)).join("")}
         <div id="emailBtnDiv">
-          <button class="button" id="${hideEmailsId}" style="display: none;">Dismiss</button>
+          ${showDismiss ? `<button class="button" id="${hideEmailsId}">Dismiss</button>` : ""}
           <button type="submit" class="button" id="${submitEmailsId}">Submit Emails</button>
         </div>
       </form>
-      <hr style="border-color: rgba(255,255,255,0.1); margin: 10px 0;"/>
+      ${showSendResults ? `<hr style="border-color: rgba(255,255,255,0.1); margin: 10px 0;"/>
       <p style="text-align:center;">Don't want to send out emails to everyone?</p>
-      <div style="text-align:center;"><button class="button" id="${sendResultsBtnId}">Send Me the Results</button></div>
-    </div>`;
-}
-
-function subsetTemplate({participants}) {
-  return `
-    <div id="${emailTableId}" class="show">
-      <h3>Please correct the email addresses below and try again</h3>
-      <form id="${emailTableBodyId}">
-      ${participants.map((participant, i) => emailInput(participant, i)).join("")}
-        <div id="emailBtnDiv">
-          <button type="submit" class="button" id="${submitEmailsId}">Submit Emails</button>
-        </div>
-      </form>
+      <div style="text-align:center;"><button class="button" id="${sendResultsBtnId}">Send Me the Results</button></div>` : ""}
     </div>`;
 }
 
@@ -74,15 +61,7 @@ export function emailInput(participant, i) {
     </div>`;
 }
 
-export function render(state) {
-  const {isSecretSanta} = state;
-  const existing = selectElement(`#${emailTableId}`);
-  if (existing) existing.remove();
-  pushHTML("body", template(state));
-  if (!isSecretSanta) selectElement(`#${hideEmailsId}`).style.display = "block";
-  addEventListener(`#${emailTableBodyId}`, "submit", submitEmails);
-  addEventListener(`#${hideEmailsId}`, "click", hideEmailTable);
-  addEventListener(`#${sendResultsBtnId}`, "click", () => showConfirmation(state));
+function attachDuplicateClassRemoval() {
   selectElement(`#${emailTableBodyId}`).addEventListener("input", (e) => {
     if (e.target.classList.contains("emailInput")) {
       e.target.classList.remove("duplicate-email");
@@ -90,26 +69,37 @@ export function render(state) {
   });
 }
 
+export function render(state) {
+  const {isSecretSanta} = state;
+  selectElement(`#${emailTableId}`)?.remove();
+  pushHTML("body", template({
+    ...state,
+    heading: "Please enter each participant's email address",
+    showDismiss: !isSecretSanta,
+    showSendResults: true,
+  }));
+  addEventListener(`#${emailTableBodyId}`, "submit", submitEmails);
+  if (!isSecretSanta) addEventListener(`#${hideEmailsId}`, "click", hideEmailTable);
+  addEventListener(`#${sendResultsBtnId}`, "click", () => showConfirmation(state));
+  attachDuplicateClassRemoval();
+}
+
 export function renderWithSubset(participants, assignments) {
-  const existing = selectElement(`#${emailTableId}`);
-  if (existing) existing.remove();
+  selectElement(`#${emailTableId}`)?.remove();
   removeFailedEmails();
-  pushHTML("body", subsetTemplate({participants}));
+  pushHTML("body", template({
+    participants,
+    heading: "Please correct the email addresses below and try again",
+  }));
   addEventListener(`#${emailTableBodyId}`, "submit", (event) =>
     submitSubsetEmails(event, participants, assignments)
   );
-  selectElement(`#${emailTableBodyId}`).addEventListener("input", (e) => {
-    if (e.target.classList.contains("emailInput")) {
-      e.target.classList.remove("duplicate-email");
-    }
-  });
+  attachDuplicateClassRemoval();
 }
 
 function hideEmailTable() {
   const table = selectElement(`#${emailTableId}`);
   if (!table) return;
-  const hideBtn = selectElement(`#${hideEmailsId}`);
-  if (hideBtn) hideBtn.style.display = "none";
   table.classList.replace("show", "hide");
   setTimeout(() => {
     table.remove();
@@ -129,7 +119,7 @@ function findDuplicateEmails() {
   return {inputs, duplicates};
 }
 
-async function submitEmails(event) {
+function validateAndCollectEmails(event) {
   event.preventDefault();
   const {inputs, duplicates} = findDuplicateEmails();
   if (duplicates.size > 0) {
@@ -139,69 +129,53 @@ async function submitEmails(event) {
       }
     });
     showError("Each participant must have a unique email address");
-    return;
+    return null;
   }
   setLoadingState(`#${submitEmailsId}`);
-  const emails = getEmails();
+  return getEmails();
+}
+
+function mergeEmails(participants, emails) {
+  return participants.map((p, i) => ({...p, email: emails[i]?.email || p.email}));
+}
+
+function handleEmailResponse(data, payload) {
+  hideEmailTable();
+  if (data.emailsFailed && data.emailsFailed.length > 0) {
+    showFailedEmails(data.emailsFailed, payload, {
+      onBack: (failedParticipants, failedAssignments) =>
+        renderWithSubset(failedParticipants, failedAssignments),
+    });
+  } else {
+    completeExchange("success");
+  }
+}
+
+async function submitEmails(event) {
+  const emails = validateAndCollectEmails(event);
+  if (!emails) return;
   const payload = getExchangePayload();
-  payload.participants = payload.participants.map((p, i) => ({
-    ...p,
-    email: emails[i]?.email || p.email,
-  }));
+  payload.participants = mergeEmails(payload.participants, emails);
 
   await apiFetch("/.netlify/functions/api-exchange-post", {
     method: "POST",
     body: payload,
-    onSuccess: (data) => {
-      hideEmailTable();
-      if (data.emailsFailed && data.emailsFailed.length > 0) {
-        showFailedEmails(data.emailsFailed, payload, {
-          onBack: (failedParticipants, failedAssignments) =>
-            renderWithSubset(failedParticipants, failedAssignments),
-        });
-      } else {
-        completeExchange("success");
-      }
-    },
+    onSuccess: (data) => handleEmailResponse(data, payload),
     onError: (msg) => showError(msg),
     fallbackMessage: "Failed to submit emails. Please try again.",
   });
 }
 
 async function submitSubsetEmails(event, originalParticipants, originalAssignments) {
-  event.preventDefault();
-  const {inputs, duplicates} = findDuplicateEmails();
-  if (duplicates.size > 0) {
-    inputs.forEach(input => {
-      if (duplicates.has(input.value.trim().toLowerCase())) {
-        input.classList.add("duplicate-email");
-      }
-    });
-    showError("Each participant must have a unique email address");
-    return;
-  }
-  setLoadingState(`#${submitEmailsId}`);
-  const emails = getEmails();
-  const participants = originalParticipants.map((p, i) => ({
-    ...p,
-    email: emails[i]?.email || p.email,
-  }));
-  const assignments = originalAssignments;
+  const emails = validateAndCollectEmails(event);
+  if (!emails) return;
+  const participants = mergeEmails(originalParticipants, emails);
+  const payload = {exchangeId: getExchangePayload().exchangeId, participants, assignments: originalAssignments};
 
   await apiFetch("/.netlify/functions/api-giver-retry-post", {
     method: "POST",
-    body: {exchangeId: getExchangePayload().exchangeId, participants, assignments},
-    onSuccess: (data) => {
-      hideEmailTable();
-      if (data.emailsFailed && data.emailsFailed.length > 0) {
-        showFailedEmails(data.emailsFailed, {exchangeId: getExchangePayload().exchangeId, participants, assignments}, {
-          onBack: (failedParticipants, failedAssignments) =>
-            renderWithSubset(failedParticipants, failedAssignments),
-        });
-      } else {
-        completeExchange("success");
-      }
-    },
+    body: payload,
+    onSuccess: (data) => handleEmailResponse(data, payload),
     onError: (msg) => showError(msg),
     fallbackMessage: "Failed to submit emails. Please try again.",
   });

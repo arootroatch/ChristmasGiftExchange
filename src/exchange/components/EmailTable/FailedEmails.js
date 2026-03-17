@@ -16,25 +16,14 @@ export function removeFailedEmails() {
   selectElement(`#${failedEmailsId}`)?.remove();
 }
 
-function failedEmailsTemplate(emailsFailed) {
+function failedEmailsTemplate(emailsFailed, {message, buttons, footer = ""}) {
   return `
     <div id="${failedEmailsId}" class="sendEmails show">
       <p>Your exchange data has been saved. You can retrieve it by entering a participant's email in the recipient search on the home page.</p>
-      <p>However, we were unable to send emails to the following addresses:</p>
+      <p>${message}</p>
       <ul>${emailsFailed.map(e => `<li>${escapeAttr(e)}</li>`).join('')}</ul>
-      <button class="button" id="${retryEmailsBtnId}">Retry</button>
-      <button class="button" id="${backToEmailsBtnId}">\u2190 Back</button>
-    </div>`;
-}
-
-function finalFailureTemplate(emailsFailed) {
-  return `
-    <div id="${failedEmailsId}" class="sendEmails show">
-      <p>Your exchange data has been saved. You can retrieve it by entering a participant's email in the recipient search on the home page.</p>
-      <p>We're sorry, but we were unable to send emails to the following addresses after multiple attempts:</p>
-      <ul>${emailsFailed.map(e => `<li>${escapeAttr(e)}</li>`).join('')}</ul>
-      <p>Please contact these participants directly.</p>
-      <button class="button" id="${viewResultsBtnId}">View Results</button>
+      ${footer}
+      ${buttons}
     </div>`;
 }
 
@@ -49,12 +38,20 @@ export function showFailedEmails(emailsFailed, payload, {onBack} = {}) {
   );
 
   if (retryCount >= 1) {
-    pushHTML("body", finalFailureTemplate(emailsFailed));
+    pushHTML("body", failedEmailsTemplate(emailsFailed, {
+      message: "We're sorry, but we were unable to send emails to the following addresses after multiple attempts:",
+      footer: "<p>Please contact these participants directly.</p>",
+      buttons: `<button class="button" id="${viewResultsBtnId}">View Results</button>`,
+    }));
     addEventListener(`#${viewResultsBtnId}`, "click", () => {
       completeExchange("results");
     });
   } else {
-    pushHTML("body", failedEmailsTemplate(emailsFailed));
+    pushHTML("body", failedEmailsTemplate(emailsFailed, {
+      message: "However, we were unable to send emails to the following addresses:",
+      buttons: `<button class="button" id="${retryEmailsBtnId}">Retry</button>
+      <button class="button" id="${backToEmailsBtnId}">\u2190 Back</button>`,
+    }));
     addEventListener(`#${retryEmailsBtnId}`, "click", () =>
       retryFailedEmails(failedParticipants, failedAssignments, exchangeId, onBack)
     );

@@ -128,18 +128,16 @@ describe('emailTable', () => {
 
       requestEmailResults();
 
-      const hideButton = document.querySelector("#hideEmails");
-      expect(hideButton.style.display).toBe("block");
+      expect(document.querySelector("#hideEmails")).not.toBeNull();
     });
 
-    it("hides dismiss button in secret santa mode", () => {
+    it("does not render dismiss button in secret santa mode", () => {
       getState().isSecretSanta = true;
       installGivers([{...alex}, {...whitney}]);
 
       assignRecipients(["Whitney", "Alex"]);
 
-      const hideButton = document.querySelector("#hideEmails");
-      expect(hideButton.style.display).toBe("none");
+      expect(document.querySelector("#hideEmails")).toBeNull();
     });
 
     it("includes send results button in template", () => {
@@ -549,14 +547,12 @@ describe('emailTable', () => {
   });
 
   it("hideEmailTable hides the table and button", () => {
-    triggerEmailTableRender();
+    triggerNonSecretSantaEmailTable();
     const table = document.querySelector("#emailTable");
     const hideButton = document.querySelector("#hideEmails");
-    hideButton.style.display = "block";
 
     click("#hideEmails");
 
-    expect(hideButton.style.display).toBe("none");
     expect(table.classList).toContain("hide");
     expect(table.classList).not.toContain("show");
 
