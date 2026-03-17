@@ -1,7 +1,7 @@
 import {getExchangesCollection, getUsersCollection} from "../shared/db.mjs";
 import {apiHandler, validateBody} from "../shared/middleware.mjs";
 import {badRequest, ok} from "../shared/responses.mjs";
-import {sendEmailsWithRetry} from "../shared/giverNotification.mjs";
+import {sendBatchEmails} from "../shared/giverNotification.mjs";
 import {z} from "zod";
 import crypto from "crypto";
 
@@ -128,7 +128,7 @@ export const handler = apiHandler("POST", async (event) => {
         userByEmail[p.email] = userMap[p.name];
     });
 
-    const {emailsFailed} = await sendEmailsWithRetry(data.participants, data.assignments, userByEmail, data.exchangeId);
+    const {emailsFailed} = await sendBatchEmails(data.participants, data.assignments, userByEmail, data.exchangeId);
 
     return ok({...buildResponse(data.exchangeId, data.participants), emailsFailed});
 });

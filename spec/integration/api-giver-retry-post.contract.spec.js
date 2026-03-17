@@ -1,15 +1,18 @@
 import {afterAll, afterEach, beforeAll, describe, expect, it, vi} from 'vitest';
 import {setupMongo, teardownMongo, cleanCollections, buildEvent, makeUser, seedUsers} from './contractHelper.js';
 
-describe('api-giver-notify-post contract', () => {
+describe('api-giver-retry-post contract', () => {
     let handler, db, mongo;
 
     beforeAll(async () => {
-        vi.stubGlobal('fetch', vi.fn(() => Promise.resolve({ok: true})));
+        vi.stubGlobal('fetch', vi.fn(() => Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve([]),
+        })));
         process.env.URL = 'http://localhost:8888';
         mongo = await setupMongo();
         db = mongo.db;
-        const module = await import('../../netlify/functions/api-giver-notify-post.mjs');
+        const module = await import('../../netlify/functions/api-giver-retry-post.mjs');
         handler = module.handler;
     });
 

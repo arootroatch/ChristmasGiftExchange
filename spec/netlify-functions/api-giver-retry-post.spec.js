@@ -2,7 +2,7 @@ import {afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi} fr
 import crypto from 'crypto';
 import {setupMongo, teardownMongo, cleanCollections} from './mongoHelper.js';
 
-describe('api-giver-notify-post', () => {
+describe('api-giver-retry-post', () => {
     let client, db, handler;
     let mongo;
     let mockFetch;
@@ -19,10 +19,13 @@ describe('api-giver-notify-post', () => {
         process.env.POSTMARK_SERVER_TOKEN = 'test-postmark-token';
         process.env.CONTEXT = 'production';
 
-        mockFetch = vi.fn().mockResolvedValue({ok: true});
+        mockFetch = vi.fn().mockResolvedValue({
+            ok: true,
+            json: () => Promise.resolve([]),
+        });
         vi.stubGlobal('fetch', mockFetch);
 
-        const module = await import('../../netlify/functions/api-giver-notify-post.mjs');
+        const module = await import('../../netlify/functions/api-giver-retry-post.mjs');
         handler = module.handler;
     });
 
@@ -53,6 +56,18 @@ describe('api-giver-notify-post', () => {
             httpMethod: 'POST',
             body: JSON.stringify(body),
         };
+    }
+
+    function mockBatchResponse(emails, failedEmails = []) {
+        mockFetch.mockResolvedValueOnce({
+            ok: true,
+            json: () => Promise.resolve(
+                emails.map(e => ({
+                    ErrorCode: failedEmails.includes(e) ? 406 : 0,
+                    To: e,
+                }))
+            ),
+        });
     }
 
     const bulkPayload = {
@@ -90,42 +105,41 @@ describe('api-giver-notify-post', () => {
         expect(response.statusCode).toBe(400);
     });
 
-    it('sends one email per assignment with correct parameters', async () => {
+    it('sends batch email with correct parameters', async () => {
+        mockBatchResponse(['alex@test.com', 'whitney@test.com', 'hunter@test.com']);
         const event = buildEvent(bulkPayload);
         const response = await handler(event);
 
         expect(response.statusCode).toBe(200);
-        expect(mockFetch).toHaveBeenCalledTimes(3);
+        expect(mockFetch).toHaveBeenCalledTimes(1);
+        expect(mockFetch.mock.calls[0][0]).toBe('https://api.postmarkapp.com/email/batch');
 
-        const calls = mockFetch.mock.calls;
-        const bodies = calls.map(c => JSON.parse(c[1].body));
-
-        const alexEmail = bodies.find(b => b.To === 'alex@test.com');
-        expect(alexEmail.HtmlBody).toContain('Whitney');
-        expect(alexEmail.HtmlBody).toContain(
-            `https://test.netlify.app/wishlist/edit/${alexToken}`
-        );
+        const body = JSON.parse(mockFetch.mock.calls[0][1].body);
+        expect(body).toHaveLength(3);
+        const alexMsg = body.find(m => m.To === 'alex@test.com');
+        expect(alexMsg.HtmlBody).toContain('Whitney');
     });
 
     it('builds wishlistEditUrl from DB token and process.env.URL', async () => {
+        mockBatchResponse(['alex@test.com', 'whitney@test.com', 'hunter@test.com']);
         const event = buildEvent(bulkPayload);
         await handler(event);
 
-        const calls = mockFetch.mock.calls;
-        const bodies = calls.map(c => JSON.parse(c[1].body));
+        const body = JSON.parse(mockFetch.mock.calls[0][1].body);
+        const tokenMap = {Alex: alexToken, Whitney: whitneyToken, Hunter: hunterToken};
 
-        bodies.forEach(body => {
-            const tokenMap = {Alex: alexToken, Whitney: whitneyToken, Hunter: hunterToken};
+        body.forEach(msg => {
             const matchedName = Object.keys(tokenMap).find(name =>
-                body.HtmlBody.includes(`Greetings, ${name}`)
+                msg.HtmlBody.includes(`Greetings, ${name}`)
             );
-            expect(body.HtmlBody).toContain(
+            expect(msg.HtmlBody).toContain(
                 `https://test.netlify.app/wishlist/edit/${tokenMap[matchedName]}`
             );
         });
     });
 
     it('returns sent and total counts', async () => {
+        mockBatchResponse(['alex@test.com', 'whitney@test.com', 'hunter@test.com']);
         const event = buildEvent(bulkPayload);
         const response = await handler(event);
         const body = JSON.parse(response.body);
@@ -135,13 +149,11 @@ describe('api-giver-notify-post', () => {
     });
 
     it('counts partial failures', async () => {
-        mockFetch
-            .mockResolvedValueOnce({ok: true})   // Alex: attempt 1 succeeds
-            .mockRejectedValueOnce(new Error('fail'))  // Whitney: attempt 1 fails
-            .mockRejectedValueOnce(new Error('fail'))  // Whitney: attempt 2 fails
-            .mockRejectedValueOnce(new Error('fail'))  // Whitney: attempt 3 fails
-            .mockResolvedValueOnce({ok: true})   // Hunter: attempt 1 succeeds
-            .mockResolvedValueOnce({ok: true});  // error-alert email
+        mockBatchResponse(
+            ['alex@test.com', 'whitney@test.com', 'hunter@test.com'],
+            ['whitney@test.com']
+        );
+        mockFetch.mockResolvedValueOnce({ok: true}); // error-alert
 
         const event = buildEvent(bulkPayload);
         const response = await handler(event);
@@ -153,13 +165,11 @@ describe('api-giver-notify-post', () => {
     });
 
     it('returns emailsFailed array with failed emails', async () => {
-        mockFetch
-            .mockRejectedValueOnce(new Error('fail'))
-            .mockRejectedValueOnce(new Error('fail'))
-            .mockRejectedValueOnce(new Error('fail'))
-            .mockResolvedValueOnce({ok: true})
-            .mockResolvedValueOnce({ok: true})
-            .mockResolvedValueOnce({ok: true}); // error-alert email
+        mockBatchResponse(
+            ['alex@test.com', 'whitney@test.com', 'hunter@test.com'],
+            ['alex@test.com']
+        );
+        mockFetch.mockResolvedValueOnce({ok: true}); // error-alert
 
         const event = buildEvent(bulkPayload);
         const response = await handler(event);
@@ -169,64 +179,39 @@ describe('api-giver-notify-post', () => {
         expect(body.emailsFailed).toHaveLength(1);
     });
 
-    it('sends error-alert email to admin when emails fail after retries', async () => {
-        mockFetch
-            .mockRejectedValueOnce(new Error('fail'))
-            .mockRejectedValueOnce(new Error('fail'))
-            .mockRejectedValueOnce(new Error('fail'))
-            .mockResolvedValueOnce({ok: true})
-            .mockResolvedValueOnce({ok: true})
-            .mockResolvedValueOnce({ok: true});
+    it('sends error-alert email to admin when emails fail', async () => {
+        mockBatchResponse(
+            ['alex@test.com', 'whitney@test.com', 'hunter@test.com'],
+            ['alex@test.com']
+        );
+        mockFetch.mockResolvedValueOnce({ok: true}); // error-alert
 
         const event = buildEvent(bulkPayload);
         await handler(event);
 
-        const calls = mockFetch.mock.calls;
-        const errorAlertCall = calls.find(c => {
-            const body = JSON.parse(c[1].body);
-            return body.HtmlBody && body.HtmlBody.includes('Server Error');
-        });
-        expect(errorAlertCall).toBeDefined();
-        const alertBody = JSON.parse(errorAlertCall[1].body);
-        expect(alertBody.HtmlBody).toContain('api-giver-notify-post');
-        expect(alertBody.HtmlBody).toContain('alex@test.com');
-    });
-
-    it('counts emails that return non-OK response as failures', async () => {
-        const failResponse = {ok: false, status: 500, text: () => Promise.resolve('Server Error')};
-        mockFetch
-            .mockResolvedValueOnce({ok: true})
-            .mockResolvedValueOnce(failResponse)
-            .mockResolvedValueOnce(failResponse)
-            .mockResolvedValueOnce(failResponse)
-            .mockResolvedValueOnce({ok: true})
-            .mockResolvedValueOnce({ok: true}); // error-alert email
-
-        const event = buildEvent(bulkPayload);
-        const response = await handler(event);
-        const body = JSON.parse(response.body);
-
-        expect(body.sent).toBe(2);
-        expect(body.total).toBe(3);
+        expect(mockFetch).toHaveBeenCalledTimes(2);
+        const errorAlertBody = JSON.parse(mockFetch.mock.calls[1][1].body);
+        expect(errorAlertBody.HtmlBody).toContain('api-giver-retry-post');
+        expect(errorAlertBody.HtmlBody).toContain('alex@test.com');
     });
 
     it('omits wishlist CTA when user not found in DB', async () => {
         await db.collection('users').deleteOne({email: 'alex@test.com'});
+        mockBatchResponse(['alex@test.com', 'whitney@test.com', 'hunter@test.com']);
 
         const event = buildEvent(bulkPayload);
         await handler(event);
 
-        const calls = mockFetch.mock.calls;
-        const bodies = calls.map(c => JSON.parse(c[1].body));
-        const alexEmail = bodies.find(b => b.HtmlBody && b.HtmlBody.includes('Greetings, Alex'));
-        expect(alexEmail.HtmlBody).not.toContain('Add Your Wishlist');
+        const body = JSON.parse(mockFetch.mock.calls[0][1].body);
+        const alexMsg = body.find(m => m.To === 'alex@test.com');
+        expect(alexMsg.HtmlBody).not.toContain('Add Your Wishlist');
     });
 
     it('handles names with special characters', async () => {
-
         await db.collection('users').insertOne({
             name: "O'Brien", email: 'obrien@test.com', token: crypto.randomUUID(), wishlists: [], wishItems: [],
         });
+        mockBatchResponse(["obrien@test.com"]);
 
         const event = buildEvent({
             exchangeId: 'test-exchange-id',
@@ -236,8 +221,7 @@ describe('api-giver-notify-post', () => {
 
         await handler(event);
 
-        const call = mockFetch.mock.calls[0];
-        const body = JSON.parse(call[1].body);
-        expect(body.HtmlBody).toContain('O&#39;Brien');
+        const body = JSON.parse(mockFetch.mock.calls[0][1].body);
+        expect(body[0].HtmlBody).toContain('O&#39;Brien');
     });
 });

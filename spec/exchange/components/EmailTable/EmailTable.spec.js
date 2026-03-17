@@ -511,7 +511,7 @@ describe('emailTable', () => {
       expect(dismissBtn === null || dismissBtn.style.display === "none").toBe(true);
     });
 
-    it("submits to api-giver-notify-post on submit", () => {
+    it("submits to api-giver-retry-post on submit", () => {
       renderWithSubset(subsetParticipants, subsetAssignments);
 
       const emailTableBody = document.getElementById("emailTableBody");
@@ -519,7 +519,7 @@ describe('emailTable', () => {
       emailTableBody.dispatchEvent(submitEvent);
 
       expect(global.fetch).toHaveBeenCalledWith(
-        "/.netlify/functions/api-giver-notify-post",
+        "/.netlify/functions/api-giver-retry-post",
         expect.objectContaining({method: "POST"})
       );
     });

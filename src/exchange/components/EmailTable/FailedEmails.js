@@ -69,7 +69,7 @@ export function showFailedEmails(emailsFailed, payload, {onBack} = {}) {
 async function retryFailedEmails(participants, assignments, exchangeId, onBack) {
   setLoadingState(`#${retryEmailsBtnId}`);
 
-  await apiFetch("/.netlify/functions/api-giver-notify-post", {
+  await apiFetch("/.netlify/functions/api-giver-retry-post", {
     method: "POST",
     body: {exchangeId, participants, assignments},
     onSuccess: (data) => {

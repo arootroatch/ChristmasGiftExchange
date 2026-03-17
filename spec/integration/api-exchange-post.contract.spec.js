@@ -10,7 +10,10 @@ describe('api-exchange-post contract', () => {
         process.env.URL = 'https://test.netlify.app';
         process.env.POSTMARK_SERVER_TOKEN = 'test-postmark-token';
         process.env.CONTEXT = 'production';
-        vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ok: true}));
+        vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+            ok: true,
+            json: () => Promise.resolve([]),
+        }));
         const module = await import('../../netlify/functions/api-exchange-post.mjs');
         handler = module.handler;
     });

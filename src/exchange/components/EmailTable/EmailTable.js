@@ -187,7 +187,7 @@ async function submitSubsetEmails(event, originalParticipants, originalAssignmen
   }));
   const assignments = originalAssignments;
 
-  await apiFetch("/.netlify/functions/api-giver-notify-post", {
+  await apiFetch("/.netlify/functions/api-giver-retry-post", {
     method: "POST",
     body: {exchangeId: getExchangePayload().exchangeId, participants, assignments},
     onSuccess: (data) => {

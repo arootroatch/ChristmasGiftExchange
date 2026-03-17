@@ -1,7 +1,7 @@
 import {z} from "zod";
 import {apiHandler, validateBody} from "../shared/middleware.mjs";
 import {ok, badRequest} from "../shared/responses.mjs";
-import {sendNotificationEmail, sendEmailsWithRetry} from "../shared/giverNotification.mjs";
+import {sendNotificationEmail, sendBatchEmails} from "../shared/giverNotification.mjs";
 import {getUsersCollection} from "../shared/db.mjs";
 
 const giverNotifyRequestSchema = z.object({
@@ -27,7 +27,7 @@ export const handler = apiHandler("POST", async (event) => {
     const userByEmail = {};
     users.forEach(u => { userByEmail[u.email] = u; });
 
-    const {emailsFailed} = await sendEmailsWithRetry(data.participants, data.assignments, userByEmail, data.exchangeId);
+    const {emailsFailed} = await sendBatchEmails(data.participants, data.assignments, userByEmail, data.exchangeId);
 
     const sent = data.assignments.length - emailsFailed.length;
 
@@ -38,7 +38,7 @@ export const handler = apiHandler("POST", async (event) => {
                 "alex@soundrootsproductions.com",
                 "Gift Exchange - Email Send Failures",
                 {
-                    endpoint: "api-giver-notify-post",
+                    endpoint: "api-giver-retry-post",
                     timestamp: new Date().toISOString(),
                     stackTrace: `Failed to send emails to:\n${emailsFailed.join('\n')}\n\nAssignments: ${JSON.stringify(data.assignments, null, 2)}`,
                 }
