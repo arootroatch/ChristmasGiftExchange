@@ -213,4 +213,40 @@ describe('api-user-contact-post', () => {
         expect(emailBody.HtmlBody).toContain('Not provided');
         expect(emailBody.HtmlBody).toContain('None');
     });
+
+    it('sends contact info only to the giver from the most recent exchange', async () => {
+        const recipientId = new ObjectId();
+        const oldGiverId = new ObjectId();
+        const newGiverId = new ObjectId();
+        const recipientToken = crypto.randomUUID();
+
+        await db.collection('users').insertMany([
+            {_id: recipientId, email: 'recipient@test.com', name: 'Whitney', token: recipientToken, wishlists: [], wishItems: []},
+            {_id: oldGiverId, email: 'old-giver@test.com', name: 'OldAlex', token: crypto.randomUUID(), wishlists: [], wishItems: []},
+            {_id: newGiverId, email: 'new-giver@test.com', name: 'NewAlex', token: crypto.randomUUID(), wishlists: [], wishItems: []},
+        ]);
+
+        await db.collection('exchanges').insertMany([
+            {
+                exchangeId: 'old-exchange', createdAt: new Date('2025-01-01'), isSecretSanta: true,
+                participants: [oldGiverId, recipientId],
+                assignments: [{giverId: oldGiverId, recipientId}], houses: [],
+            },
+            {
+                exchangeId: 'new-exchange', createdAt: new Date('2026-01-01'), isSecretSanta: true,
+                participants: [newGiverId, recipientId],
+                assignments: [{giverId: newGiverId, recipientId}], houses: [],
+            },
+        ]);
+
+        const event = buildEvent(recipientToken, {
+            address: '123 Main St', phone: '555-1234', notes: 'Front door',
+        });
+
+        await handler(event);
+
+        expect(mockFetch).toHaveBeenCalledTimes(1);
+        const emailBody = JSON.parse(mockFetch.mock.calls[0][1].body);
+        expect(emailBody.To).toBe('new-giver@test.com');
+    });
 });
