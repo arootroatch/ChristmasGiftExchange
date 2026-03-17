@@ -4,31 +4,31 @@ import {escapeHtml} from './escapeHtml.mjs';
 export function render({name, assignments}) {
     const rows = assignments.map(a => `
                 <tr>
-                    <td style="padding: 10px 16px; border-bottom: 1px solid #eee; font-size: 16px;">${escapeHtml(a.giver)}</td>
-                    <td style="padding: 10px 8px; text-align: center; border-bottom: 1px solid #eee; font-size: 16px;">&#8594;</td>
-                    <td style="padding: 10px 16px; border-bottom: 1px solid #eee; font-size: 16px;">${escapeHtml(a.recipient)}</td>
+                    <td style="padding: 10px 16px; border-bottom: 1px solid #e0d8cc; font-size: 16px; color: #333;">${escapeHtml(a.giver)}</td>
+                    <td style="padding: 10px 8px; text-align: center; border-bottom: 1px solid #e0d8cc; font-size: 16px; color: #333;">&#8594;</td>
+                    <td style="padding: 10px 16px; border-bottom: 1px solid #e0d8cc; font-size: 16px; color: #333;">${escapeHtml(a.recipient)}</td>
                 </tr>`).join('');
 
     return layout(`
     <tr>
-        <td align="center" style="padding-top: 50px; padding-bottom: 30px; font-size: 36px">
+        <td align="center" style="padding-top: 50px; padding-bottom: 30px; font-size: 36px; color: #69292a;">
             Hi ${escapeHtml(name)}, here are your gift exchange results:
         </td>
     </tr>
     <tr>
         <td align="center" style="padding: 0 50px 30px">
-            <table role="presentation" style="border-collapse: collapse; border: 1px solid #ccc; width: 100%; max-width: 500px;">
-                <tr style="background-color: #f5f5f5;">
-                    <th style="padding: 12px 16px; text-align: left; border-bottom: 2px solid #ccc; font-size: 18px;">Giver</th>
-                    <th style="padding: 12px 8px; text-align: center; border-bottom: 2px solid #ccc; font-size: 18px;"></th>
-                    <th style="padding: 12px 16px; text-align: left; border-bottom: 2px solid #ccc; font-size: 18px;">Recipient</th>
+            <table role="presentation" style="border-collapse: collapse; border: 1px solid #e0d8cc; width: 100%; max-width: 500px;">
+                <tr style="background-color: #f5f0eb;">
+                    <th style="padding: 12px 16px; text-align: left; border-bottom: 2px solid #e0d8cc; font-size: 18px; color: #69292a;">Giver</th>
+                    <th style="padding: 12px 8px; text-align: center; border-bottom: 2px solid #e0d8cc; font-size: 18px;"></th>
+                    <th style="padding: 12px 16px; text-align: left; border-bottom: 2px solid #e0d8cc; font-size: 18px; color: #69292a;">Recipient</th>
                 </tr>
                 ${rows}
             </table>
         </td>
     </tr>
     <tr>
-        <td align="center" style="padding: 30px 50px; font-size: 16px">
+        <td align="center" style="padding: 30px 50px; font-size: 16px; color: #69292a; font-weight: bold;">
             This is the only copy of your results. Please save this email or take a screenshot!
         </td>
     </tr>`);
