@@ -13,7 +13,7 @@ describe('secretSanta', () => {
         it('renders recipient name in green', () => {
             const html = render({name: 'Alex', recipient: 'Hunter'});
             expect(html).toContain('Hunter!');
-            expect(html).toContain('rgb(1, 195, 1)');
+            expect(html).toContain('#198c0a');
         });
 
         it('includes wishlist CTA when wishlistEditUrl provided', () => {
