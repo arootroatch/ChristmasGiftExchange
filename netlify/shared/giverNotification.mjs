@@ -68,6 +68,15 @@ export function setRequestOrigin(event) {
     _requestOrigin = event?.rawUrl ? new URL(event.rawUrl).origin : null;
 }
 
+const templateModules = {
+    "secret-santa": () => import("./emails/secretSanta.mjs"),
+    "results-summary": () => import("./emails/resultsSummary.mjs"),
+    "wishlist-notification": () => import("./emails/wishlistNotification.mjs"),
+    "contact-info": () => import("./emails/contactInfo.mjs"),
+    "error-alert": () => import("./emails/errorAlert.mjs"),
+    "wishlist-link": () => import("./emails/wishlistLink.mjs"),
+};
+
 export async function sendNotificationEmail(templateName, to, subject, parameters) {
     if (process.env.CONTEXT === "dev") {
         console.log(`[DEV EMAIL] Template: ${templateName} | To: ${to} | Subject: ${subject}`);
@@ -75,22 +84,31 @@ export async function sendNotificationEmail(templateName, to, subject, parameter
         return;
     }
 
-    const baseUrl = process.env.URL;
-    const response = await fetch(
-        `${baseUrl}/.netlify/functions/emails/${templateName}`,
-        {
-            headers: {"netlify-emails-secret": process.env.NETLIFY_EMAILS_SECRET},
-            method: "POST",
-            body: JSON.stringify({
-                from: "alex@soundrootsproductions.com",
-                to,
-                subject,
-                parameters,
-            }),
-        }
-    );
+    const loadModule = templateModules[templateName];
+    if (!loadModule) {
+        throw new Error(`Unknown email template: ${templateName}`);
+    }
+
+    const templateModule = await loadModule();
+    const htmlBody = templateModule.render(parameters);
+
+    const response = await fetch("https://api.postmarkapp.com/email", {
+        method: "POST",
+        headers: {
+            "X-Postmark-Server-Token": process.env.POSTMARK_SERVER_TOKEN,
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+        },
+        body: JSON.stringify({
+            From: "alex@soundrootsproductions.com",
+            To: to,
+            Subject: subject,
+            HtmlBody: htmlBody,
+        }),
+    });
 
     if (!response.ok) {
-        throw new Error(`Email send failed (${response.status}): ${to}`);
+        const body = await response.text();
+        throw new Error(`Email send failed (${response.status}): ${templateName} to ${to} — ${body}`);
     }
 }

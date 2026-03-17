@@ -6,7 +6,7 @@ describe('sendEmailsWithRetry', () => {
     beforeAll(async () => {
         process.env.CONTEXT = 'production';
         process.env.URL = 'https://test.netlify.app';
-        process.env.NETLIFY_EMAILS_SECRET = 'test-secret';
+        process.env.POSTMARK_SERVER_TOKEN = 'test-postmark-token';
         vi.stubGlobal('fetch', vi.fn());
         const module = await import('../../netlify/shared/giverNotification.mjs');
         sendEmailsWithRetry = module.sendEmailsWithRetry;
@@ -21,7 +21,7 @@ describe('sendEmailsWithRetry', () => {
         vi.unstubAllGlobals();
         delete process.env.CONTEXT;
         delete process.env.URL;
-        delete process.env.NETLIFY_EMAILS_SECRET;
+        delete process.env.POSTMARK_SERVER_TOKEN;
     });
 
     const participants = [
@@ -67,24 +67,28 @@ describe('sendEmailsWithRetry', () => {
         await sendEmailsWithRetry(participants, assignments, userByEmail, 'exchange-123');
 
         const calls = fetch.mock.calls;
-        const alexBody = JSON.parse(calls.find(c => {
-            const b = JSON.parse(c[1].body);
-            return b.parameters?.name === 'Alex';
-        })[1].body);
+        expect(calls).toHaveLength(2);
 
-        expect(alexBody.to).toBe('alex@test.com');
-        expect(alexBody.parameters.recipient).toBe('Whitney');
-        expect(alexBody.parameters.wishlistEditUrl).toBe('https://test.netlify.app/wishlist/edit/alex-token');
-        expect(alexBody.parameters.wishlistViewUrl).toBe('https://test.netlify.app/wishlist/view/alex-token?exchange=exchange-123');
+        const alexCall = calls.find(c => {
+            const b = JSON.parse(c[1].body);
+            return b.To === 'alex@test.com';
+        });
+
+        const body = JSON.parse(alexCall[1].body);
+        expect(body.To).toBe('alex@test.com');
+        expect(body.HtmlBody).toContain('Alex');
+        expect(body.HtmlBody).toContain('Whitney');
+        expect(body.HtmlBody).toContain('https://test.netlify.app/wishlist/edit/alex-token');
+        expect(body.HtmlBody).toContain('https://test.netlify.app/wishlist/view/alex-token?exchange=exchange-123');
     });
 
-    it('sets wishlistEditUrl to null when user not in userByEmail', async () => {
+    it('omits wishlist CTA when user not in userByEmail', async () => {
         fetch.mockResolvedValue({ok: true});
         await sendEmailsWithRetry(participants, assignments, {}, 'exchange-123');
 
-        const calls = fetch.mock.calls;
-        const body = JSON.parse(calls[0][1].body);
-        expect(body.parameters.wishlistEditUrl).toBeNull();
+        const body = JSON.parse(fetch.mock.calls[0][1].body);
+        expect(body.HtmlBody).not.toContain('Add Your Wishlist');
+        expect(body.HtmlBody).not.toContain("Wish List");
     });
 });
 
@@ -93,8 +97,7 @@ describe('sendNotificationEmail', () => {
 
     beforeAll(async () => {
         process.env.CONTEXT = 'production';
-        process.env.URL = 'https://production.netlify.app';
-        process.env.NETLIFY_EMAILS_SECRET = 'test-secret';
+        process.env.POSTMARK_SERVER_TOKEN = 'test-postmark-token';
         vi.stubGlobal('fetch', vi.fn());
         const module = await import('../../netlify/shared/giverNotification.mjs');
         sendNotificationEmail = module.sendNotificationEmail;
@@ -110,18 +113,39 @@ describe('sendNotificationEmail', () => {
     afterAll(() => {
         vi.unstubAllGlobals();
         delete process.env.CONTEXT;
-        delete process.env.URL;
-        delete process.env.NETLIFY_EMAILS_SECRET;
+        delete process.env.POSTMARK_SERVER_TOKEN;
     });
 
-    it('always uses process.env.URL for email function calls', async () => {
-        setRequestOrigin({rawUrl: 'https://deploy-preview-42--mysite.netlify.app/.netlify/functions/api-exchange-post'});
+    it('sends to Postmark API with correct headers and body', async () => {
+        await sendNotificationEmail('secret-santa', 'user@test.com', 'Subject', {
+            name: 'Alex', recipient: 'Whitney', wishlistEditUrl: null, wishlistViewUrl: null,
+        });
 
-        await sendNotificationEmail('secret-santa', 'user@test.com', 'Subject', {});
+        expect(fetch).toHaveBeenCalledTimes(1);
+        const [url, options] = fetch.mock.calls[0];
+        expect(url).toBe('https://api.postmarkapp.com/email');
+        expect(options.headers['X-Postmark-Server-Token']).toBe('test-postmark-token');
+        expect(options.headers['Content-Type']).toBe('application/json');
 
-        expect(fetch).toHaveBeenCalledWith(
-            'https://production.netlify.app/.netlify/functions/emails/secret-santa',
-            expect.any(Object)
-        );
+        const body = JSON.parse(options.body);
+        expect(body.From).toBe('alex@soundrootsproductions.com');
+        expect(body.To).toBe('user@test.com');
+        expect(body.Subject).toBe('Subject');
+        expect(body.HtmlBody).toContain('Alex');
+        expect(body.HtmlBody).toContain('Whitney');
+    });
+
+    it('throws with Postmark response body on failure', async () => {
+        fetch.mockResolvedValueOnce({
+            ok: false,
+            status: 422,
+            text: () => Promise.resolve('{"ErrorCode":300,"Message":"Invalid email"}'),
+        });
+
+        await expect(
+            sendNotificationEmail('secret-santa', 'bad@test.com', 'Subject', {
+                name: 'A', recipient: 'B', wishlistEditUrl: null, wishlistViewUrl: null,
+            })
+        ).rejects.toThrow('Email send failed (422)');
     });
 });
