@@ -38,6 +38,7 @@ test.describe('Edit Wishlist → Giver Sees Updates', () => {
 
         await page.locator('#item-url').fill('https://amazon.com/product/456');
         await page.locator('#item-title').fill('Cool Gadget');
+        await page.locator('#item-price').fill('$29.99');
         await page.locator('#add-item-btn').click();
         await expect(page.locator('#items-list')).toContainText('Cool Gadget');
 

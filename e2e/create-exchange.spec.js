@@ -146,6 +146,6 @@ test.describe('Create Exchange → View Wishlist', () => {
         const heading = page.locator('#heading');
         await expect(heading).toBeVisible();
         await expect(heading).toContainText('Wishlist');
-        await expect(page.locator('#wishlist-content')).toContainText('No wishlist submitted yet');
+        await expect(page.locator('#wishlist-content')).toContainText("hasn't added any wishlists yet");
     });
 });
