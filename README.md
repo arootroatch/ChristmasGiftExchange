@@ -68,7 +68,9 @@ The app is organized as multiple pages sharing common modules:
 - **Wishlist view page** (`src/wishlistView.js`) — giver views recipient's wishlist
 - **Reuse page** (`src/reuse.js`) — search and reuse past exchanges
 
-A custom Vite plugin (`viteMultiPagePlugin.js`) handles the multi-page build with HTML entry points in the `pages/` directory.
+Each page has an HTML entry point in the `pages/` directory. A custom Vite plugin (`vitePageRoutes.js`) auto-discovers pages by globbing `pages/**/index.html`, rewrites clean URLs in the dev server, and flattens `dist/pages/` to top-level directories on build. Adding a new page requires only creating a directory under `pages/` with an `index.html` — no config changes needed.
+
+Dev-only tools (like the email preview page) live in the top-level `dev/` directory instead of `pages/`, so they get dev server routes but are excluded from production builds.
 
 ### Bipartite Matching Algorithm
 
