@@ -31,6 +31,7 @@ function toCamelCase(pagePath) {
 export function pageRoutesPlugin() {
     let pages = [];
     let root = process.cwd();
+    let isServing = false;
 
     return {
         name: 'vite-page-routes',
@@ -52,6 +53,7 @@ export function pageRoutesPlugin() {
         },
 
         configureServer(server) {
+            isServing = true;
             const devPages = discoverDevPages(root);
             const allPages = [...pages, ...devPages];
             const routes = {};
@@ -71,6 +73,13 @@ export function pageRoutesPlugin() {
                 }
                 next();
             });
+        },
+
+        transformIndexHtml(html) {
+            if (!isServing) return html;
+            return html
+                .replace(/<div[^>]*>Powered by Verifalia[\s\S]*?<\/div>/, '')
+                .replace(/<script[^>]*verifalia-widget[\s\S]*?<\/script>/, '');
         },
 
         closeBundle() {

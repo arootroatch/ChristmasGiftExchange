@@ -152,6 +152,42 @@ describe("pageRoutesPlugin", () => {
         });
     });
 
+    describe("transformIndexHtml hook", () => {
+        const verivaliaHtml = `<html><body>
+<script data-name="BMC-Widget" src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js"></script>
+<div style="display: none">Powered by Verifalia <a href="https://verifalia.com/">email verifier</a></div>
+<script defer
+        src="https://unpkg.com/verifalia-widget@1.10.0/dist/verifalia-widget.js"
+        data-verifalia-appkey="abc123"
+        integrity="sha512-xyz"
+        crossorigin="anonymous"></script>
+</body></html>`;
+
+        it("strips Verifalia script and attribution in serve mode", () => {
+            existsSync.mockReturnValue(true);
+            readdirSync.mockReturnValue([]);
+            plugin.config({root: "/project"});
+            plugin.configureServer({middlewares: {use: vi.fn()}});
+
+            const result = plugin.transformIndexHtml(verivaliaHtml);
+
+            expect(result).not.toContain("Verifalia");
+            expect(result).not.toContain("verifalia-widget");
+            expect(result).toContain("BMC-Widget");
+        });
+
+        it("preserves HTML unchanged in build mode (no configureServer called)", () => {
+            existsSync.mockReturnValue(true);
+            readdirSync.mockReturnValue([]);
+            plugin.config({root: "/project"});
+
+            const result = plugin.transformIndexHtml(verivaliaHtml);
+
+            expect(result).toContain("Verifalia");
+            expect(result).toContain("verifalia-widget");
+        });
+    });
+
     describe("closeBundle hook", () => {
         beforeEach(() => {
             existsSync.mockReturnValue(true);
