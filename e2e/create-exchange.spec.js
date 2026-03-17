@@ -45,7 +45,7 @@ test.describe('Create Exchange → View Wishlist', () => {
         }
 
         await page.locator('#submitEmails').click();
-        await expect(page.locator('#snackbar')).toContainText('Exchange saved and emails sent!');
+        await expect(page.locator('#completionModal')).toContainText('Your exchange has been saved and emails have been sent');
     }
 
     test('full exchange creation flow creates exchange in DB', async ({page}) => {
