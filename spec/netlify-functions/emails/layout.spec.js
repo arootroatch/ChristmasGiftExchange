@@ -12,13 +12,24 @@ describe('layout', () => {
         expect(html).toContain('Hello');
     });
 
-    it('includes footer with feedback and donate links', () => {
+    it('includes footer with BMC button and supporter CTA', () => {
         const html = layout('<tr><td>Content</td></tr>');
 
         expect(html).toContain('Happy gift giving!');
         expect(html).toContain('Alex at the Gift Exchange Generator');
-        expect(html).toContain('venmo.com');
-        expect(html).toContain('paypal.me');
+        expect(html).toContain('buymeacoffee.com/arootroatch');
+        expect(html).toContain('no account needed');
+        expect(html).not.toContain('venmo.com');
+        expect(html).not.toContain('paypal.me');
+    });
+
+    it('includes branded header before content', () => {
+        const html = layout('<tr><td>Content</td></tr>');
+
+        expect(html).toContain('&#127873; Gift Exchange Generator');
+        const headerIndex = html.indexOf('&#127873; Gift Exchange Generator');
+        const contentIndex = html.indexOf('Content');
+        expect(headerIndex).toBeLessThan(contentIndex);
     });
 
     it('places content before footer', () => {
