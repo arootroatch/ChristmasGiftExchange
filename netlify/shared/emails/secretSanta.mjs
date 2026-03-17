@@ -3,25 +3,8 @@ import {wishlistEditPath, wishlistViewPath} from '../links.mjs';
 import {escapeHtml} from './escapeHtml.mjs';
 
 export function render({name, recipient, wishlistEditUrl, wishlistViewUrl}) {
-    const wishlistCta = wishlistEditUrl
-        ? `<tr>
-        <td align="center" style="padding: 30px 50px; font-size: 18px">
-            <p style="color: #555;">
-                Want to share your wishlist with your Secret Santa?
-            </p>
-            <a href="${escapeHtml(wishlistEditUrl)}"
-               style="display: inline-block; padding: 12px 28px; background-color: #198c0a;
-                      color: white; text-decoration: none; border-radius: 6px; font-size: 15px; font-weight: bold;">
-                Add Your Wishlist
-            </a>
-        </td>
-    </tr>`
-        : '';
-
-    const wishlistViewCta = wishlistViewUrl
-        ? `<tr>
-        <td align="center" style="padding: 30px 50px; font-size: 18px">
-            <p style="color: #555;">
+    const viewColumn = `<td align="center" style="padding: 16px; font-size: 16px;" width="50%">
+            <p style="color: #555; margin: 0 0 12px 0;">
                 Need ideas for what to buy?
             </p>
             <a href="${escapeHtml(wishlistViewUrl)}"
@@ -29,9 +12,48 @@ export function render({name, recipient, wishlistEditUrl, wishlistViewUrl}) {
                       color: white; text-decoration: none; border-radius: 6px; font-size: 15px; font-weight: bold;">
                 View ${escapeHtml(recipient)}'s Wish List
             </a>
+        </td>`;
+
+    const editColumn = `<td align="center" style="padding: 16px; font-size: 16px;" width="50%">
+            <p style="color: #555; margin: 0 0 12px 0;">
+                Want to share your wishlist?
+            </p>
+            <a href="${escapeHtml(wishlistEditUrl)}"
+               style="display: inline-block; padding: 12px 28px; background-color: #198c0a;
+                      color: white; text-decoration: none; border-radius: 6px; font-size: 15px; font-weight: bold;">
+                Add Your Wishlist
+            </a>
+        </td>`;
+
+    let wishlistCtas = '';
+    if (wishlistViewUrl && wishlistEditUrl) {
+        wishlistCtas = `<tr>
+        <td style="padding: 20px 30px;">
+            <table role="presentation" style="width: 100%; border-collapse: collapse;">
+                <tr>
+                    ${viewColumn}
+                    ${editColumn}
+                </tr>
+            </table>
         </td>
-    </tr>`
-        : '';
+    </tr>`;
+    } else if (wishlistViewUrl) {
+        wishlistCtas = `<tr>
+        <td style="padding: 20px 30px;">
+            <table role="presentation" style="width: 100%; border-collapse: collapse;">
+                <tr>${viewColumn}</tr>
+            </table>
+        </td>
+    </tr>`;
+    } else if (wishlistEditUrl) {
+        wishlistCtas = `<tr>
+        <td style="padding: 20px 30px;">
+            <table role="presentation" style="width: 100%; border-collapse: collapse;">
+                <tr>${editColumn}</tr>
+            </table>
+        </td>
+    </tr>`;
+    }
 
     return layout(`
     <tr>
@@ -53,14 +75,13 @@ export function render({name, recipient, wishlistEditUrl, wishlistViewUrl}) {
             </span>
         </td>
     </tr>
-    ${wishlistCta}
+    ${wishlistCtas}
     <tr>
         <td align="center" style="padding: 30px 50px; font-size: 16px; color: #999;">
             If you lose this email, you can retrieve the name of your recipient at
             <a href="https://giftexchangegenerator.netlify.app/" style="color: #69292a;">the Gift Exchange Generator website.</a>
         </td>
-    </tr>
-    ${wishlistViewCta}`);
+    </tr>`);
 }
 
 export async function getData(db) {
