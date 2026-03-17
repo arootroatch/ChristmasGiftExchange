@@ -11,6 +11,7 @@ import {
 } from "../../../specHelper";
 import "../../../../src/exchange/components/Name";
 import {assignRecipients, startExchange, getState, requestEmailResults} from "../../../../src/exchange/state";
+import * as state from "../../../../src/exchange/state";
 import {alex, whitney, hunter} from "../../../testData";
 import {
   emailInput,
@@ -79,6 +80,7 @@ describe('emailTable', () => {
     getState().isSecretSanta = true;
     document.querySelector("#sendResultsConfirm")?.remove();
     document.querySelector("#sendResults")?.remove();
+    vi.spyOn(state, "completeExchange");
   });
 
   describe("reactive rendering", () => {
@@ -405,6 +407,13 @@ describe('emailTable', () => {
       expect(document.querySelector("#sendResults")).toBeNull();
     });
 
+    it("calls completeExchange with success mode when send results succeeds", async () => {
+      document.querySelector("#sendResultsSubmit").click();
+      await vi.advanceTimersByTimeAsync(0);
+
+      expect(state.completeExchange).toHaveBeenCalledWith("success");
+    });
+
     it("shows error snackbar on API failure", async () => {
       global.fetch = vi.fn(() => Promise.resolve({
         ok: false,
@@ -523,6 +532,21 @@ describe('emailTable', () => {
         expect.objectContaining({method: "POST"})
       );
     });
+
+    it("calls completeExchange with success when subset emails all succeed", async () => {
+      global.fetch = vi.fn(() => Promise.resolve({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve({sent: 1, total: 1, emailsFailed: []})
+      }));
+      renderWithSubset(subsetParticipants, subsetAssignments);
+
+      const emailTableBody = document.getElementById("emailTableBody");
+      emailTableBody.dispatchEvent(new Event("submit", {bubbles: true, cancelable: true}));
+      await vi.advanceTimersByTimeAsync(0);
+
+      expect(state.completeExchange).toHaveBeenCalledWith("success");
+    });
   });
 
   it("hideEmailTable hides the table and button", () => {
@@ -563,6 +587,25 @@ describe('emailTable', () => {
     vi.advanceTimersByTime(500);
     expect(document.querySelector("#emailTable")).toBeNull();
     shouldDisplaySuccessSnackbar("Exchange saved and emails sent!");
+  });
+
+  it("calls completeExchange with success mode when all emails sent", async () => {
+    global.fetch = vi.fn(() => Promise.resolve({
+      ok: true,
+      status: 200,
+      json: () => Promise.resolve({exchangeId: "test-id", participants: [], emailsFailed: []})
+    }));
+    triggerEmailTableRender();
+    renderEmailTableInputs([
+      {name: "Alex", email: "alex@test.com"},
+      {name: "Whitney", email: "whitney@test.com"}
+    ]);
+    installParticipantNames("Alex", "Whitney");
+
+    submitEmailForm();
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(state.completeExchange).toHaveBeenCalledWith("success");
   });
 
   describe("failed emails", () => {
@@ -622,7 +665,7 @@ describe('emailTable', () => {
       shouldDisplaySuccessSnackbar("Emails sent successfully!");
     });
 
-    it("removes failed emails and shows error on retry failure", async () => {
+    it("removes failed emails on retry failure", async () => {
       global.fetch = vi.fn()
         .mockResolvedValueOnce({
           ok: true,
@@ -649,7 +692,95 @@ describe('emailTable', () => {
 
       await vi.advanceTimersByTimeAsync(0);
       expect(document.querySelector("#failedEmails")).toBeNull();
-      shouldDisplayErrorSnackbar("We're sorry, but we were unable to send the remaining emails. Please contact participants directly.");
+    });
+
+    it("calls completeExchange with success mode when retry succeeds", async () => {
+      global.fetch = vi.fn()
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 200,
+          json: () => Promise.resolve({exchangeId: "test-id", participants: [], emailsFailed: ["alex@test.com"]})
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 200,
+          json: () => Promise.resolve({sent: 1, total: 1, emailsFailed: []})
+        });
+
+      triggerEmailTableRender();
+      renderEmailTableInputs([
+        {name: "Alex", email: "alex@test.com"},
+        {name: "Whitney", email: "whitney@test.com"}
+      ]);
+      installParticipantNames("Alex", "Whitney");
+      submitEmailForm();
+      await vi.advanceTimersByTimeAsync(0);
+
+      document.querySelector("#retryEmailsBtn").click();
+      await vi.advanceTimersByTimeAsync(0);
+
+      expect(state.completeExchange).toHaveBeenCalledWith("success");
+    });
+
+    it("calls completeExchange with error mode on retry failure", async () => {
+      global.fetch = vi.fn()
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 200,
+          json: () => Promise.resolve({exchangeId: "test-id", participants: [], emailsFailed: ["alex@test.com"]})
+        })
+        .mockResolvedValueOnce({
+          ok: false,
+          status: 500,
+          json: () => Promise.resolve({error: "Server error"})
+        });
+
+      triggerEmailTableRender();
+      renderEmailTableInputs([
+        {name: "Alex", email: "alex@test.com"},
+        {name: "Whitney", email: "whitney@test.com"}
+      ]);
+      installParticipantNames("Alex", "Whitney");
+      submitEmailForm();
+      await vi.advanceTimersByTimeAsync(0);
+
+      document.querySelector("#retryEmailsBtn").click();
+      await vi.advanceTimersByTimeAsync(0);
+
+      expect(state.completeExchange).toHaveBeenCalledWith("error");
+    });
+
+    it("calls completeExchange with results mode on final failure View Results click", async () => {
+      global.fetch = vi.fn()
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 200,
+          json: () => Promise.resolve({exchangeId: "test-id", participants: [], emailsFailed: ["alex@test.com"]})
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 200,
+          json: () => Promise.resolve({sent: 0, total: 1, emailsFailed: ["alex@test.com"]})
+        });
+
+      triggerEmailTableRender();
+      renderEmailTableInputs([
+        {name: "Alex", email: "alex@test.com"},
+        {name: "Whitney", email: "whitney@test.com"}
+      ]);
+      installParticipantNames("Alex", "Whitney");
+      submitEmailForm();
+      await vi.advanceTimersByTimeAsync(0);
+
+      document.querySelector("#retryEmailsBtn").click();
+      await vi.advanceTimersByTimeAsync(0);
+
+      const viewResultsBtn = document.querySelector("#viewResultsBtn");
+      expect(viewResultsBtn).not.toBeNull();
+
+      viewResultsBtn.click();
+
+      expect(state.completeExchange).toHaveBeenCalledWith("results");
     });
 
     it("shows updated failed emails when retry partially fails", async () => {

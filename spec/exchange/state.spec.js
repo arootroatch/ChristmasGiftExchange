@@ -16,7 +16,8 @@ import {
   removeHouseFromState,
   removeNameFromHouse,
   renameHouse,
-  isGenerated
+  isGenerated,
+  completeExchange
 } from '/src/exchange/state.js'
 import {alex, whitney, hunter} from "../testData";
 import {ExchangeEvents as Events, exchangeEvents as stateEvents} from '/src/exchange/state.js'
@@ -61,6 +62,26 @@ describe('exchangeId', () => {
     startExchange();
     expect(getState().exchangeId).not.toBe(first);
   });
+});
+
+it("completeExchange emits EXCHANGE_COMPLETE with mode and state", () => {
+  const listener = vi.fn();
+  const unsubscribe = stateEvents.on(Events.EXCHANGE_COMPLETE, listener);
+
+  startExchange();
+  installParticipantNames("Alex", "Whitney");
+  assignRecipients(["Whitney", "Alex"]);
+  completeExchange("success");
+
+  expect(listener).toHaveBeenCalledWith(
+    expect.objectContaining({
+      mode: "success",
+      assignments: expect.arrayContaining([
+        expect.objectContaining({giver: "Alex", recipient: "Whitney"})
+      ]),
+    })
+  );
+  unsubscribe();
 });
 
 describe('state helper functions', () => {

@@ -1,4 +1,4 @@
-import {ExchangeEvents as Events, exchangeEvents as stateEvents, getExchangePayload} from "../../state.js";
+import {ExchangeEvents as Events, exchangeEvents as stateEvents, getExchangePayload, completeExchange} from "../../state.js";
 import {addEventListener, pushHTML, selectElement, setLoadingState, escapeAttr, apiFetch} from "../../../utils.js";
 import {showError, showSuccess} from "../../../Snackbar.js";
 import {removeFailedEmails, showFailedEmails, resetRetryCount} from "./FailedEmails.js";
@@ -108,7 +108,8 @@ export function renderWithSubset(participants, assignments) {
 function hideEmailTable() {
   const table = selectElement(`#${emailTableId}`);
   if (!table) return;
-  selectElement(`#${hideEmailsId}`).style.display = "none";
+  const hideBtn = selectElement(`#${hideEmailsId}`);
+  if (hideBtn) hideBtn.style.display = "none";
   table.classList.replace("show", "hide");
   setTimeout(() => {
     table.remove();
@@ -160,6 +161,7 @@ async function submitEmails(event) {
         });
       } else {
         showSuccess("Exchange saved and emails sent!");
+        completeExchange("success");
       }
     },
     onError: (msg) => showError(msg),
@@ -199,6 +201,7 @@ async function submitSubsetEmails(event, originalParticipants, originalAssignmen
         });
       } else {
         showSuccess("Emails sent successfully!");
+        completeExchange("success");
       }
     },
     onError: (msg) => showError(msg),

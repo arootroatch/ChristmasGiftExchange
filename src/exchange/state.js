@@ -5,6 +5,7 @@ export const exchangeEvents = new EventEmitter();
 export const ExchangeEvents = {
   EXCHANGE_STARTED: 'exchange:started',
   EMAIL_RESULTS_REQUESTED: 'email:resultsRequested',
+  EXCHANGE_COMPLETE: 'exchange:complete',
   PARTICIPANT_ADDED: 'participant:added',
   PARTICIPANT_REMOVED: 'participant:removed',
   HOUSE_ADDED: 'house:added',
@@ -42,6 +43,10 @@ export function startExchange(isSecretSanta = false) {
 
 export function requestEmailResults() {
   exchangeEvents.emit(ExchangeEvents.EMAIL_RESULTS_REQUESTED, {...state});
+}
+
+export function completeExchange(mode) {
+  exchangeEvents.emit(ExchangeEvents.EXCHANGE_COMPLETE, {...state, mode});
 }
 
 

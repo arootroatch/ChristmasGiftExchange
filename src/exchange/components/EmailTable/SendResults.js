@@ -1,6 +1,7 @@
 import {addEventListener, pushHTML, selectElement, setLoadingState, clearLoadingState, escapeAttr, apiFetch} from "../../../utils.js";
 import {showError, showSuccess} from "../../../Snackbar.js";
 import {render as renderEmailTable} from "./EmailTable.js";
+import {completeExchange} from "../../state.js";
 
 const confirmId = "sendResultsConfirm";
 const confirmBtnId = "sendResultsConfirmBtn";
@@ -42,7 +43,7 @@ export function showConfirmation(state) {
   });
 }
 
-function resultsTableHtml({assignments}) {
+export function resultsTableHtml({assignments}) {
   let html = '<div class="results-card" style="margin: 0 auto;"><h2>Results</h2><div class="results-header"><span>Giver</span><span></span><span>Recipient</span></div><div>';
   for (const a of assignments) {
     html += `<div class="result-row"><span>${escapeAttr(a.giver)}</span><span class="result-arrow">&#8594;</span><span>${escapeAttr(a.recipient)}</span></div>`;
@@ -104,6 +105,7 @@ async function submitResults({assignments}) {
     onSuccess: () => {
       showSuccess("Results sent!");
       selectElement(`#${sendResultsFormId}`)?.remove();
+      completeExchange("success");
     },
     onError: (msg) => {
       showError(msg);

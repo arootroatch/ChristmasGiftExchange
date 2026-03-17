@@ -5,7 +5,7 @@ import {
   removeFailedEmails,
   resetRetryCount,
 } from "../../../../src/exchange/components/EmailTable/FailedEmails";
-import {ExchangeEvents as Events, exchangeEvents as stateEvents} from "../../../../src/exchange/state";
+import * as state from "../../../../src/exchange/state";
 import {shouldDisplaySuccessSnackbar} from "../../../specHelper";
 
 const failedParticipants = [
@@ -118,16 +118,13 @@ describe("FailedEmails", () => {
       expect(document.querySelector("#backToEmailsBtn")).toBeNull();
     });
 
-    it("View Results button emits EMAIL_RESULTS_REQUESTED event", async () => {
+    it("View Results button calls completeExchange with results mode", async () => {
       await vi.advanceTimersByTimeAsync(0);
 
-      const handler = vi.fn();
-      const unsubscribe = stateEvents.on(Events.EMAIL_RESULTS_REQUESTED, handler);
-
+      vi.spyOn(state, "completeExchange");
       document.querySelector("#viewResultsBtn").click();
 
-      expect(handler).toHaveBeenCalled();
-      unsubscribe();
+      expect(state.completeExchange).toHaveBeenCalledWith("results");
     });
   });
 

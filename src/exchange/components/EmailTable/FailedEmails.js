@@ -1,6 +1,6 @@
 import {addEventListener, pushHTML, selectElement, setLoadingState, escapeAttr, apiFetch} from "../../../utils.js";
-import {showError, showSuccess} from "../../../Snackbar.js";
-import {ExchangeEvents as Events, exchangeEvents as stateEvents} from "../../state.js";
+import {showSuccess} from "../../../Snackbar.js";
+import {completeExchange} from "../../state.js";
 
 const failedEmailsId = "failedEmails";
 const retryEmailsBtnId = "retryEmailsBtn";
@@ -52,7 +52,7 @@ export function showFailedEmails(emailsFailed, payload, {onBack} = {}) {
   if (retryCount >= 1) {
     pushHTML("body", finalFailureTemplate(emailsFailed));
     addEventListener(`#${viewResultsBtnId}`, "click", () => {
-      stateEvents.emit(Events.EMAIL_RESULTS_REQUESTED, {});
+      completeExchange("results");
     });
   } else {
     pushHTML("body", failedEmailsTemplate(emailsFailed));
@@ -79,11 +79,12 @@ async function retryFailedEmails(participants, assignments, exchangeId, onBack) 
         showFailedEmails(data.emailsFailed, {exchangeId, participants, assignments}, {onBack});
       } else {
         showSuccess("Emails sent successfully!");
+        completeExchange("success");
       }
     },
     onError: () => {
       removeFailedEmails();
-      showError("We're sorry, but we were unable to send the remaining emails. Please contact participants directly.");
+      completeExchange("error");
     },
     fallbackMessage: "Retry failed.",
   });
