@@ -1,4 +1,5 @@
 import {layout} from './layout.mjs';
+import {escapeHtml} from './escapeHtml.mjs';
 
 export function render({recipientName, address, phone, notes}) {
     return layout(`
@@ -9,7 +10,7 @@ export function render({recipientName, address, phone, notes}) {
     </tr>
     <tr>
         <td align="center" style="padding: 20px 50px; font-size: 18px; color: #333;">
-            ${recipientName} has shared their contact information with you:
+            ${escapeHtml(recipientName)} has shared their contact information with you:
         </td>
     </tr>
     <tr>
@@ -17,15 +18,15 @@ export function render({recipientName, address, phone, notes}) {
             <table style="width: 100%; border-collapse: collapse; margin-top: 16px;">
                 <tr>
                     <td style="padding: 8px; font-weight: bold; color: #555;">Shipping Address:</td>
-                    <td style="padding: 8px; color: #333;">${address}</td>
+                    <td style="padding: 8px; color: #333;">${escapeHtml(address)}</td>
                 </tr>
                 <tr>
                     <td style="padding: 8px; font-weight: bold; color: #555;">Phone:</td>
-                    <td style="padding: 8px; color: #333;">${phone}</td>
+                    <td style="padding: 8px; color: #333;">${escapeHtml(phone)}</td>
                 </tr>
                 <tr>
                     <td style="padding: 8px; font-weight: bold; color: #555;">Notes:</td>
-                    <td style="padding: 8px; color: #333;">${notes}</td>
+                    <td style="padding: 8px; color: #333;">${escapeHtml(notes)}</td>
                 </tr>
             </table>
         </td>

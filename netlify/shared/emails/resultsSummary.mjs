@@ -1,17 +1,18 @@
 import {layout} from './layout.mjs';
+import {escapeHtml} from './escapeHtml.mjs';
 
 export function render({name, assignments}) {
     const rows = assignments.map(a => `
                 <tr>
-                    <td style="padding: 10px 16px; border-bottom: 1px solid #eee; font-size: 16px;">${a.giver}</td>
+                    <td style="padding: 10px 16px; border-bottom: 1px solid #eee; font-size: 16px;">${escapeHtml(a.giver)}</td>
                     <td style="padding: 10px 8px; text-align: center; border-bottom: 1px solid #eee; font-size: 16px;">&#8594;</td>
-                    <td style="padding: 10px 16px; border-bottom: 1px solid #eee; font-size: 16px;">${a.recipient}</td>
+                    <td style="padding: 10px 16px; border-bottom: 1px solid #eee; font-size: 16px;">${escapeHtml(a.recipient)}</td>
                 </tr>`).join('');
 
     return layout(`
     <tr>
         <td align="center" style="padding-top: 50px; padding-bottom: 30px; font-size: 36px">
-            Hi ${name}, here are your gift exchange results:
+            Hi ${escapeHtml(name)}, here are your gift exchange results:
         </td>
     </tr>
     <tr>

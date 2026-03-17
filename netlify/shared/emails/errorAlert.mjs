@@ -1,3 +1,5 @@
+import {escapeHtml} from './escapeHtml.mjs';
+
 export function render({endpoint, timestamp, stackTrace}) {
     return `<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -15,17 +17,17 @@ export function render({endpoint, timestamp, stackTrace}) {
     </tr>
     <tr>
         <td style="padding: 10px 20px; font-size: 14px; font-family: Arial, Helvetica, sans-serif;">
-            <strong>Endpoint:</strong> ${endpoint}
+            <strong>Endpoint:</strong> ${escapeHtml(endpoint)}
         </td>
     </tr>
     <tr>
         <td style="padding: 10px 20px; font-size: 14px; font-family: Arial, Helvetica, sans-serif;">
-            <strong>Time:</strong> ${timestamp}
+            <strong>Time:</strong> ${escapeHtml(timestamp)}
         </td>
     </tr>
     <tr>
         <td style="padding: 20px;">
-            <pre style="background-color: #f4f4f4; padding: 16px; border-radius: 4px; overflow-x: auto; font-size: 13px;">${stackTrace}</pre>
+            <pre style="background-color: #f4f4f4; padding: 16px; border-radius: 4px; overflow-x: auto; font-size: 13px;">${escapeHtml(stackTrace)}</pre>
         </td>
     </tr>
 </table>

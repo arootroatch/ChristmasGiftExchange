@@ -1,5 +1,6 @@
 import {layout} from './layout.mjs';
 import {wishlistEditPath, wishlistViewPath} from '../links.mjs';
+import {escapeHtml} from './escapeHtml.mjs';
 
 export function render({name, recipient, wishlistEditUrl, wishlistViewUrl}) {
     const wishlistCta = wishlistEditUrl
@@ -8,7 +9,7 @@ export function render({name, recipient, wishlistEditUrl, wishlistViewUrl}) {
             <p style="color: #333;">
                 Want to share your wishlist with your Secret Santa?
             </p>
-            <a href="${wishlistEditUrl}"
+            <a href="${escapeHtml(wishlistEditUrl)}"
                style="display: inline-block; padding: 12px 24px; background-color: #2e7d32;
                       color: white; text-decoration: none; border-radius: 4px; font-size: 16px;">
                 Add Your Wishlist
@@ -23,10 +24,10 @@ export function render({name, recipient, wishlistEditUrl, wishlistViewUrl}) {
             <p style="color: #333;">
                 Need ideas for what to buy?
             </p>
-            <a href="${wishlistViewUrl}"
+            <a href="${escapeHtml(wishlistViewUrl)}"
                style="display: inline-block; padding: 12px 24px; background-color: #2e7d32;
                       color: white; text-decoration: none; border-radius: 4px; font-size: 16px;">
-                View ${recipient}'s Wish List
+                View ${escapeHtml(recipient)}'s Wish List
             </a>
         </td>
     </tr>`
@@ -35,7 +36,7 @@ export function render({name, recipient, wishlistEditUrl, wishlistViewUrl}) {
     return layout(`
     <tr>
         <td align="center" style="padding-top: 50px; padding-bottom: 30px; font-size: 36px">
-            Greetings, ${name}!
+            Greetings, ${escapeHtml(name)}!
         </td>
     </tr>
     <tr>
@@ -45,7 +46,7 @@ export function render({name, recipient, wishlistEditUrl, wishlistViewUrl}) {
     </tr>
     <tr>
         <td align="center" style="font-size: 36px; color: rgb(1, 195, 1)">
-            ${recipient}!
+            ${escapeHtml(recipient)}!
         </td>
     </tr>
     ${wishlistCta}

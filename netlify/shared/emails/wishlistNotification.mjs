@@ -1,5 +1,6 @@
 import {layout} from './layout.mjs';
 import {wishlistViewPath} from '../links.mjs';
+import {escapeHtml} from './escapeHtml.mjs';
 
 export function render({recipientName, wishlistViewUrl}) {
     return layout(`
@@ -10,12 +11,12 @@ export function render({recipientName, wishlistViewUrl}) {
     </tr>
     <tr>
         <td align="center" style="padding: 20px 50px; font-size: 18px; color: #333;">
-            ${recipientName} has added a wishlist for you to check out!
+            ${escapeHtml(recipientName)} has added a wishlist for you to check out!
         </td>
     </tr>
     <tr>
         <td align="center" style="padding: 20px 50px;">
-            <a href="${wishlistViewUrl}"
+            <a href="${escapeHtml(wishlistViewUrl)}"
                style="display: inline-block; padding: 12px 24px; background-color: #2e7d32;
                       color: white; text-decoration: none; border-radius: 4px; font-size: 16px;">
                 View Their Wishlist
