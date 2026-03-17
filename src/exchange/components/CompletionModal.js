@@ -18,7 +18,7 @@ function messageForMode(mode) {
 }
 
 function bmcButtonHtml() {
-  return `<div id="${bmcContainerId}"><a href="https://buymeacoffee.com/arootroatch" target="_blank"><img src="${bmcImageUrl}" alt="Buy Me A Coffee" style="height:60px;width:217px;"></a><p class="bmc-hint">Or click the coffee cup in the bottom right to contribute without leaving the page.</p></div>`;
+  return `<div id="${bmcContainerId}"><p>Love the site? Become a supporter! No account necessary.</p><a href="https://buymeacoffee.com/arootroatch" target="_blank"><img src="${bmcImageUrl}" alt="Buy Me A Coffee" style="height:60px;width:217px;"></a><p class="bmc-hint">Or click the coffee cup in the bottom right to contribute without leaving the page.</p></div>`;
 }
 
 function template({mode, assignments}) {
