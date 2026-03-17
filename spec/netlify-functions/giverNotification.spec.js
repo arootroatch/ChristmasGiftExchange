@@ -1,7 +1,7 @@
 import {describe, expect, it, vi, beforeAll, beforeEach, afterAll} from 'vitest';
 
-describe('sendEmailsWithRetry', () => {
-    let sendEmailsWithRetry;
+describe('sendBatchEmails', () => {
+    let sendBatchEmails;
 
     beforeAll(async () => {
         process.env.CONTEXT = 'production';
@@ -9,12 +9,11 @@ describe('sendEmailsWithRetry', () => {
         process.env.POSTMARK_SERVER_TOKEN = 'test-postmark-token';
         vi.stubGlobal('fetch', vi.fn());
         const module = await import('../../netlify/shared/giverNotification.mjs');
-        sendEmailsWithRetry = module.sendEmailsWithRetry;
+        sendBatchEmails = module.sendBatchEmails;
     });
 
     beforeEach(() => {
         fetch.mockReset();
-        vi.spyOn(console, 'error').mockImplementation(() => {});
     });
 
     afterAll(() => {
@@ -34,61 +33,61 @@ describe('sendEmailsWithRetry', () => {
         'whitney@test.com': {token: 'whitney-token'},
     };
 
-    it('returns empty emailsFailed when all emails succeed', async () => {
-        fetch.mockResolvedValue({ok: true});
-        const result = await sendEmailsWithRetry(participants, assignments, userByEmail, 'exchange-123');
+    function mockBatchSuccess(emails) {
+        fetch.mockResolvedValueOnce({
+            ok: true,
+            json: () => Promise.resolve(emails.map(e => ({ErrorCode: 0, To: e}))),
+        });
+    }
+
+    it('sends single POST to /email/batch', async () => {
+        mockBatchSuccess(['alex@test.com', 'whitney@test.com']);
+        await sendBatchEmails(participants, assignments, userByEmail, 'exchange-123');
+
+        expect(fetch).toHaveBeenCalledTimes(1);
+        expect(fetch.mock.calls[0][0]).toBe('https://api.postmarkapp.com/email/batch');
+    });
+
+    it('returns empty emailsFailed when all succeed', async () => {
+        mockBatchSuccess(['alex@test.com', 'whitney@test.com']);
+        const result = await sendBatchEmails(participants, assignments, userByEmail, 'exchange-123');
         expect(result.emailsFailed).toEqual([]);
     });
 
-    it('retries failed emails up to 3 times', async () => {
-        fetch
-            .mockRejectedValueOnce(new Error('fail'))
-            .mockRejectedValueOnce(new Error('fail'))
-            .mockResolvedValueOnce({ok: true})
-            .mockResolvedValue({ok: true});
-
-        const result = await sendEmailsWithRetry(participants, assignments, userByEmail, 'exchange-123');
-        expect(result.emailsFailed).toEqual([]);
-    });
-
-    it('adds email to emailsFailed after 3 failures', async () => {
-        fetch
-            .mockRejectedValueOnce(new Error('fail'))
-            .mockRejectedValueOnce(new Error('fail'))
-            .mockRejectedValueOnce(new Error('fail'))
-            .mockResolvedValue({ok: true});
-
-        const result = await sendEmailsWithRetry(participants, assignments, userByEmail, 'exchange-123');
-        expect(result.emailsFailed).toEqual(['alex@test.com']);
-    });
-
-    it('sends correct email parameters', async () => {
-        fetch.mockResolvedValue({ok: true});
-        await sendEmailsWithRetry(participants, assignments, userByEmail, 'exchange-123');
-
-        const calls = fetch.mock.calls;
-        expect(calls).toHaveLength(2);
-
-        const alexCall = calls.find(c => {
-            const b = JSON.parse(c[1].body);
-            return b.To === 'alex@test.com';
+    it('returns failed emails from Postmark per-message status', async () => {
+        fetch.mockResolvedValueOnce({
+            ok: true,
+            json: () => Promise.resolve([
+                {ErrorCode: 0, To: 'alex@test.com'},
+                {ErrorCode: 406, To: 'whitney@test.com', Message: 'Inactive'},
+            ]),
         });
 
-        const body = JSON.parse(alexCall[1].body);
-        expect(body.To).toBe('alex@test.com');
-        expect(body.HtmlBody).toContain('Alex');
-        expect(body.HtmlBody).toContain('Whitney');
-        expect(body.HtmlBody).toContain('https://test.netlify.app/wishlist/edit/alex-token');
-        expect(body.HtmlBody).toContain('https://test.netlify.app/wishlist/view/alex-token?exchange=exchange-123');
+        const result = await sendBatchEmails(participants, assignments, userByEmail, 'exchange-123');
+        expect(result.emailsFailed).toEqual(['whitney@test.com']);
+    });
+
+    it('sends correct email content with wishlist URLs', async () => {
+        mockBatchSuccess(['alex@test.com', 'whitney@test.com']);
+        await sendBatchEmails(participants, assignments, userByEmail, 'exchange-123');
+
+        const body = JSON.parse(fetch.mock.calls[0][1].body);
+        expect(body).toHaveLength(2);
+
+        const alexMsg = body.find(m => m.To === 'alex@test.com');
+        expect(alexMsg.HtmlBody).toContain('Alex');
+        expect(alexMsg.HtmlBody).toContain('Whitney');
+        expect(alexMsg.HtmlBody).toContain('https://test.netlify.app/wishlist/edit/alex-token');
+        expect(alexMsg.HtmlBody).toContain('https://test.netlify.app/wishlist/view/alex-token?exchange=exchange-123');
     });
 
     it('omits wishlist CTA when user not in userByEmail', async () => {
-        fetch.mockResolvedValue({ok: true});
-        await sendEmailsWithRetry(participants, assignments, {}, 'exchange-123');
+        mockBatchSuccess(['alex@test.com', 'whitney@test.com']);
+        await sendBatchEmails(participants, assignments, {}, 'exchange-123');
 
         const body = JSON.parse(fetch.mock.calls[0][1].body);
-        expect(body.HtmlBody).not.toContain('Add Your Wishlist');
-        expect(body.HtmlBody).not.toContain("Wish List");
+        expect(body[0].HtmlBody).not.toContain('Add Your Wishlist');
+        expect(body[0].HtmlBody).not.toContain("Wish List");
     });
 });
 

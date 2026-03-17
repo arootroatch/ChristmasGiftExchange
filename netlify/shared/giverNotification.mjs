@@ -21,45 +21,27 @@ export async function forEachGiverOf(recipientUser, callback) {
     }
 }
 
-export async function sendEmailsWithRetry(participants, assignments, userByEmail, exchangeId) {
-    const emailsFailed = [];
-
-    for (const assignment of assignments) {
+export async function sendBatchEmails(participants, assignments, userByEmail, exchangeId) {
+    const messages = assignments.map(assignment => {
         const participant = participants.find(p => p.name === assignment.giver);
         const user = userByEmail[participant.email];
-        const wishlistEditUrl = user
-            ? absoluteUrl(wishlistEditPath(user.token))
-            : null;
-        const wishlistViewUrl = user
-            ? absoluteUrl(wishlistViewPath(user.token, exchangeId))
-            : null;
+        const wishlistEditUrl = user ? absoluteUrl(wishlistEditPath(user.token)) : null;
+        const wishlistViewUrl = user ? absoluteUrl(wishlistViewPath(user.token, exchangeId)) : null;
 
-        let sent = false;
-        for (let attempt = 0; attempt < 3; attempt++) {
-            try {
-                await sendNotificationEmail(
-                    "secret-santa",
-                    participant.email,
-                    "Your gift exchange recipient name has arrived!",
-                    {
-                        name: assignment.giver,
-                        recipient: assignment.recipient,
-                        wishlistEditUrl,
-                        wishlistViewUrl,
-                    }
-                );
-                sent = true;
-                break;
-            } catch (err) {
-                console.error(`Attempt ${attempt + 1}/3 failed for ${participant.email}:`, err.message);
-            }
-        }
-        if (!sent) {
-            emailsFailed.push(participant.email);
-        }
-    }
+        return {
+            to: participant.email,
+            templateName: "secret-santa",
+            subject: "Your gift exchange recipient name has arrived!",
+            parameters: {
+                name: assignment.giver,
+                recipient: assignment.recipient,
+                wishlistEditUrl,
+                wishlistViewUrl,
+            },
+        };
+    });
 
-    return {emailsFailed};
+    return await sendBatchNotificationEmails(messages);
 }
 
 let _requestOrigin = null;
