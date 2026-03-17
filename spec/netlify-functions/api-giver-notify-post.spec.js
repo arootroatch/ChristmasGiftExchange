@@ -16,7 +16,7 @@ describe('api-giver-notify-post', () => {
         ({client, db} = mongo);
 
         process.env.URL = 'https://test.netlify.app';
-        process.env.NETLIFY_EMAILS_SECRET = 'test-secret-key';
+        process.env.POSTMARK_SERVER_TOKEN = 'test-postmark-token';
         process.env.CONTEXT = 'production';
 
         mockFetch = vi.fn().mockResolvedValue({ok: true});
@@ -43,7 +43,7 @@ describe('api-giver-notify-post', () => {
     afterAll(async () => {
         vi.unstubAllGlobals();
         delete process.env.URL;
-        delete process.env.NETLIFY_EMAILS_SECRET;
+        delete process.env.POSTMARK_SERVER_TOKEN;
         delete process.env.CONTEXT;
         await teardownMongo(mongo);
     });
@@ -100,10 +100,9 @@ describe('api-giver-notify-post', () => {
         const calls = mockFetch.mock.calls;
         const bodies = calls.map(c => JSON.parse(c[1].body));
 
-        const alexEmail = bodies.find(b => b.parameters.name === 'Alex');
-        expect(alexEmail.to).toBe('alex@test.com');
-        expect(alexEmail.parameters.recipient).toBe('Whitney');
-        expect(alexEmail.parameters.wishlistEditUrl).toBe(
+        const alexEmail = bodies.find(b => b.To === 'alex@test.com');
+        expect(alexEmail.HtmlBody).toContain('Whitney');
+        expect(alexEmail.HtmlBody).toContain(
             `https://test.netlify.app/wishlist/edit/${alexToken}`
         );
     });
@@ -116,10 +115,12 @@ describe('api-giver-notify-post', () => {
         const bodies = calls.map(c => JSON.parse(c[1].body));
 
         bodies.forEach(body => {
-            const name = body.parameters.name;
-            const expectedToken = {Alex: alexToken, Whitney: whitneyToken, Hunter: hunterToken}[name];
-            expect(body.parameters.wishlistEditUrl).toBe(
-                `https://test.netlify.app/wishlist/edit/${expectedToken}`
+            const tokenMap = {Alex: alexToken, Whitney: whitneyToken, Hunter: hunterToken};
+            const matchedName = Object.keys(tokenMap).find(name =>
+                body.HtmlBody.includes(`Greetings, ${name}`)
+            );
+            expect(body.HtmlBody).toContain(
+                `https://test.netlify.app/wishlist/edit/${tokenMap[matchedName]}`
             );
         });
     });
@@ -175,27 +176,29 @@ describe('api-giver-notify-post', () => {
             .mockRejectedValueOnce(new Error('fail'))
             .mockResolvedValueOnce({ok: true})
             .mockResolvedValueOnce({ok: true})
-            .mockResolvedValueOnce({ok: true}); // for the error-alert email
+            .mockResolvedValueOnce({ok: true});
 
         const event = buildEvent(bulkPayload);
         await handler(event);
 
         const calls = mockFetch.mock.calls;
-        const errorAlertCall = calls.find(c =>
-            c[0].includes('error-alert')
-        );
+        const errorAlertCall = calls.find(c => {
+            const body = JSON.parse(c[1].body);
+            return body.HtmlBody && body.HtmlBody.includes('Server Error');
+        });
         expect(errorAlertCall).toBeDefined();
         const alertBody = JSON.parse(errorAlertCall[1].body);
-        expect(alertBody.parameters.endpoint).toBe('api-giver-notify-post');
-        expect(alertBody.parameters.stackTrace).toContain('alex@test.com');
+        expect(alertBody.HtmlBody).toContain('api-giver-notify-post');
+        expect(alertBody.HtmlBody).toContain('alex@test.com');
     });
 
     it('counts emails that return non-OK response as failures', async () => {
+        const failResponse = {ok: false, status: 500, text: () => Promise.resolve('Server Error')};
         mockFetch
             .mockResolvedValueOnce({ok: true})
-            .mockResolvedValueOnce({ok: false, status: 500, statusText: 'Internal Server Error'})
-            .mockResolvedValueOnce({ok: false, status: 500, statusText: 'Internal Server Error'})
-            .mockResolvedValueOnce({ok: false, status: 500, statusText: 'Internal Server Error'})
+            .mockResolvedValueOnce(failResponse)
+            .mockResolvedValueOnce(failResponse)
+            .mockResolvedValueOnce(failResponse)
             .mockResolvedValueOnce({ok: true})
             .mockResolvedValueOnce({ok: true}); // error-alert email
 
@@ -207,8 +210,7 @@ describe('api-giver-notify-post', () => {
         expect(body.total).toBe(3);
     });
 
-    it('sets wishlistEditUrl to null when user not found in DB', async () => {
-
+    it('omits wishlist CTA when user not found in DB', async () => {
         await db.collection('users').deleteOne({email: 'alex@test.com'});
 
         const event = buildEvent(bulkPayload);
@@ -216,8 +218,8 @@ describe('api-giver-notify-post', () => {
 
         const calls = mockFetch.mock.calls;
         const bodies = calls.map(c => JSON.parse(c[1].body));
-        const alexEmail = bodies.find(b => b.parameters.name === 'Alex');
-        expect(alexEmail.parameters.wishlistEditUrl).toBeNull();
+        const alexEmail = bodies.find(b => b.HtmlBody && b.HtmlBody.includes('Greetings, Alex'));
+        expect(alexEmail.HtmlBody).not.toContain('Add Your Wishlist');
     });
 
     it('handles names with special characters', async () => {
@@ -236,6 +238,6 @@ describe('api-giver-notify-post', () => {
 
         const call = mockFetch.mock.calls[0];
         const body = JSON.parse(call[1].body);
-        expect(body.parameters.name).toBe("O'Brien");
+        expect(body.HtmlBody).toContain('O&#39;Brien');
     });
 });

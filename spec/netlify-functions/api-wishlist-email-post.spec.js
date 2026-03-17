@@ -15,7 +15,7 @@ describe('api-wishlist-email-post', () => {
         db = mongo.db;
 
         process.env.URL = 'https://test.netlify.app';
-        process.env.NETLIFY_EMAILS_SECRET = 'test-secret';
+        process.env.POSTMARK_SERVER_TOKEN = 'test-postmark-token';
         process.env.CONTEXT = 'production';
 
         mockFetch = vi.fn().mockResolvedValue({ok: true});
@@ -49,7 +49,7 @@ describe('api-wishlist-email-post', () => {
     afterAll(async () => {
         vi.unstubAllGlobals();
         delete process.env.URL;
-        delete process.env.NETLIFY_EMAILS_SECRET;
+        delete process.env.POSTMARK_SERVER_TOKEN;
         delete process.env.CONTEXT;
         await teardownMongo(mongo);
     });
@@ -97,9 +97,9 @@ describe('api-wishlist-email-post', () => {
 
         expect(mockFetch).toHaveBeenCalledTimes(1);
         const callBody = JSON.parse(mockFetch.mock.calls[0][1].body);
-        expect(callBody.to).toBe('alex@test.com');
-        expect(callBody.parameters.recipientName).toBe('Hunter');
-        expect(callBody.parameters.wishlistViewUrl).toBe(
+        expect(callBody.To).toBe('alex@test.com');
+        expect(callBody.HtmlBody).toContain('Hunter');
+        expect(callBody.HtmlBody).toContain(
             `https://test.netlify.app/wishlist/view/${giverToken}?exchange=${exchangeId}`
         );
     });

@@ -12,7 +12,7 @@ describe('api-user-contact-post', () => {
         ({client, db} = mongo);
 
         process.env.URL = 'https://test.netlify.app';
-        process.env.NETLIFY_EMAILS_SECRET = 'test-secret';
+        process.env.POSTMARK_SERVER_TOKEN = 'test-postmark-token';
         process.env.CONTEXT = 'production';
 
         mockFetch = vi.fn().mockResolvedValue({ok: true});
@@ -33,7 +33,7 @@ describe('api-user-contact-post', () => {
     afterAll(async () => {
         vi.unstubAllGlobals();
         delete process.env.URL;
-        delete process.env.NETLIFY_EMAILS_SECRET;
+        delete process.env.POSTMARK_SERVER_TOKEN;
         delete process.env.CONTEXT;
         await teardownMongo(mongo);
     });
@@ -108,14 +108,14 @@ describe('api-user-contact-post', () => {
         // Verify email was sent to giver
         expect(mockFetch).toHaveBeenCalledTimes(1);
         const fetchCall = mockFetch.mock.calls[0];
-        expect(fetchCall[0]).toBe('https://test.netlify.app/.netlify/functions/emails/contact-info');
+        expect(fetchCall[0]).toBe('https://api.postmarkapp.com/email');
 
         const emailBody = JSON.parse(fetchCall[1].body);
-        expect(emailBody.to).toBe('giver@test.com');
-        expect(emailBody.parameters.recipientName).toBe('Whitney');
-        expect(emailBody.parameters.address).toBe('123 Main St, Springfield');
-        expect(emailBody.parameters.phone).toBe('555-1234');
-        expect(emailBody.parameters.notes).toBe('Leave at front door');
+        expect(emailBody.To).toBe('giver@test.com');
+        expect(emailBody.HtmlBody).toContain('Whitney');
+        expect(emailBody.HtmlBody).toContain('123 Main St, Springfield');
+        expect(emailBody.HtmlBody).toContain('555-1234');
+        expect(emailBody.HtmlBody).toContain('Leave at front door');
     });
 
     it('stores NOTHING in the database', async () => {
@@ -210,8 +210,7 @@ describe('api-user-contact-post', () => {
 
         const fetchCall = mockFetch.mock.calls[0];
         const emailBody = JSON.parse(fetchCall[1].body);
-        expect(emailBody.parameters.address).toBe('Not provided');
-        expect(emailBody.parameters.phone).toBe('Not provided');
-        expect(emailBody.parameters.notes).toBe('None');
+        expect(emailBody.HtmlBody).toContain('Not provided');
+        expect(emailBody.HtmlBody).toContain('None');
     });
 });

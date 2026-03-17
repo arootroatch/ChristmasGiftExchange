@@ -12,7 +12,7 @@ describe('api-user-wishlist-put', () => {
         ({client, db} = mongo);
 
         process.env.URL = 'https://test.netlify.app';
-        process.env.NETLIFY_EMAILS_SECRET = 'test-secret';
+        process.env.POSTMARK_SERVER_TOKEN = 'test-postmark-token';
         process.env.CONTEXT = 'production';
 
         mockFetch = vi.fn().mockResolvedValue({ok: true});
@@ -33,7 +33,7 @@ describe('api-user-wishlist-put', () => {
     afterAll(async () => {
         vi.unstubAllGlobals();
         delete process.env.URL;
-        delete process.env.NETLIFY_EMAILS_SECRET;
+        delete process.env.POSTMARK_SERVER_TOKEN;
         delete process.env.CONTEXT;
         await teardownMongo(mongo);
     });
@@ -137,10 +137,10 @@ describe('api-user-wishlist-put', () => {
 
         // Verify notification was sent to giver
         const fetchCall = mockFetch.mock.calls[0];
-        expect(fetchCall[0]).toBe('https://test.netlify.app/.netlify/functions/emails/wishlist-notification');
+        expect(fetchCall[0]).toBe('https://api.postmarkapp.com/email');
         const emailBody = JSON.parse(fetchCall[1].body);
-        expect(emailBody.to).toBe('giver@test.com');
-        expect(emailBody.parameters.recipientName).toBe('Whitney');
+        expect(emailBody.To).toBe('giver@test.com');
+        expect(emailBody.HtmlBody).toContain('Whitney');
     });
 
     it('returns 400 for invalid body', async () => {

@@ -8,7 +8,7 @@ describe('api-exchange-post contract', () => {
         mongo = await setupMongo();
         db = mongo.db;
         process.env.URL = 'https://test.netlify.app';
-        process.env.NETLIFY_EMAILS_SECRET = 'test-secret';
+        process.env.POSTMARK_SERVER_TOKEN = 'test-postmark-token';
         process.env.CONTEXT = 'production';
         vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ok: true}));
         const module = await import('../../netlify/functions/api-exchange-post.mjs');
@@ -19,7 +19,7 @@ describe('api-exchange-post contract', () => {
     afterAll(() => {
         vi.unstubAllGlobals();
         delete process.env.URL;
-        delete process.env.NETLIFY_EMAILS_SECRET;
+        delete process.env.POSTMARK_SERVER_TOKEN;
         delete process.env.CONTEXT;
         return teardownMongo(mongo);
     });
