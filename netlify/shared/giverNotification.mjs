@@ -112,3 +112,45 @@ export async function sendNotificationEmail(templateName, to, subject, parameter
         throw new Error(`Email send failed (${response.status}): ${templateName} to ${to} — ${body}`);
     }
 }
+
+export async function sendBatchNotificationEmails(messages) {
+    if (process.env.CONTEXT === "dev") {
+        messages.forEach(m => {
+            console.log(`[DEV EMAIL] Template: ${m.templateName} | To: ${m.to} | Subject: ${m.subject}`);
+            console.log("[DEV EMAIL] Parameters:", JSON.stringify(m.parameters, null, 2));
+        });
+        return {emailsFailed: []};
+    }
+
+    const postmarkMessages = await Promise.all(messages.map(async (m) => {
+        const templateModule = await templateModules[m.templateName]();
+        return {
+            From: "alex@soundrootsproductions.com",
+            To: m.to,
+            Subject: m.subject,
+            HtmlBody: templateModule.render(m.parameters),
+        };
+    }));
+
+    const response = await fetch("https://api.postmarkapp.com/email/batch", {
+        method: "POST",
+        headers: {
+            "X-Postmark-Server-Token": process.env.POSTMARK_SERVER_TOKEN,
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+        },
+        body: JSON.stringify(postmarkMessages),
+    });
+
+    if (!response.ok) {
+        const body = await response.text();
+        throw new Error(`Batch email send failed (${response.status}): ${body}`);
+    }
+
+    const results = await response.json();
+    const emailsFailed = results
+        .filter(r => r.ErrorCode !== 0)
+        .map(r => r.To);
+
+    return {emailsFailed};
+}
