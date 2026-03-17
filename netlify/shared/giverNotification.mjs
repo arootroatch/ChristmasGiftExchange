@@ -5,17 +5,18 @@ export async function forEachGiverOf(recipientUser, callback) {
     const exchangesCol = await getExchangesCollection();
     const usersCol = await getUsersCollection();
 
-    const exchanges = await exchangesCol.find({
-        "assignments.recipientId": recipientUser._id,
-    }).toArray();
+    const exchange = await exchangesCol.findOne(
+        {"assignments.recipientId": recipientUser._id},
+        {sort: {createdAt: -1}}
+    );
 
-    for (const exchange of exchanges) {
-        for (const assignment of exchange.assignments) {
-            if (assignment.recipientId.equals(recipientUser._id)) {
-                const giver = await usersCol.findOne({_id: assignment.giverId});
-                if (giver) {
-                    await callback({giver, exchange});
-                }
+    if (!exchange) return;
+
+    for (const assignment of exchange.assignments) {
+        if (assignment.recipientId.equals(recipientUser._id)) {
+            const giver = await usersCol.findOne({_id: assignment.giverId});
+            if (giver) {
+                await callback({giver, exchange});
             }
         }
     }
