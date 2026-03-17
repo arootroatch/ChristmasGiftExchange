@@ -18,7 +18,6 @@ The current email templates are visually plain (white background, minimal stylin
 
 | File | Change |
 |------|--------|
-| `src/bmcButton.js` | New shared module exporting BMC URL and button label constants |
 | `netlify/shared/emails/layout.mjs` | Complete restyle: branded header, light body wrapper, burgundy footer with BMC button |
 | `netlify/shared/emails/secretSanta.mjs` | Update inline styles for new color scheme |
 | `netlify/shared/emails/wishlistNotification.mjs` | Update inline styles for new color scheme |
@@ -34,19 +33,6 @@ The current email templates are visually plain (white background, minimal stylin
 | `netlify/shared/emails/errorAlert.mjs` | Developer-only email, has its own HTML structure |
 | `netlify/shared/emails/escapeHtml.mjs` | Utility, no visual changes |
 | All other spec files | Template render tests check content, not styling; layout test covers shared footer |
-
-## Buy Me a Coffee Button — Shared Constants
-
-The BMC URL and label are used in both the email layout and the frontend site. To avoid duplication, a shared module exports the constants:
-
-```js
-// src/bmcButton.js
-export const BMC_URL = 'https://buymeacoffee.com/arootroatch';
-export const BMC_LABEL = 'Buy me a coffee';
-```
-
-- **Email layout** (`layout.mjs`): imports `BMC_URL` and `BMC_LABEL` to render the static HTML button
-- **Frontend site**: imports the same constants to render the BMC button wherever needed on the site (frontend placement is out of scope for this spec but the constants are ready to use)
 
 ## Layout Structure
 
