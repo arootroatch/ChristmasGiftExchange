@@ -25,9 +25,8 @@ export function layout(contentRows) {
             <p style="font-size: 14px; color: rgba(240,240,240,0.7); margin: 0 0 16px 0;">
                 Love the Gift Exchange Generator? Supporters help keep it running and get a say in what's built next &mdash; no account needed.
             </p>
-            <a href="https://buymeacoffee.com/arootroatch"
-               style="display: inline-block; padding: 8px 20px; background-color: #fff; color: #69292a; border-radius: 6px; font-size: 13px; font-weight: bold; text-decoration: none;">
-                &#9749; Buy me a coffee
+            <a href="https://buymeacoffee.com/arootroatch" target="_blank" style="text-decoration: none;">
+                <img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=☕&slug=arootroatch&button_colour=69292a&font_colour=ffffff&font_family=Arial&outline_colour=ffffff&coffee_colour=FFDD00" alt="Buy Me A Coffee" style="height:60px;width:217px;"/>
             </a>
             <p style="font-size: 14px; color: rgba(240,240,240,0.8); margin: 20px 0 0 0;">
                 Happy gift giving!

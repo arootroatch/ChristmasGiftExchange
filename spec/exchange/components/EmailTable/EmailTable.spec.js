@@ -399,11 +399,10 @@ describe('emailTable', () => {
       expect(document.querySelector("#sendResultsSubmit").disabled).toBe(true);
     });
 
-    it("shows success snackbar and removes component on success", async () => {
+    it("removes form on success", async () => {
       document.querySelector("#sendResultsSubmit").click();
       await vi.advanceTimersByTimeAsync(0);
 
-      shouldDisplaySuccessSnackbar("Results sent!");
       expect(document.querySelector("#sendResults")).toBeNull();
     });
 
@@ -566,7 +565,7 @@ describe('emailTable', () => {
     expect(document.querySelector("#emailTable")).toBeNull();
   });
 
-  it("hides email table and shows success snackbar when all emails sent", async () => {
+  it("hides email table when all emails sent", async () => {
     global.fetch = vi.fn(() => Promise.resolve({
       ok: true,
       status: 200,
@@ -586,7 +585,6 @@ describe('emailTable', () => {
     expect(table.classList).toContain("hide");
     vi.advanceTimersByTime(500);
     expect(document.querySelector("#emailTable")).toBeNull();
-    shouldDisplaySuccessSnackbar("Exchange saved and emails sent!");
   });
 
   it("calls completeExchange with success mode when all emails sent", async () => {
@@ -635,7 +633,7 @@ describe('emailTable', () => {
       expect(failedEl.textContent).toContain("recipient search");
     });
 
-    it("removes failed emails and shows success on retry success", async () => {
+    it("removes failed emails on retry success", async () => {
       global.fetch = vi.fn()
         .mockResolvedValueOnce({
           ok: true,
@@ -662,7 +660,6 @@ describe('emailTable', () => {
 
       await vi.advanceTimersByTimeAsync(0);
       expect(document.querySelector("#failedEmails")).toBeNull();
-      shouldDisplaySuccessSnackbar("Emails sent successfully!");
     });
 
     it("removes failed emails on retry failure", async () => {

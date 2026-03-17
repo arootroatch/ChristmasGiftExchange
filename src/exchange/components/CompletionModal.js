@@ -5,12 +5,20 @@ import {resultsTableHtml} from "./EmailTable/SendResults.js";
 const modalId = "completionModal";
 const newExchangeBtnId = "newExchangeBtn";
 const bmcContainerId = "bmc-button-container";
+const bmcImageUrl = "https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=☕&slug=arootroatch&button_colour=69292a&font_colour=ffffff&font_family=Arial&outline_colour=ffffff&coffee_colour=FFDD00";
 
 function messageForMode(mode) {
   if (mode === "error") {
     return `<p>We were unable to send the remaining emails. Please contact these participants directly.</p>`;
   }
+  if (mode === "success") {
+    return `<p>Your exchange has been saved and emails have been sent. Thanks for using Gift Exchange Generator!</p>`;
+  }
   return `<p>Thanks for using Gift Exchange Generator!</p>`;
+}
+
+function bmcButtonHtml() {
+  return `<div id="${bmcContainerId}"><a href="https://buymeacoffee.com/arootroatch" target="_blank"><img src="${bmcImageUrl}" alt="Buy Me A Coffee" style="height:60px;width:217px;"></a><p class="bmc-hint">Or click the coffee cup in the bottom right to contribute without leaving the page.</p></div>`;
 }
 
 function template({mode, assignments}) {
@@ -19,27 +27,10 @@ function template({mode, assignments}) {
     html += resultsTableHtml({assignments});
   }
   html += messageForMode(mode);
-  html += `<div id="${bmcContainerId}"></div>`;
+  html += bmcButtonHtml();
   html += `<button class="button" id="${newExchangeBtnId}">Start New Exchange</button>`;
   html += `</div>`;
   return html;
-}
-
-function injectBmcButton() {
-  const container = selectElement(`#${bmcContainerId}`);
-  if (!container) return;
-  const script = document.createElement("script");
-  script.src = "https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js";
-  script.setAttribute("data-name", "bmc-button");
-  script.setAttribute("data-slug", "arootroatch");
-  script.setAttribute("data-color", "#69292a");
-  script.setAttribute("data-emoji", "");
-  script.setAttribute("data-font", "Arial");
-  script.setAttribute("data-text", "Buy me a coffee");
-  script.setAttribute("data-outline-color", "#ffffff");
-  script.setAttribute("data-font-color", "#ffffff");
-  script.setAttribute("data-coffee-color", "#FFDD00");
-  container.appendChild(script);
 }
 
 function render(state) {
@@ -48,7 +39,6 @@ function render(state) {
   addEventListener(`#${newExchangeBtnId}`, "click", () => {
     location.reload();
   });
-  injectBmcButton();
 }
 
 function remove() {

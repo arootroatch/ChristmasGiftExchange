@@ -23,10 +23,12 @@ describe("CompletionModal", () => {
       expect(modal.classList).toContain("sendEmails");
     });
 
-    it("shows thank-you message", () => {
+    it("shows success message with save confirmation", () => {
       stateEvents.emit(Events.EXCHANGE_COMPLETE, {mode: "success", assignments: []});
 
-      expect(document.querySelector("#completionModal").textContent).toContain("Thanks for using");
+      const text = document.querySelector("#completionModal").textContent;
+      expect(text).toContain("saved and emails have been sent");
+      expect(text).toContain("Thanks for using");
     });
 
     it("does not show results table", () => {
@@ -45,6 +47,12 @@ describe("CompletionModal", () => {
       stateEvents.emit(Events.EXCHANGE_COMPLETE, {mode: "success", assignments: []});
 
       expect(document.querySelector("#bmc-button-container")).not.toBeNull();
+    });
+
+    it("shows hint about floating widget", () => {
+      stateEvents.emit(Events.EXCHANGE_COMPLETE, {mode: "success", assignments: []});
+
+      expect(document.querySelector("#completionModal").textContent).toContain("coffee cup in the bottom right");
     });
 
     it("has no close or dismiss button", () => {
@@ -119,13 +127,15 @@ describe("CompletionModal", () => {
       expect(document.querySelector("#completionModal")).toBeNull();
     });
 
-    it("injects BMC script element into container", () => {
+    it("renders BMC image link in container", () => {
       stateEvents.emit(Events.EXCHANGE_COMPLETE, {mode: "success", assignments: []});
 
-      const script = document.querySelector("#bmc-button-container script");
-      expect(script).not.toBeNull();
-      expect(script.src).toContain("buymeacoffee.com");
-      expect(script.getAttribute("data-slug")).toBe("arootroatch");
+      const link = document.querySelector("#bmc-button-container a");
+      expect(link).not.toBeNull();
+      expect(link.href).toContain("buymeacoffee.com/arootroatch");
+      const img = link.querySelector("img");
+      expect(img).not.toBeNull();
+      expect(img.src).toContain("buymeacoffee.com");
     });
   });
 });

@@ -1,5 +1,5 @@
 import {addEventListener, pushHTML, selectElement, setLoadingState, clearLoadingState, escapeAttr, apiFetch} from "../../../utils.js";
-import {showError, showSuccess} from "../../../Snackbar.js";
+import {showError} from "../../../Snackbar.js";
 import {render as renderEmailTable} from "./EmailTable.js";
 import {completeExchange} from "../../state.js";
 
@@ -103,7 +103,6 @@ async function submitResults({assignments}) {
     method: "POST",
     body: {name, email, assignments},
     onSuccess: () => {
-      showSuccess("Results sent!");
       selectElement(`#${sendResultsFormId}`)?.remove();
       completeExchange("success");
     },

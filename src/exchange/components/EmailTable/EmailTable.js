@@ -160,7 +160,6 @@ async function submitEmails(event) {
             renderWithSubset(failedParticipants, failedAssignments),
         });
       } else {
-        showSuccess("Exchange saved and emails sent!");
         completeExchange("success");
       }
     },
@@ -200,7 +199,6 @@ async function submitSubsetEmails(event, originalParticipants, originalAssignmen
             renderWithSubset(failedParticipants, failedAssignments),
         });
       } else {
-        showSuccess("Emails sent successfully!");
         completeExchange("success");
       }
     },

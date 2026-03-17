@@ -1,5 +1,4 @@
 import {addEventListener, pushHTML, selectElement, setLoadingState, escapeAttr, apiFetch} from "../../../utils.js";
-import {showSuccess} from "../../../Snackbar.js";
 import {completeExchange} from "../../state.js";
 
 const failedEmailsId = "failedEmails";
@@ -78,7 +77,6 @@ async function retryFailedEmails(participants, assignments, exchangeId, onBack) 
         retryCount++;
         showFailedEmails(data.emailsFailed, {exchangeId, participants, assignments}, {onBack});
       } else {
-        showSuccess("Emails sent successfully!");
         completeExchange("success");
       }
     },
