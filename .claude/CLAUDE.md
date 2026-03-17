@@ -72,7 +72,7 @@ All `api-*` endpoints use `apiHandler` wrapper and Zod validation:
 - **api-user-get.mjs** — Returns user data (name, wishlists, wishItems) by token
 - **api-user-wishlist-put.mjs** — Updates user wishlists/wishItems; notifies givers on first submission
 - **api-user-contact-post.mjs** — Emails contact info to givers (not stored in DB)
-- **api-giver-notify-post.mjs** — Sends recipient assignment notification email to a giver
+- **api-giver-retry-post.mjs** — Retries failed email sends for an exchange
 - **api-recipient-get.mjs** — Looks up recipient by giver email (new collections + legacy fallback)
 
 Legacy endpoints (not refactored): `get_name.mjs`, `postToDb.mjs`
@@ -148,7 +148,7 @@ netlify/
     api-user-get.mjs         # Get user by token
     api-user-wishlist-put.mjs # Update wishlists
     api-user-contact-post.mjs # Send contact info to givers
-    api-giver-notify-post.mjs # Notify giver of recipient
+    api-giver-retry-post.mjs # Retry failed email sends for an exchange
     api-recipient-get.mjs    # Lookup recipient by giver email
     get_name.mjs             # Legacy: get recipient name
     postToDb.mjs             # Legacy: store exchange data
@@ -192,7 +192,7 @@ spec/
     api-user-get.spec.js
     api-user-wishlist-put.spec.js
     api-user-contact-post.spec.js
-    api-giver-notify-post.spec.js
+    api-giver-retry-post.spec.js
     giverNotification.spec.js
     api-recipient-get.spec.js
     db.spec.js
@@ -210,7 +210,7 @@ spec/
     api-user-get.contract.spec.js
     api-user-wishlist-put.contract.spec.js
     api-user-contact-post.contract.spec.js
-    api-giver-notify-post.contract.spec.js
+    api-giver-retry-post.contract.spec.js
     api-recipient-get.contract.spec.js
   dev/
     migrate-legacy.spec.js
