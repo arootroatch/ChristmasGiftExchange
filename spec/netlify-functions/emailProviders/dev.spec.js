@@ -9,7 +9,7 @@ describe('dev email provider', () => {
         sendBatchNotificationEmails = defmulti(() => 'dev');
 
         // Mock the giverNotification imports so dev.mjs can register on our test multimethods
-        vi.doMock('../../../netlify/shared/giverNotification.mjs', () => ({
+        vi.doMock('../../../netlify/shared/emailDispatch.mjs', () => ({
             sendNotificationEmail,
             sendBatchNotificationEmails,
         }));

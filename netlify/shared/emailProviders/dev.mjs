@@ -1,4 +1,4 @@
-import {sendNotificationEmail, sendBatchNotificationEmails} from "../giverNotification.mjs";
+import {sendNotificationEmail, sendBatchNotificationEmails} from "../emailDispatch.mjs";
 
 sendBatchNotificationEmails.defmethod("dev", async (messages) => {
     const emailsFailed = [];

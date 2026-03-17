@@ -1,4 +1,4 @@
-import {sendNotificationEmail, sendBatchNotificationEmails} from "../giverNotification.mjs";
+import {sendNotificationEmail, sendBatchNotificationEmails} from "../emailDispatch.mjs";
 
 const templateModules = {
     "secret-santa": () => import("../emails/secretSanta.mjs"),
