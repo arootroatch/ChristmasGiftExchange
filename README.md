@@ -85,7 +85,7 @@ Netlify Functions handle the server-side work:
 - **Postmark** — sends each participant an email with their assigned recipient
 - **Zod 4** — validates all request bodies and database documents
 
-Email sending uses a Clojure-style **multimethod dispatch** that selects an implementation based on `process.env.CONTEXT`. The `"production"` provider calls the Postmark API; the `"dev"` provider logs to the console and simulates failures for `@fail.test` addresses. Adding a new email provider requires only registering a new method — no existing code changes needed.
+Email sending uses a Clojure-style **multimethod dispatch** that selects an implementation by provider name. The `"postmark"` provider calls the Postmark API; the `"dev"` provider logs to the console and simulates failures for `@fail.test` addresses. The provider defaults to `"dev"` on localhost and `"postmark"` everywhere else. Adding a new email provider requires only registering a new method — no existing code changes needed.
 
 ## Testing
 

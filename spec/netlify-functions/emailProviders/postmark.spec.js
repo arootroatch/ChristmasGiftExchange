@@ -5,12 +5,11 @@ describe('postmark email provider', () => {
     let sendNotificationEmail, sendBatchNotificationEmails;
 
     beforeAll(async () => {
-        process.env.CONTEXT = 'production';
         process.env.POSTMARK_SERVER_TOKEN = 'test-postmark-token';
         vi.stubGlobal('fetch', vi.fn());
 
-        sendNotificationEmail = defmulti(() => 'production');
-        sendBatchNotificationEmails = defmulti(() => 'production');
+        sendNotificationEmail = defmulti(() => 'postmark');
+        sendBatchNotificationEmails = defmulti(() => 'postmark');
 
         vi.doMock('../../../netlify/shared/emailDispatch.mjs', () => ({
             sendNotificationEmail,
@@ -22,7 +21,6 @@ describe('postmark email provider', () => {
 
     afterAll(() => {
         vi.unstubAllGlobals();
-        delete process.env.CONTEXT;
         delete process.env.POSTMARK_SERVER_TOKEN;
     });
 

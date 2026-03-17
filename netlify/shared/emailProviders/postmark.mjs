@@ -9,7 +9,7 @@ const templateModules = {
     "wishlist-link": () => import("../emails/wishlistLink.mjs"),
 };
 
-sendNotificationEmail.defmethod("production", async (templateName, to, subject, parameters) => {
+sendNotificationEmail.defmethod("postmark", async (templateName, to, subject, parameters) => {
     const loadModule = templateModules[templateName];
     if (!loadModule) {
         throw new Error(`Unknown email template: ${templateName}`);
@@ -39,7 +39,7 @@ sendNotificationEmail.defmethod("production", async (templateName, to, subject, 
     }
 });
 
-sendBatchNotificationEmails.defmethod("production", async (messages) => {
+sendBatchNotificationEmails.defmethod("postmark", async (messages) => {
     const postmarkMessages = await Promise.all(messages.map(async (m) => {
         const templateModule = await templateModules[m.templateName]();
         return {
