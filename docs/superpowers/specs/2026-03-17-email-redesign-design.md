@@ -18,6 +18,7 @@ The current email templates are visually plain (white background, minimal stylin
 
 | File | Change |
 |------|--------|
+| `src/bmcButton.js` | New shared module exporting BMC URL and button label constants |
 | `netlify/shared/emails/layout.mjs` | Complete restyle: branded header, light body wrapper, burgundy footer with BMC button |
 | `netlify/shared/emails/secretSanta.mjs` | Update inline styles for new color scheme |
 | `netlify/shared/emails/wishlistNotification.mjs` | Update inline styles for new color scheme |
@@ -33,6 +34,19 @@ The current email templates are visually plain (white background, minimal stylin
 | `netlify/shared/emails/errorAlert.mjs` | Developer-only email, has its own HTML structure |
 | `netlify/shared/emails/escapeHtml.mjs` | Utility, no visual changes |
 | All other spec files | Template render tests check content, not styling; layout test covers shared footer |
+
+## Buy Me a Coffee Button — Shared Constants
+
+The BMC URL and label are used in both the email layout and the frontend site. To avoid duplication, a shared module exports the constants:
+
+```js
+// src/bmcButton.js
+export const BMC_URL = 'https://buymeacoffee.com/arootroatch';
+export const BMC_LABEL = 'Buy me a coffee';
+```
+
+- **Email layout** (`layout.mjs`): imports `BMC_URL` and `BMC_LABEL` to render the static HTML button
+- **Frontend site**: imports the same constants to render the BMC button wherever needed on the site (frontend placement is out of scope for this spec but the constants are ready to use)
 
 ## Layout Structure
 
@@ -101,7 +115,7 @@ Alex at the Gift Exchange Generator
 
 - Greeting text: `#69292a` (burgundy) instead of black
 - "Your gift exchange recipient is..." subtext: `#555`
-- Recipient name: `#198c0a` (green), bold, in a white card with green border and subtle shadow
+- Recipient name: `#198c0a` (green), bold, in a white card with green border and shadow (`0 2px 8px rgba(0,0,0,0.08)`)
 - CTA buttons: green with white text (already close, just align to design tokens)
 - Fine print ("Lost this email?"): `#999`
 
@@ -146,7 +160,7 @@ Alex at the Gift Exchange Generator
 All styling uses inline CSS (no `<style>` blocks, no CSS classes). This is the standard approach for email HTML and works across Gmail, Outlook, Apple Mail, and other major clients.
 
 Considerations:
-- `background: linear-gradient(...)` may not render in Outlook — use a solid fallback `background-color` on the same element
+- `background: linear-gradient(...)` may not render in Outlook — use a solid fallback `background-color: #f9f5f0` (cream) on the same element
 - `border-radius` is ignored by Outlook but degrades gracefully
 - `box-shadow` is ignored by Outlook but degrades gracefully
 - Table-based layout is already in use and is the most compatible approach
