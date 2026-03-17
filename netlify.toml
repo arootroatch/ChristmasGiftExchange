@@ -8,9 +8,6 @@
   targetPort = 5173
   framework = "#custom"
 
-[functions.emails]
-  included_files = ["./emails/**"]
-
 [[redirects]]
   from = "/wishlist/edit"
   to = "/pages/wishlist/edit/index.html"
@@ -50,6 +47,3 @@
   from = "/dev/emails/*"
   to = "/pages/dev/emails/index.html"
   status = 200
-
-[[plugins]]
-  package = "@netlify/plugin-emails"
