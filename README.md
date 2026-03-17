@@ -85,6 +85,8 @@ Netlify Functions handle the server-side work:
 - **Postmark** — sends each participant an email with their assigned recipient
 - **Zod 4** — validates all request bodies and database documents
 
+Email sending uses a Clojure-style **multimethod dispatch** that selects an implementation based on `process.env.CONTEXT`. The `"production"` provider calls the Postmark API; the `"dev"` provider logs to the console and simulates failures for `@fail.test` addresses. Adding a new email provider requires only registering a new method — no existing code changes needed.
+
 ## Testing
 
 The project has three test layers:
@@ -163,7 +165,11 @@ Local development requires the Netlify CLI and a MongoDB instance.
 
    This runs `netlify dev`, which starts the Vite dev server and proxies serverless function requests. Environment variables are loaded from `.env.local`.
 
-4. **Preview email templates** (dev-only):
+4. **Test failed email sending** (dev-only):
+
+   Use `@fail.test` email addresses (e.g., `alex@fail.test`) in the email form. The dev email provider returns these as failures, triggering the failed-emails UI. Edit the address to something else in the retry form and resubmit to test the success path. The Verifalia email verification widget is automatically stripped in dev mode so these addresses aren't blocked.
+
+5. **Preview email templates** (dev-only):
 
    With both `bin/db` and `npm run dev` running, visit:
 
