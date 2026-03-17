@@ -16,7 +16,7 @@ let window;
 
 const flush = () => new Promise(r => setTimeout(r, 0));
 
-function setupDOM(urlPath = "/wishlist/view/giver-token-123", query = "?exchange=exchange-id-456") {
+function setupDOM(urlPath = "/wishlist/view", query = "?user=giver-token-123&exchange=exchange-id-456") {
     dom = new JSDOM(html, {url: `http://localhost${urlPath}${query}`});
     document = dom.window.document;
 
@@ -184,7 +184,7 @@ describe("Wishlist View Page", () => {
         });
 
         it("stores error in sessionStorage when exchangeId is missing", async () => {
-            setupDOM("/wishlist/view/giver-token-123", "");
+            setupDOM("/wishlist/view", "?user=giver-token-123");
             mockFetch({body: {}});
             mockSessionStorage();
             main();
@@ -237,7 +237,7 @@ describe("Wishlist View Page", () => {
         });
 
         it("does not fetch when token is empty", async () => {
-            setupDOM("/wishlist/view/", "?exchange=exchange-id-456");
+            setupDOM("/wishlist/view", "?user=&exchange=exchange-id-456");
             mockFetch({body: {}});
             mockSessionStorage();
             main();

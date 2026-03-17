@@ -32,7 +32,7 @@ function proxyWindow(domWindow) {
     });
 }
 
-function setupDOM(url = "http://localhost/wishlist/edit/abc-123-token") {
+function setupDOM(url = "http://localhost/wishlist/edit?user=abc-123-token") {
     dom = new JSDOM(html, {url});
     document = dom.window.document;
     window = proxyWindow(dom.window);
@@ -529,15 +529,15 @@ describe("Wishlist Edit Page", () => {
             window.sessionStorage.clear();
         }
 
-        it("sets snackbar error and does not fetch when URL is /wishlist/edit/", async () => {
-            setupNoTokenDOM("http://localhost/wishlist/edit/");
+        it("sets snackbar error and does not fetch when user param is empty", async () => {
+            setupNoTokenDOM("http://localhost/wishlist/edit?user=");
             const {main: freshMain} = await import("../../src/wishlistEdit/index.js");
             freshMain();
             expect(window.fetch).not.toHaveBeenCalled();
             expect(window.sessionStorage.getItem("snackbarError")).toBe("Invalid wishlist link");
         });
 
-        it("sets snackbar error and does not fetch when URL is /wishlist/edit", async () => {
+        it("sets snackbar error and does not fetch when user param is missing", async () => {
             setupNoTokenDOM("http://localhost/wishlist/edit");
             const {main: freshMain} = await import("../../src/wishlistEdit/index.js");
             freshMain();
@@ -546,7 +546,7 @@ describe("Wishlist Edit Page", () => {
         });
 
         it("sets snackbar error when API returns 404", async () => {
-            setupNoTokenDOM("http://localhost/wishlist/edit/bad-token");
+            setupNoTokenDOM("http://localhost/wishlist/edit?user=bad-token");
             window.fetch = vi.fn(() => Promise.resolve({
                 ok: false, status: 404,
                 json: () => Promise.resolve({error: "User not found"}),

@@ -7,8 +7,7 @@ import * as contactForm from './components/ContactForm.js';
 import {setUserData} from './state.js';
 
 function extractToken() {
-    const match = window.location.pathname.match(/\/wishlist\/edit\/([^/]+)/);
-    return match ? match[1] : "";
+    return new URLSearchParams(window.location.search).get("user") || "";
 }
 
 function redirectWithError() {
