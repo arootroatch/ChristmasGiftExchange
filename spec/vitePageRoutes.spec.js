@@ -30,7 +30,6 @@ describe("pageRoutesPlugin", () => {
                     "pages": [
                         {name: "reuse", isDirectory: () => true},
                         {name: "wishlist", isDirectory: () => true},
-                        {name: "dev", isDirectory: () => true},
                     ],
                     "pages/reuse": [{name: "index.html", isDirectory: () => false}],
                     "pages/wishlist": [
@@ -39,8 +38,6 @@ describe("pageRoutesPlugin", () => {
                     ],
                     "pages/wishlist/edit": [{name: "index.html", isDirectory: () => false}],
                     "pages/wishlist/view": [{name: "index.html", isDirectory: () => false}],
-                    "pages/dev": [{name: "emails", isDirectory: () => true}],
-                    "pages/dev/emails": [{name: "index.html", isDirectory: () => false}],
                 };
                 return dirs[d] || [];
             });
@@ -56,7 +53,6 @@ describe("pageRoutesPlugin", () => {
                 reuse: "/project/pages/reuse/index.html",
                 wishlistEdit: "/project/pages/wishlist/edit/index.html",
                 wishlistView: "/project/pages/wishlist/view/index.html",
-                devEmails: "/project/pages/dev/emails/index.html",
             });
         });
     });
@@ -88,6 +84,8 @@ describe("pageRoutesPlugin", () => {
                     "pages/reuse": [{name: "index.html", isDirectory: () => false}],
                     "pages/wishlist": [{name: "edit", isDirectory: () => true}],
                     "pages/wishlist/edit": [{name: "index.html", isDirectory: () => false}],
+                    "dev": [{name: "emails", isDirectory: () => true}],
+                    "dev/emails": [{name: "index.html", isDirectory: () => false}],
                 };
                 return dirs[d] || [];
             });
@@ -130,6 +128,16 @@ describe("pageRoutesPlugin", () => {
             middleware(req, res, next);
 
             expect(req.url).toBe("/assets/style.css");
+            expect(next).toHaveBeenCalled();
+        });
+
+        it("rewrites dev routes for local dev only", () => {
+            const {req, res, next, middlewares} = createMockServer("/dev/emails");
+            const middleware = getMiddleware({middlewares});
+
+            middleware(req, res, next);
+
+            expect(req.url).toBe("/dev/emails/index.html");
             expect(next).toHaveBeenCalled();
         });
 

@@ -7,6 +7,12 @@ function discoverPages(root) {
     return findIndexFiles(pagesDir, 'pages');
 }
 
+function discoverDevPages(root) {
+    const devDir = resolve(root, 'dev');
+    if (!existsSync(devDir)) return [];
+    return findIndexFiles(devDir, 'dev');
+}
+
 function findIndexFiles(dir, prefix) {
     const results = [];
     for (const entry of readdirSync(dir, {withFileTypes: true})) {
@@ -46,8 +52,10 @@ export function pageRoutesPlugin() {
         },
 
         configureServer(server) {
+            const devPages = discoverDevPages(root);
+            const allPages = [...pages, ...devPages];
             const routes = {};
-            for (const page of pages) {
+            for (const page of allPages) {
                 const urlPath = '/' + page.replace(/^pages\//, '').replace(/\/index\.html$/, '');
                 routes[urlPath] = '/' + page;
             }
