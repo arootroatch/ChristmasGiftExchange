@@ -18,6 +18,7 @@ export default defineConfig({
             'spec/exchange/**/*.spec.js',
             'spec/Snackbar.spec.js',
             'spec/utils.spec.js',
+            'spec/vitePageRoutes.spec.js',
           ],
         },
       },
