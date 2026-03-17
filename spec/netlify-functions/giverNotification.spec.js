@@ -147,8 +147,8 @@ describe('sendBatchEmails', () => {
         const alexMsg = body.find(m => m.To === 'alex@test.com');
         expect(alexMsg.HtmlBody).toContain('Alex');
         expect(alexMsg.HtmlBody).toContain('Whitney');
-        expect(alexMsg.HtmlBody).toContain('https://test.netlify.app/wishlist/edit/alex-token');
-        expect(alexMsg.HtmlBody).toContain('https://test.netlify.app/wishlist/view/alex-token?exchange=exchange-123');
+        expect(alexMsg.HtmlBody).toContain('https://test.netlify.app/wishlist/edit?user=alex-token');
+        expect(alexMsg.HtmlBody).toContain('https://test.netlify.app/wishlist/view?user=alex-token&amp;exchange=exchange-123');
     });
 
     it('omits wishlist CTA when user not in userByEmail', async () => {

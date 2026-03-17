@@ -20,10 +20,10 @@ describe('secretSanta', () => {
             const html = render({
                 name: 'Alex',
                 recipient: 'Hunter',
-                wishlistEditUrl: 'https://example.com/wishlist/edit/abc',
+                wishlistEditUrl: 'https://example.com/wishlist/edit?user=abc',
             });
             expect(html).toContain('Add Your Wishlist');
-            expect(html).toContain('https://example.com/wishlist/edit/abc');
+            expect(html).toContain('https://example.com/wishlist/edit?user=abc');
         });
 
         it('omits wishlist CTA when wishlistEditUrl is null', () => {
@@ -35,10 +35,10 @@ describe('secretSanta', () => {
             const html = render({
                 name: 'Alex',
                 recipient: 'Hunter',
-                wishlistViewUrl: 'https://example.com/wishlist/view/abc?exchange=123',
+                wishlistViewUrl: 'https://example.com/wishlist/view?user=abc&exchange=123',
             });
             expect(html).toContain("View Hunter's Wish List");
-            expect(html).toContain('https://example.com/wishlist/view/abc?exchange=123');
+            expect(html).toContain('https://example.com/wishlist/view?user=abc&amp;exchange=123');
         });
 
         it('omits wishlist view CTA when wishlistViewUrl is null', () => {
@@ -96,8 +96,8 @@ describe('secretSanta', () => {
 
             expect(data.name).toBe('Alex');
             expect(data.recipient).toBe('Hunter');
-            expect(data.wishlistEditUrl).toContain(`/wishlist/edit/${giverToken}`);
-            expect(data.wishlistViewUrl).toContain(`/wishlist/view/${giverToken}`);
+            expect(data.wishlistEditUrl).toContain(`/wishlist/edit?user=${giverToken}`);
+            expect(data.wishlistViewUrl).toContain(`/wishlist/view?user=${giverToken}`);
             expect(data.wishlistViewUrl).toContain(`exchange=${exchangeId}`);
         });
     });

@@ -60,7 +60,7 @@ describe('wishlistLink', () => {
             const data = await getData(db);
 
             expect(data.recipientName).toBe('Hunter');
-            expect(data.wishlistViewUrl).toContain(`/wishlist/view/${giverToken}`);
+            expect(data.wishlistViewUrl).toContain(`/wishlist/view?user=${giverToken}`);
             expect(data.wishlistViewUrl).toContain(`exchange=${exchangeId}`);
         });
     });

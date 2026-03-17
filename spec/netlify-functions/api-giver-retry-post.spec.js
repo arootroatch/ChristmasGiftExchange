@@ -133,7 +133,7 @@ describe('api-giver-retry-post', () => {
                 msg.HtmlBody.includes(`Greetings, ${name}`)
             );
             expect(msg.HtmlBody).toContain(
-                `https://test.netlify.app/wishlist/edit/${tokenMap[matchedName]}`
+                `https://test.netlify.app/wishlist/edit?user=${tokenMap[matchedName]}`
             );
         });
     });

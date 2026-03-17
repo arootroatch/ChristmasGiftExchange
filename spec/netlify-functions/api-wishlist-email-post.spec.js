@@ -100,7 +100,7 @@ describe('api-wishlist-email-post', () => {
         expect(callBody.To).toBe('alex@test.com');
         expect(callBody.HtmlBody).toContain('Hunter');
         expect(callBody.HtmlBody).toContain(
-            `https://test.netlify.app/wishlist/view/${giverToken}?exchange=${exchangeId}`
+            `https://test.netlify.app/wishlist/view?user=${giverToken}&amp;exchange=${exchangeId}`
         );
     });
 
