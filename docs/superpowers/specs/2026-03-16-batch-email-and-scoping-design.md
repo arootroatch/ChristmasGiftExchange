@@ -9,7 +9,7 @@ Three changes: (1) switch from sequential email sends to Postmark's batch API fo
 ### Current behavior
 
 `sendEmailsWithRetry()` in `giverNotification.mjs` sends emails one at a time in a loop, retrying each up to 3 times. Called by:
-- `api-giver-retry-post.mjs` (retry endpoint)
+- `api-giver-notify-post.mjs` (retry endpoint — will be renamed in section 2)
 - `api-exchange-post.mjs` (initial exchange creation)
 
 ### New behavior
@@ -81,7 +81,7 @@ export async function sendBatchNotificationEmails(messages) {
     const results = await response.json();
     const emailsFailed = results
         .filter(r => r.ErrorCode !== 0)
-        .map((r, i) => postmarkMessages[i].To);
+        .map(r => r.To);
 
     return {emailsFailed};
 }
@@ -118,6 +118,9 @@ Key differences from old approach:
 | `spec/exchange/components/EmailTable/EmailTable.spec.js:514,522` | Update URL in test assertions |
 | Inside `api-giver-retry-post.mjs:41` | Error alert `endpoint` string |
 | Inside `spec/netlify-functions/api-giver-retry-post.spec.js:191` | Update assertion for endpoint name |
+| `.claude/CLAUDE.md` | Update all references to `api-giver-notify-post` in project documentation |
+
+Note: `spec/exchange/components/EmailTable/FailedEmails.spec.js` was checked — it does not contain direct URL string assertions for this endpoint, so no changes needed.
 
 ## 3. Scope `forEachGiverOf` to Most Recent Exchange
 
@@ -176,12 +179,12 @@ A user can only be a recipient of one giver per exchange (one assignment per rec
   - Sends single POST to `/email/batch` (not N individual calls)
   - Verify Postmark batch body is an array of `{From, To, Subject, HtmlBody}` objects
 - Add `sendBatchNotificationEmails` tests
-- `forEachGiverOf` tests: test that only the most recent exchange's giver is called
+- Create `forEachGiverOf` tests (none exist today): test that only the most recent exchange's giver is called, test that older exchanges are ignored
 
 ### Endpoint test files
 
 - `api-giver-retry-post.spec.js`: update import path, endpoint name in assertions, remove retry-specific tests (no more 3-attempt retry), update mock expectations for single batch call instead of N individual calls
-- `api-exchange-post.spec.js`: update import name
+- `api-exchange-post.spec.js`: update mock expectations for single batch call instead of N individual calls (test stubs `fetch` globally, no import to rename)
 - `api-user-wishlist-put.spec.js`: add test verifying only most recent exchange's giver is notified
 - `api-user-contact-post.spec.js`: add test verifying only most recent exchange's giver gets contact info
 
