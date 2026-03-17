@@ -141,7 +141,7 @@ test.describe('Create Exchange → View Wishlist', () => {
             assignments: [{giverId: giver._id, recipientId: recipient._id}],
         }));
 
-        await page.goto(`/wishlist/view/${giver.token}?exchange=${exchangeId}`);
+        await page.goto(`/wishlist/view?user=${giver.token}&exchange=${exchangeId}`);
 
         const heading = page.locator('#heading');
         await expect(heading).toBeVisible();

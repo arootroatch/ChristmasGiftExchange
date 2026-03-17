@@ -28,7 +28,7 @@ test.describe('Edit Wishlist → Giver Sees Updates', () => {
     });
 
     test('recipient edits wishlist and giver sees the updates', async ({page}) => {
-        await page.goto(`/wishlist/edit/${recipient.token}`);
+        await page.goto(`/wishlist/edit?user=${recipient.token}`);
         await expect(page.locator('#greeting')).toContainText('Bob');
 
         await page.locator('#wishlist-url').fill('https://amazon.com/wishlist/123');
@@ -45,7 +45,7 @@ test.describe('Edit Wishlist → Giver Sees Updates', () => {
         await page.locator('#save-wishlist-btn').click();
         await expect(page.locator('#snackbar')).toContainText('Wishlist saved');
 
-        await page.goto(`/wishlist/view/${giver.token}?exchange=${exchangeId}`);
+        await page.goto(`/wishlist/view?user=${giver.token}&exchange=${exchangeId}`);
         await expect(page.locator('#heading')).toContainText("Bob's Wishlist");
 
         const content = page.locator('#wishlist-content');
