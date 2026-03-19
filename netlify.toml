@@ -3,6 +3,12 @@
   publish = "dist"
   functions = "netlify/functions"
 
+[[redirects]]
+  from = "https://giftexchangegenerator.netlify.app/*"
+  to = "https://gift-exchange-generator.com/:splat"
+  status = 308
+  force = true
+
 [dev]
   command = "npx vite"
   targetPort = 5173
