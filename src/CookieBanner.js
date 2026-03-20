@@ -3,7 +3,7 @@ const bannerId = "cookie-banner";
 
 function template() {
   return `<div id="${bannerId}">
-    <p class="cookie-banner-text">☕ This site uses cookies from <strong>Buy Me a Coffee</strong> to power the support widget. That's it — no tracking, no ads.</p>
+    <div class="cookie-banner-message"><img class="bmc-logo" src="https://cdn.buymeacoffee.com/buttons/bmc-new-btn-logo.svg" alt="BMC"><p class="cookie-banner-text">This site uses cookies from <strong>Buy Me a Coffee</strong> to power the support widget. That's it — no tracking, no ads.</p></div>
     <div class="cookie-banner-buttons">
       <button class="cookie-btn cookie-btn-reject" id="cookie-reject">Reject</button>
       <button class="cookie-btn cookie-btn-accept" id="cookie-accept">Accept</button>
