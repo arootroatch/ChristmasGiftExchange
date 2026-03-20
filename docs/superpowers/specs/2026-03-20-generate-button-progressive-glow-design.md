@@ -54,16 +54,17 @@ Three classes applied to the `#generate` button:
 
 Two `@keyframes` rules: `pulse-soft` (2.5s) and `pulse-strong` (1.8s).
 
-Add `transition: box-shadow 0.4s, background 0.4s` to `.btn-bottom` or specifically to `#generate`.
+Add `transition: box-shadow 0.4s, background 0.4s` specifically to `#generate` (not `.btn-bottom`, to avoid conflicting with the existing `transition: 0.2s` shorthand on that class).
 
 ### JS (GenerateButton.js)
 
 `GenerateButton.js` already tracks `participantCount` via the `PARTICIPANT_ADDED` event and calls `render()`. The changes:
 
-1. Add a `getGlowClass(count)` function that returns the appropriate class name based on count thresholds (3, 5, 8)
-2. In `render()`, after inserting the template, apply the glow class to the button
-3. Add a new `PARTICIPANT_REMOVED` subscription to update the glow class when names are removed (downgrade stages)
-4. On `EXCHANGE_STARTED`, reset the glow state along with the existing `participantCount` reset
+1. Add a `getGlowClass(count)` function that returns the appropriate class name based on count thresholds (3, 5, 8), or `null` if below 3
+2. Add an `updateGlow()` function that reads the current `participantCount`, computes the glow class via `getGlowClass()`, and applies it to the `#generate` button (removing any previous glow class). This must be a **separate function from `render()`** because `render()` early-returns if the button already exists in the DOM — glow updates need to happen even when the button is already rendered.
+3. Call `updateGlow()` after `render()` in the `PARTICIPANT_ADDED` handler (so it runs whether or not `render()` inserted new HTML)
+4. Add a new `PARTICIPANT_REMOVED` subscription that **decrements `participantCount`** and calls `updateGlow()` to downgrade the glow stage
+5. On `EXCHANGE_STARTED`, reset the glow state along with the existing `participantCount` reset
 
 ### Thresholds
 
