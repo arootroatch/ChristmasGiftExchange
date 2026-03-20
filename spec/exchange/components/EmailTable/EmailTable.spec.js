@@ -320,14 +320,13 @@ describe('emailTable', () => {
       expect(form.classList).toContain("sendEmails");
     });
 
-    it("shows form with participant select and email input", () => {
-      const select = document.querySelector("#sendResultsName");
+    it("shows form with name text input and email input", () => {
+      const nameInput = document.querySelector("#sendResultsName");
       const emailInput = document.querySelector("#sendResultsEmail");
 
-      expect(select).not.toBeNull();
+      expect(nameInput).not.toBeNull();
+      expect(nameInput.type).toBe("text");
       expect(emailInput).not.toBeNull();
-      expect(select.options.length).toBe(4);
-      expect(select.options[1].textContent).toBe("Alex");
     });
 
     it("shows results table in secret santa mode", () => {
@@ -437,11 +436,11 @@ describe('emailTable', () => {
       expect(btn.textContent).toBe("Send");
     });
 
-    it("shows error when no name selected", () => {
+    it("shows error when no name entered", () => {
       document.querySelector("#sendResultsName").value = "";
       document.querySelector("#sendResultsSubmit").click();
 
-      shouldDisplayErrorSnackbar("Please select your name");
+      shouldDisplayErrorSnackbar("Please enter your name");
       expect(global.fetch).not.toHaveBeenCalled();
     });
 

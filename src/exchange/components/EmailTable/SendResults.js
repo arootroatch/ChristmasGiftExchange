@@ -52,17 +52,14 @@ export function resultsTableHtml({assignments}) {
   return html;
 }
 
-function resultsFormTemplate({isSecretSanta, participants, assignments}) {
+function resultsFormTemplate({isSecretSanta, assignments}) {
   let html = `<div id="${sendResultsFormId}" class="sendEmails show">`;
   if (isSecretSanta) {
     html += resultsTableHtml({assignments});
   }
   html += `
       <div style="display:flex; flex-direction:column; align-items:center; gap:8px; padding:10px;">
-      <div><label for="${sendResultsNameId}">Your name: </label><select id="${sendResultsNameId}" required>
-          <option disabled selected value="">-- Select your name --</option>
-          ${participants.map(p => `<option value="${escapeAttr(p.name)}">${escapeAttr(p.name)}</option>`).join("")}
-      </select></div>
+      <div><label for="${sendResultsNameId}">Your name: </label><input type="text" id="${sendResultsNameId}" placeholder="Your name" required/></div>
       <div><label for="${sendResultsEmailId}">Your email: </label><input type="email" id="${sendResultsEmailId}" placeholder="your@email.com" required/></div>
       <button class="button" id="${sendResultsSubmitId}">Send</button>
       <button class="button" id="${sendResultsBackBtnId}">\u2190 Back</button>
@@ -83,13 +80,13 @@ export function showResultsForm(state) {
 }
 
 async function submitResults({assignments}) {
-  const nameSelect = selectElement(`#${sendResultsNameId}`);
+  const nameInput = selectElement(`#${sendResultsNameId}`);
   const emailInput = selectElement(`#${sendResultsEmailId}`);
-  const name = nameSelect.value;
+  const name = nameInput.value.trim();
   const email = emailInput.value.trim();
 
-  if (!name || name === "") {
-    showError("Please select your name");
+  if (!name) {
+    showError("Please enter your name");
     return;
   }
   if (!email) {

@@ -16,6 +16,7 @@ test.describe('Create Exchange → View Wishlist', () => {
 
     async function createExchange(page, names) {
         await page.goto('/');
+        await page.locator('#cookie-reject').click();
         await page.locator('#letsGo').click();
 
         const nameInput = page.locator('#name-input');
@@ -59,6 +60,7 @@ test.describe('Create Exchange → View Wishlist', () => {
 
     test('Send Me Results back button returns to email table', async ({page}) => {
         await page.goto('/');
+        await page.locator('#cookie-reject').click();
         await page.locator('#letsGo').click();
 
         const nameInput = page.locator('#name-input');
