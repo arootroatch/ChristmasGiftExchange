@@ -20,6 +20,14 @@ export function getGlowClass(count) {
   return null;
 }
 
+function updateGlow() {
+  const btn = selectElement(`#${generateId}`);
+  if (!btn) return;
+  glowClasses.forEach(cls => btn.classList.remove(cls));
+  const cls = getGlowClass(participantCount);
+  if (cls) btn.classList.add(cls);
+}
+
 function updateHint(text) {
   const hint = selectElement("#generate-hint");
   if (hint) hint.textContent = text;
@@ -44,6 +52,7 @@ export function init() {
   stateEvents.on(Events.PARTICIPANT_ADDED, () => {
     participantCount++;
     render();
+    updateGlow();
     if (!hintShown && participantCount >= 3) {
       hintShown = true;
       updateHint("When you're ready, click here!");

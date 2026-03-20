@@ -192,6 +192,39 @@ describe("generateButton", () => {
       expect(document.querySelector("#generate-hint").textContent).toContain("When you're ready");
     });
   });
+
+  describe("progressive glow", () => {
+    it("applies generate-glow-1 after 3rd participant", () => {
+      resetState();
+      addParticipant("Alex");
+      addParticipant("Whitney");
+      addParticipant("Carol");
+      const btn = selectElement("#generate");
+      expect(btn.classList.contains("generate-glow-1")).toBe(true);
+    });
+
+    it("applies generate-glow-2 after 5th participant", () => {
+      resetState();
+      addParticipant("Alex");
+      addParticipant("Whitney");
+      addParticipant("Carol");
+      addParticipant("Dave");
+      addParticipant("Eve");
+      const btn = selectElement("#generate");
+      expect(btn.classList.contains("generate-glow-2")).toBe(true);
+      expect(btn.classList.contains("generate-glow-1")).toBe(false);
+    });
+
+    it("applies generate-glow-3 after 8th participant", () => {
+      resetState();
+      for (const name of ["A", "B", "C", "D", "E", "F", "G", "H"]) {
+        addParticipant(name);
+      }
+      const btn = selectElement("#generate");
+      expect(btn.classList.contains("generate-glow-3")).toBe(true);
+      expect(btn.classList.contains("generate-glow-2")).toBe(false);
+    });
+  });
 });
 
 describe("generateList", () => {
