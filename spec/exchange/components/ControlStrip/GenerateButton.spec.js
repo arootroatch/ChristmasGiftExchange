@@ -224,6 +224,19 @@ describe("generateButton", () => {
       expect(btn.classList.contains("generate-glow-3")).toBe(true);
       expect(btn.classList.contains("generate-glow-2")).toBe(false);
     });
+
+    it("resets glow when new exchange started", () => {
+      resetState();
+      addParticipant("Alex");
+      addParticipant("Whitney");
+      addParticipant("Carol");
+      expect(selectElement("#generate").classList.contains("generate-glow-1")).toBe(true);
+      resetState();
+      addParticipant("Alex");
+      expect(selectElement("#generate")).not.toBeNull();
+      const btn = selectElement("#generate");
+      expect(btn.classList.contains("generate-glow-1")).toBe(false);
+    });
   });
 });
 
