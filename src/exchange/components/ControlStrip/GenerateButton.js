@@ -11,6 +11,15 @@ let participantCount = 0;
 let hintShown = false;
 let initialized = false;
 
+const glowClasses = ["generate-glow-1", "generate-glow-2", "generate-glow-3"];
+
+export function getGlowClass(count) {
+  if (count >= 8) return glowClasses[2];
+  if (count >= 5) return glowClasses[1];
+  if (count >= 3) return glowClasses[0];
+  return null;
+}
+
 function updateHint(text) {
   const hint = selectElement("#generate-hint");
   if (hint) hint.textContent = text;
