@@ -35,30 +35,32 @@
 /* Generate button progressive glow */
 #generate {
   transition: box-shadow 0.4s, background 0.4s;
+  margin-top: 0;
+  margin-bottom: 0;
 }
 
 .generate-glow-1 {
-  box-shadow: 0 0 8px rgba(142, 58, 59, 0.2);
+  box-shadow: 0 0 15px rgba(255, 150, 160, 0.5), 0 0 35px rgba(255, 140, 150, 0.25);
 }
 
 .generate-glow-2 {
-  background-color: #7a3233;
-  box-shadow: 0 0 20px rgba(142, 58, 59, 0.4);
+  background-color: #8e3a3b;
+  box-shadow: 0 0 25px rgba(255, 150, 160, 0.6), 0 0 50px rgba(255, 140, 150, 0.3);
   animation: generate-pulse-soft 2.5s ease-in-out infinite;
 }
 
 .generate-glow-3 {
-  background: linear-gradient(135deg, #a84445, #8e3a3b);
-  box-shadow: 0 0 30px rgba(168, 68, 69, 0.6), 0 0 60px rgba(168, 68, 69, 0.3);
+  background: linear-gradient(135deg, #c25050, #a84445);
+  box-shadow: 0 0 35px rgba(255, 150, 160, 0.8), 0 0 80px rgba(255, 140, 150, 0.4);
   animation: generate-pulse-strong 1.8s ease-in-out infinite;
 }
 
 @keyframes generate-pulse-soft {
-  0%, 100% { box-shadow: 0 0 20px rgba(142, 58, 59, 0.4); }
-  50% { box-shadow: 0 0 30px rgba(142, 58, 59, 0.6); }
+  0%, 100% { box-shadow: 0 0 10px rgba(255, 150, 160, 0.3), 0 0 25px rgba(255, 140, 150, 0.15); }
+  50% { box-shadow: 0 0 30px rgba(255, 150, 160, 0.7), 0 0 60px rgba(255, 140, 150, 0.35); }
 }
 
 @keyframes generate-pulse-strong {
-  0%, 100% { box-shadow: 0 0 30px rgba(168, 68, 69, 0.6), 0 0 60px rgba(168, 68, 69, 0.3); }
-  50% { box-shadow: 0 0 40px rgba(168, 68, 69, 0.8), 0 0 80px rgba(168, 68, 69, 0.4); }
+  0%, 100% { box-shadow: 0 0 15px rgba(255, 150, 160, 0.4), 0 0 40px rgba(255, 140, 150, 0.2); }
+  50% { box-shadow: 0 0 45px rgba(255, 150, 160, 0.9), 0 0 100px rgba(255, 140, 150, 0.5); }
 }
