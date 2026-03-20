@@ -35,6 +35,11 @@ describe("instructions", () => {
     it("renders Secret Santa button", () => {
       expect(document.querySelector("#secretSantaBtn")).not.toBeNull();
     });
+
+    it("does not mention cookies", () => {
+      const slot = document.querySelector('[data-slot="instructions"]');
+      expect(slot.innerHTML).not.toContain("cookies");
+    });
   });
 
   describe("exchange started", () => {

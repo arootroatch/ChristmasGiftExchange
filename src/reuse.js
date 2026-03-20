@@ -1,5 +1,6 @@
 import {escape, escapeAttr, apiFetch} from './utils.js';
 import * as snackbar from './Snackbar.js';
+import * as cookieBanner from './CookieBanner.js';
 
 async function searchExchanges() {
     const email = document.getElementById("reuse-email").value.trim();
@@ -51,6 +52,7 @@ function useExchange(event) {
 
 export function main() {
     snackbar.init();
+    cookieBanner.init();
 
     document.getElementById("reuse-search-btn").addEventListener("click", searchExchanges);
     document.getElementById("reuse-email").addEventListener("keydown", (e) => {

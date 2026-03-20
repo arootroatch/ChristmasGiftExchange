@@ -1,4 +1,5 @@
 import * as snackbar from '../Snackbar.js';
+import * as cookieBanner from '../CookieBanner.js';
 import * as greeting from './components/Greeting.js';
 import * as wishlistList from './components/WishlistList.js';
 import * as itemList from './components/ItemList.js';
@@ -31,6 +32,7 @@ async function loadUser(token) {
 export function main() {
     const token = extractToken();
     snackbar.init();
+    cookieBanner.init();
     greeting.init();
     wishlistList.init();
     itemList.init();

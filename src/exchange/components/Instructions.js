@@ -21,7 +21,7 @@ function introTemplate() {
       "Secret Santa Mode" instead.
     </p>
     <p>
-      This site will always be free to use, doesn't use any cookies, and your information will never be shared.
+      This site will always be free to use and your information will never be shared.
     </p>
     <div id="get-started">
       <p>Ready to get started?</p>

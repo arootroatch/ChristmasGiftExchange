@@ -4,6 +4,7 @@
 @import url('base/tokens.css');
 @import url('base/forms.css');
 @import url('components/entries.css');
+@import url('components/cookie-banner.css');
 
 /* ── Base ───────────────────────────────────────────────────── */
 html {

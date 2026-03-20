@@ -13,10 +13,12 @@ import * as recipientSearch from "./components/RecipientSearch.js";
 import * as completionModal from "./components/CompletionModal.js";
 import * as reuseLink from "./components/ReuseLink.js";
 import * as snackbar from "../Snackbar.js";
+import * as cookieBanner from "../CookieBanner.js";
 import {loadExchange} from "./state.js";
 
 export default function main() {
   snackbar.init();
+  cookieBanner.init();
   house.init();
   name.init();
   nameList.init();

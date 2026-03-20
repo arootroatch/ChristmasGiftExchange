@@ -19,6 +19,7 @@
 @import url('components/email-dialog.css');
 @import url('components/email-confirmation.css');
 @import url('components/recipient-search.css');
+@import url('components/cookie-banner.css');
 
 /* Themes */
 @import url('themes/secret-santa.css');

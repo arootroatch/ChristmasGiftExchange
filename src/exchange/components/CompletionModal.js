@@ -1,6 +1,7 @@
 import {addEventListener, pushHTML, selectElement} from "../../utils.js";
 import {ExchangeEvents as Events, exchangeEvents as stateEvents} from "../state.js";
 import {resultsTableHtml} from "./EmailTable/SendResults.js";
+import {isBmcConsented} from "../../CookieBanner.js";
 
 const modalId = "completionModal";
 const newExchangeBtnId = "newExchangeBtn";
@@ -18,7 +19,10 @@ function messageForMode(mode) {
 }
 
 function bmcButtonHtml() {
-  return `<div id="${bmcContainerId}"><p>Love the site? Become a supporter! No account necessary.</p><a href="https://buymeacoffee.com/arootroatch" target="_blank"><img src="${bmcImageUrl}" alt="Buy Me A Coffee" style="height:60px;width:217px;"></a><p class="bmc-hint">Or click the coffee cup in the bottom right to contribute without leaving the page.</p></div>`;
+  const hint = isBmcConsented()
+    ? `<p class="bmc-hint">Or click the coffee cup in the bottom right to contribute without leaving the page.</p>`
+    : "";
+  return `<div id="${bmcContainerId}"><p>Love the site? Become a supporter! No account necessary.</p><a href="https://buymeacoffee.com/arootroatch" target="_blank"><img src="${bmcImageUrl}" alt="Buy Me A Coffee" style="height:60px;width:217px;"></a>${hint}</div>`;
 }
 
 function template({mode, assignments}) {

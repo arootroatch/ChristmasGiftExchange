@@ -1,4 +1,5 @@
 import {escape, escapeAttr, apiFetch} from './utils.js';
+import * as cookieBanner from './CookieBanner.js';
 
 async function loadWishlist() {
     const params = new URLSearchParams(window.location.search);
@@ -64,6 +65,7 @@ function redirectWithError(message) {
 }
 
 export function main() {
+    cookieBanner.init();
     loadWishlist();
 }
 

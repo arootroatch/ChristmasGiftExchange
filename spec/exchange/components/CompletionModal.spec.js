@@ -10,6 +10,7 @@ describe("CompletionModal", () => {
   });
 
   beforeEach(() => {
+    localStorage.clear();
     startExchange();
     document.querySelector("#completionModal")?.remove();
   });
@@ -49,10 +50,18 @@ describe("CompletionModal", () => {
       expect(document.querySelector("#bmc-button-container")).not.toBeNull();
     });
 
-    it("shows hint about floating widget", () => {
+    it("shows hint about floating widget when BMC is consented", () => {
+      localStorage.setItem("cookie-consent", "accepted");
       stateEvents.emit(Events.EXCHANGE_COMPLETE, {mode: "success", assignments: []});
 
       expect(document.querySelector("#completionModal").textContent).toContain("coffee cup in the bottom right");
+    });
+
+    it("does not show hint about floating widget when BMC is not consented", () => {
+      localStorage.removeItem("cookie-consent");
+      stateEvents.emit(Events.EXCHANGE_COMPLETE, {mode: "success", assignments: []});
+
+      expect(document.querySelector("#completionModal").textContent).not.toContain("coffee cup in the bottom right");
     });
 
     it("has no close or dismiss button", () => {
