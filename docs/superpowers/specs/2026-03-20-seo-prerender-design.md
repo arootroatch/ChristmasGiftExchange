@@ -14,13 +14,23 @@ Pre-generate the first screen's HTML at build time using a Vite plugin, keeping 
 
 Create `src/exchange/firstScreenTemplates.js` exporting three pure template functions:
 
-- `introTemplate()` — instructions text, step list, "Let's Go" and "Secret Santa Mode" buttons
-- `recipientSearchTemplate()` — label, email input, "Search it!" button (wraps existing `recipientSearchInit` content)
+- `introTemplate()` — instructions text, step list, "Let's Go" and "Secret Santa Mode" buttons. Uses `introId` constant.
+- `recipientSearchTemplate()` — the full `template()` output: outer `<div id="query" class="recipientSearch">` wrapping the label, email input, and "Search it!" button. Uses `recipientSearchId`, `recipientSearchBtnId`, and `queryDivId` constants.
 - `reuseLinkTemplate()` — "Been here before?" label and link to `/reuse`
 
-These functions return HTML strings with zero dependencies (no DOM, no imports from state.js or utils.js). String constants used in templates (element IDs like `introId`, `recipientSearchId`, etc.) are defined in this file and re-exported so components can import them.
+These functions return HTML strings with zero dependencies (no DOM, no imports from state.js or utils.js). All element ID constants used by the templates are defined in this file and exported.
 
-Each component (`Instructions.js`, `RecipientSearch.js`, `ReuseLink.js`) imports its template from this module instead of defining it inline.
+**What moves to `firstScreenTemplates.js`:**
+- `introId`, `introTemplate()` (from Instructions.js)
+- `recipientSearchId`, `recipientSearchBtnId`, `queryDivId`, `recipientSearchInit` (the inner HTML fragment), `recipientSearchTemplate()` (the full wrapper — currently the unnamed `template()` in RecipientSearch.js)
+- `reuseLinkTemplate()` (from ReuseLink.js)
+
+**What stays in the component files:**
+- `Instructions.js` — `attachButtonHandlers()`, `secretSantaMode()`, `render()`, `init()`, event wiring. Imports `introTemplate` and `introId` from templates module.
+- `RecipientSearch.js` — `recipientSearchResult()` (depends on `escapeAttr` from utils.js, so cannot be zero-dependency), `renderResult()`, `renderError()`, `getName()`, `sendWishlistEmail()`, `init()`. Imports `recipientSearchInit`, `recipientSearchTemplate`, and ID constants from templates module. Also re-exports `recipientSearchInit` and `recipientSearchResult` (used by tests).
+- `ReuseLink.js` — `init()`, event wiring. Imports `reuseLinkTemplate` from templates module.
+
+**Note on `recipientSearchInput`:** This HTML fragment is used both in the initial template and in `recipientSearchResult()`. It is defined in `firstScreenTemplates.js` (zero-dependency, pure string) and imported by `RecipientSearch.js` for reuse in the result renderer.
 
 ### 2. Vite Prerender Plugin
 
@@ -39,7 +49,7 @@ Create `src/vitePrerenderPlugin.js`:
 - Only transforms `index.html` (not secondary pages)
 - Runs in both dev and build, so behavior is consistent
 
-Register the plugin in `vite.config.js` alongside the existing `pageRoutesPlugin`.
+Register the plugin in `vite.config.js` alongside the existing `pageRoutesPlugin`. Both plugins use `transformIndexHtml` — Vite chains them in plugin order, so they compose correctly.
 
 **Component re-rendering:** Components still call `slot.innerHTML = template()` in `init()`. Since the pre-rendered HTML is identical to what the component produces, this is a no-op in effect. No "skip if present" logic needed.
 
@@ -90,6 +100,8 @@ All pages share the banner image. OG title and description match each page's exi
 ### New
 - `src/exchange/firstScreenTemplates.js` — shared template functions (source of truth)
 - `src/vitePrerenderPlugin.js` — Vite plugin to inject templates into HTML
+- `spec/exchange/firstScreenTemplates.spec.js` — tests for template output (HTML structure, expected IDs/classes)
+- `spec/vitePrerenderPlugin.spec.js` — tests for HTML slot injection
 
 ### Modified
 - `src/exchange/components/Instructions.js` — import `introTemplate` and `introId` from templates module
@@ -102,12 +114,14 @@ All pages share the banner image. OG title and description match each page's exi
 - `pages/reuse/index.html` — add OG tags
 
 ### Unchanged
-- All test files — templates produce identical output, components behave identically
+- Existing test files — templates produce identical output, components behave identically
 
 ## Verification
 
 1. `npx vite build` succeeds
-2. `npx vitest run` — all tests pass
+2. `npx vitest run` — all tests pass (including new template and plugin specs)
 3. `dist/index.html` contains pre-rendered first-screen content (not empty slots)
 4. Dev server (`npx vite`) shows the same content
 5. View page source in browser confirms content is in raw HTML
+6. All four built HTML files contain OG meta tags
+7. OG tags validated (e.g., via Facebook Sharing Debugger or manual inspection after deploy)
