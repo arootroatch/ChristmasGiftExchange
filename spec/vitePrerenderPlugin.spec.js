@@ -98,6 +98,17 @@ describe("prerenderPlugin", () => {
       expect(ogIndex).toBeLessThan(headCloseIndex);
       expect(ogIndex).toBeGreaterThan(0);
     });
+
+    it("injects canonical link with correct URL for subpage", () => {
+      const result = plugin.transformIndexHtml(pageHtml, {path: "/pages/reuse/index.html"});
+      expect(result).toContain('<link rel="canonical" href="https://gift-exchange-generator.com/reuse">');
+    });
+
+    it("injects canonical link with root URL for index.html", () => {
+      const html = `<html><head><meta charset="UTF-8"><title>Gift Exchange Generator</title><meta name="description" content="Draw names."></head><body></body></html>`;
+      const result = plugin.transformIndexHtml(html, {path: "/index.html"});
+      expect(result).toContain('<link rel="canonical" href="https://gift-exchange-generator.com/">');
+    });
   });
 
   describe("favicon injection", () => {

@@ -38,7 +38,8 @@ function generateOgTags(html, filePath) {
   const description = descMatch[1];
   const url = BASE_URL + deriveUrlPath(filePath);
 
-  return `    <meta property="og:title" content="${title}">
+  return `    <link rel="canonical" href="${url}">
+    <meta property="og:title" content="${title}">
     <meta property="og:description" content="${description}">
     <meta property="og:image" content="${OG_IMAGE}">
     <meta property="og:type" content="website">
