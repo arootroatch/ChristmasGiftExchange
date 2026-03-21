@@ -1,35 +1,6 @@
 import {ExchangeEvents as Events, exchangeEvents as stateEvents, startExchange} from "../state.js";
 import {leftContainerId, selectElement} from "../../utils.js";
-
-const introId = "intro";
-
-function introTemplate() {
-  return `<div id="${introId}">
-    <p>
-      Drawing names for a gift exchange or Secret Santa? Here's a
-      web app to make it easier! <br><br>
-      Simply:
-    </p>
-    <ol>
-      <li>Add all participant names</li>
-      <li>Separate people who live together into Houses (optional)</li>
-      <li>Generate the list</li>
-      <li>Send everyone an email with the name of their recipient (optional)</li>
-    </ol>
-    <p>
-      To keep the results a secret, click
-      "Secret Santa Mode" instead.
-    </p>
-    <p>
-      This site will always be free to use and your information will never be shared.
-    </p>
-    <div id="get-started">
-      <p>Ready to get started?</p>
-      <button class="button" id="letsGo" style="margin-bottom: 0;">Let's go!</button>
-      <button class="btn-bottom" id="secretSantaBtn">Secret Santa Mode</button>
-    </div>
-  </div>`;
-}
+import {introTemplate, introId} from "../firstScreenTemplates.js";
 
 export function secretSantaMode() {
   selectElement(`#${leftContainerId}`).classList.add("secret");

@@ -1,33 +1,15 @@
 import {addEventListener, removeEventListener, selectElement, setLoadingState, escapeAttr, apiFetch} from "../../utils";
 import {ExchangeEvents as Events, exchangeEvents as stateEvents} from "../state.js";
+import {
+  recipientSearchId,
+  recipientSearchBtnId,
+  queryDivId,
+  recipientSearchInput,
+  recipientSearchInit,
+  recipientSearchTemplate,
+} from "../firstScreenTemplates.js";
 
-const recipientSearchId = "recipientSearch";
-const recipientSearchBtnId = "recipientSearchBtn";
-const queryDivId = "query";
 const wishlistEmailBtnId = "wishlistEmailBtn";
-
-export const recipientSearchInput =
-  `<div>
-        <input
-            type="email"
-            maxlength="100"
-            id="${recipientSearchId}"
-            placeholder="you@example.com"
-        />
-        <button
-            type="submit"
-            class="button queryBtn"
-            id="${recipientSearchBtnId}"
-        >
-        Search it!
-        </button>
-    </div>`
-
-export const recipientSearchInit =
-  `<label for="${recipientSearchId}">
-        Need to know who you're buying a gift for?
-    </label>
-    ${recipientSearchInput}`
 
 export function recipientSearchResult(date, giverName, recipient, exchangeId) {
   const who = giverName
@@ -108,12 +90,8 @@ async function sendWishlistEmail(e, email, exchangeId) {
   });
 }
 
-function template() {
-  return `<div id="${queryDivId}" class="recipientSearch">${recipientSearchInit}</div>`;
-}
-
 export function init() {
-  selectElement('[data-slot="recipient-search"]').innerHTML = template();
+  selectElement('[data-slot="recipient-search"]').innerHTML = recipientSearchTemplate();
   addEventListener(`#${recipientSearchBtnId}`, "click", getName);
   stateEvents.on(Events.EXCHANGE_STARTED, () => {
     selectElement('[data-slot="recipient-search"]').innerHTML = "";
