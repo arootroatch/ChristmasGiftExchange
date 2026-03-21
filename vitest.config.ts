@@ -20,6 +20,7 @@ export default defineConfig({
             'spec/Snackbar.spec.js',
             'spec/utils.spec.js',
             'spec/vitePageRoutes.spec.js',
+            'spec/vitePrerenderPlugin.spec.js',
           ],
         },
       },
