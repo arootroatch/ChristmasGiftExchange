@@ -1,72 +1,126 @@
 import {afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi} from 'vitest';
+import crypto from 'crypto';
+import {setupMongo, teardownMongo, cleanCollections} from './mongoHelper.js';
+import {makeUser, makeExchange, buildEvent} from '../shared/testFactories.js';
 
 describe('api-results-email-post', () => {
-    let handler;
-    const originalContext = process.env.CONTEXT;
+    let db, handler, mongo, mockFetch;
+
+    const organizerToken = crypto.randomUUID();
+    const otherUserToken = crypto.randomUUID();
+
+    let organizer, otherUser, participantA, participantB;
+    let exchange;
 
     beforeAll(async () => {
-        process.env.CONTEXT = 'dev';
+        mongo = await setupMongo();
+        ({db} = mongo);
+
+        process.env.URL = 'https://test.netlify.app';
+        process.env.POSTMARK_SERVER_TOKEN = 'test-postmark-token';
+        process.env.CONTEXT = 'production';
+
+        mockFetch = vi.fn().mockResolvedValue({
+            ok: true,
+            json: () => Promise.resolve([]),
+        });
+        vi.stubGlobal('fetch', mockFetch);
+
         const module = await import('../../netlify/functions/api-results-email-post.mjs');
         handler = module.handler;
     });
 
-    afterAll(() => {
-        if (originalContext === undefined) delete process.env.CONTEXT;
-        else process.env.CONTEXT = originalContext;
+    beforeEach(async () => {
+        mockFetch.mockClear();
+
+        organizer = makeUser({name: 'Alex', email: 'alex@test.com', token: organizerToken});
+        otherUser = makeUser({name: 'Stranger', email: 'stranger@test.com', token: otherUserToken});
+        participantA = makeUser({name: 'Whitney', email: 'whitney@test.com'});
+        participantB = makeUser({name: 'Hunter', email: 'hunter@test.com'});
+
+        await db.collection('users').insertMany([organizer, otherUser, participantA, participantB]);
+
+        exchange = makeExchange({
+            organizer: organizer._id,
+            assignments: [
+                {giverId: organizer._id, recipientId: participantA._id},
+                {giverId: participantA._id, recipientId: participantB._id},
+                {giverId: participantB._id, recipientId: organizer._id},
+            ],
+        });
+        await db.collection('exchanges').insertOne(exchange);
     });
 
-    function buildEvent(body) {
-        return {
-            httpMethod: 'POST',
-            body: JSON.stringify(body),
-        };
-    }
+    afterEach(async () => {
+        await cleanCollections(db, 'users', 'exchanges', 'rateLimits');
+    });
 
-    const validPayload = {
-        name: 'Alex',
-        email: 'alex@test.com',
-        assignments: [
-            {giver: 'Alex', recipient: 'Whitney'},
-            {giver: 'Whitney', recipient: 'Alex'},
-        ],
-    };
+    afterAll(async () => {
+        vi.unstubAllGlobals();
+        delete process.env.URL;
+        delete process.env.POSTMARK_SERVER_TOKEN;
+        delete process.env.CONTEXT;
+        await teardownMongo(mongo);
+    });
 
     it('returns 405 for non-POST requests', async () => {
-        const event = {httpMethod: 'GET', body: '{}'};
+        const event = buildEvent('GET');
         const response = await handler(event);
         expect(response.statusCode).toBe(405);
     });
 
-    it('returns 400 for missing required fields', async () => {
-        const event = buildEvent({name: 'Alex'});
+    it('returns 400 for missing token', async () => {
+        const event = buildEvent('POST', {body: {exchangeId: exchange.exchangeId}});
         const response = await handler(event);
         expect(response.statusCode).toBe(400);
     });
 
-    it('returns 400 for invalid email', async () => {
-        const event = buildEvent({...validPayload, email: 'not-an-email'});
+    it('returns 400 for missing exchangeId', async () => {
+        const event = buildEvent('POST', {body: {token: organizerToken}});
         const response = await handler(event);
         expect(response.statusCode).toBe(400);
     });
 
-    it('returns 400 for empty assignments', async () => {
-        const event = buildEvent({...validPayload, assignments: []});
+    it('returns 401 for invalid token', async () => {
+        const event = buildEvent('POST', {body: {token: 'invalid-token', exchangeId: exchange.exchangeId}});
         const response = await handler(event);
-        expect(response.statusCode).toBe(400);
+        expect(response.statusCode).toBe(401);
     });
 
-    it('sends email with correct template and parameters', async () => {
-        const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-        const event = buildEvent(validPayload);
+    it('returns 404 for non-existent exchangeId', async () => {
+        const event = buildEvent('POST', {body: {token: organizerToken, exchangeId: 'non-existent'}});
+        const response = await handler(event);
+        expect(response.statusCode).toBe(404);
+    });
+
+    it('returns 403 when token user is not the organizer', async () => {
+        const event = buildEvent('POST', {body: {token: otherUserToken, exchangeId: exchange.exchangeId}});
+        const response = await handler(event);
+        expect(response.statusCode).toBe(403);
+    });
+
+    it('sends results email to organizer using server-side data', async () => {
+        mockFetch.mockResolvedValueOnce({ok: true, json: () => Promise.resolve([])});
+        const event = buildEvent('POST', {body: {token: organizerToken, exchangeId: exchange.exchangeId}});
         const response = await handler(event);
 
         expect(response.statusCode).toBe(200);
-        expect(consoleSpy).toHaveBeenCalledWith(
-            expect.stringContaining('results-summary')
-        );
-        expect(consoleSpy).toHaveBeenCalledWith(
-            expect.stringContaining('alex@test.com')
-        );
-        consoleSpy.mockRestore();
+        expect(mockFetch).toHaveBeenCalledTimes(1);
+
+        const fetchCall = mockFetch.mock.calls[0];
+        const body = JSON.parse(fetchCall[1].body);
+        expect(body.To).toBe('alex@test.com');
+        expect(body.HtmlBody).toContain('Alex');
+        expect(body.HtmlBody).toContain('Whitney');
+        expect(body.HtmlBody).toContain('Hunter');
+    });
+
+    it('returns success response body', async () => {
+        mockFetch.mockResolvedValueOnce({ok: true, json: () => Promise.resolve([])});
+        const event = buildEvent('POST', {body: {token: organizerToken, exchangeId: exchange.exchangeId}});
+        const response = await handler(event);
+
+        const responseBody = JSON.parse(response.body);
+        expect(responseBody.success).toBe(true);
     });
 });
