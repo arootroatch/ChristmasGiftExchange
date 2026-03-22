@@ -3,6 +3,7 @@ import {setupMongo, teardownMongo, cleanCollections, buildEvent} from './contrac
 
 describe('api-exchange-post contract', () => {
     let handler, db, mongo;
+    const organizerToken = crypto.randomUUID();
 
     beforeAll(async () => {
         mongo = await setupMongo();
@@ -27,8 +28,20 @@ describe('api-exchange-post contract', () => {
         return teardownMongo(mongo);
     });
 
+    async function insertOrganizer(token = organizerToken) {
+        await db.collection('users').insertOne({
+            name: 'Organizer',
+            email: 'organizer@test.com',
+            token,
+            wishlists: [],
+            wishItems: [],
+        });
+    }
+
     // This mirrors the shape returned by getExchangePayload() in src/exchange/state.js:166-174
+    // plus the token field required for authentication
     const fePayload = {
+        token: organizerToken,
         exchangeId: crypto.randomUUID(),
         isSecretSanta: true,
         houses: [{id: 'house-1', name: 'Family', members: ['Alice', 'Bob']}],
@@ -45,13 +58,15 @@ describe('api-exchange-post contract', () => {
     };
 
     describe('request contract (FE → BE)', () => {
-        it('accepts payload shaped like getExchangePayload()', async () => {
+        it('accepts payload shaped like getExchangePayload() with token', async () => {
+            await insertOrganizer();
             const event = buildEvent('POST', {body: fePayload});
             const response = await handler(event);
             expect(response.statusCode).toBe(200);
         });
 
         it('accepts payload without houses (no groups created)', async () => {
+            await insertOrganizer();
             const event = buildEvent('POST', {
                 body: {...fePayload, houses: []},
             });
@@ -60,11 +75,19 @@ describe('api-exchange-post contract', () => {
         });
 
         it('accepts payload with isSecretSanta false', async () => {
+            await insertOrganizer();
             const event = buildEvent('POST', {
                 body: {...fePayload, isSecretSanta: false},
             });
             const response = await handler(event);
             expect(response.statusCode).toBe(200);
+        });
+
+        it('rejects payload missing token', async () => {
+            const {token, ...noToken} = fePayload;
+            const event = buildEvent('POST', {body: noToken});
+            const response = await handler(event);
+            expect(response.statusCode).toBe(400);
         });
 
         it('rejects payload missing participants', async () => {
@@ -89,6 +112,7 @@ describe('api-exchange-post contract', () => {
         });
 
         it('rejects payload with duplicate participant emails', async () => {
+            await insertOrganizer();
             const event = buildEvent('POST', {
                 body: {
                     ...fePayload,
@@ -106,6 +130,7 @@ describe('api-exchange-post contract', () => {
 
     describe('response contract (BE → FE)', () => {
         it('response contains exchangeId and participants with name and email', async () => {
+            await insertOrganizer();
             const event = buildEvent('POST', {body: fePayload});
             const response = await handler(event);
             const body = JSON.parse(response.body);
@@ -117,11 +142,14 @@ describe('api-exchange-post contract', () => {
             expect(body.participants[0]).toHaveProperty('email');
         });
 
-        it('does not leak tokens in response', async () => {
+        it('does not leak tokens or organizer in response', async () => {
+            await insertOrganizer();
             const event = buildEvent('POST', {body: fePayload});
             const response = await handler(event);
             const body = JSON.parse(response.body);
 
+            expect(body).not.toHaveProperty('organizer');
+            expect(body).not.toHaveProperty('token');
             body.participants.forEach(p => {
                 expect(p).not.toHaveProperty('token');
                 expect(p).not.toHaveProperty('_id');
@@ -129,6 +157,7 @@ describe('api-exchange-post contract', () => {
         });
 
         it('response contains emailsFailed array', async () => {
+            await insertOrganizer();
             const event = buildEvent('POST', {body: fePayload});
             const response = await handler(event);
             const body = JSON.parse(response.body);

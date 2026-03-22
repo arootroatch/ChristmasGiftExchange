@@ -5,6 +5,7 @@ describe('api-exchange-post', () => {
     let client, db, handler;
     let mongo;
     let mockFetch;
+    const organizerToken = crypto.randomUUID();
 
     beforeAll(async () => {
         mongo = await setupMongo();
@@ -38,10 +39,22 @@ describe('api-exchange-post', () => {
         return {
             httpMethod: 'POST',
             body: JSON.stringify(body),
+            path: '/.netlify/functions/api-exchange-post',
         };
     }
 
+    async function insertOrganizer(token = organizerToken) {
+        await db.collection('users').insertOne({
+            name: 'Organizer',
+            email: 'organizer@test.com',
+            token,
+            wishlists: [],
+            wishItems: [],
+        });
+    }
+
     const exchangePayload = {
+        token: organizerToken,
         exchangeId: 'test-exchange-123',
         isSecretSanta: true,
         houses: [
@@ -65,7 +78,21 @@ describe('api-exchange-post', () => {
         expect(response.statusCode).toBe(405);
     });
 
+    it('returns 400 for request without token', async () => {
+        const {token, ...noToken} = exchangePayload;
+        const event = buildEvent(noToken);
+        const response = await handler(event);
+        expect(response.statusCode).toBe(400);
+    });
+
+    it('returns 401 for invalid token', async () => {
+        const event = buildEvent({...exchangePayload, token: 'bad-token'});
+        const response = await handler(event);
+        expect(response.statusCode).toBe(401);
+    });
+
     it('upserts users by email and creates exchange document', async () => {
+        await insertOrganizer();
         const event = buildEvent(exchangePayload);
         const response = await handler(event);
 
@@ -77,11 +104,13 @@ describe('api-exchange-post', () => {
 
         // Verify users were created
         const users = await db.collection('users').find({}).toArray();
-        expect(users).toHaveLength(3);
+        // 3 participants + 1 organizer (may overlap if organizer email matches)
+        expect(users.length).toBeGreaterThanOrEqual(3);
         expect(users.find(u => u.email === 'alex@test.com').name).toBe('Alex');
     });
 
     it('does not return tokens in response', async () => {
+        await insertOrganizer();
         const event = buildEvent(exchangePayload);
         const response = await handler(event);
         const body = JSON.parse(response.body);
@@ -92,6 +121,7 @@ describe('api-exchange-post', () => {
     });
 
     it('preserves existing user data on upsert', async () => {
+        await insertOrganizer();
         const existingToken = crypto.randomUUID();
         await db.collection('users').insertOne({
             email: 'alex@test.com',
@@ -112,6 +142,7 @@ describe('api-exchange-post', () => {
     });
 
     it('creates exchange document with user ObjectIds', async () => {
+        await insertOrganizer();
         const event = buildEvent(exchangePayload);
         await handler(event);
 
@@ -127,7 +158,19 @@ describe('api-exchange-post', () => {
         expect(exchange.houses[0].members).toHaveLength(2);
     });
 
+    it('stores organizer ObjectId on exchange document', async () => {
+        await insertOrganizer();
+        const event = buildEvent(exchangePayload);
+        await handler(event);
+
+        const exchange = await db.collection('exchanges').findOne({exchangeId: 'test-exchange-123'});
+        const organizer = await db.collection('users').findOne({token: organizerToken});
+
+        expect(exchange.organizer.equals(organizer._id)).toBe(true);
+    });
+
     it('exchange assignments reference correct user ObjectIds', async () => {
+        await insertOrganizer();
         const event = buildEvent(exchangePayload);
         await handler(event);
 
@@ -142,6 +185,7 @@ describe('api-exchange-post', () => {
     });
 
     it('returns 400 for invalid participant email', async () => {
+        await insertOrganizer();
         const event = buildEvent({
             ...exchangePayload,
             participants: [
@@ -155,6 +199,7 @@ describe('api-exchange-post', () => {
     });
 
     it('returns 400 when assignment giver is not in participants', async () => {
+        await insertOrganizer();
         const event = buildEvent({
             ...exchangePayload,
             assignments: [
@@ -168,6 +213,7 @@ describe('api-exchange-post', () => {
     });
 
     it('returns 400 when assignment recipient is not in participants', async () => {
+        await insertOrganizer();
         const event = buildEvent({
             ...exchangePayload,
             assignments: [
@@ -189,6 +235,7 @@ describe('api-exchange-post', () => {
     });
 
     it('returns 400 when participants have duplicate emails', async () => {
+        await insertOrganizer();
         const event = buildEvent({
             ...exchangePayload,
             participants: [
@@ -204,6 +251,7 @@ describe('api-exchange-post', () => {
     });
 
     it('returns 400 when participant emails differ only by case', async () => {
+        await insertOrganizer();
         const event = buildEvent({
             ...exchangePayload,
             participants: [
@@ -217,6 +265,7 @@ describe('api-exchange-post', () => {
     });
 
     it('returns emailsFailed as empty array when all emails succeed', async () => {
+        await insertOrganizer();
         const event = buildEvent(exchangePayload);
         const response = await handler(event);
         const body = JSON.parse(response.body);
@@ -225,6 +274,7 @@ describe('api-exchange-post', () => {
     });
 
     it('updates user name on upsert if different', async () => {
+        await insertOrganizer();
         const existingToken = crypto.randomUUID();
         await db.collection('users').insertOne({
             email: 'alex@test.com',

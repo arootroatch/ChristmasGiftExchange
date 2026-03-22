@@ -1,6 +1,6 @@
 import {getExchangesCollection, getUsersCollection} from "../shared/db.mjs";
 import {apiHandler, validateBody} from "../shared/middleware.mjs";
-import {badRequest, ok} from "../shared/responses.mjs";
+import {badRequest, ok, unauthorized} from "../shared/responses.mjs";
 import {sendBatchEmails} from "../shared/giverNotification.mjs";
 import {z} from "zod";
 import crypto from "crypto";
@@ -58,6 +58,7 @@ function validateUniqueEmails(ctx) {
 }
 
 const exchangePostRequestSchema = z.object({
+    token: z.string(),
     exchangeId: z.string(),
     isSecretSanta: z.boolean(),
     houses: z.array(houseInputSchema),
@@ -117,10 +118,14 @@ export const handler = apiHandler("POST", async (event) => {
     if (error) return badRequest(error);
 
     const usersCol = await getUsersCollection();
+    const organizer = await usersCol.findOne({token: data.token});
+    if (!organizer) return unauthorized("Invalid token");
+
     const exchangesCol = await getExchangesCollection();
 
     const userMap = await upsertParticipants(usersCol, data.participants);
     const exchangeDoc = buildExchangeDoc(data.exchangeId, data.isSecretSanta, data.houses, data.participants, data.assignments, userMap);
+    exchangeDoc.organizer = organizer._id;
     await exchangesCol.insertOne(exchangeDoc);
 
     const userByEmail = {};
@@ -131,4 +136,4 @@ export const handler = apiHandler("POST", async (event) => {
     const {emailsFailed} = await sendBatchEmails(data.participants, data.assignments, userByEmail, data.exchangeId);
 
     return ok({...buildResponse(data.exchangeId, data.participants), emailsFailed});
-});
+}, {maxRequests: 30, windowMs: 60000});
