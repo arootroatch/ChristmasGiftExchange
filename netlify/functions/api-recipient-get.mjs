@@ -1,13 +1,16 @@
-import {getUsersCollection, getExchangesCollection, getLegacyCollection} from "../shared/db.mjs";
+import {getUsersCollection, getExchangesCollection} from "../shared/db.mjs";
 import {apiHandler} from "../shared/middleware.mjs";
 import {ok, badRequest, notFound} from "../shared/responses.mjs";
 
-async function lookupFromNewCollections(email) {
+export const handler = apiHandler("GET", async (event) => {
+    const email = event.queryStringParameters?.email;
+    if (!email) return badRequest("Email required");
+
     const usersCol = await getUsersCollection();
     const exchangesCol = await getExchangesCollection();
 
     const user = await usersCol.findOne({email: email.trim()});
-    if (!user) return null;
+    if (!user) return notFound("Email not found");
 
     const exchange = await exchangesCol
         .find({participants: user._id})
@@ -15,14 +18,14 @@ async function lookupFromNewCollections(email) {
         .limit(1)
         .toArray();
 
-    if (exchange.length === 0) return null;
+    if (exchange.length === 0) return notFound("Email not found");
 
     const latestExchange = exchange[0];
     const assignment = latestExchange.assignments.find(a => a.giverId.equals(user._id));
-    if (!assignment) return null;
+    if (!assignment) return notFound("Email not found");
 
     const doc = await usersCol.findOne({_id: assignment.recipientId});
-    if (!doc) return null;
+    if (!doc) return notFound("Email not found");
 
     return ok({
         giverName: user.name,
@@ -30,32 +33,4 @@ async function lookupFromNewCollections(email) {
         date: latestExchange.createdAt,
         exchangeId: latestExchange.exchangeId,
     });
-}
-
-async function lookupFromLegacy(email) {
-    const legacyCol = await getLegacyCollection();
-    const legacyResults = await legacyCol
-        .find({email: email.trim()})
-        .sort({date: -1})
-        .toArray();
-
-    if (legacyResults.length === 0) return null;
-
-    return ok({
-        recipient: legacyResults[0].recipient,
-        date: legacyResults[0].date,
-    });
-}
-
-export const handler = apiHandler("GET", async (event) => {
-    const email = event.queryStringParameters?.email;
-    if (!email) return badRequest("Email required");
-
-    const newResult = await lookupFromNewCollections(email);
-    if (newResult) return newResult;
-
-    const legacyResult = await lookupFromLegacy(email);
-    if (legacyResult) return legacyResult;
-
-    return notFound("Email not found");
 });

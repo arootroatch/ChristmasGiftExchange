@@ -24,8 +24,3 @@ export async function getExchangesCollection() {
     const db = await getDb();
     return db.collection("exchanges");
 }
-
-export async function getLegacyCollection() {
-    const db = await getDb();
-    return db.collection("names");
-}

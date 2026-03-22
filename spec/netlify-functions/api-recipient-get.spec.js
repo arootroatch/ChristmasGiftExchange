@@ -14,7 +14,7 @@ describe('api-recipient-get', () => {
     });
 
     afterEach(async () => {
-        await cleanCollections(db, 'users', 'exchanges', 'legacy-names');
+        await cleanCollections(db, 'users', 'exchanges');
     });
 
     afterAll(async () => {
@@ -84,29 +84,6 @@ describe('api-recipient-get', () => {
         expect(body.wishlistViewUrl).toBeUndefined();
         expect(body.giverName).toBe('Alex');
         expect(body.exchangeId).toBe('exchange-new');
-    });
-
-    it('falls back to legacy collection when not in new collections', async () => {
-        await db.collection('names').insertOne({
-            email: 'old@test.com',
-            recipient: 'Legacy Recipient',
-            date: new Date('2023-12-01'),
-        });
-
-        const event = {
-            httpMethod: 'GET',
-            queryStringParameters: {email: 'old@test.com'},
-        };
-
-        const response = await handler(event);
-        expect(response.statusCode).toBe(200);
-
-        const body = JSON.parse(response.body);
-        expect(body.recipient).toBe('Legacy Recipient');
-        expect(body.date).toBeDefined();
-        expect(body.wishlistViewUrl).toBeUndefined();
-        expect(body.giverName).toBeUndefined();
-        expect(body.exchangeId).toBeUndefined();
     });
 
     it('returns 404 when not found in any collection', async () => {

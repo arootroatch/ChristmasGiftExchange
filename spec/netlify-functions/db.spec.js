@@ -3,7 +3,7 @@ import {afterAll, beforeAll, describe, expect, it, vi} from 'vitest';
 describe('db utility', () => {
     let consoleLogSpy;
     let consoleErrorSpy;
-    let getDb, getUsersCollection, getExchangesCollection, getLegacyCollection;
+    let getDb, getUsersCollection, getExchangesCollection;
 
     beforeAll(async () => {
         consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
@@ -13,7 +13,6 @@ describe('db utility', () => {
         getDb = module.getDb;
         getUsersCollection = module.getUsersCollection;
         getExchangesCollection = module.getExchangesCollection;
-        getLegacyCollection = module.getLegacyCollection;
     });
 
     afterAll(async () => {
@@ -53,13 +52,6 @@ describe('db utility', () => {
         });
     });
 
-    describe('getLegacyCollection', () => {
-        it('returns the legacy "names" collection', async () => {
-            const collection = await getLegacyCollection();
-            expect(collection).toBeDefined();
-            expect(collection.collectionName).toBe('names');
-        });
-    });
 });
 
 describe("getDb with failed connection", () => {
