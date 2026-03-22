@@ -2,14 +2,14 @@ import {afterAll, afterEach, beforeAll, describe, expect, it} from 'vitest';
 import {ObjectId} from 'mongodb';
 import {setupMongo, teardownMongo, cleanCollections} from './mongoHelper.js';
 
-describe('api-exchange-get', () => {
+describe('api-my-exchanges-post', () => {
     let client, db, handler;
     let mongo;
 
     beforeAll(async () => {
         mongo = await setupMongo();
         ({client, db} = mongo);
-        const module = await import('../../netlify/functions/api-exchange-get.mjs');
+        const module = await import('../../netlify/functions/api-my-exchanges-post.mjs');
         handler = module.handler;
     });
 
@@ -20,6 +20,15 @@ describe('api-exchange-get', () => {
     afterAll(async () => {
         await teardownMongo(mongo);
     });
+
+    function buildEvent(body) {
+        return {
+            httpMethod: 'POST',
+            body: JSON.stringify(body),
+            headers: {},
+            path: '/.netlify/functions/api-my-exchanges-post',
+        };
+    }
 
     async function setupExchanges() {
         const alexId = new ObjectId();
@@ -61,57 +70,55 @@ describe('api-exchange-get', () => {
         return {alexId, whitneyId, hunterId};
     }
 
-    it('returns 405 for non-GET requests', async () => {
-        const event = {httpMethod: 'POST', queryStringParameters: {email: 'a@b.com'}};
+    it('returns 405 for non-POST requests', async () => {
+        const event = {httpMethod: 'GET', body: null, headers: {}};
         const response = await handler(event);
         expect(response.statusCode).toBe(405);
     });
 
-    it('finds exchanges by email', async () => {
+    it('returns 401 for invalid token', async () => {
+        const response = await handler(buildEvent({token: 'nonexistent-token'}));
+        expect(response.statusCode).toBe(401);
+    });
+
+    it('returns exchanges WITHOUT assignments for valid token', async () => {
         await setupExchanges();
 
-        const event = {
-            httpMethod: 'GET',
-            queryStringParameters: {email: 'alex@test.com'},
-        };
-
-        const response = await handler(event);
+        const response = await handler(buildEvent({token: 'alex-token'}));
         expect(response.statusCode).toBe(200);
 
         const body = JSON.parse(response.body);
         expect(body).toHaveLength(2);
 
-        // Should be sorted by createdAt descending (most recent first)
-        expect(body[0].exchangeId).toBe('exchange-2024');
-        expect(body[1].exchangeId).toBe('exchange-2023');
+        const exchange = body[0];
+        expect(exchange).toHaveProperty('exchangeId');
+        expect(exchange).toHaveProperty('createdAt');
+        expect(exchange).toHaveProperty('isSecretSanta');
+        expect(exchange).toHaveProperty('participantNames');
+        expect(exchange).toHaveProperty('houses');
+        expect(exchange).toHaveProperty('participants');
+        expect(exchange).not.toHaveProperty('assignments');
     });
 
-    it('resolves participant names', async () => {
+    it('resolves participant names and emails', async () => {
         await setupExchanges();
 
-        const event = {
-            httpMethod: 'GET',
-            queryStringParameters: {email: 'alex@test.com'},
-        };
-
-        const response = await handler(event);
+        const response = await handler(buildEvent({token: 'alex-token'}));
         const body = JSON.parse(response.body);
 
-        // First exchange has 3 participants
         expect(body[0].participantNames).toContain('Alex');
         expect(body[0].participantNames).toContain('Whitney');
         expect(body[0].participantNames).toContain('Hunter');
+
+        const participant = body[0].participants[0];
+        expect(participant).toHaveProperty('name');
+        expect(participant).toHaveProperty('email');
     });
 
     it('includes house info with resolved names', async () => {
         await setupExchanges();
 
-        const event = {
-            httpMethod: 'GET',
-            queryStringParameters: {email: 'alex@test.com'},
-        };
-
-        const response = await handler(event);
+        const response = await handler(buildEvent({token: 'alex-token'}));
         const body = JSON.parse(response.body);
 
         expect(body[0].houses).toHaveLength(1);
@@ -120,26 +127,26 @@ describe('api-exchange-get', () => {
         expect(body[0].houses[0].members).toContain('Whitney');
     });
 
-    it('returns 200 with empty array for email with no exchanges', async () => {
-        const event = {
-            httpMethod: 'GET',
-            queryStringParameters: {email: 'nobody@test.com'},
-        };
+    it('returns empty array when user has no exchanges', async () => {
+        await db.collection('users').insertOne({
+            email: 'loner@test.com', name: 'Loner', token: 'loner-token', wishlists: [], wishItems: [],
+        });
 
-        const response = await handler(event);
+        const response = await handler(buildEvent({token: 'loner-token'}));
         expect(response.statusCode).toBe(200);
 
         const body = JSON.parse(response.body);
         expect(body).toEqual([]);
     });
 
-    it('returns 400 when email is missing', async () => {
-        const event = {
-            httpMethod: 'GET',
-            queryStringParameters: {},
-        };
+    it('returns multiple exchanges sorted by createdAt desc', async () => {
+        await setupExchanges();
 
-        const response = await handler(event);
-        expect(response.statusCode).toBe(400);
+        const response = await handler(buildEvent({token: 'alex-token'}));
+        const body = JSON.parse(response.body);
+
+        expect(body).toHaveLength(2);
+        expect(body[0].exchangeId).toBe('exchange-2024');
+        expect(body[1].exchangeId).toBe('exchange-2023');
     });
 });

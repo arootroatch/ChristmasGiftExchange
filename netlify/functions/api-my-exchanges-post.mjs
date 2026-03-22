@@ -1,7 +1,12 @@
+import {z} from "zod";
 import {getUsersCollection, getExchangesCollection} from "../shared/db.mjs";
-import {apiHandler} from "../shared/middleware.mjs";
-import {ok, badRequest} from "../shared/responses.mjs";
+import {apiHandler, validateBody} from "../shared/middleware.mjs";
+import {ok, badRequest, unauthorized} from "../shared/responses.mjs";
 import {exchangeSchema} from "../shared/schemas/exchange.mjs";
+
+const myExchangesRequestSchema = z.object({
+    token: z.string(),
+});
 
 async function enrichExchange(exchange, usersCol) {
     const participantUsers = await usersCol
@@ -26,22 +31,18 @@ async function enrichExchange(exchange, usersCol) {
             name: u.name,
             email: u.email,
         })),
-        assignments: exchange.assignments.map(a => ({
-            giver: userIdToName[a.giverId.toString()],
-            recipient: userIdToName[a.recipientId.toString()],
-        })),
     };
 }
 
-export const handler = apiHandler("GET", async (event) => {
-    const email = event.queryStringParameters?.email;
-    if (!email) return badRequest("Email required");
+export const handler = apiHandler("POST", async (event) => {
+    const {data, error} = validateBody(myExchangesRequestSchema, event);
+    if (error) return badRequest(error);
 
     const usersCol = await getUsersCollection();
     const exchangesCol = await getExchangesCollection();
 
-    const user = await usersCol.findOne({email: email.trim()});
-    if (!user) return ok([]);
+    const user = await usersCol.findOne({token: data.token});
+    if (!user) return unauthorized("Invalid token");
 
     const exchanges = await exchangesCol
         .find({participants: user._id})
@@ -52,4 +53,4 @@ export const handler = apiHandler("GET", async (event) => {
 
     const results = await Promise.all(exchanges.map(ex => enrichExchange(exchangeSchema.parse(ex), usersCol)));
     return ok(results);
-});
+}, {maxRequests: 30, windowMs: 60000});
