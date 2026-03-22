@@ -1,27 +1,27 @@
 import {afterAll, afterEach, beforeAll, describe, expect, it} from 'vitest';
 import {setupMongo, teardownMongo, cleanCollections, buildEvent, makeUser, seedUsers} from './contractHelper.js';
 
-describe('api-user-get contract', () => {
+describe('api-user-post contract', () => {
     let handler, db, mongo;
 
     beforeAll(async () => {
         mongo = await setupMongo();
         db = mongo.db;
-        const module = await import('../../netlify/functions/api-user-get.mjs');
+        const module = await import('../../netlify/functions/api-user-post.mjs');
         handler = module.handler;
     });
 
-    afterEach(() => cleanCollections(db, 'users'));
+    afterEach(() => cleanCollections(db, 'users', 'rateLimits'));
     afterAll(() => teardownMongo(mongo));
 
     describe('request contract (FE → BE)', () => {
-        it('accepts GET with token in path after "user"', async () => {
+        it('accepts POST with token in body', async () => {
             const user = makeUser({name: 'Alice', email: 'alice@test.com'});
             await seedUsers(db, user);
 
-            // Mirrors: src/wishlistEdit/index.js:24
-            const event = buildEvent('GET', {
-                path: `/.netlify/functions/api-user-get/${user.token}`,
+            // Mirrors: src/wishlistEdit/index.js
+            const event = buildEvent('POST', {
+                body: {token: user.token},
             });
             const response = await handler(event);
             expect(response.statusCode).toBe(200);
@@ -38,8 +38,8 @@ describe('api-user-get contract', () => {
             });
             await seedUsers(db, user);
 
-            const event = buildEvent('GET', {
-                path: `/.netlify/functions/api-user-get/${user.token}`,
+            const event = buildEvent('POST', {
+                body: {token: user.token},
             });
             const response = await handler(event);
             const body = JSON.parse(response.body);
@@ -62,8 +62,8 @@ describe('api-user-get contract', () => {
             });
             await seedUsers(db, user);
 
-            const event = buildEvent('GET', {
-                path: `/.netlify/functions/api-user-get/${user.token}`,
+            const event = buildEvent('POST', {
+                body: {token: user.token},
             });
             const response = await handler(event);
             const body = JSON.parse(response.body);
@@ -79,8 +79,8 @@ describe('api-user-get contract', () => {
             const user = makeUser({name: 'Alice', email: 'alice@test.com'});
             await seedUsers(db, user);
 
-            const event = buildEvent('GET', {
-                path: `/.netlify/functions/api-user-get/${user.token}`,
+            const event = buildEvent('POST', {
+                body: {token: user.token},
             });
             const response = await handler(event);
             const body = JSON.parse(response.body);
