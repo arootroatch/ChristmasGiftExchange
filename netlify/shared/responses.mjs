@@ -29,3 +29,7 @@ export function notFound(msg) {
 export function serverError(msg) {
     return error(500, msg);
 }
+
+export function tooManyRequests(msg) {
+    return error(429, msg);
+}
