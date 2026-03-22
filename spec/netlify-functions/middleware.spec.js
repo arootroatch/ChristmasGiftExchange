@@ -1,11 +1,12 @@
 import {describe, it, expect, vi} from 'vitest';
+import {z} from "zod";
 
 vi.mock('../../netlify/shared/giverNotification.mjs', () => ({
     sendNotificationEmail: vi.fn(() => Promise.resolve()),
     setRequestOrigin: vi.fn(),
 }));
 
-import {apiHandler} from '../../netlify/shared/middleware.mjs';
+import {apiHandler, validateBody} from '../../netlify/shared/middleware.mjs';
 import {sendNotificationEmail} from '../../netlify/shared/giverNotification.mjs';
 
 describe("apiHandler", () => {
@@ -42,5 +43,37 @@ describe("apiHandler", () => {
             })
         );
         consoleSpy.mockRestore();
+    });
+});
+
+const validateBodySchema = z.object({name: z.string()});
+
+describe("validateBody", () => {
+    it("returns error for malformed JSON", () => {
+        const event = {body: "not valid json{"};
+        const {data, error} = validateBody(validateBodySchema, event);
+        expect(data).toBeUndefined();
+        expect(error).toBe("Invalid JSON");
+    });
+
+    it("returns error for null body", () => {
+        const event = {body: null};
+        const {data, error} = validateBody(validateBodySchema, event);
+        expect(data).toBeUndefined();
+        expect(error).toBe("Invalid JSON");
+    });
+
+    it("returns parsed data for valid JSON", () => {
+        const event = {body: JSON.stringify({name: "test"})};
+        const {data, error} = validateBody(validateBodySchema, event);
+        expect(error).toBeUndefined();
+        expect(data).toEqual({name: "test"});
+    });
+
+    it("returns Zod validation error for invalid schema", () => {
+        const event = {body: JSON.stringify({name: 123})};
+        const {data, error} = validateBody(validateBodySchema, event);
+        expect(data).toBeUndefined();
+        expect(error).toBeDefined();
     });
 });

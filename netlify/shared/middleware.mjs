@@ -14,7 +14,16 @@ export function formatZodError(zodError) {
 }
 
 export function validateBody(schema, event) {
-    const result = schema.safeParse(JSON.parse(event.body));
+    if (!event.body) {
+        return {error: "Invalid JSON"};
+    }
+    let parsed;
+    try {
+        parsed = JSON.parse(event.body);
+    } catch {
+        return {error: "Invalid JSON"};
+    }
+    const result = schema.safeParse(parsed);
     if (!result.success) {
         return {error: formatZodError(result.error)};
     }
