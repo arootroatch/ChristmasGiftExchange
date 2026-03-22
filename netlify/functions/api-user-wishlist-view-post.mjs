@@ -1,20 +1,24 @@
+import {z} from "zod";
 import {getUsersCollection, getExchangesCollection} from "../shared/db.mjs";
-import {apiHandler} from "../shared/middleware.mjs";
+import {apiHandler, validateBody} from "../shared/middleware.mjs";
 import {ok, badRequest, forbidden, notFound} from "../shared/responses.mjs";
 import {userSchema} from "../shared/schemas/user.mjs";
 
-export const handler = apiHandler("GET", async (event) => {
-    const exchangeId = event.path.split("/").pop();
-    const token = event.queryStringParameters?.token;
+const requestSchema = z.object({
+    token: z.string(),
+    exchangeId: z.string(),
+});
 
-    if (!token || !exchangeId) return badRequest("Token and exchangeId required");
+export const handler = apiHandler("POST", async (event) => {
+    const {data, error} = validateBody(requestSchema, event);
+    if (error) return badRequest(error);
 
     const usersCol = await getUsersCollection();
     const exchangesCol = await getExchangesCollection();
-    const giver = await usersCol.findOne({token});
+    const giver = await usersCol.findOne({token: data.token});
     if (!giver) return forbidden("Access denied");
 
-    const exchange = await exchangesCol.findOne({exchangeId});
+    const exchange = await exchangesCol.findOne({exchangeId: data.exchangeId});
     if (!exchange) return notFound("Exchange not found");
 
     const assignment = exchange.assignments.find(a => a.giverId.equals(giver._id));
@@ -29,4 +33,4 @@ export const handler = apiHandler("GET", async (event) => {
         wishlists: recipient.wishlists,
         wishItems: recipient.wishItems,
     });
-});
+}, {maxRequests: 30, windowMs: 60000});
