@@ -1,12 +1,12 @@
 import {z} from "zod";
 import {apiHandler, validateBody} from "../shared/middleware.mjs";
-import {ok, badRequest, notFound} from "../shared/responses.mjs";
+import {ok, badRequest, unauthorized, notFound} from "../shared/responses.mjs";
 import {getUsersCollection, getExchangesCollection} from "../shared/db.mjs";
 import {sendNotificationEmail} from "../shared/giverNotification.mjs";
 import {wishlistViewPath, absoluteUrl} from "../shared/links.mjs";
 
 const requestSchema = z.object({
-    email: z.email(),
+    token: z.string(),
     exchangeId: z.string(),
 });
 
@@ -17,8 +17,8 @@ export const handler = apiHandler("POST", async (event) => {
     const usersCol = await getUsersCollection();
     const exchangesCol = await getExchangesCollection();
 
-    const user = await usersCol.findOne({email: data.email.trim()});
-    if (!user) return notFound("User not found");
+    const user = await usersCol.findOne({token: data.token});
+    if (!user) return unauthorized("Invalid token");
 
     const exchange = await exchangesCol.findOne({exchangeId: data.exchangeId});
     if (!exchange) return notFound("Exchange not found");
@@ -33,10 +33,10 @@ export const handler = apiHandler("POST", async (event) => {
 
     await sendNotificationEmail(
         "wishlist-link",
-        data.email,
+        user.email,
         `View ${recipient.name}'s Wish List`,
         {recipientName: recipient.name, wishlistViewUrl}
     );
 
     return ok({sent: true});
-});
+}, {maxRequests: 5, windowMs: 60000});

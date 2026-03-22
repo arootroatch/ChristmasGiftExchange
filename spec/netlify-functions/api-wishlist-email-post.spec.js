@@ -43,7 +43,7 @@ describe('api-wishlist-email-post', () => {
     });
 
     afterEach(async () => {
-        await cleanCollections(db, 'users', 'exchanges');
+        await cleanCollections(db, 'users', 'exchanges', 'rateLimits');
     });
 
     afterAll(async () => {
@@ -55,41 +55,51 @@ describe('api-wishlist-email-post', () => {
     });
 
     function buildEvent(body) {
-        return {httpMethod: 'POST', body: JSON.stringify(body)};
+        return {
+            httpMethod: 'POST',
+            body: JSON.stringify(body),
+            headers: {},
+            path: '/.netlify/functions/api-wishlist-email-post',
+        };
     }
 
     it('returns 405 for non-POST requests', async () => {
-        const response = await handler({httpMethod: 'GET', body: '{}'});
+        const response = await handler({httpMethod: 'GET', body: '{}', headers: {}, path: '/.netlify/functions/api-wishlist-email-post'});
         expect(response.statusCode).toBe(405);
     });
 
-    it('returns 400 for missing email', async () => {
+    it('returns 400 for request with email instead of token', async () => {
+        const response = await handler(buildEvent({email: 'alex@test.com', exchangeId}));
+        expect(response.statusCode).toBe(400);
+    });
+
+    it('returns 400 for missing token', async () => {
         const response = await handler(buildEvent({exchangeId}));
         expect(response.statusCode).toBe(400);
     });
 
     it('returns 400 for missing exchangeId', async () => {
-        const response = await handler(buildEvent({email: 'alex@test.com'}));
+        const response = await handler(buildEvent({token: giverToken}));
         expect(response.statusCode).toBe(400);
     });
 
-    it('returns 404 when user not found', async () => {
-        const response = await handler(buildEvent({email: 'nobody@test.com', exchangeId}));
-        expect(response.statusCode).toBe(404);
+    it('returns 401 for invalid token', async () => {
+        const response = await handler(buildEvent({token: 'invalid-token', exchangeId}));
+        expect(response.statusCode).toBe(401);
     });
 
     it('returns 404 when exchange not found', async () => {
-        const response = await handler(buildEvent({email: 'alex@test.com', exchangeId: 'nonexistent'}));
+        const response = await handler(buildEvent({token: giverToken, exchangeId: 'nonexistent'}));
         expect(response.statusCode).toBe(404);
     });
 
     it('returns 404 when user is not a giver in the exchange', async () => {
-        const response = await handler(buildEvent({email: 'hunter@test.com', exchangeId}));
+        const response = await handler(buildEvent({token: 'recipient-token', exchangeId}));
         expect(response.statusCode).toBe(404);
     });
 
-    it('sends wishlist link email and returns 200', async () => {
-        const response = await handler(buildEvent({email: 'alex@test.com', exchangeId}));
+    it('looks up user by token and sends wishlist link email', async () => {
+        const response = await handler(buildEvent({token: giverToken, exchangeId}));
         expect(response.statusCode).toBe(200);
 
         const body = JSON.parse(response.body);
@@ -105,7 +115,7 @@ describe('api-wishlist-email-post', () => {
     });
 
     it('does not expose any tokens in the response', async () => {
-        const response = await handler(buildEvent({email: 'alex@test.com', exchangeId}));
+        const response = await handler(buildEvent({token: giverToken, exchangeId}));
         const responseText = response.body;
         expect(responseText).not.toContain(giverToken);
         expect(responseText).not.toContain('recipient-token');
