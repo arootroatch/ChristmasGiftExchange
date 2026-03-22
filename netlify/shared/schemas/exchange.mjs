@@ -16,6 +16,7 @@ export const houseSchema = z.object({
 export const exchangeSchema = z.object({
     _id: objectIdSchema.optional(),
     exchangeId: z.string(),
+    organizer: objectIdSchema.optional(),
     createdAt: z.date(),
     isSecretSanta: z.boolean(),
     houses: z.array(houseSchema),

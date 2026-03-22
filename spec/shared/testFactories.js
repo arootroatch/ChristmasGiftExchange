@@ -11,9 +11,10 @@ export function makeUser({name, email, token, wishlists, wishItems, _id} = {}) {
     };
 }
 
-export function makeExchange({exchangeId, participants, assignments, houses, isSecretSanta, createdAt} = {}) {
+export function makeExchange({exchangeId, organizer, participants, assignments, houses, isSecretSanta, createdAt} = {}) {
     return {
         exchangeId: exchangeId ?? crypto.randomUUID(),
+        organizer: organizer ?? new ObjectId(),
         createdAt: createdAt ?? new Date(),
         isSecretSanta: isSecretSanta ?? false,
         participants: participants ?? [],
