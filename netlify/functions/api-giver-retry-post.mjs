@@ -1,35 +1,67 @@
 import {z} from "zod";
 import {apiHandler, validateBody} from "../shared/middleware.mjs";
-import {ok, badRequest} from "../shared/responses.mjs";
+import {ok, badRequest, unauthorized, forbidden, notFound} from "../shared/responses.mjs";
 import {sendNotificationEmail, sendBatchEmails} from "../shared/giverNotification.mjs";
-import {getUsersCollection} from "../shared/db.mjs";
+import {getUsersCollection, getExchangesCollection} from "../shared/db.mjs";
 
-const giverNotifyRequestSchema = z.object({
+const requestSchema = z.object({
+    token: z.string(),
     exchangeId: z.string(),
-    participants: z.array(z.object({
-        name: z.string(),
-        email: z.email(),
-    })),
-    assignments: z.array(z.object({
-        giver: z.string(),
-        recipient: z.string(),
-    })),
+    participantEmails: z.array(z.email()).optional(),
 });
 
 export const handler = apiHandler("POST", async (event) => {
-    const {data, error} = validateBody(giverNotifyRequestSchema, event);
+    const {data, error} = validateBody(requestSchema, event);
     if (error) return badRequest(error);
 
     const usersCol = await getUsersCollection();
-    const emails = data.participants.map(p => p.email);
-    const users = await usersCol.find({email: {$in: emails}}).toArray();
+    const user = await usersCol.findOne({token: data.token});
+    if (!user) return unauthorized("Invalid token");
 
+    const exchangesCol = await getExchangesCollection();
+    const exchange = await exchangesCol.findOne({exchangeId: data.exchangeId});
+    if (!exchange) return notFound("Exchange not found");
+
+    if (!exchange.organizer || !exchange.organizer.equals(user._id)) {
+        return forbidden("Only the organizer can resend giver emails");
+    }
+
+    // Look up all participants from DB
+    const participantIds = [...new Set(exchange.assignments.flatMap(a => [a.giverId, a.recipientId]))];
+    const participantUsers = await usersCol.find({_id: {$in: participantIds}}).toArray();
+
+    const idToUser = {};
+    participantUsers.forEach(p => { idToUser[p._id.toString()] = p; });
+
+    let participants = participantUsers.map(p => ({name: p.name, email: p.email}));
+    let assignments = exchange.assignments.map(a => ({
+        giver: idToUser[a.giverId.toString()]?.name,
+        recipient: idToUser[a.recipientId.toString()]?.name,
+    }));
+
+    // If participantEmails provided, validate and filter
+    if (data.participantEmails) {
+        const allEmails = new Set(participants.map(p => p.email));
+        const invalid = data.participantEmails.filter(e => !allEmails.has(e));
+        if (invalid.length > 0) {
+            return badRequest(`Emails not found in exchange: ${invalid.join(', ')}`);
+        }
+
+        const filterSet = new Set(data.participantEmails);
+        participants = participants.filter(p => filterSet.has(p.email));
+
+        const filterNames = new Set(participants.map(p => p.name));
+        assignments = assignments.filter(a => filterNames.has(a.giver));
+    }
+
+    // Build userByEmail map
     const userByEmail = {};
-    users.forEach(u => { userByEmail[u.email] = u; });
+    participantUsers.forEach(u => { userByEmail[u.email] = u; });
 
-    const {emailsFailed} = await sendBatchEmails(data.participants, data.assignments, userByEmail, data.exchangeId);
+    const {emailsFailed} = await sendBatchEmails(participants, assignments, userByEmail, data.exchangeId);
 
-    const sent = data.assignments.length - emailsFailed.length;
+    const total = assignments.length;
+    const sent = total - emailsFailed.length;
 
     if (emailsFailed.length > 0) {
         try {
@@ -40,7 +72,7 @@ export const handler = apiHandler("POST", async (event) => {
                 {
                     endpoint: "api-giver-retry-post",
                     timestamp: new Date().toISOString(),
-                    stackTrace: `Failed to send emails to:\n${emailsFailed.join('\n')}\n\nAssignments: ${JSON.stringify(data.assignments, null, 2)}`,
+                    stackTrace: `Failed to send emails to:\n${emailsFailed.join('\n')}\n\nAssignments: ${JSON.stringify(assignments, null, 2)}`,
                 }
             );
         } catch (err) {
@@ -48,5 +80,5 @@ export const handler = apiHandler("POST", async (event) => {
         }
     }
 
-    return ok({sent, total: data.assignments.length, emailsFailed});
-});
+    return ok({sent, total, emailsFailed});
+}, {maxRequests: 5, windowMs: 60000});
