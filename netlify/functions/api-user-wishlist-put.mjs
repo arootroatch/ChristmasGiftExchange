@@ -1,28 +1,25 @@
+import {apiHandler, validateBody, requireAuth} from "../shared/middleware.mjs";
+import {ok, badRequest} from "../shared/responses.mjs";
 import {getUsersCollection} from "../shared/db.mjs";
-import {apiHandler, validateBody} from "../shared/middleware.mjs";
-import {getUserByToken} from "../shared/auth.mjs";
-import {ok, badRequest, unauthorized} from "../shared/responses.mjs";
 import {forEachGiverOf, sendNotificationEmail} from "../shared/giverNotification.mjs";
 import {wishlistViewPath, absoluteUrl} from "../shared/links.mjs";
 import {userSchema} from "../shared/schemas/user.mjs";
-import {z} from "zod";
 
-const wishlistSaveRequestSchema = userSchema
-    .pick({wishlists: true, wishItems: true})
-    .extend({token: z.uuid()});
+const wishlistPutRequestSchema = userSchema.pick({wishlists: true, wishItems: true});
 
-export const handler = apiHandler("POST", async (event) => {
-    const {data, error} = validateBody(wishlistSaveRequestSchema, event);
+export const handler = apiHandler("PUT", async (event) => {
+    const authError = await requireAuth(event);
+    if (authError) return authError;
+
+    const {data, error} = validateBody(wishlistPutRequestSchema, event);
     if (error) return badRequest(error);
 
-    const user = await getUserByToken(data.token);
-    if (!user) return unauthorized("User not found");
-
+    const user = event.user;
     const wasEmpty = user.wishlists.length === 0 && user.wishItems.length === 0;
 
     const usersCol = await getUsersCollection();
     await usersCol.updateOne(
-        {token: data.token},
+        {_id: user._id},
         {$set: {wishlists: data.wishlists, wishItems: data.wishItems}}
     );
 

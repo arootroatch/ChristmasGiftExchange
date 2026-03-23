@@ -353,11 +353,10 @@ describe("Wishlist Edit Page", () => {
 
             await flush();
             expect(window.fetch).toHaveBeenCalledWith(
-                "/.netlify/functions/api-user-wishlist-save-post",
+                "/.netlify/functions/api-user-wishlist-put",
                 expect.objectContaining({
-                    method: "POST",
+                    method: "PUT",
                     body: JSON.stringify({
-                        token: "abc-123-token",
                         wishlists: [{url: "https://amazon.com/list/1", title: "My List"}],
                         wishItems: [],
                     }),

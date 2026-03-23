@@ -18,16 +18,8 @@ function redirectWithError() {
     window.location.href = "/";
 }
 
-async function loadUser(token) {
-    if (!token) {
-        redirectWithError();
-        return;
-    }
-    const response = await fetch("/.netlify/functions/api-user-post", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({token}),
-    });
+async function loadUser() {
+    const response = await fetch("/.netlify/functions/api-user-get");
     if (!response.ok) {
         redirectWithError();
         return;
@@ -42,7 +34,7 @@ export function main() {
     greeting.init();
     wishlistList.init();
     itemList.init();
-    saveButton.init(token);
+    saveButton.init();
     contactForm.init(token);
-    loadUser(token).then(r => (r && setUserData(r)));
+    loadUser().then(r => (r && setUserData(r)));
 }
