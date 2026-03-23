@@ -1,5 +1,5 @@
 import {addEventListener, pushHTML, selectElement, setLoadingState, escapeAttr, apiFetch} from "../../../utils.js";
-import {completeExchange} from "../../state.js";
+import {completeExchange, getOrganizerToken} from "../../state.js";
 
 const failedEmailsId = "failedEmails";
 const retryEmailsBtnId = "retryEmailsBtn";
@@ -67,7 +67,7 @@ async function retryFailedEmails(participants, assignments, exchangeId, onBack) 
 
   await apiFetch("/.netlify/functions/api-giver-retry-post", {
     method: "POST",
-    body: {exchangeId, participants, assignments},
+    body: {token: getOrganizerToken(), exchangeId, participantEmails: participants.map(p => p.email)},
     onSuccess: (data) => {
       removeFailedEmails();
       if (data.emailsFailed && data.emailsFailed.length > 0) {

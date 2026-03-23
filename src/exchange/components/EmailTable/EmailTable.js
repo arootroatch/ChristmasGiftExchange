@@ -1,4 +1,4 @@
-import {ExchangeEvents as Events, exchangeEvents as stateEvents, getExchangePayload, completeExchange} from "../../state.js";
+import {ExchangeEvents as Events, exchangeEvents as stateEvents, getExchangePayload, completeExchange, getOrganizerToken} from "../../state.js";
 import {addEventListener, pushHTML, selectElement, setLoadingState, escapeAttr, apiFetch} from "../../../utils.js";
 import {showError} from "../../../Snackbar.js";
 import {removeFailedEmails, showFailedEmails, resetRetryCount} from "./FailedEmails.js";
@@ -154,7 +154,7 @@ async function submitEmails(event) {
 
   await apiFetch("/.netlify/functions/api-exchange-post", {
     method: "POST",
-    body: payload,
+    body: {...payload, token: getOrganizerToken()},
     onSuccess: (data) => handleEmailResponse(data, payload),
     onError: (msg) => showError(msg),
     fallbackMessage: "Failed to submit emails. Please try again.",

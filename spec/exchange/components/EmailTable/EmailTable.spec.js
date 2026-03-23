@@ -187,6 +187,12 @@ describe('emailTable', () => {
       expect(body.participants.length).toBe(4);
     })
 
+    it("includes organizer token in the POST body", () => {
+      const callArgs = global.fetch.mock.calls[0];
+      const body = JSON.parse(callArgs[1].body);
+      expect(body.token).toBe("test-token");
+    })
+
   })
 
   describe("submitEmails error handling", () => {
