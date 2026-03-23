@@ -4,8 +4,14 @@ import {setupMongo, teardownMongo, cleanCollections, buildEvent, makeUser, makeE
 describe('api-user-contact-post contract', () => {
     let handler, db, mongo, recipient;
 
+    async function authCookie(userId) {
+        const {signSession} = await import("../../netlify/shared/jwt.mjs");
+        return `session=${await signSession(userId.toString())}`;
+    }
+
     beforeAll(async () => {
         vi.stubGlobal('fetch', vi.fn(() => Promise.resolve({ok: true})));
+        process.env.JWT_SECRET = 'test-secret';
         mongo = await setupMongo();
         db = mongo.db;
         const module = await import('../../netlify/functions/api-user-contact-post.mjs');
@@ -25,18 +31,20 @@ describe('api-user-contact-post contract', () => {
     afterEach(() => cleanCollections(db, 'users', 'exchanges', 'rateLimits'));
     afterAll(async () => {
         vi.unstubAllGlobals();
+        delete process.env.JWT_SECRET;
         await teardownMongo(mongo);
     });
 
-    function contactEvent(body) {
+    async function contactEvent(body) {
         return buildEvent('POST', {
-            body: {token: recipient.token, ...body},
+            headers: {cookie: await authCookie(recipient._id)},
+            body,
         });
     }
 
     describe('request contract (FE → BE)', () => {
-        it('accepts POST with token, address, phone, and notes', async () => {
-            const response = await handler(contactEvent({
+        it('accepts POST with address, phone, and notes', async () => {
+            const response = await handler(await contactEvent({
                 address: '123 Main St',
                 phone: '555-1234',
                 notes: 'Ring doorbell',
@@ -45,24 +53,24 @@ describe('api-user-contact-post contract', () => {
         });
 
         it('accepts partial fields (BE applies defaults)', async () => {
-            const response = await handler(contactEvent({address: '123 Main St'}));
+            const response = await handler(await contactEvent({address: '123 Main St'}));
             expect(response.statusCode).toBe(200);
         });
 
-        it('accepts only token (all contact fields default)', async () => {
-            const response = await handler(contactEvent({}));
+        it('accepts empty body (all contact fields default)', async () => {
+            const response = await handler(await contactEvent({}));
             expect(response.statusCode).toBe(200);
         });
 
-        it('rejects missing token', async () => {
+        it('rejects missing cookie', async () => {
             const response = await handler(buildEvent('POST', {body: {address: '123 Main St'}}));
-            expect(response.statusCode).toBe(400);
+            expect(response.statusCode).toBe(401);
         });
     });
 
     describe('response contract (BE → FE)', () => {
         it('response contains success boolean', async () => {
-            const response = await handler(contactEvent({address: '123 Main St'}));
+            const response = await handler(await contactEvent({address: '123 Main St'}));
             const body = JSON.parse(response.body);
 
             expect(body).toHaveProperty('success');

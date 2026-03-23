@@ -8,6 +8,11 @@ describe('api-user-contact-post', () => {
     let mongo;
     let mockFetch;
 
+    async function authCookie(userId) {
+        const {signSession} = await import("../../netlify/shared/jwt.mjs");
+        return `session=${await signSession(userId.toString())}`;
+    }
+
     beforeAll(async () => {
         mongo = await setupMongo();
         ({client, db} = mongo);
@@ -15,6 +20,7 @@ describe('api-user-contact-post', () => {
         process.env.URL = 'https://test.netlify.app';
         process.env.POSTMARK_SERVER_TOKEN = 'test-postmark-token';
         process.env.CONTEXT = 'production';
+        process.env.JWT_SECRET = 'test-secret';
 
         mockFetch = vi.fn().mockResolvedValue({ok: true});
         vi.stubGlobal('fetch', mockFetch);
@@ -36,6 +42,7 @@ describe('api-user-contact-post', () => {
         delete process.env.URL;
         delete process.env.POSTMARK_SERVER_TOKEN;
         delete process.env.CONTEXT;
+        delete process.env.JWT_SECRET;
         await teardownMongo(mongo);
     });
 
@@ -45,36 +52,19 @@ describe('api-user-contact-post', () => {
         expect(response.statusCode).toBe(405);
     });
 
-    it('rejects missing token', async () => {
+    it('returns 401 when cookie is missing', async () => {
         const event = buildEvent('POST', {body: {address: '123 Main St'}});
-        const response = await handler(event);
-        expect(response.statusCode).toBe(400);
-    });
-
-    it('returns 401 for invalid token', async () => {
-        const event = buildEvent('POST', {body: {token: 'nonexistent-token'}});
         const response = await handler(event);
         expect(response.statusCode).toBe(401);
     });
 
-    it('reads token from body, NOT from URL path', async () => {
-        const recipient = makeUser({name: 'Whitney', email: 'recipient@test.com'});
-        const giver = makeUser({name: 'Alex', email: 'giver@test.com'});
-
-        await db.collection('users').insertMany([recipient, giver]);
-        await db.collection('exchanges').insertOne(makeExchange({
-            participants: [recipient._id, giver._id],
-            assignments: [{giverId: giver._id, recipientId: recipient._id}],
-        }));
-
-        // Token in body, wrong token in URL path
+    it('returns 401 for invalid session cookie', async () => {
         const event = buildEvent('POST', {
-            path: `/.netlify/functions/api-user-contact-post/wrong-token`,
-            body: {token: recipient.token, address: '123 Main St'},
+            body: {address: '123 Main St'},
+            headers: {cookie: 'session=invalid-token'},
         });
-
         const response = await handler(event);
-        expect(response.statusCode).toBe(200);
+        expect(response.statusCode).toBe(401);
     });
 
     it('emails givers with contact info', async () => {
@@ -88,8 +78,8 @@ describe('api-user-contact-post', () => {
         }));
 
         const event = buildEvent('POST', {
+            headers: {cookie: await authCookie(recipient._id)},
             body: {
-                token: recipient.token,
                 address: '123 Main St, Springfield',
                 phone: '555-1234',
                 notes: 'Leave at front door',
@@ -126,8 +116,8 @@ describe('api-user-contact-post', () => {
         }));
 
         await handler(buildEvent('POST', {
+            headers: {cookie: await authCookie(recipient._id)},
             body: {
-                token: recipient.token,
                 address: '123 Main St',
                 phone: '555-0000',
                 notes: 'Secret info',
@@ -152,7 +142,10 @@ describe('api-user-contact-post', () => {
             assignments: [{giverId: giver._id, recipientId: recipient._id}],
         }));
 
-        const event = buildEvent('POST', {body: {token: recipient.token}});
+        const event = buildEvent('POST', {
+            headers: {cookie: await authCookie(recipient._id)},
+            body: {},
+        });
         await handler(event);
 
         const fetchCall = mockFetch.mock.calls[0];
@@ -181,8 +174,8 @@ describe('api-user-contact-post', () => {
         ]);
 
         const event = buildEvent('POST', {
+            headers: {cookie: await authCookie(recipient._id)},
             body: {
-                token: recipient.token,
                 address: '123 Main St',
                 phone: '555-1234',
                 notes: 'Front door',

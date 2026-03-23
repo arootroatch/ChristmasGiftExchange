@@ -1,23 +1,22 @@
 import {z} from "zod";
-import {apiHandler, validateBody} from "../shared/middleware.mjs";
-import {ok, badRequest, unauthorized} from "../shared/responses.mjs";
-import {getUsersCollection} from "../shared/db.mjs";
+import {apiHandler, requireAuth, validateBody} from "../shared/middleware.mjs";
+import {ok, badRequest} from "../shared/responses.mjs";
 import {forEachGiverOf, sendNotificationEmail} from "../shared/giverNotification.mjs";
 
 const contactPostRequestSchema = z.object({
-    token: z.string(),
     address: z.string().default("Not provided"),
     phone: z.string().default("Not provided"),
     notes: z.string().default("None"),
 });
 
 export const handler = apiHandler("POST", async (event) => {
+    const authError = await requireAuth(event);
+    if (authError) return authError;
+
     const {data, error} = validateBody(contactPostRequestSchema, event);
     if (error) return badRequest(error);
 
-    const usersCol = await getUsersCollection();
-    const user = await usersCol.findOne({token: data.token});
-    if (!user) return unauthorized("User not found");
+    const user = event.user;
 
     await forEachGiverOf(user, async ({giver}) => {
         await sendNotificationEmail(
