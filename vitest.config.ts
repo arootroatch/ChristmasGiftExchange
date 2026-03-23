@@ -16,6 +16,7 @@ export default defineConfig({
           setupFiles: ['spec/setupTests.js'],
           include: [
             'spec/exchange/**/*.spec.js',
+            'spec/authGate.spec.js',
             'spec/CookieBanner.spec.js',
             'spec/Snackbar.spec.js',
             'spec/utils.spec.js',
