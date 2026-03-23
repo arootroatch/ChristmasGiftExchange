@@ -2,13 +2,20 @@ import {describe, it, expect, beforeAll, afterAll, afterEach} from "vitest";
 import {setupMongo, teardownMongo, cleanCollections} from "./mongoHelper.js";
 import {buildEvent, makeUser} from "../shared/testFactories.js";
 
-describe("api-user-post", () => {
-    let client, db, handler, mongo;
+describe("api-user-get", () => {
+    let db, handler, mongo;
+
+    async function authCookie(userId) {
+        const {signSession} = await import("../../netlify/shared/jwt.mjs");
+        const jwt = await signSession(userId.toString());
+        return `session=${jwt}`;
+    }
 
     beforeAll(async () => {
         mongo = await setupMongo();
-        ({client, db} = mongo);
-        const mod = await import("../../netlify/functions/api-user-post.mjs");
+        ({db} = mongo);
+        process.env.JWT_SECRET = "test-secret";
+        const mod = await import("../../netlify/functions/api-user-get.mjs");
         handler = mod.handler;
     });
 
@@ -17,28 +24,23 @@ describe("api-user-post", () => {
     });
 
     afterAll(async () => {
+        delete process.env.JWT_SECRET;
         await teardownMongo(mongo);
     });
 
-    it("rejects non-POST requests", async () => {
-        const event = buildEvent("GET");
+    it("rejects non-GET requests", async () => {
+        const event = buildEvent("POST");
         const response = await handler(event);
         expect(response.statusCode).toBe(405);
     });
 
-    it("rejects missing token", async () => {
-        const event = buildEvent("POST", {body: {}});
-        const response = await handler(event);
-        expect(response.statusCode).toBe(400);
-    });
-
-    it("returns 401 for invalid token", async () => {
-        const event = buildEvent("POST", {body: {token: "nonexistent-token"}});
+    it("returns 401 when no cookie present", async () => {
+        const event = buildEvent("GET");
         const response = await handler(event);
         expect(response.statusCode).toBe(401);
     });
 
-    it("returns user data for valid token", async () => {
+    it("returns user data for authenticated user", async () => {
         const user = makeUser({
             name: "Alex",
             email: "alex@test.com",
@@ -47,7 +49,7 @@ describe("api-user-post", () => {
         });
         await db.collection("users").insertOne(user);
 
-        const event = buildEvent("POST", {body: {token: user.token}});
+        const event = buildEvent("GET", {headers: {cookie: await authCookie(user._id)}});
         const response = await handler(event);
         expect(response.statusCode).toBe(200);
 
@@ -63,7 +65,7 @@ describe("api-user-post", () => {
         const user = makeUser({name: "Alex", email: "alex@test.com"});
         await db.collection("users").insertOne(user);
 
-        const event = buildEvent("POST", {body: {token: user.token}});
+        const event = buildEvent("GET", {headers: {cookie: await authCookie(user._id)}});
         const response = await handler(event);
         expect(response.statusCode).toBe(200);
 

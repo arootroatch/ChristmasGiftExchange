@@ -1,21 +1,13 @@
-import {z} from "zod";
 import {getUsersCollection, getExchangesCollection} from "../shared/db.mjs";
-import {apiHandler, validateBody} from "../shared/middleware.mjs";
-import {ok, badRequest, unauthorized, notFound} from "../shared/responses.mjs";
+import {apiHandler, requireAuth} from "../shared/middleware.mjs";
+import {ok, notFound} from "../shared/responses.mjs";
 
-const recipientRequestSchema = z.object({
-    token: z.string(),
-});
+export const handler = apiHandler("GET", async (event) => {
+    const authError = await requireAuth(event);
+    if (authError) return authError;
 
-export const handler = apiHandler("POST", async (event) => {
-    const {data, error} = validateBody(recipientRequestSchema, event);
-    if (error) return badRequest(error);
-
-    const usersCol = await getUsersCollection();
+    const user = event.user;
     const exchangesCol = await getExchangesCollection();
-
-    const user = await usersCol.findOne({token: data.token});
-    if (!user) return unauthorized("Invalid token");
 
     const exchange = await exchangesCol
         .find({participants: user._id})
@@ -29,6 +21,7 @@ export const handler = apiHandler("POST", async (event) => {
     const assignment = latestExchange.assignments.find(a => a.giverId.equals(user._id));
     if (!assignment) return notFound("No assignment found");
 
+    const usersCol = await getUsersCollection();
     const recipient = await usersCol.findOne({_id: assignment.recipientId});
     if (!recipient) return notFound("Recipient not found");
 

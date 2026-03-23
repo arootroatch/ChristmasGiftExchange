@@ -82,18 +82,14 @@ describe("Wishlist Edit Page", () => {
             );
         });
 
-        it("fetches user data via POST with token in body", async () => {
+        it("fetches user data via GET with cookie auth", async () => {
             mockFetch({
                 body: {name: "John", wishlists: [], wishItems: []},
             });
             loadModule();
             await flush();
             expect(window.fetch).toHaveBeenCalledWith(
-                "/.netlify/functions/api-user-post",
-                expect.objectContaining({
-                    method: "POST",
-                    body: JSON.stringify({token: "abc-123-token"}),
-                })
+                "/.netlify/functions/api-user-get"
             );
         });
 
@@ -535,7 +531,7 @@ describe("Wishlist Edit Page", () => {
         });
     });
 
-    describe("missing token", () => {
+    describe("auth failure", () => {
         function setupNoTokenDOM(url) {
             vi.resetModules();
             dom = new JSDOM(html, {url});
@@ -548,22 +544,6 @@ describe("Wishlist Edit Page", () => {
             globalThis.fetch = window.fetch;
             window.sessionStorage.clear();
         }
-
-        it("sets snackbar error and does not fetch when user param is empty", async () => {
-            setupNoTokenDOM("http://localhost/wishlist/edit?user=");
-            const {main: freshMain} = await import("../../src/wishlistEdit/index.js");
-            freshMain();
-            expect(window.fetch).not.toHaveBeenCalled();
-            expect(window.sessionStorage.getItem("snackbarError")).toBe("Invalid wishlist link");
-        });
-
-        it("sets snackbar error and does not fetch when user param is missing", async () => {
-            setupNoTokenDOM("http://localhost/wishlist/edit");
-            const {main: freshMain} = await import("../../src/wishlistEdit/index.js");
-            freshMain();
-            expect(window.fetch).not.toHaveBeenCalled();
-            expect(window.sessionStorage.getItem("snackbarError")).toBe("Invalid wishlist link");
-        });
 
         it("sets snackbar error when API returns 404", async () => {
             setupNoTokenDOM("http://localhost/wishlist/edit?user=bad-token");

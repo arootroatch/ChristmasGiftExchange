@@ -62,9 +62,8 @@ async function getName(e) {
   const token = selectElement(`#${recipientSearchId}`).value;
   renderLoadingState();
 
-  await apiFetch("/.netlify/functions/api-recipient-post", {
-    method: "POST",
-    body: {token},
+  await apiFetch("/.netlify/functions/api-recipient-get", {
+    method: "GET",
     onSuccess: (data) => renderResult(data, token),
     onError: (msg) => renderError(msg),
     fallbackMessage: "Token not found. Please try again.",

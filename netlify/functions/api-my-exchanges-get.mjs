@@ -1,12 +1,7 @@
-import {z} from "zod";
 import {getUsersCollection, getExchangesCollection} from "../shared/db.mjs";
-import {apiHandler, validateBody} from "../shared/middleware.mjs";
-import {ok, badRequest, unauthorized} from "../shared/responses.mjs";
+import {apiHandler, requireAuth} from "../shared/middleware.mjs";
+import {ok} from "../shared/responses.mjs";
 import {exchangeSchema} from "../shared/schemas/exchange.mjs";
-
-const myExchangesRequestSchema = z.object({
-    token: z.string(),
-});
 
 async function enrichExchange(exchange, usersCol) {
     const participantUsers = await usersCol
@@ -34,15 +29,13 @@ async function enrichExchange(exchange, usersCol) {
     };
 }
 
-export const handler = apiHandler("POST", async (event) => {
-    const {data, error} = validateBody(myExchangesRequestSchema, event);
-    if (error) return badRequest(error);
+export const handler = apiHandler("GET", async (event) => {
+    const authError = await requireAuth(event);
+    if (authError) return authError;
 
+    const user = event.user;
     const usersCol = await getUsersCollection();
     const exchangesCol = await getExchangesCollection();
-
-    const user = await usersCol.findOne({token: data.token});
-    if (!user) return unauthorized("Invalid token");
 
     const exchanges = await exchangesCol
         .find({participants: user._id})

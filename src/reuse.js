@@ -3,19 +3,15 @@ import * as snackbar from './Snackbar.js';
 import * as cookieBanner from './CookieBanner.js';
 
 async function searchExchanges() {
-    const token = document.getElementById("reuse-token").value.trim();
-    if (!token) return;
-
     const btn = document.getElementById("reuse-search-btn");
     btn.textContent = "Searching...";
     btn.disabled = true;
 
-    await apiFetch(`/.netlify/functions/api-my-exchanges-post`, {
-        method: "POST",
-        body: {token},
+    await apiFetch(`/.netlify/functions/api-my-exchanges-get`, {
+        method: "GET",
         onSuccess: (data) => {
             if (data.length === 0) {
-                snackbar.showError("No past exchanges found for that token");
+                snackbar.showError("No past exchanges found");
                 return;
             }
             renderResults(data);
@@ -61,4 +57,3 @@ export function main() {
         if (e.key === "Enter") searchExchanges();
     });
 }
-

@@ -16,7 +16,7 @@ let window;
 
 const flush = () => new Promise(r => setTimeout(r, 0));
 
-function setupDOM(urlPath = "/wishlist/view", query = "?user=giver-token-123&exchange=exchange-id-456") {
+function setupDOM(urlPath = "/wishlist/view", query = "?exchange=exchange-id-456") {
     dom = new JSDOM(html, {url: `http://localhost${urlPath}${query}`});
     document = dom.window.document;
 
@@ -71,7 +71,7 @@ describe("Wishlist View Page", () => {
     });
 
     describe("loadWishlist", () => {
-        it("sends POST with token and exchangeId in body", async () => {
+        it("sends GET with exchangeId as query param", async () => {
             setupDOM();
             mockFetch({
                 body: {
@@ -85,16 +85,14 @@ describe("Wishlist View Page", () => {
 
             await flush();
             expect(window.fetch).toHaveBeenCalledWith(
-                "/.netlify/functions/api-user-wishlist-view-post",
+                "/.netlify/functions/api-user-wishlist-get?exchangeId=exchange-id-456",
                 expect.objectContaining({
-                    method: "POST",
-                    headers: {"Content-Type": "application/json"},
-                    body: JSON.stringify({token: "giver-token-123", exchangeId: "exchange-id-456"}),
+                    method: "GET",
                 })
             );
         });
 
-        it("strips token and exchangeId from URL bar after reading them", async () => {
+        it("strips query params from URL bar after reading them", async () => {
             setupDOM();
             mockFetch({
                 body: {
@@ -208,7 +206,7 @@ describe("Wishlist View Page", () => {
         });
 
         it("stores error in sessionStorage when exchangeId is missing", async () => {
-            setupDOM("/wishlist/view", "?user=giver-token-123");
+            setupDOM("/wishlist/view", "");
             mockFetch({body: {}});
             mockSessionStorage();
             main();
@@ -260,8 +258,8 @@ describe("Wishlist View Page", () => {
             );
         });
 
-        it("does not fetch when token is empty", async () => {
-            setupDOM("/wishlist/view", "?user=&exchange=exchange-id-456");
+        it("does not fetch when exchangeId is empty", async () => {
+            setupDOM("/wishlist/view", "?exchange=");
             mockFetch({body: {}});
             mockSessionStorage();
             main();

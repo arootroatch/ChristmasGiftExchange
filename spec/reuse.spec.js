@@ -119,57 +119,43 @@ describe("Reuse Exchange Page", () => {
             expect(label.textContent).toContain("token");
         });
 
-        it("POSTs token to api-my-exchanges-post when search button clicked", async () => {
+        it("GETs from api-my-exchanges-get with cookie auth when search button clicked", async () => {
             mockFetch({body: sampleExchanges});
 
-            document.getElementById("reuse-token").value = "my-secret-token";
             document.getElementById("reuse-search-btn").click();
 
             await flush();
             expect(window.fetch).toHaveBeenCalledWith(
-                "/.netlify/functions/api-my-exchanges-post",
+                "/.netlify/functions/api-my-exchanges-get",
                 expect.objectContaining({
-                    method: "POST",
-                    body: JSON.stringify({token: "my-secret-token"}),
+                    method: "GET",
                 })
             );
         });
 
-        it("POSTs token when Enter key pressed in token input", async () => {
+        it("GETs exchanges when Enter key pressed in token input", async () => {
             mockFetch({body: sampleExchanges});
 
-            document.getElementById("reuse-token").value = "my-secret-token";
             const event = new dom.window.KeyboardEvent("keydown", {key: "Enter", bubbles: true});
             document.getElementById("reuse-token").dispatchEvent(event);
 
             await flush();
             expect(window.fetch).toHaveBeenCalledWith(
-                "/.netlify/functions/api-my-exchanges-post",
+                "/.netlify/functions/api-my-exchanges-get",
                 expect.objectContaining({
-                    method: "POST",
-                    body: JSON.stringify({token: "my-secret-token"}),
+                    method: "GET",
                 })
             );
-        });
-
-        it("does not search when token is empty", () => {
-            mockFetch({body: []});
-
-            document.getElementById("reuse-token").value = "";
-            document.getElementById("reuse-search-btn").click();
-
-            expect(window.fetch).not.toHaveBeenCalled();
         });
 
         it("shows snackbar error when no exchanges found", async () => {
             mockFetch({body: []});
 
-            document.getElementById("reuse-token").value = "some-token";
             document.getElementById("reuse-search-btn").click();
 
             await flush();
             const snackbar = document.getElementById("snackbar");
-            expect(snackbar.textContent).toBe("No past exchanges found for that token");
+            expect(snackbar.textContent).toBe("No past exchanges found");
             expect(snackbar.classList.contains("show")).toBe(true);
             expect(snackbar.style.color).toBe("rgb(255, 255, 255)");
         });
@@ -177,7 +163,6 @@ describe("Reuse Exchange Page", () => {
         it("shows snackbar error when fetch fails", async () => {
             mockFetch({ok: false, status: 500, body: {error: "Server error"}});
 
-            document.getElementById("reuse-token").value = "nobody@test.com";
             document.getElementById("reuse-search-btn").click();
 
             await flush();
@@ -190,7 +175,6 @@ describe("Reuse Exchange Page", () => {
         it("shows generic error when non-ok response has no error field", async () => {
             mockFetch({ok: false, status: 400, body: {}});
 
-            document.getElementById("reuse-token").value = "test@test.com";
             document.getElementById("reuse-search-btn").click();
 
             await flush();
@@ -202,7 +186,6 @@ describe("Reuse Exchange Page", () => {
             window.fetch = vi.fn(() => Promise.reject(new Error("Network error")));
             globalThis.fetch = window.fetch;
 
-            document.getElementById("reuse-token").value = "test@test.com";
             document.getElementById("reuse-search-btn").click();
 
             await flush();
@@ -215,7 +198,6 @@ describe("Reuse Exchange Page", () => {
         it("displays exchange date and participant names", async () => {
             mockFetch({body: sampleExchanges});
 
-            document.getElementById("reuse-token").value = "john@test.com";
             document.getElementById("reuse-search-btn").click();
 
             await flush();
@@ -228,7 +210,6 @@ describe("Reuse Exchange Page", () => {
         it("displays house info when houses exist", async () => {
             mockFetch({body: sampleExchanges});
 
-            document.getElementById("reuse-token").value = "john@test.com";
             document.getElementById("reuse-search-btn").click();
 
             await flush();
@@ -239,7 +220,6 @@ describe("Reuse Exchange Page", () => {
         it("renders a Use This Exchange button per result", async () => {
             mockFetch({body: sampleExchanges});
 
-            document.getElementById("reuse-token").value = "john@test.com";
             document.getElementById("reuse-search-btn").click();
 
             await flush();
@@ -252,7 +232,6 @@ describe("Reuse Exchange Page", () => {
         it("stores exchange data in sessionStorage when Use This Exchange clicked", async () => {
             mockFetch({body: [sampleExchanges[0]]});
 
-            document.getElementById("reuse-token").value = "john@test.com";
             document.getElementById("reuse-search-btn").click();
 
             await flush();
@@ -275,7 +254,6 @@ describe("Reuse Exchange Page", () => {
             }));
             globalThis.fetch = window.fetch;
 
-            document.getElementById("reuse-token").value = "john@test.com";
             document.getElementById("reuse-search-btn").click();
 
             const btn = document.getElementById("reuse-search-btn");

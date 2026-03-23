@@ -54,16 +54,13 @@ describe("getName", () => {
         expect(label.textContent).toContain("Enter your token");
     })
 
-    it("POSTs to api-recipient-post with token in body", () => {
+    it("GETs from api-recipient-get with cookie auth", () => {
         stubRecipientFetch({recipient: "Whitney", date: "2023-06-15T12:00:00.000Z"});
-        const tokenInput = document.querySelector("#recipientSearch");
-        tokenInput.value = "abc123token";
         click("#recipientSearchBtn");
         expect(global.fetch).toHaveBeenCalledWith(
-            "/.netlify/functions/api-recipient-post",
+            "/.netlify/functions/api-recipient-get",
             expect.objectContaining({
-                method: "POST",
-                body: JSON.stringify({token: "abc123token"}),
+                method: "GET",
             })
         );
     })

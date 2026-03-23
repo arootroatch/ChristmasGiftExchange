@@ -3,17 +3,15 @@ import * as cookieBanner from './CookieBanner.js';
 
 async function loadWishlist() {
     const params = new URLSearchParams(window.location.search);
-    const token = params.get("user");
     const exchangeId = params.get("exchange");
     history.replaceState(null, '', window.location.pathname);
-    if (!token || !exchangeId) {
+    if (!exchangeId) {
         redirectWithError("Invalid link");
         return;
     }
 
-    await apiFetch("/.netlify/functions/api-user-wishlist-view-post", {
-        method: "POST",
-        body: {token, exchangeId},
+    await apiFetch(`/.netlify/functions/api-user-wishlist-get?exchangeId=${encodeURIComponent(exchangeId)}`, {
+        method: "GET",
         onSuccess: (data) => {
             const spinner = document.getElementById("loading-spinner");
             if (spinner) spinner.remove();
@@ -71,4 +69,3 @@ export function main() {
     cookieBanner.init();
     loadWishlist();
 }
-

@@ -2,13 +2,20 @@ import {describe, it, expect, beforeAll, afterAll, afterEach} from "vitest";
 import {setupMongo, teardownMongo, cleanCollections} from "./mongoHelper.js";
 import {buildEvent, makeUser, makeExchange} from "../shared/testFactories.js";
 
-describe("api-recipient-post", () => {
-    let client, db, handler, mongo;
+describe("api-recipient-get", () => {
+    let db, handler, mongo;
+
+    async function authCookie(userId) {
+        const {signSession} = await import("../../netlify/shared/jwt.mjs");
+        const jwt = await signSession(userId.toString());
+        return `session=${jwt}`;
+    }
 
     beforeAll(async () => {
         mongo = await setupMongo();
-        ({client, db} = mongo);
-        const mod = await import("../../netlify/functions/api-recipient-post.mjs");
+        ({db} = mongo);
+        process.env.JWT_SECRET = "test-secret";
+        const mod = await import("../../netlify/functions/api-recipient-get.mjs");
         handler = mod.handler;
     });
 
@@ -17,28 +24,23 @@ describe("api-recipient-post", () => {
     });
 
     afterAll(async () => {
+        delete process.env.JWT_SECRET;
         await teardownMongo(mongo);
     });
 
-    it("rejects non-POST requests", async () => {
-        const event = buildEvent("GET");
+    it("rejects non-GET requests", async () => {
+        const event = buildEvent("POST");
         const response = await handler(event);
         expect(response.statusCode).toBe(405);
     });
 
-    it("rejects missing token", async () => {
-        const event = buildEvent("POST", {body: {}});
-        const response = await handler(event);
-        expect(response.statusCode).toBe(400);
-    });
-
-    it("returns 401 for invalid token", async () => {
-        const event = buildEvent("POST", {body: {token: "nonexistent-token"}});
+    it("returns 401 when no cookie present", async () => {
+        const event = buildEvent("GET");
         const response = await handler(event);
         expect(response.statusCode).toBe(401);
     });
 
-    it("returns recipient name, giverName, date, and exchangeId for valid token", async () => {
+    it("returns recipient name, giverName, date, and exchangeId for authenticated user", async () => {
         const giver = makeUser({name: "Alex", email: "alex@test.com"});
         const recipient = makeUser({name: "Whitney", email: "whitney@test.com"});
 
@@ -55,7 +57,7 @@ describe("api-recipient-post", () => {
         });
         await db.collection("exchanges").insertOne(exchange);
 
-        const event = buildEvent("POST", {body: {token: giver.token}});
+        const event = buildEvent("GET", {headers: {cookie: await authCookie(giver._id)}});
         const response = await handler(event);
         expect(response.statusCode).toBe(200);
 
@@ -87,7 +89,7 @@ describe("api-recipient-post", () => {
         });
         await db.collection("exchanges").insertMany([oldExchange, newExchange]);
 
-        const event = buildEvent("POST", {body: {token: giver.token}});
+        const event = buildEvent("GET", {headers: {cookie: await authCookie(giver._id)}});
         const response = await handler(event);
         const body = JSON.parse(response.body);
 
@@ -99,7 +101,7 @@ describe("api-recipient-post", () => {
         const user = makeUser({name: "Lonely", email: "lonely@test.com"});
         await db.collection("users").insertOne(user);
 
-        const event = buildEvent("POST", {body: {token: user.token}});
+        const event = buildEvent("GET", {headers: {cookie: await authCookie(user._id)}});
         const response = await handler(event);
         expect(response.statusCode).toBe(404);
     });
@@ -117,7 +119,7 @@ describe("api-recipient-post", () => {
         });
         await db.collection("exchanges").insertOne(exchange);
 
-        const event = buildEvent("POST", {body: {token: user.token}});
+        const event = buildEvent("GET", {headers: {cookie: await authCookie(user._id)}});
         const response = await handler(event);
         expect(response.statusCode).toBe(404);
     });
