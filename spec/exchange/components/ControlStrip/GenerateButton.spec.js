@@ -19,6 +19,7 @@ import {init as initControlStrip} from "../../../../src/exchange/components/Cont
 import {init as initGenerateButton, generateList, getGlowClass} from "../../../../src/exchange/components/ControlStrip/GenerateButton";
 import {init as initResultsTable} from "../../../../src/exchange/components/ResultsTable";
 import {init as initEmailTable} from "../../../../src/exchange/components/EmailTable/EmailTable";
+import {init as initOrganizerForm} from "../../../../src/exchange/components/OrganizerForm";
 import {addParticipant, assignRecipients, getState, removeParticipant} from "../../../../src/exchange/state";
 import {selectElement} from "../../../../src/utils";
 
@@ -244,6 +245,7 @@ describe("generateList", () => {
   beforeAll(() => {
     initReactiveSystem();
     initResultsTable();
+    initOrganizerForm();
     initEmailTable();
   });
 
@@ -330,13 +332,14 @@ describe("generateList", () => {
     expect(table.innerHTML).toContain(tableHTML);
   });
 
-  it('should display email table instead of results table if secret santa mode', () => {
+  it('should display organizer form instead of results table if secret santa mode', () => {
     getState().isSecretSanta = true;
     enterName("Alex");
     enterName("Whitney");
 
     generateList();
-    shouldDisplayEmailTable("Alex", "Whitney");
+    expect(document.querySelector("#organizerFormContainer")).not.toBeNull();
+    expect(document.querySelector("#emailTable")).toBeNull();
   });
 
   it('should hide generate button in Secret Santa mode after generating', () => {

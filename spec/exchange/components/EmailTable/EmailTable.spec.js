@@ -10,7 +10,7 @@ import {
   shouldDisplaySuccessSnackbar,
 } from "../../../specHelper";
 import "../../../../src/exchange/components/Name";
-import {assignRecipients, startExchange, getState, requestEmailResults} from "../../../../src/exchange/state";
+import {assignRecipients, setOrganizer, startExchange, getState, requestEmailResults} from "../../../../src/exchange/state";
 import * as state from "../../../../src/exchange/state";
 import {alex, whitney, hunter} from "../../../testData";
 import {
@@ -45,18 +45,20 @@ function renderEmailTableInputs(participants) {
 function triggerEmailTableRender() {
   installGivers([{...alex}, {...whitney}]);
   assignRecipients(["Whitney", "Alex"]);
+  setOrganizer("Organizer", "org@test.com", "test-token");
 }
 
 function triggerEmailTableRenderWith3() {
   installGivers([{...alex}, {...whitney}, {...hunter}]);
   assignRecipients(["Whitney", "Hunter", "Alex"]);
+  setOrganizer("Organizer", "org@test.com", "test-token");
 }
 
 function triggerNonSecretSantaEmailTable() {
   getState().isSecretSanta = false;
   installGivers([{...alex}, {...whitney}]);
   assignRecipients(["Whitney", "Alex"]);
-  requestEmailResults();
+  setOrganizer("Organizer", "org@test.com", "test-token");
 }
 
 function submitEmailForm() {
@@ -84,13 +86,23 @@ describe('emailTable', () => {
   });
 
   describe("reactive rendering", () => {
-    it("renders on RECIPIENTS_ASSIGNED when isSecretSanta", () => {
+    it("renders on ORGANIZER_SET", () => {
+      getState().isSecretSanta = true;
+      installGivers([{...alex}, {...whitney}]);
+      assignRecipients(["Whitney", "Alex"]);
+
+      setOrganizer("Organizer", "org@test.com", "test-token");
+
+      shouldDisplayEmailTable("Alex", "Whitney");
+    });
+
+    it("does not render on RECIPIENTS_ASSIGNED when isSecretSanta", () => {
       getState().isSecretSanta = true;
       installGivers([{...alex}, {...whitney}]);
 
       assignRecipients(["Whitney", "Alex"]);
 
-      shouldDisplayEmailTable("Alex", "Whitney");
+      expect(document.querySelector("#emailTable")).toBeNull();
     });
 
     it("does not render on RECIPIENTS_ASSIGNED when not isSecretSanta", () => {
@@ -100,16 +112,6 @@ describe('emailTable', () => {
       assignRecipients(["Whitney", "Alex"]);
 
       expect(document.querySelector("#emailTable")).toBeNull();
-    });
-
-    it("renders on EMAIL_RESULTS_REQUESTED", () => {
-      getState().isSecretSanta = false;
-      installGivers([{...alex}, {...whitney}]);
-      assignRecipients(["Whitney", "Alex"]);
-
-      requestEmailResults();
-
-      shouldDisplayEmailTable("Alex", "Whitney");
     });
 
     it("clears container on EXCHANGE_STARTED", () => {
@@ -126,7 +128,7 @@ describe('emailTable', () => {
       installGivers([{...alex}, {...whitney}]);
       assignRecipients(["Whitney", "Alex"]);
 
-      requestEmailResults();
+      setOrganizer("Organizer", "org@test.com", "test-token");
 
       expect(document.querySelector("#hideEmails")).not.toBeNull();
     });
@@ -134,8 +136,9 @@ describe('emailTable', () => {
     it("does not render dismiss button in secret santa mode", () => {
       getState().isSecretSanta = true;
       installGivers([{...alex}, {...whitney}]);
-
       assignRecipients(["Whitney", "Alex"]);
+
+      setOrganizer("Organizer", "org@test.com", "test-token");
 
       expect(document.querySelector("#hideEmails")).toBeNull();
     });

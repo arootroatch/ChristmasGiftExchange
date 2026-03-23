@@ -8,6 +8,7 @@ import * as controlStrip from "./components/ControlStrip/ControlStrip.js";
 import * as ghostHouse from "./components/GhostHouse.js";
 import * as generateButton from "./components/ControlStrip/GenerateButton.js";
 import * as instructions from "./components/Instructions.js";
+import * as organizerForm from "./components/OrganizerForm.js";
 import * as emailTable from "./components/EmailTable/EmailTable.js";
 import * as recipientSearch from "./components/RecipientSearch.js";
 import * as completionModal from "./components/CompletionModal.js";
@@ -29,6 +30,7 @@ export default function main() {
   ghostHouse.init();
   instructions.init();
 
+  organizerForm.init();
   emailTable.init();
   completionModal.init();
   recipientSearch.init();

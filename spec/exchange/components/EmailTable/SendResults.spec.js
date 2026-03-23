@@ -1,6 +1,6 @@
 import {beforeAll, beforeEach, describe, expect, it, vi} from "vitest";
 import {resetState, shouldDisplayErrorSnackbar} from "../../../specHelper";
-import {getState, assignRecipients, requestEmailResults} from "../../../../src/exchange/state";
+import {getState, assignRecipients, requestEmailResults, setOrganizer} from "../../../../src/exchange/state";
 import {init as initSnackbar} from "../../../../src/Snackbar";
 import {init} from "../../../../src/exchange/components/EmailTable/EmailTable";
 import {showConfirmation, showResultsForm} from "../../../../src/exchange/components/EmailTable/SendResults";
@@ -15,7 +15,7 @@ function triggerEmailTableRender() {
   getState().isSecretSanta = false;
   getState().participants = [{name: "Alex", email: ""}, {name: "Whitney", email: ""}];
   getState().assignments = [{giver: "Alex", recipient: "Whitney"}, {giver: "Whitney", recipient: "Alex"}];
-  requestEmailResults();
+  setOrganizer("Organizer", "org@test.com", "test-token");
 }
 
 describe("SendResults", () => {

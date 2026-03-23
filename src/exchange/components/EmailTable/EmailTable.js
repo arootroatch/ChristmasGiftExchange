@@ -11,12 +11,7 @@ const submitEmailsId = "submitEmails";
 const sendResultsBtnId = "sendResultsBtn";
 
 export function init() {
-  stateEvents.on(Events.RECIPIENTS_ASSIGNED, (state) => {
-    if (state.isSecretSanta) {
-      render(state);
-    }
-  });
-  stateEvents.on(Events.EMAIL_RESULTS_REQUESTED, (state) => {
+  stateEvents.on(Events.ORGANIZER_SET, (state) => {
     render(state);
   });
   stateEvents.on(Events.EXCHANGE_STARTED, () => {
