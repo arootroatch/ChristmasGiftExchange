@@ -30,9 +30,9 @@ async function findOne(collection, query = {}) {
     return collection.findOne(query);
 }
 
-function userExchangeData(r, db, queryOrToken) {
+function userExchangeData(r, db, queryOrEmail) {
     const base = "http://localhost:8888";
-    const query = typeof queryOrToken === "string" ? {token: queryOrToken} : queryOrToken;
+    const query = typeof queryOrEmail === "string" ? {email: queryOrEmail} : queryOrEmail;
     (async () => {
         const usersCol = db.collection("users");
         const user = await usersCol.findOne(query);
@@ -66,7 +66,7 @@ function userExchangeData(r, db, queryOrToken) {
 export function startRepl(db, client, onExit) {
     console.log("\nREPL ready. Available: db, users, exchanges, find(), findOne(), userExchangeData()");
     console.log("Example: await find(users, {name: 'Alice'})");
-    console.log("Example: userExchangeData('user-token-uuid') or userExchangeData({name: 'Alice'})\n");
+    console.log("Example: userExchangeData('alice@example.com') or userExchangeData({name: 'Alice'})\n");
 
     const r = repl.start({prompt: "dev-db> ", useGlobal: true});
     r.context.db = db;
@@ -74,7 +74,7 @@ export function startRepl(db, client, onExit) {
     r.context.exchanges = db.collection("exchanges");
     r.context.find = find;
     r.context.findOne = findOne;
-    r.context.userExchangeData = (queryOrToken) => userExchangeData(r, db, queryOrToken);
+    r.context.userExchangeData = (queryOrEmail) => userExchangeData(r, db, queryOrEmail);
 
     r.on("exit", async () => {
         console.log("\nShutting down...");
