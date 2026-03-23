@@ -314,66 +314,8 @@ describe('emailTable', () => {
     });
   });
 
-  describe("send results form", () => {
-    beforeEach(() => {
-      triggerEmailTableRenderWith3();
-      document.querySelector("#sendResultsBtn").click();
-      document.querySelector("#sendResultsConfirmBtn").click();
-    });
-
-    it("removes emailTable and shows form as standalone component", () => {
-      expect(document.querySelector("#emailTable")).toBeNull();
-      expect(document.querySelector("#sendResultsConfirm")).toBeNull();
-      const form = document.querySelector("#sendResults");
-      expect(form).not.toBeNull();
-      expect(form.classList).toContain("sendEmails");
-    });
-
-    it("shows form with name text input and email input", () => {
-      const nameInput = document.querySelector("#sendResultsName");
-      const emailInput = document.querySelector("#sendResultsEmail");
-
-      expect(nameInput).not.toBeNull();
-      expect(nameInput.type).toBe("text");
-      expect(emailInput).not.toBeNull();
-    });
-
-    it("shows results table in secret santa mode", () => {
-      const resultsCard = document.querySelector("#sendResults .results-card");
-      expect(resultsCard).not.toBeNull();
-      expect(resultsCard.textContent).toContain("Alex");
-      expect(resultsCard.textContent).toContain("Whitney");
-    });
-
-    it("is removed on EXCHANGE_STARTED", () => {
-      expect(document.querySelector("#sendResults")).not.toBeNull();
-
-      startExchange(false);
-
-      expect(document.querySelector("#sendResults")).toBeNull();
-    });
-  });
-
-  describe("send results form non-secret-santa", () => {
-    beforeEach(() => {
-      document.querySelector("#emailTable")?.remove();
-      triggerNonSecretSantaEmailTable();
-      document.querySelector("#sendResultsBtn").click();
-      document.querySelector("#sendResultsConfirmBtn").click();
-    });
-
-    it("does not show results table", () => {
-      expect(document.querySelector("#sendResults .results-card")).toBeNull();
-    });
-
-    it("shows form with select and email input", () => {
-      expect(document.querySelector("#sendResultsName")).not.toBeNull();
-      expect(document.querySelector("#sendResultsEmail")).not.toBeNull();
-    });
-  });
-
-  describe("send results submit", () => {
-    beforeEach(() => {
+  describe("send results Continue button", () => {
+    it("removes confirmation and calls API with token and exchangeId on Continue", async () => {
       global.fetch = vi.fn(() => Promise.resolve({
         ok: true,
         status: 200,
@@ -382,38 +324,41 @@ describe('emailTable', () => {
       triggerEmailTableRenderWith3();
       document.querySelector("#sendResultsBtn").click();
       document.querySelector("#sendResultsConfirmBtn").click();
-      document.querySelector("#sendResultsName").value = "Alex";
-      document.querySelector("#sendResultsEmail").value = "alex@test.com";
-    });
 
-    it("sends request to api-results-email-post", () => {
-      document.querySelector("#sendResultsSubmit").click();
+      expect(document.querySelector("#sendResultsConfirm")).toBeNull();
 
+      await vi.advanceTimersByTimeAsync(0);
       expect(global.fetch).toHaveBeenCalledWith(
         "/.netlify/functions/api-results-email-post",
         expect.objectContaining({method: "POST"})
       );
       const body = JSON.parse(global.fetch.mock.calls[0][1].body);
-      expect(body.name).toBe("Alex");
-      expect(body.email).toBe("alex@test.com");
-      expect(body.assignments).toHaveLength(3);
+      expect(body.token).toBe("test-token");
+      expect(body.exchangeId).toBe(getState().exchangeId);
+      expect(body.name).toBeUndefined();
+      expect(body.email).toBeUndefined();
+      expect(body.assignments).toBeUndefined();
     });
 
-    it("shows spinner on submit button", () => {
-      document.querySelector("#sendResultsSubmit").click();
-      expect(document.querySelector("#sendResultsSubmit").innerHTML).toContain('class="spinner"');
-      expect(document.querySelector("#sendResultsSubmit").disabled).toBe(true);
+    it("does not render name or email inputs", () => {
+      triggerEmailTableRenderWith3();
+      document.querySelector("#sendResultsBtn").click();
+      document.querySelector("#sendResultsConfirmBtn").click();
+
+      expect(document.querySelector("#sendResultsName")).toBeNull();
+      expect(document.querySelector("#sendResultsEmail")).toBeNull();
     });
 
-    it("removes form on success", async () => {
-      document.querySelector("#sendResultsSubmit").click();
-      await vi.advanceTimersByTimeAsync(0);
+    it("calls completeExchange with success mode on API success", async () => {
+      global.fetch = vi.fn(() => Promise.resolve({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve({success: true})
+      }));
+      triggerEmailTableRenderWith3();
+      document.querySelector("#sendResultsBtn").click();
+      document.querySelector("#sendResultsConfirmBtn").click();
 
-      expect(document.querySelector("#sendResults")).toBeNull();
-    });
-
-    it("calls completeExchange with success mode when send results succeeds", async () => {
-      document.querySelector("#sendResultsSubmit").click();
       await vi.advanceTimersByTimeAsync(0);
 
       expect(state.completeExchange).toHaveBeenCalledWith("success");
@@ -422,43 +367,15 @@ describe('emailTable', () => {
     it("shows error snackbar on API failure", async () => {
       global.fetch = vi.fn(() => Promise.resolve({
         ok: false,
-        status: 500,
-        json: () => Promise.resolve({error: "Server error"})
-      }));
-      document.querySelector("#sendResultsSubmit").click();
-
-      const {serverErrorMessage} = await import("../../../../src/utils");
-      await vi.advanceTimersByTimeAsync(0);
-      shouldDisplayErrorSnackbar(serverErrorMessage);
-    });
-
-    it("re-enables send button on API failure", async () => {
-      global.fetch = vi.fn(() => Promise.resolve({
-        ok: false,
         status: 400,
         json: () => Promise.resolve({error: "Bad request"})
       }));
-      document.querySelector("#sendResultsSubmit").click();
+      triggerEmailTableRenderWith3();
+      document.querySelector("#sendResultsBtn").click();
+      document.querySelector("#sendResultsConfirmBtn").click();
 
       await vi.advanceTimersByTimeAsync(0);
-      const btn = document.querySelector("#sendResultsSubmit");
-      expect(btn.textContent).toBe("Send");
-    });
-
-    it("shows error when no name entered", () => {
-      document.querySelector("#sendResultsName").value = "";
-      document.querySelector("#sendResultsSubmit").click();
-
-      shouldDisplayErrorSnackbar("Please enter your name");
-      expect(global.fetch).not.toHaveBeenCalled();
-    });
-
-    it("shows error when no email entered", () => {
-      document.querySelector("#sendResultsEmail").value = "";
-      document.querySelector("#sendResultsSubmit").click();
-
-      shouldDisplayErrorSnackbar("Please enter your email");
-      expect(global.fetch).not.toHaveBeenCalled();
+      shouldDisplayErrorSnackbar("Bad request");
     });
   });
 

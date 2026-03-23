@@ -2,7 +2,7 @@ import {ExchangeEvents as Events, exchangeEvents as stateEvents, getExchangePayl
 import {addEventListener, pushHTML, selectElement, setLoadingState, escapeAttr, apiFetch} from "../../../utils.js";
 import {showError} from "../../../Snackbar.js";
 import {removeFailedEmails, showFailedEmails, resetRetryCount} from "./FailedEmails.js";
-import {confirmId, sendResultsFormId, showConfirmation, removeAll as removeAllSendResults} from "./SendResults.js";
+import {confirmId, showConfirmation, removeAll as removeAllSendResults} from "./SendResults.js";
 
 const emailTableId = "emailTable";
 const emailTableBodyId = "emailTableBody";

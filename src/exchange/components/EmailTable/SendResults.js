@@ -1,22 +1,24 @@
-import {addEventListener, pushHTML, selectElement, setLoadingState, clearLoadingState, escapeAttr, apiFetch} from "../../../utils.js";
+import {addEventListener, pushHTML, selectElement, escapeAttr, apiFetch} from "../../../utils.js";
 import {showError} from "../../../Snackbar.js";
-import {render as renderEmailTable} from "./EmailTable.js";
-import {completeExchange} from "../../state.js";
+import {completeExchange, getOrganizerToken} from "../../state.js";
 
 const confirmId = "sendResultsConfirm";
 const confirmBtnId = "sendResultsConfirmBtn";
 const cancelBtnId = "sendResultsCancelBtn";
-const sendResultsFormId = "sendResults";
-const sendResultsBackBtnId = "sendResultsBackBtn";
-const sendResultsNameId = "sendResultsName";
-const sendResultsEmailId = "sendResultsEmail";
-const sendResultsSubmitId = "sendResultsSubmit";
 
-export {confirmId, sendResultsFormId};
+export {confirmId};
 
 export function removeAll() {
   selectElement(`#${confirmId}`)?.remove();
-  selectElement(`#${sendResultsFormId}`)?.remove();
+}
+
+export function resultsTableHtml({assignments}) {
+  let html = '<div class="results-card" style="margin: 0 auto;"><h2>Results</h2><div class="results-header"><span>Giver</span><span></span><span>Recipient</span></div><div>';
+  for (const a of assignments) {
+    html += `<div class="result-row"><span>${escapeAttr(a.giver)}</span><span class="result-arrow">&#8594;</span><span>${escapeAttr(a.recipient)}</span></div>`;
+  }
+  html += '</div></div>';
+  return html;
 }
 
 function confirmationTemplate({isSecretSanta}) {
@@ -37,75 +39,25 @@ function confirmationTemplate({isSecretSanta}) {
 
 export function showConfirmation(state) {
   pushHTML("body", confirmationTemplate(state));
-  addEventListener(`#${confirmBtnId}`, "click", () => showResultsForm(state));
+  addEventListener(`#${confirmBtnId}`, "click", () => submitResults(state));
   addEventListener(`#${cancelBtnId}`, "click", () => {
     selectElement(`#${confirmId}`)?.remove();
   });
 }
 
-export function resultsTableHtml({assignments}) {
-  let html = '<div class="results-card" style="margin: 0 auto;"><h2>Results</h2><div class="results-header"><span>Giver</span><span></span><span>Recipient</span></div><div>';
-  for (const a of assignments) {
-    html += `<div class="result-row"><span>${escapeAttr(a.giver)}</span><span class="result-arrow">&#8594;</span><span>${escapeAttr(a.recipient)}</span></div>`;
-  }
-  html += '</div></div>';
-  return html;
-}
-
-function resultsFormTemplate({isSecretSanta, assignments}) {
-  let html = `<div id="${sendResultsFormId}" class="sendEmails show">`;
-  if (isSecretSanta) {
-    html += resultsTableHtml({assignments});
-  }
-  html += `
-      <div style="display:flex; flex-direction:column; align-items:center; gap:8px; padding:10px;">
-      <div><label for="${sendResultsNameId}">Your name: </label><input type="text" id="${sendResultsNameId}" placeholder="Your name" required/></div>
-      <div><label for="${sendResultsEmailId}">Your email: </label><input type="email" id="${sendResultsEmailId}" placeholder="your@email.com" required/></div>
-      <button class="button" id="${sendResultsSubmitId}">Send</button>
-      <button class="button" id="${sendResultsBackBtnId}">\u2190 Back</button>
-      </div>
-    </div>`;
-  return html;
-}
-
-export function showResultsForm(state) {
+async function submitResults({exchangeId}) {
   selectElement(`#${confirmId}`)?.remove();
-  selectElement("#emailTable")?.remove();
-  pushHTML("body", resultsFormTemplate(state));
-  addEventListener(`#${sendResultsSubmitId}`, "click", () => submitResults(state));
-  addEventListener(`#${sendResultsBackBtnId}`, "click", () => {
-    selectElement(`#${sendResultsFormId}`)?.remove();
-    renderEmailTable(state);
-  });
-}
 
-async function submitResults({assignments}) {
-  const nameInput = selectElement(`#${sendResultsNameId}`);
-  const emailInput = selectElement(`#${sendResultsEmailId}`);
-  const name = nameInput.value.trim();
-  const email = emailInput.value.trim();
-
-  if (!name) {
-    showError("Please enter your name");
-    return;
-  }
-  if (!email) {
-    showError("Please enter your email");
-    return;
-  }
-
-  setLoadingState(`#${sendResultsSubmitId}`);
+  const token = getOrganizerToken();
 
   await apiFetch("/.netlify/functions/api-results-email-post", {
     method: "POST",
-    body: {name, email, assignments},
+    body: {token, exchangeId},
     onSuccess: () => {
-      selectElement(`#${sendResultsFormId}`)?.remove();
       completeExchange("success");
     },
     onError: (msg) => {
       showError(msg);
-      clearLoadingState(`#${sendResultsSubmitId}`);
     },
     fallbackMessage: "Failed to send results. Please try again.",
   });
