@@ -1,5 +1,5 @@
 import {test, expect} from './fixtures.js';
-import {connectDB, disconnectDB, cleanDB, findUser, findExchange, makeUser, makeExchange, seedUsers, seedExchange} from './helpers.js';
+import {connectDB, disconnectDB, cleanDB, findUser, findExchange, makeUser, makeExchange, seedUsers, seedExchange, authenticateUser, authenticateViaUI} from './helpers.js';
 
 test.describe('Create Exchange → View Wishlist', () => {
     test.beforeAll(async () => {
@@ -31,9 +31,16 @@ test.describe('Create Exchange → View Wishlist', () => {
         await expect(page.locator('#generate')).toBeVisible();
         await page.locator('#generate').click();
 
+        // ResultsTable appears with Email Results button
         await expect(page.locator('#email-results-btn')).toBeVisible();
         await page.locator('#email-results-btn').click();
 
+        // OrganizerForm auth gate appears — authenticate via UI
+        await expect(page.locator('#auth-gate')).toBeVisible();
+        const organizerEmail = `${names[0].toLowerCase()}@test.com`;
+        await authenticateViaUI(page, organizerEmail, names[0]);
+
+        // After auth, EmailTable appears
         await expect(page.locator('#emailTable')).toBeVisible();
 
         // pressSequentially works around Verifalia widget intercepting fill()
@@ -58,7 +65,7 @@ test.describe('Create Exchange → View Wishlist', () => {
         expect(exchange.assignments).toHaveLength(3);
     });
 
-    test('Send Me Results back button returns to email table', async ({page}) => {
+    test('Send Me Results cancel returns to email table', async ({page}) => {
         await page.goto('/');
         await page.locator('#cookie-reject').click();
         await page.locator('#letsGo').click();
@@ -75,6 +82,12 @@ test.describe('Create Exchange → View Wishlist', () => {
         await page.locator('#generate').click();
         await expect(page.locator('#email-results-btn')).toBeVisible();
         await page.locator('#email-results-btn').click();
+
+        // OrganizerForm auth gate — authenticate
+        await expect(page.locator('#auth-gate')).toBeVisible();
+        await authenticateViaUI(page, 'alice@test.com', 'Alice');
+
+        // EmailTable appears
         await expect(page.locator('#emailTable')).toBeVisible();
 
         // Click "Send Me the Results"
@@ -86,19 +99,6 @@ test.describe('Create Exchange → View Wishlist', () => {
         // Cancel dismisses confirmation
         await page.locator('#sendResultsCancelBtn').click();
         await expect(page.locator('#sendResultsConfirm')).not.toBeVisible();
-        await expect(page.locator('#emailTable')).toBeVisible();
-
-        // Go through again — Continue to results form
-        await page.locator('#sendResultsBtn').click();
-        await page.locator('#sendResultsConfirmBtn').click();
-
-        // Results form appears with back button
-        await expect(page.locator('#sendResults')).toBeVisible();
-        await expect(page.locator('#sendResultsBackBtn')).toBeVisible();
-
-        // Back button returns to email table
-        await page.locator('#sendResultsBackBtn').click();
-        await expect(page.locator('#sendResults')).not.toBeVisible();
         await expect(page.locator('#emailTable')).toBeVisible();
     });
 
@@ -131,7 +131,7 @@ test.describe('Create Exchange → View Wishlist', () => {
         await expect(page.locator('#name-list #wrapper-Alice')).not.toBeVisible();
     });
 
-    test('giver can view recipient wishlist page', async ({page}) => {
+    test('giver can view recipient wishlist page', async ({page, baseURL}) => {
         const giver = makeUser({name: 'Alice', email: 'alice@test.com'});
         const recipient = makeUser({name: 'Bob', email: 'bob@test.com'});
         const exchangeId = crypto.randomUUID();
@@ -143,7 +143,10 @@ test.describe('Create Exchange → View Wishlist', () => {
             assignments: [{giverId: giver._id, recipientId: recipient._id}],
         }));
 
-        await page.goto(`/wishlist/view?user=${giver.token}&exchange=${exchangeId}`);
+        // Authenticate as Alice programmatically
+        await authenticateUser(page, baseURL, 'alice@test.com');
+
+        await page.goto(`/wishlist/view?exchange=${exchangeId}`);
 
         const heading = page.locator('#heading');
         await expect(heading).toBeVisible();

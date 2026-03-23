@@ -58,7 +58,7 @@ export default async function globalSetup() {
             ...process.env,
             MONGO_DB_URI: mongoUri,
             MONGODB_DATABASE: 'e2e-test-db',
-
+            JWT_SECRET: 'e2e-test-jwt-secret',
         },
         stdio: 'pipe',
     });

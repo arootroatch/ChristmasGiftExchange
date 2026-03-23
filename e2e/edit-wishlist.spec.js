@@ -1,5 +1,5 @@
 import {test, expect} from './fixtures.js';
-import {connectDB, disconnectDB, cleanDB, makeUser, makeExchange, seedUsers, seedExchange} from './helpers.js';
+import {connectDB, disconnectDB, cleanDB, makeUser, makeExchange, seedUsers, seedExchange, authenticateUser} from './helpers.js';
 
 test.describe('Edit Wishlist → Giver Sees Updates', () => {
     let giver, recipient, exchangeId;
@@ -27,8 +27,10 @@ test.describe('Edit Wishlist → Giver Sees Updates', () => {
         await disconnectDB();
     });
 
-    test('recipient edits wishlist and giver sees the updates', async ({page}) => {
-        await page.goto(`/wishlist/edit?user=${recipient.token}`);
+    test('recipient edits wishlist and giver sees the updates', async ({page, baseURL}) => {
+        // Authenticate as Bob (recipient) and navigate to wishlist edit
+        await authenticateUser(page, baseURL, 'bob@test.com');
+        await page.goto('/wishlist/edit');
         await expect(page.locator('#greeting')).toContainText('Bob');
 
         await page.locator('#wishlist-url').fill('https://amazon.com/wishlist/123');
@@ -45,7 +47,9 @@ test.describe('Edit Wishlist → Giver Sees Updates', () => {
         await page.locator('#save-wishlist-btn').click();
         await expect(page.locator('#snackbar')).toContainText('Wishlist saved');
 
-        await page.goto(`/wishlist/view?user=${giver.token}&exchange=${exchangeId}`);
+        // Authenticate as Alice (giver) and view Bob's wishlist
+        await authenticateUser(page, baseURL, 'alice@test.com');
+        await page.goto(`/wishlist/view?exchange=${exchangeId}`);
         await expect(page.locator('#heading')).toContainText("Bob's Wishlist");
 
         const content = page.locator('#wishlist-content');
