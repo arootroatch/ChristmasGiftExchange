@@ -64,7 +64,7 @@ netlify/
     api-user-wishlist-get.mjs # View recipient wishlist
     api-exchange-get.mjs     # Search exchanges by email
     api-user-get.mjs         # Get user by token
-    api-user-wishlist-put.mjs # Update wishlists
+    api-user-wishlist-save-post.mjs # Update wishlists (token in body)
     api-user-contact-post.mjs # Send contact info to givers
     api-giver-retry-post.mjs # Retry failed email sends for an exchange
     api-recipient-get.mjs    # Lookup recipient by giver email
@@ -108,7 +108,7 @@ spec/
     api-exchange-get.spec.js
     api-user-wishlist-get.spec.js
     api-user-get.spec.js
-    api-user-wishlist-put.spec.js
+    api-user-wishlist-save-post.spec.js
     api-user-contact-post.spec.js
     api-giver-retry-post.spec.js
     giverNotification.spec.js
@@ -126,7 +126,7 @@ spec/
     api-exchange-get.contract.spec.js
     api-user-wishlist-get.contract.spec.js
     api-user-get.contract.spec.js
-    api-user-wishlist-put.contract.spec.js
+    api-user-wishlist-save-post.contract.spec.js
     api-user-contact-post.contract.spec.js
     api-giver-retry-post.contract.spec.js
     api-recipient-get.contract.spec.js

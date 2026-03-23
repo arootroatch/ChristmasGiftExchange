@@ -23,7 +23,7 @@ All `api-*` endpoints use `apiHandler` wrapper and Zod validation:
 - **api-user-wishlist-get.mjs** — Returns recipient wishlist data for a giver viewing an exchange
 - **api-exchange-get.mjs** — Finds all exchanges for a user by email
 - **api-user-get.mjs** — Returns user data (name, wishlists, wishItems) by token
-- **api-user-wishlist-put.mjs** — Updates user wishlists/wishItems; notifies givers on first submission
+- **api-user-wishlist-save-post.mjs** — Updates user wishlists/wishItems (token in body); notifies givers on first submission
 - **api-user-contact-post.mjs** — Emails contact info to givers (not stored in DB)
 - **api-giver-retry-post.mjs** — Retries failed email sends for an exchange
 - **api-recipient-get.mjs** — Looks up recipient by giver email (new collections + legacy fallback)

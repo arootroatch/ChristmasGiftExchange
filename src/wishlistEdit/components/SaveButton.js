@@ -21,9 +21,9 @@ async function save(token, {wishlists, wishItems}) {
     btn.disabled = true;
     btn.textContent = "Saving...";
 
-    await apiFetch(`/.netlify/functions/api-user-wishlist-put/${token}`, {
-        method: "PUT",
-        body: {wishlists, wishItems},
+    await apiFetch("/.netlify/functions/api-user-wishlist-save-post", {
+        method: "POST",
+        body: {token, wishlists, wishItems},
         onSuccess: () => snackbar.showSuccess("Wishlist saved!"),
         onError: (msg) => snackbar.showError(msg),
         fallbackMessage: "Failed to save wishlist. Please try again.",

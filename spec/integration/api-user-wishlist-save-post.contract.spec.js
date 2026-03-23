@@ -1,7 +1,7 @@
 import {afterAll, afterEach, beforeAll, describe, expect, it, vi} from 'vitest';
 import {setupMongo, teardownMongo, cleanCollections, buildEvent, makeUser, seedUsers} from './contractHelper.js';
 
-describe('api-user-wishlist-put contract', () => {
+describe('api-user-wishlist-save-post contract', () => {
     let handler, db, mongo;
 
     beforeAll(async () => {
@@ -9,7 +9,7 @@ describe('api-user-wishlist-put contract', () => {
         vi.stubGlobal('fetch', vi.fn(() => Promise.resolve({ok: true})));
         mongo = await setupMongo();
         db = mongo.db;
-        const module = await import('../../netlify/functions/api-user-wishlist-put.mjs');
+        const module = await import('../../netlify/functions/api-user-wishlist-save-post.mjs');
         handler = module.handler;
     });
 
@@ -20,14 +20,15 @@ describe('api-user-wishlist-put contract', () => {
     });
 
     describe('request contract (FE → BE)', () => {
-        it('accepts PUT with wishlists and wishItems', async () => {
+        it('accepts POST with token, wishlists and wishItems', async () => {
             const user = makeUser({name: 'Alice', email: 'alice@test.com'});
             await seedUsers(db, user);
 
-            // Mirrors: src/wishlistEdit/components/SaveButton.js:30-33
-            const event = buildEvent('PUT', {
-                path: `/.netlify/functions/api-user-wishlist-put/${user.token}`,
+            // Mirrors: src/wishlistEdit/components/SaveButton.js
+            const event = buildEvent('POST', {
+                path: '/.netlify/functions/api-user-wishlist-save-post',
                 body: {
+                    token: user.token,
                     wishlists: [{url: 'https://amazon.com/list', title: 'My List'}],
                     wishItems: [{url: 'https://amazon.com/item', title: 'A Thing', price: '$15'}],
                 },
@@ -40,9 +41,9 @@ describe('api-user-wishlist-put contract', () => {
             const user = makeUser({name: 'Alice', email: 'alice@test.com'});
             await seedUsers(db, user);
 
-            const event = buildEvent('PUT', {
-                path: `/.netlify/functions/api-user-wishlist-put/${user.token}`,
-                body: {wishlists: [], wishItems: []},
+            const event = buildEvent('POST', {
+                path: '/.netlify/functions/api-user-wishlist-save-post',
+                body: {token: user.token, wishlists: [], wishItems: []},
             });
             const response = await handler(event);
             expect(response.statusCode).toBe(200);
@@ -52,9 +53,10 @@ describe('api-user-wishlist-put contract', () => {
             const user = makeUser({name: 'Alice', email: 'alice@test.com'});
             await seedUsers(db, user);
 
-            const event = buildEvent('PUT', {
-                path: `/.netlify/functions/api-user-wishlist-put/${user.token}`,
+            const event = buildEvent('POST', {
+                path: '/.netlify/functions/api-user-wishlist-save-post',
                 body: {
+                    token: user.token,
                     wishlists: [{url: 'not-a-url', title: 'Bad'}],
                     wishItems: [],
                 },
@@ -69,9 +71,10 @@ describe('api-user-wishlist-put contract', () => {
             const user = makeUser({name: 'Alice', email: 'alice@test.com'});
             await seedUsers(db, user);
 
-            const event = buildEvent('PUT', {
-                path: `/.netlify/functions/api-user-wishlist-put/${user.token}`,
+            const event = buildEvent('POST', {
+                path: '/.netlify/functions/api-user-wishlist-save-post',
                 body: {
+                    token: user.token,
                     wishlists: [{url: 'https://amazon.com/list', title: 'My List'}],
                     wishItems: [],
                 },
@@ -79,7 +82,6 @@ describe('api-user-wishlist-put contract', () => {
             const response = await handler(event);
             const body = JSON.parse(response.body);
 
-            // FE doesn't currently use these fields but they're the contract
             expect(body).toHaveProperty('success');
             expect(body).toHaveProperty('notifiedGivers');
             expect(typeof body.success).toBe('boolean');
