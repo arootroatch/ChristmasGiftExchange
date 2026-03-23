@@ -6,18 +6,12 @@ import {ObjectId} from 'mongodb';
 describe('wishlistNotification', () => {
     describe('render', () => {
         it('renders recipient name in notification message', () => {
-            const html = render({recipientName: 'Alex', wishlistViewUrl: 'https://example.com/view'});
+            const html = render({recipientName: 'Alex'});
             expect(html).toContain('Alex has added a wishlist');
         });
 
-        it('renders view wishlist button with URL', () => {
-            const html = render({recipientName: 'Alex', wishlistViewUrl: 'https://example.com/view'});
-            expect(html).toContain('View Their Wishlist');
-            expect(html).toContain('https://example.com/view');
-        });
-
         it('includes shared layout footer', () => {
-            const html = render({recipientName: 'Alex', wishlistViewUrl: 'https://example.com/view'});
+            const html = render({recipientName: 'Alex'});
             expect(html).toContain('Happy gift giving!');
         });
     });
@@ -38,15 +32,14 @@ describe('wishlistNotification', () => {
             await teardownMongo(mongo);
         });
 
-        it('returns recipient name and wishlist view URL using giver token', async () => {
+        it('returns recipient name', async () => {
             const giverId = new ObjectId();
             const recipientId = new ObjectId();
-            const giverToken = crypto.randomUUID();
             const exchangeId = crypto.randomUUID();
 
             await db.collection('users').insertMany([
-                {_id: giverId, name: 'Whitney', email: 'w@test.com', token: giverToken, wishlists: [], wishItems: []},
-                {_id: recipientId, name: 'Alex', email: 'a@test.com', token: crypto.randomUUID(),
+                {_id: giverId, name: 'Whitney', email: 'w@test.com', wishlists: [], wishItems: []},
+                {_id: recipientId, name: 'Alex', email: 'a@test.com',
                     wishlists: [{url: 'https://amazon.com/list', title: 'My List'}], wishItems: []},
             ]);
             await db.collection('exchanges').insertOne({
@@ -61,8 +54,6 @@ describe('wishlistNotification', () => {
             const data = await getData(db);
 
             expect(data.recipientName).toBe('Alex');
-            expect(data.wishlistViewUrl).toContain(`/wishlist/view?user=${giverToken}`);
-            expect(data.wishlistViewUrl).toContain(`exchange=${exchangeId}`);
         });
     });
 });

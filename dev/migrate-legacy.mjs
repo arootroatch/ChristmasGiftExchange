@@ -1,5 +1,3 @@
-import crypto from 'crypto';
-
 export async function migrateLegacyData(db, legacyCollectionName, options = {}) {
     const {dryRun = false} = options;
     const legacyCol = db.collection(legacyCollectionName);
@@ -48,7 +46,6 @@ export async function migrateLegacyData(db, legacyCollectionName, options = {}) 
             {
                 $set: {name: doc.name, email: doc.email},
                 $setOnInsert: {
-                    token: crypto.randomUUID(),
                     wishlists: [],
                     wishItems: [],
                 },

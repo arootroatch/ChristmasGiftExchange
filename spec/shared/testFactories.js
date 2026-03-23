@@ -1,11 +1,10 @@
 import {ObjectId} from 'mongodb';
 
-export function makeUser({name, email, token, wishlists, wishItems, _id} = {}) {
+export function makeUser({name, email, wishlists, wishItems, _id} = {}) {
     return {
         _id: _id ?? new ObjectId(),
         name: name ?? 'Test User',
         email: email ?? 'test@test.com',
-        token: token ?? crypto.randomUUID(),
         wishlists: wishlists ?? [],
         wishItems: wishItems ?? [],
     };

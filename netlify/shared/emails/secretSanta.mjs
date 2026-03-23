@@ -1,81 +1,7 @@
 import {layout} from './layout.mjs';
-import {wishlistEditPath, wishlistViewPath} from '../links.mjs';
 import {escapeHtml} from './escapeHtml.mjs';
 
-export function render({name, recipient, token, wishlistEditUrl, wishlistViewUrl}) {
-    const viewColumn = `<td align="center" style="padding: 16px; font-size: 16px;" width="50%">
-            <p style="color: #555; margin: 0 0 12px 0;">
-                Need ideas for what to buy?
-            </p>
-            <a href="${escapeHtml(wishlistViewUrl)}"
-               style="display: inline-block; padding: 12px 28px; background-color: #198c0a;
-                      color: white; text-decoration: none; border-radius: 6px; font-size: 15px; font-weight: bold;">
-                View ${escapeHtml(recipient)}'s Wish List
-            </a>
-        </td>`;
-
-    const editColumn = `<td align="center" style="padding: 16px; font-size: 16px;" width="50%">
-            <p style="color: #555; margin: 0 0 12px 0;">
-                Want to share your wishlist?
-            </p>
-            <a href="${escapeHtml(wishlistEditUrl)}"
-               style="display: inline-block; padding: 12px 28px; background-color: #198c0a;
-                      color: white; text-decoration: none; border-radius: 6px; font-size: 15px; font-weight: bold;">
-                Add Your Wishlist
-            </a>
-        </td>`;
-
-    let wishlistCtas = '';
-    if (wishlistViewUrl && wishlistEditUrl) {
-        wishlistCtas = `<tr>
-        <td style="padding: 20px 30px;">
-            <table role="presentation" style="width: 100%; border-collapse: collapse;">
-                <tr>
-                    ${viewColumn}
-                    ${editColumn}
-                </tr>
-            </table>
-        </td>
-    </tr>`;
-    } else if (wishlistViewUrl) {
-        wishlistCtas = `<tr>
-        <td style="padding: 20px 30px;">
-            <table role="presentation" style="width: 100%; border-collapse: collapse;">
-                <tr>${viewColumn}</tr>
-            </table>
-        </td>
-    </tr>`;
-    } else if (wishlistEditUrl) {
-        wishlistCtas = `<tr>
-        <td style="padding: 20px 30px;">
-            <table role="presentation" style="width: 100%; border-collapse: collapse;">
-                <tr>${editColumn}</tr>
-            </table>
-        </td>
-    </tr>`;
-    }
-
-    const tokenSection = token ? `
-    <tr>
-        <td align="center" style="padding: 20px 50px; font-size: 16px; color: #555;">
-            <strong>Your personal token:</strong>
-        </td>
-    </tr>
-    <tr>
-        <td align="center" style="padding: 0 50px 10px;">
-            <span style="display: inline-block; font-size: 14px; font-family: monospace; color: #198c0a; font-weight: bold; padding: 12px 20px;
-                         background: #fff; border-radius: 8px; border: 2px solid #198c0a;
-                         box-shadow: 0 2px 8px rgba(0,0,0,0.08); word-break: break-all;">
-                ${escapeHtml(token)}
-            </span>
-        </td>
-    </tr>
-    <tr>
-        <td align="center" style="padding: 10px 50px 30px; font-size: 14px; color: #999;">
-            Save this token! You'll need it to look up your recipient on the website if you lose this email.
-        </td>
-    </tr>` : '';
-
+export function render({name, recipient}) {
     return layout(`
     <tr>
         <td align="center" style="padding-top: 50px; padding-bottom: 30px; font-size: 36px; color: #69292a;">
@@ -96,11 +22,9 @@ export function render({name, recipient, token, wishlistEditUrl, wishlistViewUrl
             </span>
         </td>
     </tr>
-    ${wishlistCtas}
-    ${tokenSection}
     <tr>
         <td align="center" style="padding: 30px 50px; font-size: 16px; color: #999;">
-            If you lose this email and your token, you can <a href="https://giftexchangegenerator.netlify.app/" style="color: #69292a;">request a new token</a> using your email address.
+            If you lose this email, you can look up your recipient at <a href="https://giftexchangegenerator.netlify.app/" style="color: #69292a;">giftexchangegenerator.netlify.app</a>.
         </td>
     </tr>`);
 }
@@ -114,7 +38,5 @@ export async function getData(db) {
     return {
         name: giver.name,
         recipient: recipient.name,
-        wishlistEditUrl: wishlistEditPath(giver.token),
-        wishlistViewUrl: wishlistViewPath(giver.token, exchange.exchangeId),
     };
 }

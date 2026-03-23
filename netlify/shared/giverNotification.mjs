@@ -1,5 +1,4 @@
 import {getUsersCollection, getExchangesCollection} from "./db.mjs";
-import {wishlistEditPath, wishlistViewPath, absoluteUrl} from "./links.mjs";
 
 export {sendNotificationEmail, sendBatchNotificationEmails} from "./emailDispatch.mjs";
 import {sendBatchNotificationEmails} from "./emailDispatch.mjs";
@@ -31,10 +30,6 @@ export async function forEachGiverOf(recipientUser, callback) {
 export async function sendBatchEmails(participants, assignments, userByEmail, exchangeId) {
     const messages = assignments.map(assignment => {
         const participant = participants.find(p => p.name === assignment.giver);
-        const user = userByEmail[participant.email];
-        const wishlistEditUrl = user ? absoluteUrl(wishlistEditPath(user.token)) : null;
-        const wishlistViewUrl = user ? absoluteUrl(wishlistViewPath(user.token, exchangeId)) : null;
-
         return {
             to: participant.email,
             templateName: "secret-santa",
@@ -42,9 +37,6 @@ export async function sendBatchEmails(participants, assignments, userByEmail, ex
             parameters: {
                 name: assignment.giver,
                 recipient: assignment.recipient,
-                token: user ? user.token : null,
-                wishlistEditUrl,
-                wishlistViewUrl,
             },
         };
     });

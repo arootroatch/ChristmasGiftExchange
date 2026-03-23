@@ -181,8 +181,8 @@ describe('sendBatchEmails', () => {
     ];
     const assignments = [{giver: 'Alex', recipient: 'Whitney'}, {giver: 'Whitney', recipient: 'Alex'}];
     const userByEmail = {
-        'alex@test.com': {token: 'alex-token'},
-        'whitney@test.com': {token: 'whitney-token'},
+        'alex@test.com': {},
+        'whitney@test.com': {},
     };
 
     function mockBatchSuccess(emails) {
@@ -229,16 +229,5 @@ describe('sendBatchEmails', () => {
         const alexMsg = body.find(m => m.To === 'alex@test.com');
         expect(alexMsg.HtmlBody).toContain('Alex');
         expect(alexMsg.HtmlBody).toContain('Whitney');
-        expect(alexMsg.HtmlBody).toContain('https://test.netlify.app/wishlist/edit?user=alex-token');
-        expect(alexMsg.HtmlBody).toContain('https://test.netlify.app/wishlist/view?user=alex-token&amp;exchange=exchange-123');
-    });
-
-    it('omits wishlist CTA when user not in userByEmail', async () => {
-        mockBatchSuccess(['alex@test.com', 'whitney@test.com']);
-        await sendBatchEmails(participants, assignments, {}, 'exchange-123');
-
-        const body = JSON.parse(fetch.mock.calls[0][1].body);
-        expect(body[0].HtmlBody).not.toContain('Add Your Wishlist');
-        expect(body[0].HtmlBody).not.toContain("Wish List");
     });
 });

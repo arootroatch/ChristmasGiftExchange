@@ -26,9 +26,9 @@ describe('forEachGiverOf', () => {
         const newGiverId = new ObjectId();
 
         await db.collection('users').insertMany([
-            {_id: recipientId, name: 'Bob', email: 'bob@test.com', token: 'bob-token', wishlists: [], wishItems: []},
-            {_id: oldGiverId, name: 'OldAlice', email: 'old@test.com', token: 'old-token', wishlists: [], wishItems: []},
-            {_id: newGiverId, name: 'NewAlice', email: 'new@test.com', token: 'new-token', wishlists: [], wishItems: []},
+            {_id: recipientId, name: 'Bob', email: 'bob@test.com', wishlists: [], wishItems: []},
+            {_id: oldGiverId, name: 'OldAlice', email: 'old@test.com', wishlists: [], wishItems: []},
+            {_id: newGiverId, name: 'NewAlice', email: 'new@test.com', wishlists: [], wishItems: []},
         ]);
 
         await db.collection('exchanges').insertMany([

@@ -16,7 +16,6 @@ export const userSchema = z.object({
     _id: z.instanceof(ObjectId).optional(),
     name: z.string(),
     email: z.email(),
-    token: z.uuid(),
     wishlists: z.array(wishlistSchema).default([]),
     wishItems: z.array(wishItemSchema).default([]),
 });

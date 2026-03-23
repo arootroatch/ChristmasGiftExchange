@@ -6,18 +6,12 @@ import {ObjectId} from 'mongodb';
 describe('wishlistLink', () => {
     describe('render', () => {
         it('renders recipient name', () => {
-            const html = render({recipientName: 'Hunter', wishlistViewUrl: 'https://example.com/view'});
+            const html = render({recipientName: 'Hunter'});
             expect(html).toContain("Hunter's");
         });
 
-        it('renders view wishlist button with URL', () => {
-            const html = render({recipientName: 'Hunter', wishlistViewUrl: 'https://example.com/view'});
-            expect(html).toContain('https://example.com/view');
-            expect(html).toContain("View Hunter's Wish List");
-        });
-
         it('includes shared layout footer', () => {
-            const html = render({recipientName: 'Hunter', wishlistViewUrl: 'https://example.com/view'});
+            const html = render({recipientName: 'Hunter'});
             expect(html).toContain('Happy gift giving!');
         });
     });
@@ -38,15 +32,14 @@ describe('wishlistLink', () => {
             await teardownMongo(mongo);
         });
 
-        it('returns recipientName and wishlistViewUrl', async () => {
+        it('returns recipientName', async () => {
             const giverId = new ObjectId();
             const recipientId = new ObjectId();
-            const giverToken = crypto.randomUUID();
             const exchangeId = crypto.randomUUID();
 
             await db.collection('users').insertMany([
-                {_id: giverId, name: 'Alex', email: 'a@test.com', token: giverToken, wishlists: [], wishItems: []},
-                {_id: recipientId, name: 'Hunter', email: 'h@test.com', token: crypto.randomUUID(), wishlists: [], wishItems: []},
+                {_id: giverId, name: 'Alex', email: 'a@test.com', wishlists: [], wishItems: []},
+                {_id: recipientId, name: 'Hunter', email: 'h@test.com', wishlists: [], wishItems: []},
             ]);
             await db.collection('exchanges').insertOne({
                 exchangeId,
@@ -60,8 +53,6 @@ describe('wishlistLink', () => {
             const data = await getData(db);
 
             expect(data.recipientName).toBe('Hunter');
-            expect(data.wishlistViewUrl).toContain(`/wishlist/view?user=${giverToken}`);
-            expect(data.wishlistViewUrl).toContain(`exchange=${exchangeId}`);
         });
     });
 });

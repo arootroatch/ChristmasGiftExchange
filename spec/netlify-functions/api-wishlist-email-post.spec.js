@@ -7,7 +7,6 @@ describe('api-wishlist-email-post', () => {
 
     const giverId = new ObjectId();
     const recipientId = new ObjectId();
-    const giverToken = crypto.randomUUID();
     const exchangeId = crypto.randomUUID();
 
     async function authCookie(userId) {
@@ -35,8 +34,8 @@ describe('api-wishlist-email-post', () => {
         mockFetch.mockClear();
 
         await db.collection('users').insertMany([
-            {_id: giverId, name: 'Alex', email: 'alex@test.com', token: giverToken, wishlists: [], wishItems: []},
-            {_id: recipientId, name: 'Hunter', email: 'hunter@test.com', token: 'recipient-token', wishlists: [], wishItems: []},
+            {_id: giverId, name: 'Alex', email: 'alex@test.com', wishlists: [], wishItems: []},
+            {_id: recipientId, name: 'Hunter', email: 'hunter@test.com', wishlists: [], wishItems: []},
         ]);
         await db.collection('exchanges').insertOne({
             exchangeId,
@@ -106,15 +105,11 @@ describe('api-wishlist-email-post', () => {
         const callBody = JSON.parse(mockFetch.mock.calls[0][1].body);
         expect(callBody.To).toBe('alex@test.com');
         expect(callBody.HtmlBody).toContain('Hunter');
-        expect(callBody.HtmlBody).toContain(
-            `https://test.netlify.app/wishlist/view?user=${giverToken}&amp;exchange=${exchangeId}`
-        );
     });
 
     it('does not expose any tokens in the response', async () => {
         const response = await handler(buildEvent({exchangeId}, {cookie: await authCookie(giverId)}));
         const responseText = response.body;
-        expect(responseText).not.toContain(giverToken);
-        expect(responseText).not.toContain('recipient-token');
+        expect(responseText).not.toContain('token');
     });
 });

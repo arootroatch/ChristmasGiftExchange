@@ -183,15 +183,13 @@ describe('api-giver-retry-post', () => {
         expect(errorAlertBody.HtmlBody).toContain('whitney@test.com');
     });
 
-    it('builds wishlistEditUrl from DB token and process.env.URL', async () => {
+    it('sends email without token-based URLs', async () => {
         mockBatchResponse(['alex@test.com', 'whitney@test.com', 'hunter@test.com']);
         const event = buildEvent('POST', {body: {exchangeId: exchange.exchangeId}, headers: {cookie: await authCookie(organizer._id)}});
         await handler(event);
 
         const body = JSON.parse(mockFetch.mock.calls[0][1].body);
         const alexMsg = body.find(m => m.To === 'alex@test.com');
-        expect(alexMsg.HtmlBody).toContain(
-            `https://test.netlify.app/wishlist/edit?user=${organizer.token}`
-        );
+        expect(alexMsg.HtmlBody).not.toContain('wishlist/edit?user=');
     });
 });

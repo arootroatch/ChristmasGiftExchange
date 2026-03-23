@@ -32,13 +32,10 @@ describe('wishItemSchema', () => {
 });
 
 describe('userSchema', () => {
-    const validToken = crypto.randomUUID();
-
     it('rejects invalid email', () => {
         const result = userSchema.safeParse({
             name: 'Alex',
             email: 'not-an-email',
-            token: validToken,
         });
         expect(result.success).toBe(false);
     });
@@ -47,25 +44,6 @@ describe('userSchema', () => {
         const result = userSchema.safeParse({
             name: 'Alex',
             email: 'alex@test.com',
-            token: validToken,
-        });
-        expect(result.success).toBe(true);
-    });
-
-    it('rejects invalid UUID token', () => {
-        const result = userSchema.safeParse({
-            name: 'Alex',
-            email: 'alex@test.com',
-            token: 'not-a-uuid',
-        });
-        expect(result.success).toBe(false);
-    });
-
-    it('accepts valid UUID token', () => {
-        const result = userSchema.safeParse({
-            name: 'Alex',
-            email: 'alex@test.com',
-            token: validToken,
         });
         expect(result.success).toBe(true);
     });

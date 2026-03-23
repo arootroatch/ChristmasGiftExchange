@@ -56,8 +56,8 @@ describe('api-email-preview-get', () => {
         const hunterId = new ObjectId();
 
         await db.collection('users').insertMany([
-            {_id: alexId, name: 'Alex', email: 'a@test.com', token: crypto.randomUUID(), wishlists: [], wishItems: []},
-            {_id: hunterId, name: 'Hunter', email: 'h@test.com', token: crypto.randomUUID(), wishlists: [], wishItems: []},
+            {_id: alexId, name: 'Alex', email: 'a@test.com', wishlists: [], wishItems: []},
+            {_id: hunterId, name: 'Hunter', email: 'h@test.com', wishlists: [], wishItems: []},
         ]);
         await db.collection('exchanges').insertOne({
             exchangeId: crypto.randomUUID(),

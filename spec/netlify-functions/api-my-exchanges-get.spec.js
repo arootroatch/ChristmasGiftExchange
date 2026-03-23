@@ -35,9 +35,9 @@ describe("api-my-exchanges-get", () => {
         const hunterId = new ObjectId();
 
         await db.collection("users").insertMany([
-            {_id: alexId, email: "alex@test.com", name: "Alex", token: "alex-token", wishlists: [], wishItems: []},
-            {_id: whitneyId, email: "whitney@test.com", name: "Whitney", token: "whitney-token", wishlists: [], wishItems: []},
-            {_id: hunterId, email: "hunter@test.com", name: "Hunter", token: "hunter-token", wishlists: [], wishItems: []},
+            {_id: alexId, email: "alex@test.com", name: "Alex", wishlists: [], wishItems: []},
+            {_id: whitneyId, email: "whitney@test.com", name: "Whitney", wishlists: [], wishItems: []},
+            {_id: hunterId, email: "hunter@test.com", name: "Hunter", wishlists: [], wishItems: []},
         ]);
 
         await db.collection("exchanges").insertMany([
@@ -133,7 +133,7 @@ describe("api-my-exchanges-get", () => {
     it("returns empty array when user has no exchanges", async () => {
         const userId = new ObjectId();
         await db.collection("users").insertOne({
-            _id: userId, email: "loner@test.com", name: "Loner", token: "loner-token", wishlists: [], wishItems: [],
+            _id: userId, email: "loner@test.com", name: "Loner", wishlists: [], wishItems: [],
         });
 
         const event = buildEvent("GET", {headers: {cookie: await authCookie(userId)}});

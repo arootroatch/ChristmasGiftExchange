@@ -34,7 +34,6 @@ describe('migrateLegacyData', () => {
 
         const users = await db.collection('users').find().toArray();
         expect(users).toHaveLength(3);
-        expect(users.every(u => u.token)).toBe(true);
         expect(users.every(u => Array.isArray(u.wishlists))).toBe(true);
         expect(users.every(u => Array.isArray(u.wishItems))).toBe(true);
 
@@ -97,11 +96,10 @@ describe('migrateLegacyData', () => {
         expect(exchanges).toHaveLength(1);
     });
 
-    it('preserves existing user wishlists and tokens', async () => {
+    it('preserves existing user wishlists', async () => {
         await db.collection('users').insertOne({
             name: 'Alex',
             email: 'alex@test.com',
-            token: 'existing-token-123',
             wishlists: [{url: 'https://amazon.com/list', title: 'My List'}],
             wishItems: [{url: 'https://amazon.com/item', title: 'Cool Thing', price: '$25'}],
         });
@@ -114,7 +112,6 @@ describe('migrateLegacyData', () => {
         await migrateLegacyData(db, 'names');
 
         const alex = await db.collection('users').findOne({email: 'alex@test.com'});
-        expect(alex.token).toBe('existing-token-123');
         expect(alex.wishlists).toHaveLength(1);
         expect(alex.wishItems).toHaveLength(1);
     });

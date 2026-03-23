@@ -125,7 +125,7 @@ describe('api-user-contact-post', () => {
         }));
 
         // Verify user document was NOT modified
-        const user = await db.collection('users').findOne({token: recipient.token});
+        const user = await db.collection('users').findOne({_id: recipient._id});
         expect(user.address).toBeUndefined();
         expect(user.phone).toBeUndefined();
         expect(user.notes).toBeUndefined();
