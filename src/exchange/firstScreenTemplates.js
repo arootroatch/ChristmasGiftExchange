@@ -28,35 +28,10 @@ export function introTemplate() {
   </div>`;
 }
 
-export const recipientSearchId = "recipientSearch";
-export const recipientSearchBtnId = "recipientSearchBtn";
 export const queryDivId = "query";
 
-export const recipientSearchInput =
-  `<div>
-        <input
-            type="password"
-            maxlength="100"
-            id="${recipientSearchId}"
-            placeholder="Paste your token here"
-        />
-        <button
-            type="submit"
-            class="button queryBtn"
-            id="${recipientSearchBtnId}"
-        >
-        Search it!
-        </button>
-    </div>`;
-
-export const recipientSearchInit =
-  `<label for="${recipientSearchId}">
-        Enter your token
-    </label>
-    ${recipientSearchInput}`;
-
 export function recipientSearchTemplate() {
-  return `<div id="${queryDivId}" class="recipientSearch">${recipientSearchInit}</div>`;
+  return `<div id="${queryDivId}" class="recipientSearch"></div>`;
 }
 
 export function reuseLinkTemplate() {

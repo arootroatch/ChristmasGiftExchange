@@ -1,15 +1,21 @@
-import {addEventListener, removeEventListener, selectElement, setLoadingState, escapeAttr, apiFetch} from "../../utils";
+import {addEventListener, selectElement, setLoadingState, escapeAttr, apiFetch} from "../../utils";
 import {ExchangeEvents as Events, exchangeEvents as stateEvents} from "../state.js";
-import {
-  recipientSearchId,
-  recipientSearchBtnId,
-  queryDivId,
-  recipientSearchInput,
-  recipientSearchInit,
-  recipientSearchTemplate,
-} from "../firstScreenTemplates.js";
+import {queryDivId, recipientSearchTemplate} from "../firstScreenTemplates.js";
+import {authGateTemplate, initAuthGate} from "../../authGate.js";
 
 const wishlistEmailBtnId = "wishlistEmailBtn";
+const recipientSearchBtnId = "recipientSearchBtn";
+
+const recipientSearchInput =
+  `<div>
+        <button
+            type="submit"
+            class="button queryBtn"
+            id="${recipientSearchBtnId}"
+        >
+        Search it!
+        </button>
+    </div>`;
 
 export function recipientSearchResult(date, giverName, recipient, exchangeId) {
   const who = giverName
@@ -27,7 +33,7 @@ export function recipientSearchResult(date, giverName, recipient, exchangeId) {
     ${recipientSearchInput}`;
 }
 
-function renderResult(results, token) {
+function renderResult(results) {
   const timestamp = Date.parse(results.date);
   const date = new Date(timestamp);
   const queryDiv = selectElement(`#${queryDivId}`);
@@ -37,46 +43,40 @@ function renderResult(results, token) {
 
   if (results.exchangeId) {
     addEventListener(`#${wishlistEmailBtnId}`, "click", (e) =>
-      sendWishlistEmail(e, token, results.exchangeId)
+      sendWishlistEmail(e, results.exchangeId)
     );
   }
 }
 
-function renderError(message = "Token not found!") {
+function renderError(message = "Something went wrong!") {
   const queryDiv = selectElement(`#${queryDivId}`);
   queryDiv.innerHTML = '<div style="color:rgba(255,100,100,0.9)"></div>';
   queryDiv.firstElementChild.textContent = message;
   setTimeout(() => {
-    queryDiv.innerHTML = recipientSearchInit;
-    addEventListener(`#${recipientSearchBtnId}`, "click", getName);
+    renderAuthGate();
   }, 2000);
 }
 
-function renderLoadingState() {
-  setLoadingState(`#${recipientSearchBtnId}`);
-  removeEventListener(`#${recipientSearchBtnId}`, "click", getName);
-}
-
 async function getName(e) {
-  e.preventDefault();
-  const token = selectElement(`#${recipientSearchId}`).value;
-  renderLoadingState();
+  if (e) e.preventDefault();
+  const btn = document.querySelector(`#${recipientSearchBtnId}`);
+  if (btn) setLoadingState(`#${recipientSearchBtnId}`);
 
   await apiFetch("/.netlify/functions/api-recipient-get", {
     method: "GET",
-    onSuccess: (data) => renderResult(data, token),
+    onSuccess: (data) => renderResult(data),
     onError: (msg) => renderError(msg),
-    fallbackMessage: "Token not found. Please try again.",
+    fallbackMessage: "Could not find your recipient. Please try again.",
   });
 }
 
-async function sendWishlistEmail(e, token, exchangeId) {
+async function sendWishlistEmail(e, exchangeId) {
   e.preventDefault();
   setLoadingState(`#${wishlistEmailBtnId}`);
 
   await apiFetch("/.netlify/functions/api-wishlist-email-post", {
     method: "POST",
-    body: {token, exchangeId},
+    body: {exchangeId},
     onSuccess: () => {
       const btn = selectElement(`#${wishlistEmailBtnId}`);
       btn.textContent = "Email sent!";
@@ -91,9 +91,18 @@ async function sendWishlistEmail(e, token, exchangeId) {
   });
 }
 
+function renderAuthGate() {
+  const queryDiv = selectElement(`#${queryDivId}`);
+  queryDiv.innerHTML = authGateTemplate({heading: "Find Your Recipient"});
+  initAuthGate({
+    onSuccess: () => getName(),
+    onError: (msg) => renderError(msg),
+  });
+}
+
 export function init() {
   selectElement('[data-slot="recipient-search"]').innerHTML = recipientSearchTemplate();
-  addEventListener(`#${recipientSearchBtnId}`, "click", getName);
+  renderAuthGate();
   stateEvents.on(Events.EXCHANGE_STARTED, () => {
     selectElement('[data-slot="recipient-search"]').innerHTML = "";
   });

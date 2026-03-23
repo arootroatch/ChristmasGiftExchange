@@ -3,10 +3,6 @@ import {
   introTemplate,
   introId,
   recipientSearchTemplate,
-  recipientSearchInput,
-  recipientSearchInit,
-  recipientSearchId,
-  recipientSearchBtnId,
   queryDivId,
   reuseLinkTemplate,
 } from "../../src/exchange/firstScreenTemplates";
@@ -43,24 +39,10 @@ describe("firstScreenTemplates", () => {
       expect(html).toContain('class="recipientSearch"');
     });
 
-    it("contains the search label", () => {
-      expect(recipientSearchTemplate()).toContain("Enter your token");
-    });
-
-    it("contains a password input with recipientSearchId", () => {
-      expect(recipientSearchTemplate()).toContain(`id="${recipientSearchId}"`);
-    });
-
-    it("contains a search button with recipientSearchBtnId", () => {
-      expect(recipientSearchTemplate()).toContain(`id="${recipientSearchBtnId}"`);
-    });
-  });
-
-  describe("recipientSearchInput", () => {
-    it("contains the password input and search button but not the label", () => {
-      expect(recipientSearchInput).toContain(`id="${recipientSearchId}"`);
-      expect(recipientSearchInput).toContain(`id="${recipientSearchBtnId}"`);
-      expect(recipientSearchInput).not.toContain("Enter your token");
+    it("returns an empty container div", () => {
+      const html = recipientSearchTemplate();
+      expect(html).not.toContain("password");
+      expect(html).not.toContain("token");
     });
   });
 
