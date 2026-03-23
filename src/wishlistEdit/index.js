@@ -1,3 +1,4 @@
+import {apiFetch} from '../utils.js';
 import * as snackbar from '../Snackbar.js';
 import * as cookieBanner from '../CookieBanner.js';
 import * as greeting from './components/Greeting.js';
@@ -6,35 +7,65 @@ import * as itemList from './components/ItemList.js';
 import * as saveButton from './components/SaveButton.js';
 import * as contactForm from './components/ContactForm.js';
 import {setUserData} from './state.js';
+import {authGateTemplate, initAuthGate} from '../authGate.js';
 
-function extractToken() {
-    const token = new URLSearchParams(window.location.search).get("user") || "";
-    history.replaceState(null, '', window.location.pathname);
-    return token;
+function hasLegacyToken() {
+    return new URLSearchParams(window.location.search).has("user");
 }
 
-function redirectWithError() {
-    sessionStorage.setItem("snackbarError", "Invalid wishlist link");
-    window.location.href = "/";
+function showAuthGate(message) {
+    const container = document.getElementById("container");
+    container.innerHTML = `
+        ${message ? `<p class="auth-message">${message}</p>` : ''}
+        ${authGateTemplate()}
+    `;
+    initAuthGate({
+        onSuccess: () => {
+            container.innerHTML = pageSlots();
+            initPage();
+            loadPage();
+        },
+        onError: (msg) => snackbar.showError(msg),
+    });
 }
 
-async function loadUser() {
-    const response = await fetch("/.netlify/functions/api-user-get");
-    if (!response.ok) {
-        redirectWithError();
-        return;
-    }
-    return await response.json();
+function pageSlots() {
+    return `
+    <div data-slot="greeting"></div>
+    <div data-slot="wishlists"></div>
+    <div data-slot="items"></div>
+    <div data-slot="save"></div>
+    <hr/>
+    <div data-slot="contact"></div>`;
 }
 
-export function main() {
-    const token = extractToken();
-    snackbar.init();
-    cookieBanner.init();
+function initPage() {
     greeting.init();
     wishlistList.init();
     itemList.init();
     saveButton.init();
-    contactForm.init(token);
-    loadUser().then(r => (r && setUserData(r)));
+    contactForm.init();
+}
+
+function loadPage() {
+    apiFetch("/.netlify/functions/api-user-get", {
+        method: "GET",
+        onSuccess: (data) => setUserData(data),
+        onError: () => {
+            showAuthGate();
+        },
+    });
+}
+
+export function main() {
+    snackbar.init();
+    cookieBanner.init();
+
+    if (hasLegacyToken()) {
+        showAuthGate("This link has expired. Enter your email to get a new verification code.");
+        return;
+    }
+
+    initPage();
+    loadPage();
 }

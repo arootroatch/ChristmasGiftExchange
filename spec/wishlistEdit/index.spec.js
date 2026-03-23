@@ -24,25 +24,20 @@ function proxyWindow(domWindow) {
         search: loc.search,
         href: loc.href,
     };
-    const historyMock = {
-        replaceState: vi.fn(),
-    };
     return new Proxy(domWindow, {
         get(target, prop) {
             if (prop === "location") return locationMock;
-            if (prop === "history") return historyMock;
             return Reflect.get(target, prop);
         },
     });
 }
 
-function setupDOM(url = "http://localhost/wishlist/edit?user=abc-123-token") {
+function setupDOM(url = "http://localhost/wishlist/edit") {
     dom = new JSDOM(html, {url});
     document = dom.window.document;
     window = proxyWindow(dom.window);
     globalThis.document = document;
     globalThis.window = window;
-    globalThis.history = window.history;
     globalThis.sessionStorage = window.sessionStorage;
 }
 
@@ -52,6 +47,19 @@ function mockFetch(response) {
         status: response.status || 200,
         json: () => Promise.resolve(response.body),
     }));
+    globalThis.fetch = window.fetch;
+}
+
+function mockFetchSequence(responses) {
+    let callIndex = 0;
+    window.fetch = vi.fn(() => {
+        const response = responses[callIndex++] || responses[responses.length - 1];
+        return Promise.resolve({
+            ok: response.ok !== undefined ? response.ok : true,
+            status: response.status || 200,
+            json: () => Promise.resolve(response.body),
+        });
+    });
     globalThis.fetch = window.fetch;
 }
 
@@ -89,27 +97,8 @@ describe("Wishlist Edit Page", () => {
             loadModule();
             await flush();
             expect(window.fetch).toHaveBeenCalledWith(
-                "/.netlify/functions/api-user-get"
-            );
-        });
-
-        it("strips token from URL bar after reading it", async () => {
-            mockFetch({
-                body: {name: "John", wishlists: [], wishItems: []},
-            });
-            loadModule();
-            expect(window.history.replaceState).toHaveBeenCalledWith(
-                null, '', '/wishlist/edit'
-            );
-        });
-
-        it("sets snackbar error and redirects when user not found", async () => {
-            window.sessionStorage.clear();
-            mockFetch({ok: false, status: 404, body: {error: "User not found"}});
-            loadModule();
-            await flush();
-            expect(window.sessionStorage.getItem("snackbarError")).toBe(
-                "Invalid wishlist link"
+                "/.netlify/functions/api-user-get",
+                expect.objectContaining({method: "GET"})
             );
         });
 
@@ -141,6 +130,80 @@ describe("Wishlist Edit Page", () => {
             const list = document.getElementById("items-list");
             expect(list.innerHTML).toContain("Cool Thing");
             expect(list.innerHTML).toContain("https://example.com/product");
+        });
+    });
+
+    describe("auth gate", () => {
+        it("shows auth gate when api-user-get returns 401", async () => {
+            mockFetch({ok: false, status: 401, body: {error: "Unauthorized"}});
+            loadModule();
+            await flush();
+            expect(document.getElementById("auth-gate")).toBeTruthy();
+            expect(document.getElementById("auth-email")).toBeTruthy();
+        });
+
+        it("loads page after successful auth gate verification", async () => {
+            mockFetchSequence([
+                {ok: false, status: 401, body: {error: "Unauthorized"}},
+                {ok: true, body: {success: true}},
+                {ok: true, body: {success: true}},
+                {ok: true, body: {name: "Jane", wishlists: [], wishItems: []}},
+            ]);
+            loadModule();
+            await flush();
+
+            document.getElementById("auth-email").value = "jane@example.com";
+            document.getElementById("auth-send-code").click();
+            await flush();
+
+            document.getElementById("auth-code").value = "123456";
+            document.getElementById("auth-verify-code").click();
+            await flush();
+
+            expect(document.getElementById("greeting").textContent).toBe(
+                "Hi Jane, add your wishlist!"
+            );
+        });
+    });
+
+    describe("legacy link fallback", () => {
+        it("shows expired link message and auth gate when URL has ?user= param", async () => {
+            setupDOM("http://localhost/wishlist/edit?user=abc-123-token");
+            loadModule();
+
+            expect(document.querySelector(".auth-message").textContent).toBe(
+                "This link has expired. Enter your email to get a new verification code."
+            );
+            expect(document.getElementById("auth-gate")).toBeTruthy();
+        });
+
+        it("does not call api-user-get when URL has legacy token", () => {
+            setupDOM("http://localhost/wishlist/edit?user=abc-123-token");
+            mockFetch({body: {name: "John", wishlists: [], wishItems: []}});
+            loadModule();
+            expect(window.fetch).not.toHaveBeenCalled();
+        });
+
+        it("loads page after auth gate from legacy link", async () => {
+            setupDOM("http://localhost/wishlist/edit?user=old-token");
+            mockFetchSequence([
+                {ok: true, body: {success: true}},
+                {ok: true, body: {success: true}},
+                {ok: true, body: {name: "Bob", wishlists: [], wishItems: []}},
+            ]);
+            loadModule();
+
+            document.getElementById("auth-email").value = "bob@example.com";
+            document.getElementById("auth-send-code").click();
+            await flush();
+
+            document.getElementById("auth-code").value = "654321";
+            document.getElementById("auth-verify-code").click();
+            await flush();
+
+            expect(document.getElementById("greeting").textContent).toBe(
+                "Hi Bob, add your wishlist!"
+            );
         });
     });
 
@@ -429,7 +492,7 @@ describe("Wishlist Edit Page", () => {
             await flush();
         }
 
-        it("sends POST request with token and contact info in body", async () => {
+        it("sends POST request with contact info in body", async () => {
             await loadWithUser();
 
             document.getElementById("contact-address").value = "123 Main St";
@@ -445,7 +508,6 @@ describe("Wishlist Edit Page", () => {
                 expect.objectContaining({
                     method: "POST",
                     body: JSON.stringify({
-                        token: "abc-123-token",
                         address: "123 Main St",
                         phone: "555-1234",
                         notes: "Ring the doorbell",
@@ -528,34 +590,6 @@ describe("Wishlist Edit Page", () => {
             expect(snackbar.textContent).toBe("Please fill in at least one field");
             expect(snackbar.classList.contains("show")).toBe(true);
             expect(snackbar.style.color).toBe("rgb(255, 255, 255)");
-        });
-    });
-
-    describe("auth failure", () => {
-        function setupNoTokenDOM(url) {
-            vi.resetModules();
-            dom = new JSDOM(html, {url});
-            document = dom.window.document;
-            window = proxyWindow(dom.window);
-            globalThis.document = document;
-            globalThis.window = window;
-            globalThis.sessionStorage = window.sessionStorage;
-            window.fetch = vi.fn();
-            globalThis.fetch = window.fetch;
-            window.sessionStorage.clear();
-        }
-
-        it("sets snackbar error when API returns 404", async () => {
-            setupNoTokenDOM("http://localhost/wishlist/edit?user=bad-token");
-            window.fetch = vi.fn(() => Promise.resolve({
-                ok: false, status: 404,
-                json: () => Promise.resolve({error: "User not found"}),
-            }));
-            globalThis.fetch = window.fetch;
-            const {main: freshMain} = await import("../../src/wishlistEdit/index.js");
-            freshMain();
-            await flush();
-            expect(window.sessionStorage.getItem("snackbarError")).toBe("Invalid wishlist link");
         });
     });
 

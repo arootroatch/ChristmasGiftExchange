@@ -15,12 +15,12 @@ function template() {
     </section>`;
 }
 
-export function init(token) {
+export function init() {
     selectElement('[data-slot="contact"]').innerHTML = template();
-    addEventListener("#send-contact-btn", "click", () => send(token));
+    addEventListener("#send-contact-btn", "click", () => send());
 }
 
-async function send(token) {
+async function send() {
     const address = selectElement("#contact-address").value.trim();
     const phone = selectElement("#contact-phone").value.trim();
     const notes = selectElement("#contact-notes").value.trim();
@@ -36,7 +36,7 @@ async function send(token) {
 
     await apiFetch("/.netlify/functions/api-user-contact-post", {
         method: "POST",
-        body: {token, address, phone, notes},
+        body: {address, phone, notes},
         onSuccess: () => {
             snackbar.showSuccess("Contact info sent to your Secret Santa!");
             selectElement("#contact-address").value = "";
