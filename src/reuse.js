@@ -1,6 +1,7 @@
 import {escape, escapeAttr, apiFetch} from './utils.js';
 import * as snackbar from './Snackbar.js';
 import * as cookieBanner from './CookieBanner.js';
+import {authGateTemplate, initAuthGate} from './authGate.js';
 
 async function searchExchanges() {
     const btn = document.getElementById("reuse-search-btn");
@@ -48,12 +49,20 @@ function useExchange(event) {
     window.location.href = "/";
 }
 
+function showSearchSection() {
+    document.getElementById("auth-gate").style.display = "none";
+    document.getElementById("search-section").style.display = "";
+}
+
 export function main() {
     snackbar.init();
     cookieBanner.init();
 
-    document.getElementById("reuse-search-btn").addEventListener("click", searchExchanges);
-    document.getElementById("reuse-token").addEventListener("keydown", (e) => {
-        if (e.key === "Enter") searchExchanges();
+    document.getElementById("auth-container").innerHTML = authGateTemplate({heading: "Verify your email to find past exchanges"});
+    initAuthGate({
+        onSuccess: () => showSearchSection(),
+        onError: (msg) => snackbar.showError(msg),
     });
+
+    document.getElementById("reuse-search-btn").addEventListener("click", searchExchanges);
 }

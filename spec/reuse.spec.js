@@ -47,6 +47,20 @@ function mockFetch(response) {
     globalThis.fetch = window.fetch;
 }
 
+function mockFetchSequence(responses) {
+    let callIndex = 0;
+    const fn = vi.fn(() => {
+        const response = responses[callIndex++] || responses[responses.length - 1];
+        return Promise.resolve({
+            ok: response.ok !== undefined ? response.ok : true,
+            status: response.status || 200,
+            json: () => Promise.resolve(response.body),
+        });
+    });
+    window.fetch = fn;
+    globalThis.fetch = fn;
+}
+
 function mockSessionStorage() {
     const store = {};
     const mock = {
@@ -59,6 +73,21 @@ function mockSessionStorage() {
         value: mock,
     });
     globalThis.sessionStorage = mock;
+}
+
+async function completeAuthGate() {
+    mockFetchSequence([
+        {body: {ok: true}},
+        {body: {ok: true}},
+    ]);
+
+    document.getElementById("auth-email").value = "test@example.com";
+    document.getElementById("auth-send-code").click();
+    await flush();
+
+    document.getElementById("auth-code").value = "123456";
+    document.getElementById("auth-verify-code").click();
+    await flush();
 }
 
 const sampleExchanges = [
@@ -107,19 +136,63 @@ describe("Reuse Exchange Page", () => {
         vi.restoreAllMocks();
     });
 
+    describe("auth gate", () => {
+        it("renders auth gate with email input", () => {
+            expect(document.getElementById("auth-gate")).not.toBeNull();
+            expect(document.getElementById("auth-email")).not.toBeNull();
+        });
+
+        it("search section is hidden before auth", () => {
+            expect(document.getElementById("search-section").style.display).toBe("none");
+        });
+
+        it("sends verification code when Send button clicked", async () => {
+            mockFetch({body: {ok: true}});
+
+            document.getElementById("auth-email").value = "test@example.com";
+            document.getElementById("auth-send-code").click();
+
+            await flush();
+            expect(window.fetch).toHaveBeenCalledWith(
+                "/.netlify/functions/api-auth-code-post",
+                expect.objectContaining({method: "POST"}),
+            );
+        });
+
+        it("shows code step after sending code", async () => {
+            mockFetch({body: {ok: true}});
+
+            document.getElementById("auth-email").value = "test@example.com";
+            document.getElementById("auth-send-code").click();
+
+            await flush();
+            expect(document.getElementById("auth-email-step").style.display).toBe("none");
+            expect(document.getElementById("auth-code-step").style.display).toBe("");
+        });
+
+        it("shows search section after successful verification", async () => {
+            await completeAuthGate();
+
+            expect(document.getElementById("auth-gate").style.display).toBe("none");
+            expect(document.getElementById("search-section").style.display).toBe("");
+        });
+
+        it("shows snackbar on auth error", async () => {
+            mockFetch({ok: false, status: 400, body: {error: "Invalid email"}});
+
+            document.getElementById("auth-email").value = "bad@example.com";
+            document.getElementById("auth-send-code").click();
+
+            await flush();
+            const snackbar = document.getElementById("snackbar");
+            expect(snackbar.textContent).toBe("Invalid email");
+            expect(snackbar.classList.contains("show")).toBe(true);
+        });
+    });
+
     describe("search", () => {
-        it("input field is type password", () => {
-            const input = document.getElementById("reuse-token");
-            expect(input.type).toBe("password");
-        });
-
-        it("label references token input", () => {
-            const label = document.querySelector('label[for="reuse-token"]');
-            expect(label).not.toBeNull();
-            expect(label.textContent).toContain("token");
-        });
-
         it("GETs from api-my-exchanges-get with cookie auth when search button clicked", async () => {
+            await completeAuthGate();
             mockFetch({body: sampleExchanges});
 
             document.getElementById("reuse-search-btn").click();
@@ -133,22 +206,8 @@ describe("Reuse Exchange Page", () => {
             );
         });
 
-        it("GETs exchanges when Enter key pressed in token input", async () => {
-            mockFetch({body: sampleExchanges});
-
-            const event = new dom.window.KeyboardEvent("keydown", {key: "Enter", bubbles: true});
-            document.getElementById("reuse-token").dispatchEvent(event);
-
-            await flush();
-            expect(window.fetch).toHaveBeenCalledWith(
-                "/.netlify/functions/api-my-exchanges-get",
-                expect.objectContaining({
-                    method: "GET",
-                })
-            );
-        });
-
         it("shows snackbar error when no exchanges found", async () => {
+            await completeAuthGate();
             mockFetch({body: []});
 
             document.getElementById("reuse-search-btn").click();
@@ -161,6 +220,7 @@ describe("Reuse Exchange Page", () => {
         });
 
         it("shows snackbar error when fetch fails", async () => {
+            await completeAuthGate();
             mockFetch({ok: false, status: 500, body: {error: "Server error"}});
 
             document.getElementById("reuse-search-btn").click();
@@ -173,6 +233,7 @@ describe("Reuse Exchange Page", () => {
         });
 
         it("shows generic error when non-ok response has no error field", async () => {
+            await completeAuthGate();
             mockFetch({ok: false, status: 400, body: {}});
 
             document.getElementById("reuse-search-btn").click();
@@ -183,6 +244,7 @@ describe("Reuse Exchange Page", () => {
         });
 
         it("shows generic error on network failure", async () => {
+            await completeAuthGate();
             window.fetch = vi.fn(() => Promise.reject(new Error("Network error")));
             globalThis.fetch = window.fetch;
 
@@ -196,6 +258,7 @@ describe("Reuse Exchange Page", () => {
 
     describe("render results", () => {
         it("displays exchange date and participant names", async () => {
+            await completeAuthGate();
             mockFetch({body: sampleExchanges});
 
             document.getElementById("reuse-search-btn").click();
@@ -208,6 +271,7 @@ describe("Reuse Exchange Page", () => {
         });
 
         it("displays house info when houses exist", async () => {
+            await completeAuthGate();
             mockFetch({body: sampleExchanges});
 
             document.getElementById("reuse-search-btn").click();
@@ -218,6 +282,7 @@ describe("Reuse Exchange Page", () => {
         });
 
         it("renders a Use This Exchange button per result", async () => {
+            await completeAuthGate();
             mockFetch({body: sampleExchanges});
 
             document.getElementById("reuse-search-btn").click();
@@ -230,6 +295,7 @@ describe("Reuse Exchange Page", () => {
 
     describe("use exchange", () => {
         it("stores exchange data in sessionStorage when Use This Exchange clicked", async () => {
+            await completeAuthGate();
             mockFetch({body: [sampleExchanges[0]]});
 
             document.getElementById("reuse-search-btn").click();
@@ -248,6 +314,8 @@ describe("Reuse Exchange Page", () => {
 
     describe("UI state", () => {
         it("disables search button and shows 'Searching...' during search", async () => {
+            await completeAuthGate();
+
             let resolvePromise;
             window.fetch = vi.fn(() => new Promise((resolve) => {
                 resolvePromise = resolve;
