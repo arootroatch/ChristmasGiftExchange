@@ -41,7 +41,7 @@ function userExchangeData(r, db, queryOrToken) {
 
         console.log(`\n${user.name} (${user.email})`);
         console.log(`  Exchanges: ${exs.length}`);
-        console.log(`  Edit wishlist: ${base}${wishlistEditPath(user.token)}`);
+        console.log(`  Edit wishlist: ${base}${wishlistEditPath()}`);
 
         for (const ex of exs) {
             console.log(`\n  Exchange: ${ex.exchangeId}`);
@@ -49,13 +49,13 @@ function userExchangeData(r, db, queryOrToken) {
             if (giverAssignment) {
                 const recipient = await usersCol.findOne({_id: giverAssignment.recipientId});
                 console.log(`    Recipient: ${recipient.name}`);
-                console.log(`    View ${recipient.name}'s wishlist: ${base}${wishlistViewPath(user.token, ex.exchangeId)}`);
+                console.log(`    View ${recipient.name}'s wishlist: ${base}${wishlistViewPath(ex.exchangeId)}`);
             }
             const recipientAssignment = ex.assignments.find(a => a.recipientId.equals(user._id));
             if (recipientAssignment) {
                 const giver = await usersCol.findOne({_id: recipientAssignment.giverId});
                 console.log(`    Secret Santa: ${giver.name}`);
-                console.log(`    View ${user.name}'s wishlist (as ${giver.name}): ${base}${wishlistViewPath(giver.token, ex.exchangeId)}`);
+                console.log(`    View ${user.name}'s wishlist (as ${giver.name}): ${base}${wishlistViewPath(ex.exchangeId)}`);
             }
         }
         console.log();
