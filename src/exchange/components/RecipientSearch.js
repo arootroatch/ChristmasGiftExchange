@@ -27,7 +27,7 @@ export function recipientSearchResult(date, giverName, recipient, exchangeId) {
     ${recipientSearchInput}`;
 }
 
-function renderResult(results, email) {
+function renderResult(results, token) {
   const timestamp = Date.parse(results.date);
   const date = new Date(timestamp);
   const queryDiv = selectElement(`#${queryDivId}`);
@@ -37,12 +37,12 @@ function renderResult(results, email) {
 
   if (results.exchangeId) {
     addEventListener(`#${wishlistEmailBtnId}`, "click", (e) =>
-      sendWishlistEmail(e, email, results.exchangeId)
+      sendWishlistEmail(e, token, results.exchangeId)
     );
   }
 }
 
-function renderError(message = "Email address not found!") {
+function renderError(message = "Token not found!") {
   const queryDiv = selectElement(`#${queryDivId}`);
   queryDiv.innerHTML = '<div style="color:rgba(255,100,100,0.9)"></div>';
   queryDiv.firstElementChild.textContent = message;
@@ -59,23 +59,25 @@ function renderLoadingState() {
 
 async function getName(e) {
   e.preventDefault();
-  const email = selectElement(`#${recipientSearchId}`).value;
+  const token = selectElement(`#${recipientSearchId}`).value;
   renderLoadingState();
 
-  await apiFetch(`/.netlify/functions/api-recipient-get?email=${encodeURIComponent(email)}`, {
-    onSuccess: (data) => renderResult(data, email),
+  await apiFetch("/.netlify/functions/api-recipient-post", {
+    method: "POST",
+    body: {token},
+    onSuccess: (data) => renderResult(data, token),
     onError: (msg) => renderError(msg),
-    fallbackMessage: "Email address not found. Please try again.",
+    fallbackMessage: "Token not found. Please try again.",
   });
 }
 
-async function sendWishlistEmail(e, email, exchangeId) {
+async function sendWishlistEmail(e, token, exchangeId) {
   e.preventDefault();
   setLoadingState(`#${wishlistEmailBtnId}`);
 
   await apiFetch("/.netlify/functions/api-wishlist-email-post", {
     method: "POST",
-    body: {email, exchangeId},
+    body: {token, exchangeId},
     onSuccess: () => {
       const btn = selectElement(`#${wishlistEmailBtnId}`);
       btn.textContent = "Email sent!";

@@ -35,10 +35,10 @@ export const queryDivId = "query";
 export const recipientSearchInput =
   `<div>
         <input
-            type="email"
+            type="password"
             maxlength="100"
             id="${recipientSearchId}"
-            placeholder="you@example.com"
+            placeholder="Paste your token here"
         />
         <button
             type="submit"
@@ -51,7 +51,7 @@ export const recipientSearchInput =
 
 export const recipientSearchInit =
   `<label for="${recipientSearchId}">
-        Need to know who you're buying a gift for?
+        Enter your token
     </label>
     ${recipientSearchInput}`;
 

@@ -44,14 +44,27 @@ describe("getName", () => {
         expect(recipientSearchBtn.disabled).toBe(true);
     })
 
-    it("fetches from api-recipient-get with email query param", () => {
+    it("has a password input field for token entry", () => {
+        const input = document.querySelector("#recipientSearch");
+        expect(input.type).toBe("password");
+    })
+
+    it("has a label saying 'Enter your token'", () => {
+        const label = document.querySelector('label[for="recipientSearch"]');
+        expect(label.textContent).toContain("Enter your token");
+    })
+
+    it("POSTs to api-recipient-post with token in body", () => {
         stubRecipientFetch({recipient: "Whitney", date: "2023-06-15T12:00:00.000Z"});
-        const emailInput = document.querySelector("#recipientSearch");
-        emailInput.value = "test@example.com";
+        const tokenInput = document.querySelector("#recipientSearch");
+        tokenInput.value = "abc123token";
         click("#recipientSearchBtn");
         expect(global.fetch).toHaveBeenCalledWith(
-            "/.netlify/functions/api-recipient-get?email=test%40example.com",
-            expect.objectContaining({})
+            "/.netlify/functions/api-recipient-post",
+            expect.objectContaining({
+                method: "POST",
+                body: JSON.stringify({token: "abc123token"}),
+            })
         );
     })
 
@@ -100,7 +113,7 @@ describe("getName", () => {
         expect(query.innerHTML).toContain(serverErrorMessage);
         vi.advanceTimersByTime(2000);
         expect(query.innerHTML).not.toContain(serverErrorMessage);
-        expect(query.innerHTML).toContain("Need to know who you're buying a gift for?");
+        expect(query.innerHTML).toContain("Enter your token");
         recipientSearchBtn = document.querySelector("#recipientSearchBtn");
         expect(recipientSearchBtn.innerHTML).toContain("Search it!");
         vi.useRealTimers();
@@ -127,7 +140,7 @@ describe("getName", () => {
             json: () => Promise.resolve({})
         }));
         click("#recipientSearchBtn");
-        await waitFor(() => expect(query.innerHTML).toContain("Email address not found. Please try again."));
+        await waitFor(() => expect(query.innerHTML).toContain("Token not found. Please try again."));
     });
 
     it("hides when exchange starts", () => {
@@ -153,10 +166,10 @@ describe("getName", () => {
         });
     });
 
-    it("sends wishlist email on button click", async () => {
+    it("sends wishlist email with token and exchangeId on button click", async () => {
         stubRecipientFetch({recipient: "Whitney", date: "2023-06-15T12:00:00.000Z", giverName: "Alex", exchangeId: "ex-123"});
-        const emailInput = document.querySelector("#recipientSearch");
-        emailInput.value = "alex@test.com";
+        const tokenInput = document.querySelector("#recipientSearch");
+        tokenInput.value = "abc123token";
         click("#recipientSearchBtn");
         await waitFor(() => {
             expect(query.innerHTML).toContain("Email Me");
@@ -174,7 +187,7 @@ describe("getName", () => {
                 "/.netlify/functions/api-wishlist-email-post",
                 expect.objectContaining({
                     method: "POST",
-                    body: JSON.stringify({email: "alex@test.com", exchangeId: "ex-123"}),
+                    body: JSON.stringify({token: "abc123token", exchangeId: "ex-123"}),
                 })
             );
         });
@@ -182,8 +195,8 @@ describe("getName", () => {
 
     it("shows success message after email sent", async () => {
         stubRecipientFetch({recipient: "Whitney", date: "2023-06-15T12:00:00.000Z", giverName: "Alex", exchangeId: "ex-123"});
-        const emailInput = document.querySelector("#recipientSearch");
-        emailInput.value = "alex@test.com";
+        const tokenInput = document.querySelector("#recipientSearch");
+        tokenInput.value = "abc123token";
         click("#recipientSearchBtn");
         await waitFor(() => expect(query.innerHTML).toContain("Email Me"));
 
@@ -203,8 +216,8 @@ describe("getName", () => {
 
     it("shows error message when wishlist email fails", async () => {
         stubRecipientFetch({recipient: "Whitney", date: "2023-06-15T12:00:00.000Z", giverName: "Alex", exchangeId: "ex-123"});
-        const emailInput = document.querySelector("#recipientSearch");
-        emailInput.value = "alex@test.com";
+        const tokenInput = document.querySelector("#recipientSearch");
+        tokenInput.value = "abc123token";
         click("#recipientSearchBtn");
         await waitFor(() => expect(query.innerHTML).toContain("Email Me"));
 

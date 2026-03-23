@@ -44,10 +44,10 @@ describe("firstScreenTemplates", () => {
     });
 
     it("contains the search label", () => {
-      expect(recipientSearchTemplate()).toContain("Need to know who you're buying a gift for?");
+      expect(recipientSearchTemplate()).toContain("Enter your token");
     });
 
-    it("contains an email input with recipientSearchId", () => {
+    it("contains a password input with recipientSearchId", () => {
       expect(recipientSearchTemplate()).toContain(`id="${recipientSearchId}"`);
     });
 
@@ -57,10 +57,10 @@ describe("firstScreenTemplates", () => {
   });
 
   describe("recipientSearchInput", () => {
-    it("contains the email input and search button but not the label", () => {
+    it("contains the password input and search button but not the label", () => {
       expect(recipientSearchInput).toContain(`id="${recipientSearchId}"`);
       expect(recipientSearchInput).toContain(`id="${recipientSearchBtnId}"`);
-      expect(recipientSearchInput).not.toContain("Need to know");
+      expect(recipientSearchInput).not.toContain("Enter your token");
     });
   });
 
