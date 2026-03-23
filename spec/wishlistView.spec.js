@@ -2,7 +2,6 @@ import {describe, it, expect, vi, beforeEach, afterEach} from "vitest";
 import fs from "fs";
 import path from "path";
 import {JSDOM} from "jsdom";
-import {serverErrorMessage} from "../src/utils";
 import {main} from "../src/wishlistView.js";
 
 const html = fs.readFileSync(
@@ -51,6 +50,21 @@ function mockFetch(response) {
     globalThis.fetch = window.fetch;
 }
 
+function mockFetchSequence(responses) {
+    let callIndex = 0;
+    const fn = vi.fn(() => {
+        const response = responses[callIndex] || responses[responses.length - 1];
+        callIndex++;
+        return Promise.resolve({
+            ok: response.ok !== undefined ? response.ok : true,
+            status: response.status || 200,
+            json: () => Promise.resolve(response.body),
+        });
+    });
+    window.fetch = fn;
+    globalThis.fetch = fn;
+}
+
 function mockSessionStorage() {
     const store = {};
     const mock = {
@@ -90,22 +104,6 @@ describe("Wishlist View Page", () => {
                     method: "GET",
                 })
             );
-        });
-
-        it("strips query params from URL bar after reading them", async () => {
-            setupDOM();
-            mockFetch({
-                body: {
-                    recipientName: "Jane",
-                    wishlists: [],
-                    wishItems: [],
-                },
-            });
-            mockSessionStorage();
-            main();
-
-            await flush();
-            expect(window.history.replaceState).toHaveBeenCalledWith(null, "", "/wishlist/view");
         });
 
         it("displays recipient name as heading", async () => {
@@ -191,20 +189,123 @@ describe("Wishlist View Page", () => {
         });
     });
 
-    describe("error handling", () => {
-        it("stores error in sessionStorage on 403", async () => {
+    describe("auth gate", () => {
+        it("shows auth gate on 401 response", async () => {
+            setupDOM();
+            mockFetch({ok: false, status: 401, body: {error: "Unauthorized"}});
+            mockSessionStorage();
+            main();
+
+            await flush();
+            expect(document.getElementById("auth-gate")).not.toBeNull();
+            expect(document.getElementById("auth-send-code")).not.toBeNull();
+        });
+
+        it("shows auth gate on any non-server error response", async () => {
             setupDOM();
             mockFetch({ok: false, status: 403, body: {error: "Access denied"}});
             mockSessionStorage();
             main();
 
             await flush();
-            expect(window.sessionStorage.setItem).toHaveBeenCalledWith(
-                "snackbarError",
-                "Access denied"
-            );
+            expect(document.getElementById("auth-gate")).not.toBeNull();
         });
 
+        it("retries GET after successful auth", async () => {
+            setupDOM();
+            mockFetchSequence([
+                {ok: false, status: 401, body: {error: "Unauthorized"}},
+                {ok: true, status: 200, body: {}},
+                {ok: true, status: 200, body: {}},
+                {ok: true, status: 200, body: {recipientName: "Jane", wishlists: [], wishItems: []}},
+            ]);
+            mockSessionStorage();
+            main();
+
+            await flush();
+            expect(document.getElementById("auth-gate")).not.toBeNull();
+
+            const emailInput = document.getElementById("auth-email");
+            emailInput.value = "test@example.com";
+            document.getElementById("auth-send-code").click();
+
+            await flush();
+            const codeInput = document.getElementById("auth-code");
+            codeInput.value = "123456";
+            document.getElementById("auth-verify-code").click();
+
+            await flush();
+            const lastCall = window.fetch.mock.calls[window.fetch.mock.calls.length - 1];
+            expect(lastCall[0]).toBe("/.netlify/functions/api-user-wishlist-get?exchangeId=exchange-id-456");
+        });
+
+        it("removes spinner when showing auth gate", async () => {
+            setupDOM();
+            mockFetch({ok: false, status: 401, body: {error: "Unauthorized"}});
+            mockSessionStorage();
+            main();
+
+            await flush();
+            expect(document.getElementById("loading-spinner")).toBeNull();
+        });
+    });
+
+    describe("legacy link fallback", () => {
+        it("shows expired message and auth gate when URL has user param", async () => {
+            setupDOM("/wishlist/view", "?exchange=exchange-id-456&user=some-token");
+            mockFetch({body: {}});
+            mockSessionStorage();
+            main();
+
+            await flush();
+            expect(document.getElementById("auth-gate")).not.toBeNull();
+            const container = document.getElementById("container");
+            expect(container.innerHTML).toContain("This link has expired");
+            expect(window.fetch).not.toHaveBeenCalled();
+        });
+
+        it("does not call API when legacy user param is present", async () => {
+            setupDOM("/wishlist/view", "?exchange=exchange-id-456&user=some-token");
+            mockFetch({body: {}});
+            mockSessionStorage();
+            main();
+
+            await flush();
+            expect(window.fetch).not.toHaveBeenCalled();
+        });
+    });
+
+    describe("exchange param preserved", () => {
+        it("preserves exchange param through auth gate flow", async () => {
+            setupDOM("/wishlist/view", "?exchange=my-exchange-id");
+            mockFetchSequence([
+                {ok: false, status: 401, body: {error: "Unauthorized"}},
+                {ok: true, status: 200, body: {}},
+                {ok: true, status: 200, body: {}},
+                {ok: true, status: 200, body: {recipientName: "Jane", wishlists: [], wishItems: []}},
+            ]);
+            mockSessionStorage();
+            main();
+
+            await flush();
+            expect(document.getElementById("auth-gate")).not.toBeNull();
+
+            const emailInput = document.getElementById("auth-email");
+            emailInput.value = "test@example.com";
+            document.getElementById("auth-send-code").click();
+
+            await flush();
+            const codeInput = document.getElementById("auth-code");
+            codeInput.value = "123456";
+            document.getElementById("auth-verify-code").click();
+
+            await flush();
+            const lastCall = window.fetch.mock.calls[window.fetch.mock.calls.length - 1];
+            expect(lastCall[0]).toBe("/.netlify/functions/api-user-wishlist-get?exchangeId=my-exchange-id");
+        });
+    });
+
+    describe("error handling", () => {
         it("stores error in sessionStorage when exchangeId is missing", async () => {
             setupDOM("/wishlist/view", "");
             mockFetch({body: {}});
@@ -218,20 +319,17 @@ describe("Wishlist View Page", () => {
             );
         });
 
-        it("stores error in sessionStorage on non-403 error", async () => {
+        it("shows auth gate on server error", async () => {
             setupDOM();
             mockFetch({ok: false, status: 500, body: {error: "Server error"}});
             mockSessionStorage();
             main();
 
             await flush();
-            expect(window.sessionStorage.setItem).toHaveBeenCalledWith(
-                "snackbarError",
-                serverErrorMessage
-            );
+            expect(document.getElementById("auth-gate")).not.toBeNull();
         });
 
-        it("stores error in sessionStorage on network failure", async () => {
+        it("shows auth gate on network failure", async () => {
             setupDOM();
             mockSessionStorage();
             window.fetch = vi.fn(() => Promise.reject(new Error("Network error")));
@@ -239,23 +337,7 @@ describe("Wishlist View Page", () => {
             main();
 
             await flush();
-            expect(window.sessionStorage.setItem).toHaveBeenCalledWith(
-                "snackbarError",
-                serverErrorMessage
-            );
-        });
-
-        it("shows generic error when non-ok response has no error field", async () => {
-            setupDOM();
-            mockFetch({ok: false, status: 400, body: {}});
-            mockSessionStorage();
-            main();
-
-            await flush();
-            expect(window.sessionStorage.setItem).toHaveBeenCalledWith(
-                "snackbarError",
-                "Something went wrong. Please try again."
-            );
+            expect(document.getElementById("auth-gate")).not.toBeNull();
         });
 
         it("does not fetch when exchangeId is empty", async () => {
