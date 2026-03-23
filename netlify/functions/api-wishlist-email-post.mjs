@@ -1,24 +1,25 @@
 import {z} from "zod";
-import {apiHandler, validateBody} from "../shared/middleware.mjs";
-import {ok, badRequest, unauthorized, notFound} from "../shared/responses.mjs";
+import {apiHandler, validateBody, requireAuth} from "../shared/middleware.mjs";
+import {ok, badRequest, notFound} from "../shared/responses.mjs";
 import {getUsersCollection, getExchangesCollection} from "../shared/db.mjs";
 import {sendNotificationEmail} from "../shared/giverNotification.mjs";
 import {wishlistViewPath, absoluteUrl} from "../shared/links.mjs";
 
 const requestSchema = z.object({
-    token: z.string(),
     exchangeId: z.string(),
 });
 
 export const handler = apiHandler("POST", async (event) => {
+    const authError = await requireAuth(event);
+    if (authError) return authError;
+
     const {data, error} = validateBody(requestSchema, event);
     if (error) return badRequest(error);
 
     const usersCol = await getUsersCollection();
     const exchangesCol = await getExchangesCollection();
 
-    const user = await usersCol.findOne({token: data.token});
-    if (!user) return unauthorized("Invalid token");
+    const user = event.user;
 
     const exchange = await exchangesCol.findOne({exchangeId: data.exchangeId});
     if (!exchange) return notFound("Exchange not found");

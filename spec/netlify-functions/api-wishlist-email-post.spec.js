@@ -10,6 +10,11 @@ describe('api-wishlist-email-post', () => {
     const giverToken = crypto.randomUUID();
     const exchangeId = crypto.randomUUID();
 
+    async function authCookie(userId) {
+        const {signSession} = await import("../../netlify/shared/jwt.mjs");
+        return `session=${await signSession(userId.toString())}`;
+    }
+
     beforeAll(async () => {
         mongo = await setupMongo();
         db = mongo.db;
@@ -17,6 +22,7 @@ describe('api-wishlist-email-post', () => {
         process.env.URL = 'https://test.netlify.app';
         process.env.POSTMARK_SERVER_TOKEN = 'test-postmark-token';
         process.env.CONTEXT = 'production';
+        process.env.JWT_SECRET = 'test-secret';
 
         mockFetch = vi.fn().mockResolvedValue({ok: true});
         vi.stubGlobal('fetch', mockFetch);
@@ -51,14 +57,15 @@ describe('api-wishlist-email-post', () => {
         delete process.env.URL;
         delete process.env.POSTMARK_SERVER_TOKEN;
         delete process.env.CONTEXT;
+        delete process.env.JWT_SECRET;
         await teardownMongo(mongo);
     });
 
-    function buildEvent(body) {
+    function buildEvent(body, headers = {}) {
         return {
             httpMethod: 'POST',
             body: JSON.stringify(body),
-            headers: {},
+            headers,
             path: '/.netlify/functions/api-wishlist-email-post',
         };
     }
@@ -68,38 +75,28 @@ describe('api-wishlist-email-post', () => {
         expect(response.statusCode).toBe(405);
     });
 
-    it('returns 400 for request with email instead of token', async () => {
-        const response = await handler(buildEvent({email: 'alex@test.com', exchangeId}));
-        expect(response.statusCode).toBe(400);
-    });
-
-    it('returns 400 for missing token', async () => {
+    it('returns 401 for missing cookie', async () => {
         const response = await handler(buildEvent({exchangeId}));
-        expect(response.statusCode).toBe(400);
-    });
-
-    it('returns 400 for missing exchangeId', async () => {
-        const response = await handler(buildEvent({token: giverToken}));
-        expect(response.statusCode).toBe(400);
-    });
-
-    it('returns 401 for invalid token', async () => {
-        const response = await handler(buildEvent({token: 'invalid-token', exchangeId}));
         expect(response.statusCode).toBe(401);
     });
 
+    it('returns 400 for missing exchangeId', async () => {
+        const response = await handler(buildEvent({}, {cookie: await authCookie(giverId)}));
+        expect(response.statusCode).toBe(400);
+    });
+
     it('returns 404 when exchange not found', async () => {
-        const response = await handler(buildEvent({token: giverToken, exchangeId: 'nonexistent'}));
+        const response = await handler(buildEvent({exchangeId: 'nonexistent'}, {cookie: await authCookie(giverId)}));
         expect(response.statusCode).toBe(404);
     });
 
     it('returns 404 when user is not a giver in the exchange', async () => {
-        const response = await handler(buildEvent({token: 'recipient-token', exchangeId}));
+        const response = await handler(buildEvent({exchangeId}, {cookie: await authCookie(recipientId)}));
         expect(response.statusCode).toBe(404);
     });
 
-    it('looks up user by token and sends wishlist link email', async () => {
-        const response = await handler(buildEvent({token: giverToken, exchangeId}));
+    it('looks up user by cookie and sends wishlist link email', async () => {
+        const response = await handler(buildEvent({exchangeId}, {cookie: await authCookie(giverId)}));
         expect(response.statusCode).toBe(200);
 
         const body = JSON.parse(response.body);
@@ -115,7 +112,7 @@ describe('api-wishlist-email-post', () => {
     });
 
     it('does not expose any tokens in the response', async () => {
-        const response = await handler(buildEvent({token: giverToken, exchangeId}));
+        const response = await handler(buildEvent({exchangeId}, {cookie: await authCookie(giverId)}));
         const responseText = response.body;
         expect(responseText).not.toContain(giverToken);
         expect(responseText).not.toContain('recipient-token');
