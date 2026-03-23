@@ -2,6 +2,10 @@ export function ok(data = {}) {
     return {statusCode: 200, body: JSON.stringify(data)};
 }
 
+export function okWithHeaders(data = {}, headers = {}) {
+    return {statusCode: 200, headers: {"Content-Type": "application/json", ...headers}, body: JSON.stringify(data)};
+}
+
 export function error(statusCode, message) {
     return {statusCode, body: JSON.stringify({error: message})};
 }
