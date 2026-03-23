@@ -4,11 +4,17 @@ import {setupMongo, teardownMongo, cleanCollections, buildEvent, makeUser, makeE
 describe('api-giver-retry-post contract', () => {
     let handler, db, mongo;
 
+    async function authCookie(userId) {
+        const {signSession} = await import("../../netlify/shared/jwt.mjs");
+        return `session=${await signSession(userId.toString())}`;
+    }
+
     beforeAll(async () => {
         vi.stubGlobal('fetch', vi.fn(() => Promise.resolve({
             ok: true,
             json: () => Promise.resolve([]),
         })));
+        process.env.JWT_SECRET = 'test-secret';
         process.env.URL = 'http://localhost:8888';
         process.env.POSTMARK_SERVER_TOKEN = 'test-token';
         process.env.CONTEXT = 'production';
@@ -21,6 +27,7 @@ describe('api-giver-retry-post contract', () => {
     afterEach(() => cleanCollections(db, 'users', 'exchanges', 'rateLimits'));
     afterAll(async () => {
         vi.unstubAllGlobals();
+        delete process.env.JWT_SECRET;
         delete process.env.URL;
         delete process.env.POSTMARK_SERVER_TOKEN;
         delete process.env.CONTEXT;
@@ -44,9 +51,9 @@ describe('api-giver-retry-post contract', () => {
     }
 
     describe('request contract (FE → BE)', () => {
-        it('accepts POST with token and exchangeId', async () => {
+        it('accepts POST with cookie and exchangeId', async () => {
             const {organizer, exchange} = await setupExchange();
-            const event = buildEvent('POST', {body: {token: organizer.token, exchangeId: exchange.exchangeId}});
+            const event = buildEvent('POST', {body: {exchangeId: exchange.exchangeId}, headers: {cookie: await authCookie(organizer._id)}});
             const response = await handler(event);
             expect(response.statusCode).toBe(200);
         });
@@ -54,22 +61,22 @@ describe('api-giver-retry-post contract', () => {
         it('accepts optional participantEmails filter', async () => {
             const {organizer, exchange} = await setupExchange();
             const event = buildEvent('POST', {body: {
-                token: organizer.token,
                 exchangeId: exchange.exchangeId,
                 participantEmails: ['alice@test.com'],
-            }});
+            }, headers: {cookie: await authCookie(organizer._id)}});
             const response = await handler(event);
             expect(response.statusCode).toBe(200);
         });
 
-        it('rejects request without token', async () => {
+        it('rejects request without cookie', async () => {
             const event = buildEvent('POST', {body: {exchangeId: 'some-id'}});
             const response = await handler(event);
-            expect(response.statusCode).toBe(400);
+            expect(response.statusCode).toBe(401);
         });
 
         it('rejects request without exchangeId', async () => {
-            const event = buildEvent('POST', {body: {token: 'some-token'}});
+            const {organizer} = await setupExchange();
+            const event = buildEvent('POST', {body: {}, headers: {cookie: await authCookie(organizer._id)}});
             const response = await handler(event);
             expect(response.statusCode).toBe(400);
         });
@@ -78,7 +85,7 @@ describe('api-giver-retry-post contract', () => {
     describe('response contract (BE → FE)', () => {
         it('response contains sent and total numbers', async () => {
             const {organizer, exchange} = await setupExchange();
-            const event = buildEvent('POST', {body: {token: organizer.token, exchangeId: exchange.exchangeId}});
+            const event = buildEvent('POST', {body: {exchangeId: exchange.exchangeId}, headers: {cookie: await authCookie(organizer._id)}});
             const response = await handler(event);
             const body = JSON.parse(response.body);
 
@@ -90,7 +97,7 @@ describe('api-giver-retry-post contract', () => {
 
         it('response contains sent, total, and emailsFailed', async () => {
             const {organizer, exchange} = await setupExchange();
-            const event = buildEvent('POST', {body: {token: organizer.token, exchangeId: exchange.exchangeId}});
+            const event = buildEvent('POST', {body: {exchangeId: exchange.exchangeId}, headers: {cookie: await authCookie(organizer._id)}});
             const response = await handler(event);
             const body = JSON.parse(response.body);
 

@@ -1,13 +1,14 @@
 import {afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi} from 'vitest';
-import crypto from 'crypto';
 import {setupMongo, teardownMongo, cleanCollections} from './mongoHelper.js';
 import {makeUser, makeExchange, buildEvent} from '../shared/testFactories.js';
 
 describe('api-giver-retry-post', () => {
     let db, handler, mongo, mockFetch;
 
-    const organizerToken = crypto.randomUUID();
-    const otherUserToken = crypto.randomUUID();
+    async function authCookie(userId) {
+        const {signSession} = await import("../../netlify/shared/jwt.mjs");
+        return `session=${await signSession(userId.toString())}`;
+    }
 
     let organizer, otherUser, participantA, participantB;
     let exchange;
@@ -16,6 +17,7 @@ describe('api-giver-retry-post', () => {
         mongo = await setupMongo();
         ({db} = mongo);
 
+        process.env.JWT_SECRET = 'test-secret';
         process.env.URL = 'https://test.netlify.app';
         process.env.POSTMARK_SERVER_TOKEN = 'test-postmark-token';
         process.env.CONTEXT = 'production';
@@ -33,8 +35,8 @@ describe('api-giver-retry-post', () => {
     beforeEach(async () => {
         mockFetch.mockClear();
 
-        organizer = makeUser({name: 'Alex', email: 'alex@test.com', token: organizerToken});
-        otherUser = makeUser({name: 'Stranger', email: 'stranger@test.com', token: otherUserToken});
+        organizer = makeUser({name: 'Alex', email: 'alex@test.com'});
+        otherUser = makeUser({name: 'Stranger', email: 'stranger@test.com'});
         participantA = makeUser({name: 'Whitney', email: 'whitney@test.com'});
         participantB = makeUser({name: 'Hunter', email: 'hunter@test.com'});
 
@@ -58,6 +60,7 @@ describe('api-giver-retry-post', () => {
 
     afterAll(async () => {
         vi.unstubAllGlobals();
+        delete process.env.JWT_SECRET;
         delete process.env.URL;
         delete process.env.POSTMARK_SERVER_TOKEN;
         delete process.env.CONTEXT;
@@ -82,33 +85,33 @@ describe('api-giver-retry-post', () => {
         expect(response.statusCode).toBe(405);
     });
 
-    it('returns 400 for missing token', async () => {
+    it('returns 401 for missing cookie', async () => {
         const event = buildEvent('POST', {body: {exchangeId: exchange.exchangeId}});
-        const response = await handler(event);
-        expect(response.statusCode).toBe(400);
-    });
-
-    it('returns 401 for invalid token', async () => {
-        const event = buildEvent('POST', {body: {token: 'invalid-token', exchangeId: exchange.exchangeId}});
         const response = await handler(event);
         expect(response.statusCode).toBe(401);
     });
 
-    it('returns 403 when token user is not the organizer', async () => {
-        const event = buildEvent('POST', {body: {token: otherUserToken, exchangeId: exchange.exchangeId}});
+    it('returns 401 for invalid cookie', async () => {
+        const event = buildEvent('POST', {body: {exchangeId: exchange.exchangeId}, headers: {cookie: 'session=invalid'}});
+        const response = await handler(event);
+        expect(response.statusCode).toBe(401);
+    });
+
+    it('returns 403 when authenticated user is not the organizer', async () => {
+        const event = buildEvent('POST', {body: {exchangeId: exchange.exchangeId}, headers: {cookie: await authCookie(otherUser._id)}});
         const response = await handler(event);
         expect(response.statusCode).toBe(403);
     });
 
     it('returns 404 for non-existent exchange', async () => {
-        const event = buildEvent('POST', {body: {token: organizerToken, exchangeId: 'non-existent'}});
+        const event = buildEvent('POST', {body: {exchangeId: 'non-existent'}, headers: {cookie: await authCookie(organizer._id)}});
         const response = await handler(event);
         expect(response.statusCode).toBe(404);
     });
 
     it('sends batch emails to all participants using DB data', async () => {
         mockBatchResponse(['alex@test.com', 'whitney@test.com', 'hunter@test.com']);
-        const event = buildEvent('POST', {body: {token: organizerToken, exchangeId: exchange.exchangeId}});
+        const event = buildEvent('POST', {body: {exchangeId: exchange.exchangeId}, headers: {cookie: await authCookie(organizer._id)}});
         const response = await handler(event);
 
         expect(response.statusCode).toBe(200);
@@ -125,10 +128,9 @@ describe('api-giver-retry-post', () => {
     it('filters to subset when participantEmails provided', async () => {
         mockBatchResponse(['alex@test.com']);
         const event = buildEvent('POST', {body: {
-            token: organizerToken,
             exchangeId: exchange.exchangeId,
             participantEmails: ['alex@test.com'],
-        }});
+        }, headers: {cookie: await authCookie(organizer._id)}});
         const response = await handler(event);
 
         expect(response.statusCode).toBe(200);
@@ -139,10 +141,9 @@ describe('api-giver-retry-post', () => {
 
     it('rejects participantEmails that do not exist in the exchange', async () => {
         const event = buildEvent('POST', {body: {
-            token: organizerToken,
             exchangeId: exchange.exchangeId,
             participantEmails: ['nobody@test.com'],
-        }});
+        }, headers: {cookie: await authCookie(organizer._id)}});
         const response = await handler(event);
         expect(response.statusCode).toBe(400);
 
@@ -152,7 +153,7 @@ describe('api-giver-retry-post', () => {
 
     it('returns sent, total, and emailsFailed', async () => {
         mockBatchResponse(['alex@test.com', 'whitney@test.com', 'hunter@test.com']);
-        const event = buildEvent('POST', {body: {token: organizerToken, exchangeId: exchange.exchangeId}});
+        const event = buildEvent('POST', {body: {exchangeId: exchange.exchangeId}, headers: {cookie: await authCookie(organizer._id)}});
         const response = await handler(event);
         const responseBody = JSON.parse(response.body);
 
@@ -168,7 +169,7 @@ describe('api-giver-retry-post', () => {
         );
         mockFetch.mockResolvedValueOnce({ok: true}); // error-alert
 
-        const event = buildEvent('POST', {body: {token: organizerToken, exchangeId: exchange.exchangeId}});
+        const event = buildEvent('POST', {body: {exchangeId: exchange.exchangeId}, headers: {cookie: await authCookie(organizer._id)}});
         const response = await handler(event);
         const responseBody = JSON.parse(response.body);
 
@@ -184,13 +185,13 @@ describe('api-giver-retry-post', () => {
 
     it('builds wishlistEditUrl from DB token and process.env.URL', async () => {
         mockBatchResponse(['alex@test.com', 'whitney@test.com', 'hunter@test.com']);
-        const event = buildEvent('POST', {body: {token: organizerToken, exchangeId: exchange.exchangeId}});
+        const event = buildEvent('POST', {body: {exchangeId: exchange.exchangeId}, headers: {cookie: await authCookie(organizer._id)}});
         await handler(event);
 
         const body = JSON.parse(mockFetch.mock.calls[0][1].body);
         const alexMsg = body.find(m => m.To === 'alex@test.com');
         expect(alexMsg.HtmlBody).toContain(
-            `https://test.netlify.app/wishlist/edit?user=${organizerToken}`
+            `https://test.netlify.app/wishlist/edit?user=${organizer.token}`
         );
     });
 });
