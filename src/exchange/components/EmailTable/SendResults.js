@@ -1,6 +1,6 @@
 import {addEventListener, pushHTML, selectElement, escapeAttr, apiFetch} from "../../../utils.js";
 import {showError} from "../../../Snackbar.js";
-import {completeExchange, getOrganizerToken} from "../../state.js";
+import {completeExchange} from "../../state.js";
 
 const confirmId = "sendResultsConfirm";
 const confirmBtnId = "sendResultsConfirmBtn";
@@ -48,11 +48,9 @@ export function showConfirmation(state) {
 async function submitResults({exchangeId}) {
   selectElement(`#${confirmId}`)?.remove();
 
-  const token = getOrganizerToken();
-
   await apiFetch("/.netlify/functions/api-results-email-post", {
     method: "POST",
-    body: {token, exchangeId},
+    body: {exchangeId},
     onSuccess: () => {
       completeExchange("success");
     },

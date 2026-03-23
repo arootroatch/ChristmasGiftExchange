@@ -187,10 +187,10 @@ describe('emailTable', () => {
       expect(body.participants.length).toBe(4);
     })
 
-    it("includes organizer token in the POST body", () => {
+    it("does not include token in the POST body", () => {
       const callArgs = global.fetch.mock.calls[0];
       const body = JSON.parse(callArgs[1].body);
-      expect(body.token).toBe("test-token");
+      expect(body.token).toBeUndefined();
     })
 
   })
@@ -315,7 +315,7 @@ describe('emailTable', () => {
   });
 
   describe("send results Continue button", () => {
-    it("removes confirmation and calls API with token and exchangeId on Continue", async () => {
+    it("removes confirmation and calls API with exchangeId on Continue", async () => {
       global.fetch = vi.fn(() => Promise.resolve({
         ok: true,
         status: 200,
@@ -333,7 +333,7 @@ describe('emailTable', () => {
         expect.objectContaining({method: "POST"})
       );
       const body = JSON.parse(global.fetch.mock.calls[0][1].body);
-      expect(body.token).toBe("test-token");
+      expect(body.token).toBeUndefined();
       expect(body.exchangeId).toBe(getState().exchangeId);
       expect(body.name).toBeUndefined();
       expect(body.email).toBeUndefined();

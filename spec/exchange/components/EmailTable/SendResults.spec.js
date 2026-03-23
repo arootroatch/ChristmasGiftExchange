@@ -51,7 +51,7 @@ describe("SendResults", () => {
       expect(document.querySelector("#sendResultsEmail")).toBeNull();
     });
 
-    it("calls api-results-email-post with token and exchangeId on Continue", async () => {
+    it("calls api-results-email-post with exchangeId on Continue", async () => {
       setupState();
       stubFetch(true, 200, {message: "sent"});
 
@@ -66,7 +66,7 @@ describe("SendResults", () => {
       expect(url).toBe("/.netlify/functions/api-results-email-post");
       expect(options.method).toBe("POST");
       const body = JSON.parse(options.body);
-      expect(body.token).toBe("test-token");
+      expect(body.token).toBeUndefined();
       expect(body.exchangeId).toBe(getState().exchangeId);
       expect(body.name).toBeUndefined();
       expect(body.email).toBeUndefined();

@@ -6,7 +6,6 @@ import {
   resetRetryCount,
 } from "../../../../src/exchange/components/EmailTable/FailedEmails";
 import * as state from "../../../../src/exchange/state";
-import {setOrganizer} from "../../../../src/exchange/state";
 import {shouldDisplaySuccessSnackbar} from "../../../specHelper";
 
 const failedParticipants = [
@@ -84,8 +83,7 @@ describe("FailedEmails", () => {
       expect(() => document.querySelector("#backToEmailsBtn").click()).not.toThrow();
     });
 
-    it("sends token and participantEmails to api-giver-retry-post on retry", async () => {
-      setOrganizer("Organizer", "org@test.com", "test-token");
+    it("sends exchangeId and participantEmails to api-giver-retry-post on retry", async () => {
       showFailedEmails(["alex@test.com"], payload);
 
       document.querySelector("#retryEmailsBtn").click();
@@ -94,7 +92,7 @@ describe("FailedEmails", () => {
       const callArgs = global.fetch.mock.calls[0];
       expect(callArgs[0]).toBe("/.netlify/functions/api-giver-retry-post");
       const body = JSON.parse(callArgs[1].body);
-      expect(body.token).toBe("test-token");
+      expect(body.token).toBeUndefined();
       expect(body.exchangeId).toBe("test-exchange-id");
       expect(body.participantEmails).toEqual(["alex@test.com"]);
       expect(body.participants).toBeUndefined();
