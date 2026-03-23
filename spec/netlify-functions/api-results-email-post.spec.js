@@ -1,16 +1,17 @@
 import {afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi} from 'vitest';
-import crypto from 'crypto';
 import {setupMongo, teardownMongo, cleanCollections} from './mongoHelper.js';
 import {makeUser, makeExchange, buildEvent} from '../shared/testFactories.js';
 
 describe('api-results-email-post', () => {
     let db, handler, mongo, mockFetch;
 
-    const organizerToken = crypto.randomUUID();
-    const otherUserToken = crypto.randomUUID();
-
     let organizer, otherUser, participantA, participantB;
     let exchange;
+
+    async function authCookie(userId) {
+        const {signSession} = await import('../../netlify/shared/jwt.mjs');
+        return `session=${await signSession(userId.toString())}`;
+    }
 
     beforeAll(async () => {
         mongo = await setupMongo();
@@ -19,6 +20,7 @@ describe('api-results-email-post', () => {
         process.env.URL = 'https://test.netlify.app';
         process.env.POSTMARK_SERVER_TOKEN = 'test-postmark-token';
         process.env.CONTEXT = 'production';
+        process.env.JWT_SECRET = 'test-secret';
 
         mockFetch = vi.fn().mockResolvedValue({
             ok: true,
@@ -33,8 +35,8 @@ describe('api-results-email-post', () => {
     beforeEach(async () => {
         mockFetch.mockClear();
 
-        organizer = makeUser({name: 'Alex', email: 'alex@test.com', token: organizerToken});
-        otherUser = makeUser({name: 'Stranger', email: 'stranger@test.com', token: otherUserToken});
+        organizer = makeUser({name: 'Alex', email: 'alex@test.com'});
+        otherUser = makeUser({name: 'Stranger', email: 'stranger@test.com'});
         participantA = makeUser({name: 'Whitney', email: 'whitney@test.com'});
         participantB = makeUser({name: 'Hunter', email: 'hunter@test.com'});
 
@@ -60,6 +62,7 @@ describe('api-results-email-post', () => {
         delete process.env.URL;
         delete process.env.POSTMARK_SERVER_TOKEN;
         delete process.env.CONTEXT;
+        delete process.env.JWT_SECRET;
         await teardownMongo(mongo);
     });
 
@@ -69,39 +72,33 @@ describe('api-results-email-post', () => {
         expect(response.statusCode).toBe(405);
     });
 
-    it('returns 400 for missing token', async () => {
+    it('returns 401 for missing cookie', async () => {
         const event = buildEvent('POST', {body: {exchangeId: exchange.exchangeId}});
-        const response = await handler(event);
-        expect(response.statusCode).toBe(400);
-    });
-
-    it('returns 400 for missing exchangeId', async () => {
-        const event = buildEvent('POST', {body: {token: organizerToken}});
-        const response = await handler(event);
-        expect(response.statusCode).toBe(400);
-    });
-
-    it('returns 401 for invalid token', async () => {
-        const event = buildEvent('POST', {body: {token: 'invalid-token', exchangeId: exchange.exchangeId}});
         const response = await handler(event);
         expect(response.statusCode).toBe(401);
     });
 
+    it('returns 400 for missing exchangeId', async () => {
+        const event = buildEvent('POST', {body: {}, headers: {cookie: await authCookie(organizer._id)}});
+        const response = await handler(event);
+        expect(response.statusCode).toBe(400);
+    });
+
     it('returns 404 for non-existent exchangeId', async () => {
-        const event = buildEvent('POST', {body: {token: organizerToken, exchangeId: 'non-existent'}});
+        const event = buildEvent('POST', {body: {exchangeId: 'non-existent'}, headers: {cookie: await authCookie(organizer._id)}});
         const response = await handler(event);
         expect(response.statusCode).toBe(404);
     });
 
-    it('returns 403 when token user is not the organizer', async () => {
-        const event = buildEvent('POST', {body: {token: otherUserToken, exchangeId: exchange.exchangeId}});
+    it('returns 403 when authenticated user is not the organizer', async () => {
+        const event = buildEvent('POST', {body: {exchangeId: exchange.exchangeId}, headers: {cookie: await authCookie(otherUser._id)}});
         const response = await handler(event);
         expect(response.statusCode).toBe(403);
     });
 
     it('sends results email to organizer using server-side data', async () => {
         mockFetch.mockResolvedValueOnce({ok: true, json: () => Promise.resolve([])});
-        const event = buildEvent('POST', {body: {token: organizerToken, exchangeId: exchange.exchangeId}});
+        const event = buildEvent('POST', {body: {exchangeId: exchange.exchangeId}, headers: {cookie: await authCookie(organizer._id)}});
         const response = await handler(event);
 
         expect(response.statusCode).toBe(200);
@@ -117,7 +114,7 @@ describe('api-results-email-post', () => {
 
     it('returns success response body', async () => {
         mockFetch.mockResolvedValueOnce({ok: true, json: () => Promise.resolve([])});
-        const event = buildEvent('POST', {body: {token: organizerToken, exchangeId: exchange.exchangeId}});
+        const event = buildEvent('POST', {body: {exchangeId: exchange.exchangeId}, headers: {cookie: await authCookie(organizer._id)}});
         const response = await handler(event);
 
         const responseBody = JSON.parse(response.body);

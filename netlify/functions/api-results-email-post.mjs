@@ -1,21 +1,21 @@
 import {z} from "zod";
-import {apiHandler, validateBody} from "../shared/middleware.mjs";
-import {badRequest, ok, unauthorized, forbidden, notFound} from "../shared/responses.mjs";
+import {apiHandler, validateBody, requireAuth} from "../shared/middleware.mjs";
+import {badRequest, ok, forbidden, notFound} from "../shared/responses.mjs";
 import {sendNotificationEmail} from "../shared/giverNotification.mjs";
 import {getUsersCollection, getExchangesCollection} from "../shared/db.mjs";
 
 const requestSchema = z.object({
-    token: z.string(),
     exchangeId: z.string(),
 });
 
 export const handler = apiHandler("POST", async (event) => {
+    const authError = await requireAuth(event);
+    if (authError) return authError;
+
     const {data, error} = validateBody(requestSchema, event);
     if (error) return badRequest(error);
 
-    const usersCol = await getUsersCollection();
-    const user = await usersCol.findOne({token: data.token});
-    if (!user) return unauthorized("Invalid token");
+    const user = event.user;
 
     const exchangesCol = await getExchangesCollection();
     const exchange = await exchangesCol.findOne({exchangeId: data.exchangeId});
@@ -26,6 +26,7 @@ export const handler = apiHandler("POST", async (event) => {
     }
 
     const participantIds = [...new Set(exchange.assignments.flatMap(a => [a.giverId, a.recipientId]))];
+    const usersCol = await getUsersCollection();
     const participants = await usersCol.find({_id: {$in: participantIds}}).toArray();
     const idToName = {};
     participants.forEach(p => { idToName[p._id.toString()] = p.name; });
