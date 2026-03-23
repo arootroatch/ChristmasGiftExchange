@@ -1,6 +1,7 @@
 import {afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi} from 'vitest';
 import {ObjectId} from 'mongodb';
 import {setupMongo, teardownMongo, cleanCollections} from './mongoHelper.js';
+import {buildEvent, makeUser, makeExchange} from '../shared/testFactories.js';
 
 describe('api-user-contact-post', () => {
     let client, db, handler;
@@ -27,7 +28,7 @@ describe('api-user-contact-post', () => {
     });
 
     afterEach(async () => {
-        await cleanCollections(db, 'users', 'exchanges');
+        await cleanCollections(db, 'users', 'exchanges', 'rateLimits');
     });
 
     afterAll(async () => {
@@ -38,65 +39,61 @@ describe('api-user-contact-post', () => {
         await teardownMongo(mongo);
     });
 
-    function buildEvent(token, body) {
-        return {
-            httpMethod: 'POST',
-            path: `/.netlify/functions/api-user-contact-post/${token}`,
-            body: JSON.stringify(body),
-        };
-    }
-
     it('returns 405 for non-POST requests', async () => {
-        const event = {httpMethod: 'GET', path: '/.netlify/functions/api-user-contact-post/token'};
+        const event = buildEvent('GET');
         const response = await handler(event);
         expect(response.statusCode).toBe(405);
     });
 
-    it('returns 401 for unknown token', async () => {
-        const event = buildEvent('nonexistent-token', {address: '123 Main St'});
+    it('rejects missing token', async () => {
+        const event = buildEvent('POST', {body: {address: '123 Main St'}});
+        const response = await handler(event);
+        expect(response.statusCode).toBe(400);
+    });
+
+    it('returns 401 for invalid token', async () => {
+        const event = buildEvent('POST', {body: {token: 'nonexistent-token'}});
         const response = await handler(event);
         expect(response.statusCode).toBe(401);
     });
 
-    it('emails givers with contact info', async () => {
+    it('reads token from body, NOT from URL path', async () => {
+        const recipient = makeUser({name: 'Whitney', email: 'recipient@test.com'});
+        const giver = makeUser({name: 'Alex', email: 'giver@test.com'});
 
-        const recipientId = new ObjectId();
-        const giverId = new ObjectId();
-        const recipientToken = crypto.randomUUID();
-        const giverToken = crypto.randomUUID();
+        await db.collection('users').insertMany([recipient, giver]);
+        await db.collection('exchanges').insertOne(makeExchange({
+            participants: [recipient._id, giver._id],
+            assignments: [{giverId: giver._id, recipientId: recipient._id}],
+        }));
 
-        await db.collection('users').insertMany([
-            {
-                _id: recipientId,
-                email: 'recipient@test.com',
-                name: 'Whitney',
-                token: recipientToken,
-                wishlists: [],
-                wishItems: [],
-            },
-            {
-                _id: giverId,
-                email: 'giver@test.com',
-                name: 'Alex',
-                token: giverToken,
-                wishlists: [],
-                wishItems: [],
-            },
-        ]);
-
-        await db.collection('exchanges').insertOne({
-            exchangeId: 'exchange-contact',
-            createdAt: new Date(),
-            isSecretSanta: true,
-            participants: [recipientId, giverId],
-            assignments: [{giverId: giverId, recipientId: recipientId}],
-            houses: [],
+        // Token in body, wrong token in URL path
+        const event = buildEvent('POST', {
+            path: `/.netlify/functions/api-user-contact-post/wrong-token`,
+            body: {token: recipient.token, address: '123 Main St'},
         });
 
-        const event = buildEvent(recipientToken, {
-            address: '123 Main St, Springfield',
-            phone: '555-1234',
-            notes: 'Leave at front door',
+        const response = await handler(event);
+        expect(response.statusCode).toBe(200);
+    });
+
+    it('emails givers with contact info', async () => {
+        const recipient = makeUser({name: 'Whitney', email: 'recipient@test.com'});
+        const giver = makeUser({name: 'Alex', email: 'giver@test.com'});
+
+        await db.collection('users').insertMany([recipient, giver]);
+        await db.collection('exchanges').insertOne(makeExchange({
+            participants: [recipient._id, giver._id],
+            assignments: [{giverId: giver._id, recipientId: recipient._id}],
+        }));
+
+        const event = buildEvent('POST', {
+            body: {
+                token: recipient.token,
+                address: '123 Main St, Springfield',
+                phone: '555-1234',
+                notes: 'Leave at front door',
+            },
         });
 
         const response = await handler(event);
@@ -119,50 +116,26 @@ describe('api-user-contact-post', () => {
     });
 
     it('stores NOTHING in the database', async () => {
+        const recipient = makeUser({name: 'Whitney', email: 'recipient@test.com'});
+        const giver = makeUser({name: 'Alex', email: 'giver@test.com'});
 
-        const recipientId = new ObjectId();
-        const giverId = new ObjectId();
-        const recipientToken = crypto.randomUUID();
-        const giverToken = crypto.randomUUID();
+        await db.collection('users').insertMany([{...recipient}, giver]);
+        await db.collection('exchanges').insertOne(makeExchange({
+            participants: [recipient._id, giver._id],
+            assignments: [{giverId: giver._id, recipientId: recipient._id}],
+        }));
 
-        const originalRecipient = {
-            _id: recipientId,
-            email: 'recipient@test.com',
-            name: 'Whitney',
-            token: recipientToken,
-            wishlists: [],
-            wishItems: [],
-        };
-
-        await db.collection('users').insertMany([
-            {...originalRecipient},
-            {
-                _id: giverId,
-                email: 'giver@test.com',
-                name: 'Alex',
-                token: giverToken,
-                wishlists: [],
-                wishItems: [],
+        await handler(buildEvent('POST', {
+            body: {
+                token: recipient.token,
+                address: '123 Main St',
+                phone: '555-0000',
+                notes: 'Secret info',
             },
-        ]);
-
-        await db.collection('exchanges').insertOne({
-            exchangeId: 'exchange-no-store',
-            createdAt: new Date(),
-            isSecretSanta: true,
-            participants: [recipientId, giverId],
-            assignments: [{giverId: giverId, recipientId: recipientId}],
-            houses: [],
-        });
-
-        await handler(buildEvent(recipientToken, {
-            address: '123 Main St',
-            phone: '555-0000',
-            notes: 'Secret info',
         }));
 
         // Verify user document was NOT modified
-        const user = await db.collection('users').findOne({token: recipientToken});
+        const user = await db.collection('users').findOne({token: recipient.token});
         expect(user.address).toBeUndefined();
         expect(user.phone).toBeUndefined();
         expect(user.notes).toBeUndefined();
@@ -170,42 +143,16 @@ describe('api-user-contact-post', () => {
     });
 
     it('defaults missing contact fields to fallback text', async () => {
+        const recipient = makeUser({name: 'Whitney', email: 'recipient@test.com'});
+        const giver = makeUser({name: 'Alex', email: 'giver@test.com'});
 
-        const recipientId = new ObjectId();
-        const giverId = new ObjectId();
-        const recipientToken = crypto.randomUUID();
-        const giverToken = crypto.randomUUID();
+        await db.collection('users').insertMany([recipient, giver]);
+        await db.collection('exchanges').insertOne(makeExchange({
+            participants: [recipient._id, giver._id],
+            assignments: [{giverId: giver._id, recipientId: recipient._id}],
+        }));
 
-        await db.collection('users').insertMany([
-            {
-                _id: recipientId,
-                email: 'recipient@test.com',
-                name: 'Whitney',
-                token: recipientToken,
-                wishlists: [],
-                wishItems: [],
-            },
-            {
-                _id: giverId,
-                email: 'giver@test.com',
-                name: 'Alex',
-                token: giverToken,
-                wishlists: [],
-                wishItems: [],
-            },
-        ]);
-
-        await db.collection('exchanges').insertOne({
-            exchangeId: 'exchange-defaults',
-            createdAt: new Date(),
-            isSecretSanta: true,
-            participants: [recipientId, giverId],
-            assignments: [{giverId: giverId, recipientId: recipientId}],
-            houses: [],
-        });
-
-        // Send with no fields
-        const event = buildEvent(recipientToken, {});
+        const event = buildEvent('POST', {body: {token: recipient.token}});
         await handler(event);
 
         const fetchCall = mockFetch.mock.calls[0];
@@ -215,32 +162,31 @@ describe('api-user-contact-post', () => {
     });
 
     it('sends contact info only to the giver from the most recent exchange', async () => {
-        const recipientId = new ObjectId();
-        const oldGiverId = new ObjectId();
-        const newGiverId = new ObjectId();
-        const recipientToken = crypto.randomUUID();
+        const recipient = makeUser({name: 'Whitney', email: 'recipient@test.com'});
+        const oldGiver = makeUser({name: 'OldAlex', email: 'old-giver@test.com'});
+        const newGiver = makeUser({name: 'NewAlex', email: 'new-giver@test.com'});
 
-        await db.collection('users').insertMany([
-            {_id: recipientId, email: 'recipient@test.com', name: 'Whitney', token: recipientToken, wishlists: [], wishItems: []},
-            {_id: oldGiverId, email: 'old-giver@test.com', name: 'OldAlex', token: crypto.randomUUID(), wishlists: [], wishItems: []},
-            {_id: newGiverId, email: 'new-giver@test.com', name: 'NewAlex', token: crypto.randomUUID(), wishlists: [], wishItems: []},
-        ]);
-
+        await db.collection('users').insertMany([recipient, oldGiver, newGiver]);
         await db.collection('exchanges').insertMany([
-            {
-                exchangeId: 'old-exchange', createdAt: new Date('2025-01-01'), isSecretSanta: true,
-                participants: [oldGiverId, recipientId],
-                assignments: [{giverId: oldGiverId, recipientId}], houses: [],
-            },
-            {
-                exchangeId: 'new-exchange', createdAt: new Date('2026-01-01'), isSecretSanta: true,
-                participants: [newGiverId, recipientId],
-                assignments: [{giverId: newGiverId, recipientId}], houses: [],
-            },
+            makeExchange({
+                participants: [oldGiver._id, recipient._id],
+                assignments: [{giverId: oldGiver._id, recipientId: recipient._id}],
+                createdAt: new Date('2025-01-01'),
+            }),
+            makeExchange({
+                participants: [newGiver._id, recipient._id],
+                assignments: [{giverId: newGiver._id, recipientId: recipient._id}],
+                createdAt: new Date('2026-01-01'),
+            }),
         ]);
 
-        const event = buildEvent(recipientToken, {
-            address: '123 Main St', phone: '555-1234', notes: 'Front door',
+        const event = buildEvent('POST', {
+            body: {
+                token: recipient.token,
+                address: '123 Main St',
+                phone: '555-1234',
+                notes: 'Front door',
+            },
         });
 
         await handler(event);

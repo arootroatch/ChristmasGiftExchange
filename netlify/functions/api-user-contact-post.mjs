@@ -1,23 +1,22 @@
 import {z} from "zod";
 import {apiHandler, validateBody} from "../shared/middleware.mjs";
-import {extractTokenFromPath, getUserByToken} from "../shared/auth.mjs";
 import {ok, badRequest, unauthorized} from "../shared/responses.mjs";
+import {getUsersCollection} from "../shared/db.mjs";
 import {forEachGiverOf, sendNotificationEmail} from "../shared/giverNotification.mjs";
 
 const contactPostRequestSchema = z.object({
+    token: z.string(),
     address: z.string().default("Not provided"),
     phone: z.string().default("Not provided"),
     notes: z.string().default("None"),
 });
 
 export const handler = apiHandler("POST", async (event) => {
-    const token = extractTokenFromPath(event, "user");
-    if (!token) return badRequest("Token required");
-
     const {data, error} = validateBody(contactPostRequestSchema, event);
     if (error) return badRequest(error);
 
-    const user = await getUserByToken(token);
+    const usersCol = await getUsersCollection();
+    const user = await usersCol.findOne({token: data.token});
     if (!user) return unauthorized("User not found");
 
     await forEachGiverOf(user, async ({giver}) => {
@@ -35,4 +34,4 @@ export const handler = apiHandler("POST", async (event) => {
     });
 
     return ok({success: true});
-});
+}, {maxRequests: 5, windowMs: 60000});

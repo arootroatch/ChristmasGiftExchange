@@ -22,7 +22,7 @@ describe('api-user-contact-post contract', () => {
         }));
     });
 
-    afterEach(() => cleanCollections(db, 'users', 'exchanges'));
+    afterEach(() => cleanCollections(db, 'users', 'exchanges', 'rateLimits'));
     afterAll(async () => {
         vi.unstubAllGlobals();
         await teardownMongo(mongo);
@@ -30,13 +30,12 @@ describe('api-user-contact-post contract', () => {
 
     function contactEvent(body) {
         return buildEvent('POST', {
-            path: `/.netlify/functions/api-user-contact-post/${recipient.token}`,
-            body,
+            body: {token: recipient.token, ...body},
         });
     }
 
     describe('request contract (FE → BE)', () => {
-        it('accepts POST with address, phone, and notes', async () => {
+        it('accepts POST with token, address, phone, and notes', async () => {
             const response = await handler(contactEvent({
                 address: '123 Main St',
                 phone: '555-1234',
@@ -50,9 +49,14 @@ describe('api-user-contact-post contract', () => {
             expect(response.statusCode).toBe(200);
         });
 
-        it('accepts empty object (all defaults)', async () => {
+        it('accepts only token (all contact fields default)', async () => {
             const response = await handler(contactEvent({}));
             expect(response.statusCode).toBe(200);
+        });
+
+        it('rejects missing token', async () => {
+            const response = await handler(buildEvent('POST', {body: {address: '123 Main St'}}));
+            expect(response.statusCode).toBe(400);
         });
     });
 
