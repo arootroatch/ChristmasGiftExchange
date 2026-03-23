@@ -29,3 +29,8 @@ export async function getRateLimitsCollection() {
     const db = await getDb();
     return db.collection("rateLimits");
 }
+
+export async function getAuthCodesCollection() {
+    const db = await getDb();
+    return db.collection("authCodes");
+}
