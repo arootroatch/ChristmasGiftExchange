@@ -18,11 +18,11 @@ import {init} from "../../../src/exchange/components/OrganizerForm";
 import {init as initSnackbar} from "../../../src/Snackbar";
 import {init as initEmailTable} from "../../../src/exchange/components/EmailTable/EmailTable";
 
-function stubOrganizerApiFetch(token = "test-token-123") {
+function stubAuthCodeFetch() {
   global.fetch = vi.fn(() => Promise.resolve({
     ok: true,
     status: 200,
-    json: () => Promise.resolve({token})
+    json: () => Promise.resolve({})
   }));
 }
 
@@ -39,11 +39,17 @@ function triggerNonSecretSantaEmailResults() {
   requestEmailResults();
 }
 
-function fillAndSubmitForm(name = "Alex", email = "alex@test.com") {
-  document.querySelector("#organizerName").value = name;
-  document.querySelector("#organizerEmail").value = email;
-  const form = document.querySelector("#organizerForm");
-  form.dispatchEvent(new Event("submit", {bubbles: true, cancelable: true}));
+function fillAndSendCode(name = "Alex", email = "alex@test.com") {
+  if (name) {
+    document.querySelector("#auth-name").value = name;
+  }
+  document.querySelector("#auth-email").value = email;
+  document.querySelector("#auth-send-code").click();
+}
+
+function fillAndVerifyCode(code = "123456") {
+  document.querySelector("#auth-code").value = code;
+  document.querySelector("#auth-verify-code").click();
 }
 
 describe("OrganizerForm", () => {
@@ -56,7 +62,7 @@ describe("OrganizerForm", () => {
   });
 
   beforeEach(() => {
-    stubOrganizerApiFetch();
+    stubAuthCodeFetch();
     resetState();
     document.querySelector("#organizerFormContainer")?.remove();
     document.querySelector("#emailTable")?.remove();
@@ -68,8 +74,8 @@ describe("OrganizerForm", () => {
       triggerSecretSantaAssign();
 
       shouldSelect("#organizerFormContainer");
-      shouldSelect("#organizerName");
-      shouldSelect("#organizerEmail");
+      shouldSelect("#auth-name");
+      shouldSelect("#auth-email");
     });
 
     it("does not render on RECIPIENTS_ASSIGNED when not isSecretSanta", () => {
@@ -102,102 +108,111 @@ describe("OrganizerForm", () => {
     });
   });
 
-  describe("form structure", () => {
+  describe("auth gate structure", () => {
     beforeEach(() => {
       triggerSecretSantaAssign();
     });
 
     it("has a heading", () => {
-      const heading = document.querySelector("#organizerFormContainer h3");
+      const heading = document.querySelector("#organizerFormContainer h2");
       expect(heading).not.toBeNull();
       expect(heading.textContent).toContain("organiz");
     });
 
-    it("has a required name input", () => {
-      const input = document.querySelector("#organizerName");
-      expect(input.required).toBe(true);
+    it("has a name input", () => {
+      const input = document.querySelector("#auth-name");
+      expect(input).not.toBeNull();
       expect(input.type).toBe("text");
     });
 
-    it("has a required email input", () => {
-      const input = document.querySelector("#organizerEmail");
-      expect(input.required).toBe(true);
+    it("has an email input", () => {
+      const input = document.querySelector("#auth-email");
+      expect(input).not.toBeNull();
       expect(input.type).toBe("email");
     });
 
-    it("has a submit button", () => {
-      const btn = document.querySelector("#organizerSubmit");
+    it("has a send code button", () => {
+      const btn = document.querySelector("#auth-send-code");
       expect(btn).not.toBeNull();
     });
   });
 
-  describe("form submission", () => {
+  describe("send code step", () => {
     beforeEach(() => {
       triggerSecretSantaAssign();
     });
 
-    it("calls api-organizer-post with name and email", () => {
-      fillAndSubmitForm("Alex", "alex@test.com");
+    it("calls api-auth-code-post with email", () => {
+      fillAndSendCode("Alex", "alex@test.com");
 
       expect(global.fetch).toHaveBeenCalledWith(
-        "/.netlify/functions/api-organizer-post",
+        "/.netlify/functions/api-auth-code-post",
         expect.objectContaining({method: "POST"})
       );
       const body = JSON.parse(global.fetch.mock.calls[0][1].body);
-      expect(body.name).toBe("Alex");
       expect(body.email).toBe("alex@test.com");
     });
 
-    it("calls setOrganizer on success", async () => {
-      fillAndSubmitForm("Alex", "alex@test.com");
+    it("shows code step on success", async () => {
+      fillAndSendCode("Alex", "alex@test.com");
       await vi.advanceTimersByTimeAsync(0);
 
-      expect(state.setOrganizer).toHaveBeenCalledWith("Alex", "alex@test.com", "test-token-123");
+      expect(document.querySelector("#auth-email-step").style.display).toBe("none");
+      expect(document.querySelector("#auth-code-step").style.display).toBe("");
+    });
+
+    it("does not send when email is empty", () => {
+      fillAndSendCode("Alex", "");
+
+      expect(global.fetch).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("verify code step", () => {
+    beforeEach(async () => {
+      triggerSecretSantaAssign();
+      fillAndSendCode("Alex", "alex@test.com");
+      await vi.advanceTimersByTimeAsync(0);
+      global.fetch.mockClear();
+      stubAuthCodeFetch();
+    });
+
+    it("calls api-auth-verify-post with email, code, and name", () => {
+      fillAndVerifyCode("123456");
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        "/.netlify/functions/api-auth-verify-post",
+        expect.objectContaining({method: "POST"})
+      );
+      const body = JSON.parse(global.fetch.mock.calls[0][1].body);
+      expect(body.email).toBe("alex@test.com");
+      expect(body.code).toBe("123456");
+      expect(body.name).toBe("Alex");
+    });
+
+    it("calls setOrganizer on success", async () => {
+      fillAndVerifyCode("123456");
+      await vi.advanceTimersByTimeAsync(0);
+
+      expect(state.setOrganizer).toHaveBeenCalledWith("Alex", "alex@test.com");
     });
 
     it("removes the form on success", async () => {
-      fillAndSubmitForm("Alex", "alex@test.com");
+      fillAndVerifyCode("123456");
       await vi.advanceTimersByTimeAsync(0);
 
       shouldNotSelect("#organizerFormContainer");
     });
 
-    it("shows EmailTable after successful submission in secret santa mode", async () => {
-      fillAndSubmitForm("Alex", "alex@test.com");
+    it("shows EmailTable after successful verification in secret santa mode", async () => {
+      fillAndVerifyCode("123456");
       await vi.advanceTimersByTimeAsync(0);
 
       shouldSelect("#emailTable");
     });
 
-    it("shows error snackbar on API failure", async () => {
-      global.fetch = vi.fn(() => Promise.resolve({
-        ok: false,
-        status: 500,
-        json: () => Promise.resolve({error: "Server error"})
-      }));
-
-      fillAndSubmitForm("Alex", "alex@test.com");
-      await vi.advanceTimersByTimeAsync(0);
-
-      shouldDisplayErrorSnackbar("Aw shucks!");
-    });
-
-    it("shows spinner on submit", () => {
-      fillAndSubmitForm("Alex", "alex@test.com");
-
-      const btn = document.querySelector("#organizerSubmit");
-      expect(btn.innerHTML).toContain('class="spinner"');
-      expect(btn.disabled).toBe(true);
-    });
-
-    it("does not submit when name is empty", () => {
-      fillAndSubmitForm("", "alex@test.com");
-
-      expect(global.fetch).not.toHaveBeenCalled();
-    });
-
-    it("does not submit when email is empty", () => {
-      fillAndSubmitForm("Alex", "");
+    it("does not verify when code is empty", () => {
+      fillAndVerifyCode("");
 
       expect(global.fetch).not.toHaveBeenCalled();
     });

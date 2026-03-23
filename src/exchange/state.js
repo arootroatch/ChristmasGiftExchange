@@ -23,7 +23,6 @@ const state = {
   isSecretSanta: false,
   organizerName: '',
   organizerEmail: '',
-  organizerToken: '',
   participants: [],
   assignments: [],
   nameNumber: 1,
@@ -41,7 +40,6 @@ export function startExchange(isSecretSanta = false) {
   state.isSecretSanta = isSecretSanta;
   state.organizerName = '';
   state.organizerEmail = '';
-  state.organizerToken = '';
   state.participants = [];
   state.assignments = [];
   state.nameNumber = 1;
@@ -56,16 +54,10 @@ export function completeExchange(mode) {
   exchangeEvents.emit(ExchangeEvents.EXCHANGE_COMPLETE, {...state, mode});
 }
 
-export function setOrganizer(name, email, token) {
+export function setOrganizer(name, email) {
   state.organizerName = name;
   state.organizerEmail = email;
-  state.organizerToken = token;
-  localStorage.setItem('organizerToken', token);
   exchangeEvents.emit(ExchangeEvents.ORGANIZER_SET, {...state});
-}
-
-export function getOrganizerToken() {
-  return state.organizerToken || localStorage.getItem('organizerToken') || '';
 }
 
 

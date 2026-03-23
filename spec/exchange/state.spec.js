@@ -10,7 +10,6 @@ import {
   getExchangePayload,
   getHousesForGeneration,
   getIndividualParticipants,
-  getOrganizerToken,
   getParticipantNames,
   loadExchange,
   removeParticipant,
@@ -40,64 +39,34 @@ test('startExchange initializes state', () => {
 })
 
 test('startExchange resets organizer fields', () => {
-  setOrganizer('Alex', 'alex@test.com', 'tok-123');
+  setOrganizer('Alex', 'alex@test.com');
   startExchange();
   expect(getState().organizerName).toBe('');
   expect(getState().organizerEmail).toBe('');
-  expect(getState().organizerToken).toBe('');
 })
 
 describe('setOrganizer', () => {
   beforeEach(() => {
     startExchange();
-    localStorage.clear();
   });
 
   it('updates organizer fields in state', () => {
-    setOrganizer('Alex', 'alex@test.com', 'tok-abc');
+    setOrganizer('Alex', 'alex@test.com');
     expect(getState().organizerName).toBe('Alex');
     expect(getState().organizerEmail).toBe('alex@test.com');
-    expect(getState().organizerToken).toBe('tok-abc');
-  });
-
-  it('stores token in localStorage', () => {
-    setOrganizer('Alex', 'alex@test.com', 'tok-abc');
-    expect(localStorage.getItem('organizerToken')).toBe('tok-abc');
   });
 
   it('emits ORGANIZER_SET with state spread', () => {
     const spy = vi.fn();
     const unsubscribe = stateEvents.on(Events.ORGANIZER_SET, spy);
 
-    setOrganizer('Alex', 'alex@test.com', 'tok-abc');
+    setOrganizer('Alex', 'alex@test.com');
 
     expect(spy).toHaveBeenCalledWith(expect.objectContaining({
       organizerName: 'Alex',
       organizerEmail: 'alex@test.com',
-      organizerToken: 'tok-abc',
     }));
     unsubscribe();
-  });
-})
-
-describe('getOrganizerToken', () => {
-  beforeEach(() => {
-    startExchange();
-    localStorage.clear();
-  });
-
-  it('returns token from state', () => {
-    setOrganizer('Alex', 'alex@test.com', 'tok-abc');
-    expect(getOrganizerToken()).toBe('tok-abc');
-  });
-
-  it('falls back to localStorage when state is empty', () => {
-    localStorage.setItem('organizerToken', 'tok-stored');
-    expect(getOrganizerToken()).toBe('tok-stored');
-  });
-
-  it('returns empty string when no token exists', () => {
-    expect(getOrganizerToken()).toBe('');
   });
 })
 
