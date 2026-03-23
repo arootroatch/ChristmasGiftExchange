@@ -1,6 +1,9 @@
-import {methodNotAllowed, serverError} from "./responses.mjs";
+import {methodNotAllowed, serverError, unauthorized, forbidden} from "./responses.mjs";
 import {sendNotificationEmail, setRequestOrigin} from "./giverNotification.mjs";
 import {checkRateLimit} from "./rateLimit.mjs";
+import {verifySession, parseCookies} from "./jwt.mjs";
+import {getUsersCollection} from "./db.mjs";
+import {ObjectId} from "mongodb";
 
 export function formatZodError(zodError) {
     const issue = zodError.issues[0];
@@ -31,12 +34,45 @@ export function validateBody(schema, event) {
     return {data: result.data};
 }
 
+export function validateOrigin(event) {
+    const origin = event.headers?.origin;
+    if (origin && origin !== process.env.URL) {
+        return forbidden("Forbidden");
+    }
+    return null;
+}
+
+export async function requireAuth(event) {
+    const cookies = parseCookies(event.headers?.cookie);
+    if (!cookies.session) return unauthorized("Authentication required");
+
+    const payload = await verifySession(cookies.session);
+    if (!payload?.userId) return unauthorized("Invalid session");
+
+    let userId;
+    try {
+        userId = new ObjectId(payload.userId);
+    } catch {
+        return unauthorized("Invalid session");
+    }
+
+    const usersCol = await getUsersCollection();
+    const user = await usersCol.findOne({_id: userId});
+    if (!user) return unauthorized("User not found");
+
+    event.user = user;
+    return null;
+}
+
 export function apiHandler(method, fn, rateLimitConfig) {
     return async (event) => {
         if (event.httpMethod !== method) {
             return methodNotAllowed();
         }
         setRequestOrigin(event);
+
+        const originError = validateOrigin(event);
+        if (originError) return originError;
 
         if (rateLimitConfig) {
             const ip = event.headers?.["x-forwarded-for"]?.split(",")[0]?.trim()
