@@ -1,6 +1,6 @@
 ---
 name: backend-testing
-description: Backend test patterns for Netlify serverless functions — MongoMemoryServer setup, buildEvent helper, mock patterns, fixture requirements
+description: Backend test patterns for Netlify serverless functions — MongoMemoryServer setup, buildEvent helper, auth cookie patterns, mock patterns, fixture requirements
 ---
 
 # Backend Test Patterns
@@ -37,14 +37,47 @@ afterAll(async () => {
 
 ## Key Patterns
 
-- **`buildEvent(body)`** helper constructs Netlify event objects (in `spec/shared/testFactories.js`)
+- **`buildEvent(httpMethod, options?)`** helper constructs Netlify event objects (in `spec/shared/testFactories.js`)
+  - Accepts `{body, path, queryStringParameters, headers}`
+  - `httpMethod` is the first positional argument (e.g., `"GET"`, `"POST"`, `"PUT"`)
 - **Dynamic `import()`** of handler module in `beforeAll` (after env setup) — ensures handler picks up test env vars
 - **`vi.stubGlobal('fetch', mockFetch)`** for email-sending endpoints
 - **`afterEach`** cleans collections; **`afterAll`** stops mongo + restores env
 
+## Auth Cookie Pattern for Protected Endpoints
+
+Protected endpoints use `requireAuth()` which reads the JWT from the `session` cookie. In tests, create a signed JWT and pass it via the `headers` option:
+
+```js
+import {buildEvent, makeUser} from '../shared/testFactories.js';
+
+// In beforeAll (after env setup, before handler import):
+process.env.JWT_SECRET = 'test-secret';
+
+// Create auth cookie for a user:
+const {signSession} = await import('../../netlify/shared/jwt.mjs');
+const jwt = await signSession(userId.toString());
+const event = buildEvent("GET", {headers: {cookie: `session=${jwt}`}});
+```
+
+For endpoints that set cookies (auth-verify, auth-logout), assert on `response.headers["Set-Cookie"]`.
+
+## Auth Code Test Patterns
+
+For testing `authCodes.mjs` (generateAndStoreCode, verifyCode):
+
+```js
+const {generateAndStoreCode, verifyCode} = await import('../../netlify/shared/authCodes.mjs');
+
+const code = await generateAndStoreCode('user@test.com');
+const result = await verifyCode('user@test.com', code);
+expect(result.valid).toBe(true);
+```
+
+Auth codes require `JWT_SECRET` in env for HMAC hashing and `getAuthCodesCollection` from db.mjs.
+
 ## Test Fixture Requirements (Schema Enforced)
 
-- Token fields must be **valid UUIDs**
 - Wishlist/wishItem url fields must be **valid URLs**
 - Email fields must be **valid emails**
 
@@ -52,9 +85,9 @@ Zod schemas validate these at parse time — invalid fixtures will cause test fa
 
 ## Shared Factories (`spec/shared/testFactories.js`)
 
-- `makeUser(overrides)` — Creates valid user document
+- `makeUser(overrides)` — Creates valid user document (with `_id` as ObjectId)
 - `makeExchange(overrides)` — Creates valid exchange document
-- `buildEvent(body)` — Constructs Netlify function event object
+- `buildEvent(httpMethod, options?)` — Constructs Netlify function event object; options: `{body, path, queryStringParameters, headers}`
 
 ## Contract/Integration Tests (`spec/integration/`)
 

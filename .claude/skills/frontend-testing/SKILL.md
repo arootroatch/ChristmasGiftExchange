@@ -60,6 +60,21 @@ const window = new Proxy(dom.window, {
 - `Object.defineProperty` on the proxy forwards to `dom.window` (default trap behavior)
 - `mockSessionStorage` and `mockFetch` work through the proxy without changes
 
+## Auth Gate Testing
+
+The `authGate.js` module exports `authGateTemplate()` and `initAuthGate()`. Tests mock `apiFetch` from `utils.js`:
+
+```js
+vi.mock("../src/utils.js", async (importOriginal) => {
+    const actual = await importOriginal();
+    return {...actual, apiFetch: vi.fn()};
+});
+```
+
+- `authGateTemplate({showName, heading})` — Returns HTML string; test by checking for expected element IDs
+- `initAuthGate({onSuccess, onError, showName})` — Wires up click handlers; test by clicking buttons and asserting `apiFetch` was called with correct endpoint/body
+- Cookie presence/absence: For page-level tests that check auth state, mock the response from auth-dependent API calls (the session cookie is httpOnly so JS cannot read it directly — auth state is determined by whether API calls succeed or return 401)
+
 ## ESM Spy Timing
 
 `vi.spyOn` must be set **before** `addEventListener` captures the function reference. If spying on a module method used as an event handler, set up the spy before the component's `init()` runs.

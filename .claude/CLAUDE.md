@@ -10,8 +10,17 @@ A vanilla JavaScript web app for drawing names in a gift exchange or Secret Sant
 - **exchange/state.js** — Private state object + mutation functions that emit events via `exchangeEvents` singleton. Components never import state directly.
 - **wishlistEdit/state.js** — Encapsulated state for wishlist edit page with getter functions
 - **Snackbar.js** — Shared toast notification component (used by all pages)
+- **authGate.js** — Shared email verification UI component (`authGateTemplate()` + `initAuthGate()`) used by pages that require authentication
 - **Components** subscribe via `init()` → `stateEvents.on()` and destructure what they need from event payloads
-- **Multi-page app** — `pages/` directory has HTML entry points; `viteMultiPagePlugin.js` handles the build
+- **Multi-page app** — `pages/` directory has HTML entry points; `vitePageRoutes.js` handles the build
+
+### Authentication: Cookie-Based JWT
+- **Email verification codes** — Users authenticate by requesting a code sent to their email, then verifying it
+- **JWT sessions** — On successful verification, server issues a signed JWT in an `httpOnly; Secure; SameSite=Strict` cookie (`session`)
+- **`requireAuth(event)`** middleware — Parses the session cookie, verifies the JWT, looks up the user in MongoDB, and attaches `event.user`. Returns an error response if auth fails, `null` on success.
+- **Origin validation** — `apiHandler` validates `Origin` header against `process.env.URL` to prevent CSRF
+- **Auth gate UI** — Pages needing auth render `authGateTemplate()` and call `initAuthGate({onSuccess, onError})` to handle the two-step email/code flow
+- **No tokens in URLs or localStorage** — All auth state lives in httpOnly cookies
 
 ### Exchange State Architecture
 The exchange state object is **private** (not exported). Components access data through:
@@ -41,7 +50,7 @@ Container components (like `house.js` and `nameList.js`) follow a consistent str
 
 Detailed guides are split into on-demand skills:
 - **`project-map`** — Full file structure tree
-- **`backend-conventions`** — Netlify serverless architecture, shared modules, Zod 4 schema conventions
+- **`backend-conventions`** — Netlify serverless architecture, shared modules, auth middleware, Zod 4 schema conventions
 - **`backend-testing`** — MongoMemoryServer setup, buildEvent helper, fixture requirements
 - **`frontend-testing`** — specHelper.js API, DOM helpers, snackbar init, jsdom proxy pattern
 
