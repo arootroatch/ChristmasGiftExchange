@@ -5,12 +5,15 @@ async function loadWishlist() {
     const params = new URLSearchParams(window.location.search);
     const token = params.get("user");
     const exchangeId = params.get("exchange");
+    history.replaceState(null, '', window.location.pathname);
     if (!token || !exchangeId) {
         redirectWithError("Invalid link");
         return;
     }
 
-    await apiFetch(`/.netlify/functions/api-user-wishlist-get/${exchangeId}?token=${token}`, {
+    await apiFetch("/.netlify/functions/api-user-wishlist-view-post", {
+        method: "POST",
+        body: {token, exchangeId},
         onSuccess: (data) => {
             const spinner = document.getElementById("loading-spinner");
             if (spinner) spinner.remove();

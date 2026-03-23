@@ -27,15 +27,19 @@ function setupDOM(urlPath = "/wishlist/view", query = "?user=giver-token-123&exc
         href: loc.href,
     };
 
+    const historyMock = {replaceState: vi.fn()};
+
     window = new Proxy(dom.window, {
         get(target, prop) {
             if (prop === "location") return locationMock;
+            if (prop === "history") return historyMock;
             return Reflect.get(target, prop);
         },
     });
 
     globalThis.document = document;
     globalThis.window = window;
+    globalThis.history = historyMock;
 }
 
 function mockFetch(response) {
@@ -67,7 +71,7 @@ describe("Wishlist View Page", () => {
     });
 
     describe("loadWishlist", () => {
-        it("fetches exchange data with token and exchangeId", async () => {
+        it("sends POST with token and exchangeId in body", async () => {
             setupDOM();
             mockFetch({
                 body: {
@@ -81,9 +85,29 @@ describe("Wishlist View Page", () => {
 
             await flush();
             expect(window.fetch).toHaveBeenCalledWith(
-                "/.netlify/functions/api-user-wishlist-get/exchange-id-456?token=giver-token-123",
-                expect.objectContaining({})
+                "/.netlify/functions/api-user-wishlist-view-post",
+                expect.objectContaining({
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({token: "giver-token-123", exchangeId: "exchange-id-456"}),
+                })
             );
+        });
+
+        it("strips token and exchangeId from URL bar after reading them", async () => {
+            setupDOM();
+            mockFetch({
+                body: {
+                    recipientName: "Jane",
+                    wishlists: [],
+                    wishItems: [],
+                },
+            });
+            mockSessionStorage();
+            main();
+
+            await flush();
+            expect(window.history.replaceState).toHaveBeenCalledWith(null, "", "/wishlist/view");
         });
 
         it("displays recipient name as heading", async () => {
