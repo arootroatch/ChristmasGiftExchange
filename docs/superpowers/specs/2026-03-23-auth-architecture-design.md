@@ -61,7 +61,7 @@ Set-Cookie: session=<JWT>; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=17
 | `POST api-recipient-post {token}` | `GET api-recipient-get` (cookie auth) |
 | `POST api-my-exchanges-post {token}` | `GET api-my-exchanges-get` (cookie auth) |
 | `POST api-user-post {token}` | `GET api-user-get` (cookie auth) |
-| `POST api-user-wishlist-view-post {token, exchangeId}` | `GET api-user-wishlist-get/{exchangeId}` (cookie auth) |
+| `POST api-user-wishlist-view-post {token, exchangeId}` | `GET api-user-wishlist-get?exchangeId=` (cookie auth) |
 | `POST api-user-wishlist-save-post {token, ...}` | `PUT api-user-wishlist-put` (cookie auth) |
 | `POST api-user-contact-post {token, ...}` | `POST api-user-contact-post {...}` (cookie auth, no token in body) |
 | `POST api-exchange-post {token, ...}` | `POST api-exchange-post {...}` (cookie auth, no token in body) |
@@ -81,6 +81,16 @@ Converted endpoints preserve their existing rate limit tiers from the security h
 - **All other endpoints** (30 req/min): api-exchange-post, api-recipient-get, api-my-exchanges-get, api-user-get, api-user-wishlist-get, api-user-wishlist-put
 - **Auth endpoints**: api-auth-code-post (3 req/min), api-auth-verify-post (5 req/min)
 - **Skip**: api-email-preview-get (dev-only)
+
+### Origin Validation
+
+All endpoints validate the `Origin` header to prevent cross-origin requests. Added to `apiHandler` before rate limiting:
+
+1. Read `event.headers.origin`
+2. If present and does not match `process.env.URL`, return 403
+3. If absent (same-origin requests, server-to-server), allow through
+
+This blocks browser-based cross-origin attacks. Non-browser clients can spoof the header but cannot steal httpOnly cookies, so the combination of origin validation + cookie auth + rate limiting covers all vectors.
 
 ### Auth Middleware
 
