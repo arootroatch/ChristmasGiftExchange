@@ -9,7 +9,7 @@ export async function getUserByToken(token) {
 
 export function extractTokenFromPath(event, afterSegment) {
     const parts = event.path.split("/");
-    const index = parts.findIndex(p => p.includes(afterSegment));
+    const index = parts.findIndex(p => p === afterSegment);
     if (index === -1 || index + 1 >= parts.length) {
         return null;
     }
