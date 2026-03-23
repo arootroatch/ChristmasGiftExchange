@@ -1469,9 +1469,35 @@ git commit -m "feat: add auth gate to wishlist view page, remove URL token handl
 
 ---
 
+### Task 29: Update Cookie Banner
+
+**Files:**
+- Modify: `src/CookieBanner.js`
+
+- [ ] **Step 1: Update banner text**
+
+Change the cookie banner message to disclose the session cookie. The session cookie is strictly necessary (authentication) and does not require consent — only the BMC cookie remains consent-gated.
+
+Update the text from:
+"This site uses cookies from **Buy Me a Coffee** to power the support widget. That's it — no tracking, no ads."
+
+To:
+"This site uses a session cookie for authentication and optional cookies from **Buy Me a Coffee** to power the support widget. No tracking, no ads."
+
+The accept/reject buttons continue to control only the BMC widget.
+
+- [ ] **Step 2: Commit**
+
+```bash
+git add src/CookieBanner.js
+git commit -m "docs: update cookie banner to disclose authentication session cookie"
+```
+
+---
+
 ## Phase 6: Cleanup and Documentation
 
-### Task 29: Update Dev REPL
+### Task 30: Update Dev REPL
 
 **Files:**
 - Modify: `dev/repl.mjs`
@@ -1493,7 +1519,7 @@ git commit -m "chore: update dev REPL to remove token references"
 
 ---
 
-### Task 30: Update Project Documentation
+### Task 31: Update Project Documentation
 
 **Files:**
 - Modify: `.claude/CLAUDE.md`
@@ -1544,7 +1570,7 @@ git commit -m "docs: update CLAUDE.md and skills for cookie-based JWT auth archi
 
 ---
 
-### Task 31: Update Contract Tests
+### Task 32: Update Contract Tests
 
 **Files:**
 - Update all files in `spec/integration/`
@@ -1565,7 +1591,7 @@ git commit -m "test: update all contract tests for cookie-based auth"
 
 ---
 
-### Task 32: Final Verification
+### Task 33: Final Verification
 
 - [ ] **Step 1: Run full test suite**
 

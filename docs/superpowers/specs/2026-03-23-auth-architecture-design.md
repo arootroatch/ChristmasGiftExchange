@@ -255,6 +255,12 @@ All email links become plain deep links with no auth data:
 
 No credentials exposed in any URL. Authentication happens on the page.
 
+### Cookie Banner Update
+
+Update `src/CookieBanner.js` banner text to disclose the session cookie. The session cookie is strictly necessary (authentication) and does not require consent — only the Buy Me a Coffee cookie remains consent-gated. Update the message to something like: "This site uses a session cookie for authentication and optional cookies from Buy Me a Coffee to power the support widget. No tracking, no ads."
+
+The accept/reject buttons continue to control only the Buy Me a Coffee widget cookie.
+
 ### Token Recovery Email — Removed
 
 The `api-token-email-post` endpoint and `tokenRecovery.mjs` email template are removed. Recovery is replaced by the universal `api-auth-code-post` flow — user enters their email on any page, gets a verification code, enters it, gets a session.
