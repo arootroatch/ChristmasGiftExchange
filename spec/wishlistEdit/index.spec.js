@@ -24,9 +24,13 @@ function proxyWindow(domWindow) {
         search: loc.search,
         href: loc.href,
     };
+    const historyMock = {
+        replaceState: vi.fn(),
+    };
     return new Proxy(domWindow, {
         get(target, prop) {
             if (prop === "location") return locationMock;
+            if (prop === "history") return historyMock;
             return Reflect.get(target, prop);
         },
     });
@@ -38,6 +42,7 @@ function setupDOM(url = "http://localhost/wishlist/edit?user=abc-123-token") {
     window = proxyWindow(dom.window);
     globalThis.document = document;
     globalThis.window = window;
+    globalThis.history = window.history;
     globalThis.sessionStorage = window.sessionStorage;
 }
 
@@ -77,14 +82,28 @@ describe("Wishlist Edit Page", () => {
             );
         });
 
-        it("fetches user data using token from URL path", async () => {
+        it("fetches user data via POST with token in body", async () => {
             mockFetch({
                 body: {name: "John", wishlists: [], wishItems: []},
             });
             loadModule();
             await flush();
             expect(window.fetch).toHaveBeenCalledWith(
-                "/.netlify/functions/api-user-get/abc-123-token"
+                "/.netlify/functions/api-user-post",
+                expect.objectContaining({
+                    method: "POST",
+                    body: JSON.stringify({token: "abc-123-token"}),
+                })
+            );
+        });
+
+        it("strips token from URL bar after reading it", async () => {
+            mockFetch({
+                body: {name: "John", wishlists: [], wishItems: []},
+            });
+            loadModule();
+            expect(window.history.replaceState).toHaveBeenCalledWith(
+                null, '', '/wishlist/edit'
             );
         });
 
@@ -415,7 +434,7 @@ describe("Wishlist Edit Page", () => {
             await flush();
         }
 
-        it("sends POST request with contact info", async () => {
+        it("sends POST request with token and contact info in body", async () => {
             await loadWithUser();
 
             document.getElementById("contact-address").value = "123 Main St";
@@ -427,10 +446,11 @@ describe("Wishlist Edit Page", () => {
 
             await flush();
             expect(window.fetch).toHaveBeenCalledWith(
-                "/.netlify/functions/api-user-contact-post/abc-123-token",
+                "/.netlify/functions/api-user-contact-post",
                 expect.objectContaining({
                     method: "POST",
                     body: JSON.stringify({
+                        token: "abc-123-token",
                         address: "123 Main St",
                         phone: "555-1234",
                         notes: "Ring the doorbell",

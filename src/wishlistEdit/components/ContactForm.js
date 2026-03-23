@@ -34,9 +34,9 @@ async function send(token) {
     btn.disabled = true;
     btn.textContent = "Sending...";
 
-    await apiFetch(`/.netlify/functions/api-user-contact-post/${token}`, {
+    await apiFetch("/.netlify/functions/api-user-contact-post", {
         method: "POST",
-        body: {address, phone, notes},
+        body: {token, address, phone, notes},
         onSuccess: () => {
             snackbar.showSuccess("Contact info sent to your Secret Santa!");
             selectElement("#contact-address").value = "";

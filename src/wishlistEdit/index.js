@@ -8,7 +8,9 @@ import * as contactForm from './components/ContactForm.js';
 import {setUserData} from './state.js';
 
 function extractToken() {
-    return new URLSearchParams(window.location.search).get("user") || "";
+    const token = new URLSearchParams(window.location.search).get("user") || "";
+    history.replaceState(null, '', window.location.pathname);
+    return token;
 }
 
 function redirectWithError() {
@@ -21,7 +23,11 @@ async function loadUser(token) {
         redirectWithError();
         return;
     }
-    const response = await fetch(`/.netlify/functions/api-user-get/${token}`);
+    const response = await fetch("/.netlify/functions/api-user-post", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({token}),
+    });
     if (!response.ok) {
         redirectWithError();
         return;
