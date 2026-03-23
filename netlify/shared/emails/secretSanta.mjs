@@ -24,7 +24,7 @@ export function render({name, recipient}) {
     </tr>
     <tr>
         <td align="center" style="padding: 30px 50px; font-size: 16px; color: #999;">
-            If you lose this email, you can look up your recipient at <a href="https://giftexchangegenerator.netlify.app/" style="color: #69292a;">giftexchangegenerator.netlify.app</a>.
+            If you lose this email, you can enter your email on <a href="https://giftexchangegenerator.netlify.app/" style="color: #69292a;">giftexchangegenerator.netlify.app</a> to get a verification code and look up your recipient.
         </td>
     </tr>`);
 }
