@@ -6,6 +6,7 @@ export const ExchangeEvents = {
   EXCHANGE_STARTED: 'exchange:started',
   EMAIL_RESULTS_REQUESTED: 'email:resultsRequested',
   EXCHANGE_COMPLETE: 'exchange:complete',
+  ORGANIZER_SET: 'organizer:set',
   PARTICIPANT_ADDED: 'participant:added',
   PARTICIPANT_REMOVED: 'participant:removed',
   HOUSE_ADDED: 'house:added',
@@ -20,6 +21,9 @@ const state = {
   exchangeId: '',
   houses: [],
   isSecretSanta: false,
+  organizerName: '',
+  organizerEmail: '',
+  organizerToken: '',
   participants: [],
   assignments: [],
   nameNumber: 1,
@@ -35,6 +39,9 @@ export function startExchange(isSecretSanta = false) {
   state.exchangeId = crypto.randomUUID();
   state.houses = [];
   state.isSecretSanta = isSecretSanta;
+  state.organizerName = '';
+  state.organizerEmail = '';
+  state.organizerToken = '';
   state.participants = [];
   state.assignments = [];
   state.nameNumber = 1;
@@ -47,6 +54,18 @@ export function requestEmailResults() {
 
 export function completeExchange(mode) {
   exchangeEvents.emit(ExchangeEvents.EXCHANGE_COMPLETE, {...state, mode});
+}
+
+export function setOrganizer(name, email, token) {
+  state.organizerName = name;
+  state.organizerEmail = email;
+  state.organizerToken = token;
+  localStorage.setItem('organizerToken', token);
+  exchangeEvents.emit(ExchangeEvents.ORGANIZER_SET, {...state});
+}
+
+export function getOrganizerToken() {
+  return state.organizerToken || localStorage.getItem('organizerToken') || '';
 }
 
 
