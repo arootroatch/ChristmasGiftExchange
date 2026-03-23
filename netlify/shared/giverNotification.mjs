@@ -42,6 +42,7 @@ export async function sendBatchEmails(participants, assignments, userByEmail, ex
             parameters: {
                 name: assignment.giver,
                 recipient: assignment.recipient,
+                token: user ? user.token : null,
                 wishlistEditUrl,
                 wishlistViewUrl,
             },

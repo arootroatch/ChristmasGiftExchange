@@ -2,7 +2,7 @@ import {layout} from './layout.mjs';
 import {wishlistEditPath, wishlistViewPath} from '../links.mjs';
 import {escapeHtml} from './escapeHtml.mjs';
 
-export function render({name, recipient, wishlistEditUrl, wishlistViewUrl}) {
+export function render({name, recipient, token, wishlistEditUrl, wishlistViewUrl}) {
     const viewColumn = `<td align="center" style="padding: 16px; font-size: 16px;" width="50%">
             <p style="color: #555; margin: 0 0 12px 0;">
                 Need ideas for what to buy?
@@ -55,6 +55,27 @@ export function render({name, recipient, wishlistEditUrl, wishlistViewUrl}) {
     </tr>`;
     }
 
+    const tokenSection = token ? `
+    <tr>
+        <td align="center" style="padding: 20px 50px; font-size: 16px; color: #555;">
+            <strong>Your personal token:</strong>
+        </td>
+    </tr>
+    <tr>
+        <td align="center" style="padding: 0 50px 10px;">
+            <span style="display: inline-block; font-size: 14px; font-family: monospace; color: #198c0a; font-weight: bold; padding: 12px 20px;
+                         background: #fff; border-radius: 8px; border: 2px solid #198c0a;
+                         box-shadow: 0 2px 8px rgba(0,0,0,0.08); word-break: break-all;">
+                ${escapeHtml(token)}
+            </span>
+        </td>
+    </tr>
+    <tr>
+        <td align="center" style="padding: 10px 50px 30px; font-size: 14px; color: #999;">
+            Save this token! You'll need it to look up your recipient on the website if you lose this email.
+        </td>
+    </tr>` : '';
+
     return layout(`
     <tr>
         <td align="center" style="padding-top: 50px; padding-bottom: 30px; font-size: 36px; color: #69292a;">
@@ -76,10 +97,10 @@ export function render({name, recipient, wishlistEditUrl, wishlistViewUrl}) {
         </td>
     </tr>
     ${wishlistCtas}
+    ${tokenSection}
     <tr>
         <td align="center" style="padding: 30px 50px; font-size: 16px; color: #999;">
-            If you lose this email, you can retrieve the name of your recipient at
-            <a href="https://giftexchangegenerator.netlify.app/" style="color: #69292a;">the Gift Exchange Generator website.</a>
+            If you lose this email and your token, you can <a href="https://giftexchangegenerator.netlify.app/" style="color: #69292a;">request a new token</a> using your email address.
         </td>
     </tr>`);
 }

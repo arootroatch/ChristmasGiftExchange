@@ -55,6 +55,34 @@ describe('secretSanta', () => {
             const html = render({name: 'Alex', recipient: 'Hunter'});
             expect(html).toContain('giftexchangegenerator.netlify.app');
         });
+
+        it('displays token in a monospace box when token is provided', () => {
+            const html = render({name: 'Alex', recipient: 'Hunter', token: 'abc-123-token'});
+            expect(html).toContain('abc-123-token');
+            expect(html).toContain('font-family: monospace');
+        });
+
+        it('includes save token message when token is provided', () => {
+            const html = render({name: 'Alex', recipient: 'Hunter', token: 'abc-123-token'});
+            expect(html).toContain('Save this token');
+        });
+
+        it('does not display token section when token is null', () => {
+            const html = render({name: 'Alex', recipient: 'Hunter', token: null});
+            expect(html).not.toContain('Your personal token');
+            expect(html).not.toContain('Save this token');
+        });
+
+        it('does not display token section when token is omitted', () => {
+            const html = render({name: 'Alex', recipient: 'Hunter'});
+            expect(html).not.toContain('Your personal token');
+            expect(html).not.toContain('Save this token');
+        });
+
+        it('includes token recovery message in closing paragraph when token is provided', () => {
+            const html = render({name: 'Alex', recipient: 'Hunter', token: 'abc-123-token'});
+            expect(html).toContain('request a new token');
+        });
     });
 
     describe('getData', () => {
