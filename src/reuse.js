@@ -3,17 +3,19 @@ import * as snackbar from './Snackbar.js';
 import * as cookieBanner from './CookieBanner.js';
 
 async function searchExchanges() {
-    const email = document.getElementById("reuse-email").value.trim();
-    if (!email) return;
+    const token = document.getElementById("reuse-token").value.trim();
+    if (!token) return;
 
     const btn = document.getElementById("reuse-search-btn");
     btn.textContent = "Searching...";
     btn.disabled = true;
 
-    await apiFetch(`/.netlify/functions/api-exchange-get?email=${encodeURIComponent(email)}`, {
+    await apiFetch(`/.netlify/functions/api-my-exchanges-post`, {
+        method: "POST",
+        body: {token},
         onSuccess: (data) => {
             if (data.length === 0) {
-                snackbar.showError("No past exchanges found for that email");
+                snackbar.showError("No past exchanges found for that token");
                 return;
             }
             renderResults(data);
@@ -55,7 +57,7 @@ export function main() {
     cookieBanner.init();
 
     document.getElementById("reuse-search-btn").addEventListener("click", searchExchanges);
-    document.getElementById("reuse-email").addEventListener("keydown", (e) => {
+    document.getElementById("reuse-token").addEventListener("keydown", (e) => {
         if (e.key === "Enter") searchExchanges();
     });
 }
