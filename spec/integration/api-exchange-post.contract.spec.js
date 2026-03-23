@@ -3,7 +3,12 @@ import {setupMongo, teardownMongo, cleanCollections, buildEvent} from './contrac
 
 describe('api-exchange-post contract', () => {
     let handler, db, mongo;
-    const organizerToken = crypto.randomUUID();
+
+    async function authCookie(userId) {
+        const {signSession} = await import('../../netlify/shared/jwt.mjs');
+        const jwt = await signSession(userId.toString());
+        return `session=${jwt}`;
+    }
 
     beforeAll(async () => {
         mongo = await setupMongo();
@@ -11,6 +16,7 @@ describe('api-exchange-post contract', () => {
         process.env.URL = 'https://test.netlify.app';
         process.env.POSTMARK_SERVER_TOKEN = 'test-postmark-token';
         process.env.CONTEXT = 'production';
+        process.env.JWT_SECRET = 'test-secret';
         vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
             ok: true,
             json: () => Promise.resolve([]),
@@ -25,23 +31,22 @@ describe('api-exchange-post contract', () => {
         delete process.env.URL;
         delete process.env.POSTMARK_SERVER_TOKEN;
         delete process.env.CONTEXT;
+        delete process.env.JWT_SECRET;
         return teardownMongo(mongo);
     });
 
-    async function insertOrganizer(token = organizerToken) {
-        await db.collection('users').insertOne({
+    async function insertOrganizer() {
+        const result = await db.collection('users').insertOne({
             name: 'Organizer',
             email: 'organizer@test.com',
-            token,
             wishlists: [],
             wishItems: [],
         });
+        return result.insertedId;
     }
 
     // This mirrors the shape returned by getExchangePayload() in src/exchange/state.js:166-174
-    // plus the token field required for authentication
     const fePayload = {
-        token: organizerToken,
         exchangeId: crypto.randomUUID(),
         isSecretSanta: true,
         houses: [{id: 'house-1', name: 'Family', members: ['Alice', 'Bob']}],
@@ -58,61 +63,72 @@ describe('api-exchange-post contract', () => {
     };
 
     describe('request contract (FE → BE)', () => {
-        it('accepts payload shaped like getExchangePayload() with token', async () => {
-            await insertOrganizer();
-            const event = buildEvent('POST', {body: fePayload});
+        it('accepts payload shaped like getExchangePayload() with session cookie', async () => {
+            const organizerId = await insertOrganizer();
+            const cookie = await authCookie(organizerId);
+            const event = buildEvent('POST', {body: fePayload, headers: {cookie}});
             const response = await handler(event);
             expect(response.statusCode).toBe(200);
         });
 
         it('accepts payload without houses (no groups created)', async () => {
-            await insertOrganizer();
+            const organizerId = await insertOrganizer();
+            const cookie = await authCookie(organizerId);
             const event = buildEvent('POST', {
                 body: {...fePayload, houses: []},
+                headers: {cookie},
             });
             const response = await handler(event);
             expect(response.statusCode).toBe(200);
         });
 
         it('accepts payload with isSecretSanta false', async () => {
-            await insertOrganizer();
+            const organizerId = await insertOrganizer();
+            const cookie = await authCookie(organizerId);
             const event = buildEvent('POST', {
                 body: {...fePayload, isSecretSanta: false},
+                headers: {cookie},
             });
             const response = await handler(event);
             expect(response.statusCode).toBe(200);
         });
 
-        it('rejects payload missing token', async () => {
-            const {token, ...noToken} = fePayload;
-            const event = buildEvent('POST', {body: noToken});
+        it('rejects request without session cookie (401)', async () => {
+            const event = buildEvent('POST', {body: fePayload});
             const response = await handler(event);
-            expect(response.statusCode).toBe(400);
+            expect(response.statusCode).toBe(401);
         });
 
         it('rejects payload missing participants', async () => {
+            const organizerId = await insertOrganizer();
+            const cookie = await authCookie(organizerId);
             const {participants, ...incomplete} = fePayload;
-            const event = buildEvent('POST', {body: incomplete});
+            const event = buildEvent('POST', {body: incomplete, headers: {cookie}});
             const response = await handler(event);
             expect(response.statusCode).toBe(400);
         });
 
         it('rejects payload missing assignments', async () => {
+            const organizerId = await insertOrganizer();
+            const cookie = await authCookie(organizerId);
             const {assignments, ...incomplete} = fePayload;
-            const event = buildEvent('POST', {body: incomplete});
+            const event = buildEvent('POST', {body: incomplete, headers: {cookie}});
             const response = await handler(event);
             expect(response.statusCode).toBe(400);
         });
 
         it('rejects payload missing exchangeId', async () => {
+            const organizerId = await insertOrganizer();
+            const cookie = await authCookie(organizerId);
             const {exchangeId, ...incomplete} = fePayload;
-            const event = buildEvent('POST', {body: incomplete});
+            const event = buildEvent('POST', {body: incomplete, headers: {cookie}});
             const response = await handler(event);
             expect(response.statusCode).toBe(400);
         });
 
         it('rejects payload with duplicate participant emails', async () => {
-            await insertOrganizer();
+            const organizerId = await insertOrganizer();
+            const cookie = await authCookie(organizerId);
             const event = buildEvent('POST', {
                 body: {
                     ...fePayload,
@@ -122,6 +138,7 @@ describe('api-exchange-post contract', () => {
                         {name: 'Carol', email: 'carol@test.com'},
                     ],
                 },
+                headers: {cookie},
             });
             const response = await handler(event);
             expect(response.statusCode).toBe(400);
@@ -130,8 +147,9 @@ describe('api-exchange-post contract', () => {
 
     describe('response contract (BE → FE)', () => {
         it('response contains exchangeId and participants with name and email', async () => {
-            await insertOrganizer();
-            const event = buildEvent('POST', {body: fePayload});
+            const organizerId = await insertOrganizer();
+            const cookie = await authCookie(organizerId);
+            const event = buildEvent('POST', {body: fePayload, headers: {cookie}});
             const response = await handler(event);
             const body = JSON.parse(response.body);
 
@@ -143,8 +161,9 @@ describe('api-exchange-post contract', () => {
         });
 
         it('does not leak tokens or organizer in response', async () => {
-            await insertOrganizer();
-            const event = buildEvent('POST', {body: fePayload});
+            const organizerId = await insertOrganizer();
+            const cookie = await authCookie(organizerId);
+            const event = buildEvent('POST', {body: fePayload, headers: {cookie}});
             const response = await handler(event);
             const body = JSON.parse(response.body);
 
@@ -157,8 +176,9 @@ describe('api-exchange-post contract', () => {
         });
 
         it('response contains emailsFailed array', async () => {
-            await insertOrganizer();
-            const event = buildEvent('POST', {body: fePayload});
+            const organizerId = await insertOrganizer();
+            const cookie = await authCookie(organizerId);
+            const event = buildEvent('POST', {body: fePayload, headers: {cookie}});
             const response = await handler(event);
             const body = JSON.parse(response.body);
 

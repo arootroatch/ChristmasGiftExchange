@@ -1,9 +1,8 @@
 import {getExchangesCollection, getUsersCollection} from "../shared/db.mjs";
-import {apiHandler, validateBody} from "../shared/middleware.mjs";
-import {badRequest, ok, unauthorized} from "../shared/responses.mjs";
+import {apiHandler, validateBody, requireAuth} from "../shared/middleware.mjs";
+import {badRequest, ok} from "../shared/responses.mjs";
 import {sendBatchEmails} from "../shared/giverNotification.mjs";
 import {z} from "zod";
-import crypto from "crypto";
 
 const participantInputSchema = z.object({
     name: z.string(),
@@ -58,7 +57,6 @@ function validateUniqueEmails(ctx) {
 }
 
 const exchangePostRequestSchema = z.object({
-    token: z.string(),
     exchangeId: z.string(),
     isSecretSanta: z.boolean(),
     houses: z.array(houseInputSchema),
@@ -75,7 +73,6 @@ async function upsertParticipants(usersCol, participants) {
           {
               $set: {name: participant.name, email: participant.email},
               $setOnInsert: {
-                  token: crypto.randomUUID(),
                   wishlists: [],
                   wishItems: [],
               },
@@ -114,18 +111,18 @@ function buildResponse(exchangeId, participants) {
 }
 
 export const handler = apiHandler("POST", async (event) => {
+    const authError = await requireAuth(event);
+    if (authError) return authError;
+
     const {data, error} = validateBody(exchangePostRequestSchema, event);
     if (error) return badRequest(error);
 
     const usersCol = await getUsersCollection();
-    const organizer = await usersCol.findOne({token: data.token});
-    if (!organizer) return unauthorized("Invalid token");
-
     const exchangesCol = await getExchangesCollection();
 
     const userMap = await upsertParticipants(usersCol, data.participants);
     const exchangeDoc = buildExchangeDoc(data.exchangeId, data.isSecretSanta, data.houses, data.participants, data.assignments, userMap);
-    exchangeDoc.organizer = organizer._id;
+    exchangeDoc.organizer = event.user._id;
     await exchangesCol.insertOne(exchangeDoc);
 
     const userByEmail = {};

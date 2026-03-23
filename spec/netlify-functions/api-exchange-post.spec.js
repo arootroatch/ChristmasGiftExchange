@@ -5,7 +5,21 @@ describe('api-exchange-post', () => {
     let client, db, handler;
     let mongo;
     let mockFetch;
-    const organizerToken = crypto.randomUUID();
+
+    async function authCookie(userId) {
+        const {signSession} = await import('../../netlify/shared/jwt.mjs');
+        const jwt = await signSession(userId.toString());
+        return `session=${jwt}`;
+    }
+
+    function buildEvent(body, headers = {}) {
+        return {
+            httpMethod: 'POST',
+            body: JSON.stringify(body),
+            path: '/.netlify/functions/api-exchange-post',
+            headers,
+        };
+    }
 
     beforeAll(async () => {
         mongo = await setupMongo();
@@ -13,6 +27,7 @@ describe('api-exchange-post', () => {
         process.env.URL = 'https://test.netlify.app';
         process.env.POSTMARK_SERVER_TOKEN = 'test-postmark-token';
         process.env.CONTEXT = 'production';
+        process.env.JWT_SECRET = 'test-secret';
         mockFetch = vi.fn().mockResolvedValue({
             ok: true,
             json: () => Promise.resolve([]),
@@ -32,30 +47,21 @@ describe('api-exchange-post', () => {
         delete process.env.URL;
         delete process.env.POSTMARK_SERVER_TOKEN;
         delete process.env.CONTEXT;
+        delete process.env.JWT_SECRET;
         await teardownMongo(mongo);
     });
 
-    function buildEvent(body) {
-        return {
-            httpMethod: 'POST',
-            body: JSON.stringify(body),
-            path: '/.netlify/functions/api-exchange-post',
-            headers: {},
-        };
-    }
-
-    async function insertOrganizer(token = organizerToken) {
-        await db.collection('users').insertOne({
+    async function insertOrganizer() {
+        const result = await db.collection('users').insertOne({
             name: 'Organizer',
             email: 'organizer@test.com',
-            token,
             wishlists: [],
             wishItems: [],
         });
+        return result.insertedId;
     }
 
     const exchangePayload = {
-        token: organizerToken,
         exchangeId: 'test-exchange-123',
         isSecretSanta: true,
         houses: [
@@ -79,22 +85,16 @@ describe('api-exchange-post', () => {
         expect(response.statusCode).toBe(405);
     });
 
-    it('returns 400 for request without token', async () => {
-        const {token, ...noToken} = exchangePayload;
-        const event = buildEvent(noToken);
-        const response = await handler(event);
-        expect(response.statusCode).toBe(400);
-    });
-
-    it('returns 401 for invalid token', async () => {
-        const event = buildEvent({...exchangePayload, token: 'bad-token'});
+    it('returns 401 for request without session cookie', async () => {
+        const event = buildEvent(exchangePayload);
         const response = await handler(event);
         expect(response.statusCode).toBe(401);
     });
 
     it('upserts users by email and creates exchange document', async () => {
-        await insertOrganizer();
-        const event = buildEvent(exchangePayload);
+        const organizerId = await insertOrganizer();
+        const cookie = await authCookie(organizerId);
+        const event = buildEvent(exchangePayload, {cookie});
         const response = await handler(event);
 
         expect(response.statusCode).toBe(200);
@@ -111,8 +111,9 @@ describe('api-exchange-post', () => {
     });
 
     it('does not return tokens in response', async () => {
-        await insertOrganizer();
-        const event = buildEvent(exchangePayload);
+        const organizerId = await insertOrganizer();
+        const cookie = await authCookie(organizerId);
+        const event = buildEvent(exchangePayload, {cookie});
         const response = await handler(event);
         const body = JSON.parse(response.body);
 
@@ -122,29 +123,28 @@ describe('api-exchange-post', () => {
     });
 
     it('preserves existing user data on upsert', async () => {
-        await insertOrganizer();
-        const existingToken = crypto.randomUUID();
+        const organizerId = await insertOrganizer();
+        const cookie = await authCookie(organizerId);
         await db.collection('users').insertOne({
             email: 'alex@test.com',
             name: 'Alex',
-            token: existingToken,
             wishlists: [{url: 'https://amazon.com/wishlist', title: 'My List'}],
             wishItems: [],
         });
 
-        const event = buildEvent(exchangePayload);
+        const event = buildEvent(exchangePayload, {cookie});
         await handler(event);
 
-        // Verify token and wishlists were preserved in DB
+        // Verify wishlists were preserved in DB
         const user = await db.collection('users').findOne({email: 'alex@test.com'});
-        expect(user.token).toBe(existingToken);
         expect(user.wishlists).toHaveLength(1);
         expect(user.wishlists[0].url).toBe('https://amazon.com/wishlist');
     });
 
     it('creates exchange document with user ObjectIds', async () => {
-        await insertOrganizer();
-        const event = buildEvent(exchangePayload);
+        const organizerId = await insertOrganizer();
+        const cookie = await authCookie(organizerId);
+        const event = buildEvent(exchangePayload, {cookie});
         await handler(event);
 
         const exchange = await db.collection('exchanges').findOne({exchangeId: 'test-exchange-123'});
@@ -160,19 +160,20 @@ describe('api-exchange-post', () => {
     });
 
     it('stores organizer ObjectId on exchange document', async () => {
-        await insertOrganizer();
-        const event = buildEvent(exchangePayload);
+        const organizerId = await insertOrganizer();
+        const cookie = await authCookie(organizerId);
+        const event = buildEvent(exchangePayload, {cookie});
         await handler(event);
 
         const exchange = await db.collection('exchanges').findOne({exchangeId: 'test-exchange-123'});
-        const organizer = await db.collection('users').findOne({token: organizerToken});
 
-        expect(exchange.organizer.equals(organizer._id)).toBe(true);
+        expect(exchange.organizer.equals(organizerId)).toBe(true);
     });
 
     it('exchange assignments reference correct user ObjectIds', async () => {
-        await insertOrganizer();
-        const event = buildEvent(exchangePayload);
+        const organizerId = await insertOrganizer();
+        const cookie = await authCookie(organizerId);
+        const event = buildEvent(exchangePayload, {cookie});
         await handler(event);
 
         const exchange = await db.collection('exchanges').findOne({exchangeId: 'test-exchange-123'});
@@ -186,7 +187,8 @@ describe('api-exchange-post', () => {
     });
 
     it('returns 400 for invalid participant email', async () => {
-        await insertOrganizer();
+        const organizerId = await insertOrganizer();
+        const cookie = await authCookie(organizerId);
         const event = buildEvent({
             ...exchangePayload,
             participants: [
@@ -194,13 +196,14 @@ describe('api-exchange-post', () => {
                 {name: 'Whitney', email: 'whitney@test.com'},
                 {name: 'Hunter', email: 'hunter@test.com'},
             ],
-        });
+        }, {cookie});
         const response = await handler(event);
         expect(response.statusCode).toBe(400);
     });
 
     it('returns 400 when assignment giver is not in participants', async () => {
-        await insertOrganizer();
+        const organizerId = await insertOrganizer();
+        const cookie = await authCookie(organizerId);
         const event = buildEvent({
             ...exchangePayload,
             assignments: [
@@ -208,13 +211,14 @@ describe('api-exchange-post', () => {
                 {giver: 'Whitney', recipient: 'Hunter'},
                 {giver: 'Hunter', recipient: 'Alex'},
             ],
-        });
+        }, {cookie});
         const response = await handler(event);
         expect(response.statusCode).toBe(400);
     });
 
     it('returns 400 when assignment recipient is not in participants', async () => {
-        await insertOrganizer();
+        const organizerId = await insertOrganizer();
+        const cookie = await authCookie(organizerId);
         const event = buildEvent({
             ...exchangePayload,
             assignments: [
@@ -222,13 +226,15 @@ describe('api-exchange-post', () => {
                 {giver: 'Whitney', recipient: 'Hunter'},
                 {giver: 'Hunter', recipient: 'Alex'},
             ],
-        });
+        }, {cookie});
         const response = await handler(event);
         expect(response.statusCode).toBe(400);
     });
 
     it('returns 400 for missing required fields', async () => {
-        const event = buildEvent({isSecretSanta: true});
+        const organizerId = await insertOrganizer();
+        const cookie = await authCookie(organizerId);
+        const event = buildEvent({isSecretSanta: true}, {cookie});
         const response = await handler(event);
         expect(response.statusCode).toBe(400);
         const body = JSON.parse(response.body);
@@ -236,7 +242,8 @@ describe('api-exchange-post', () => {
     });
 
     it('returns 400 when participants have duplicate emails', async () => {
-        await insertOrganizer();
+        const organizerId = await insertOrganizer();
+        const cookie = await authCookie(organizerId);
         const event = buildEvent({
             ...exchangePayload,
             participants: [
@@ -244,7 +251,7 @@ describe('api-exchange-post', () => {
                 {name: 'Whitney', email: 'same@test.com'},
                 {name: 'Hunter', email: 'hunter@test.com'},
             ],
-        });
+        }, {cookie});
         const response = await handler(event);
         expect(response.statusCode).toBe(400);
         const body = JSON.parse(response.body);
@@ -252,7 +259,8 @@ describe('api-exchange-post', () => {
     });
 
     it('returns 400 when participant emails differ only by case', async () => {
-        await insertOrganizer();
+        const organizerId = await insertOrganizer();
+        const cookie = await authCookie(organizerId);
         const event = buildEvent({
             ...exchangePayload,
             participants: [
@@ -260,14 +268,15 @@ describe('api-exchange-post', () => {
                 {name: 'Whitney', email: 'same@test.com'},
                 {name: 'Hunter', email: 'hunter@test.com'},
             ],
-        });
+        }, {cookie});
         const response = await handler(event);
         expect(response.statusCode).toBe(400);
     });
 
     it('returns emailsFailed as empty array when all emails succeed', async () => {
-        await insertOrganizer();
-        const event = buildEvent(exchangePayload);
+        const organizerId = await insertOrganizer();
+        const cookie = await authCookie(organizerId);
+        const event = buildEvent(exchangePayload, {cookie});
         const response = await handler(event);
         const body = JSON.parse(response.body);
 
@@ -275,17 +284,16 @@ describe('api-exchange-post', () => {
     });
 
     it('updates user name on upsert if different', async () => {
-        await insertOrganizer();
-        const existingToken = crypto.randomUUID();
+        const organizerId = await insertOrganizer();
+        const cookie = await authCookie(organizerId);
         await db.collection('users').insertOne({
             email: 'alex@test.com',
             name: 'Old Name',
-            token: existingToken,
             wishlists: [],
             wishItems: [],
         });
 
-        const event = buildEvent(exchangePayload);
+        const event = buildEvent(exchangePayload, {cookie});
         await handler(event);
 
         const user = await db.collection('users').findOne({email: 'alex@test.com'});
