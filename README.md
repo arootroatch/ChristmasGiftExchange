@@ -6,7 +6,7 @@
 
 A gift exchange name-drawing app built with vanilla JavaScript — no React, no framework. Instead, I built my own reactive component system from scratch using a central state store and an event-driven architecture inspired by unidirectional data flow.
 
-**Try it live:** https://giftexchangegenerator.netlify.app/
+**Try it live:** https://gift-exchange-generator.com/
 
 ![Gift Exchange Generator Demo](/assets/Demo.gif)
 

@@ -4,7 +4,7 @@
   functions = "netlify/functions"
 
 [[redirects]]
-  from = "https://giftexchangegenerator.netlify.app/*"
+  from = "https://gift-exchange-generator.com/*"
   to = "https://gift-exchange-generator.com/:splat"
   status = 308
   force = true

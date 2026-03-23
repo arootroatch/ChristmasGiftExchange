@@ -23,7 +23,7 @@ describe('secretSanta', () => {
 
         it('includes retrieval link', () => {
             const html = render({name: 'Alex', recipient: 'Hunter'});
-            expect(html).toContain('giftexchangegenerator.netlify.app');
+            expect(html).toContain('gift-exchange-generator.com');
         });
 
         it('does not display token section', () => {
