@@ -43,6 +43,7 @@ describe('api-user-wishlist-save-post', () => {
             httpMethod: 'POST',
             path: '/.netlify/functions/api-user-wishlist-save-post',
             body: JSON.stringify(body),
+            headers: {},
         };
     }
 

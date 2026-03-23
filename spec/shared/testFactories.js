@@ -23,11 +23,12 @@ export function makeExchange({exchangeId, organizer, participants, assignments, 
     };
 }
 
-export function buildEvent(httpMethod, {body, path, queryStringParameters} = {}) {
+export function buildEvent(httpMethod, {body, path, queryStringParameters, headers} = {}) {
     return {
         httpMethod,
         body: body ? JSON.stringify(body) : undefined,
         path: path ?? '/',
         queryStringParameters: queryStringParameters ?? {},
+        headers: headers ?? {},
     };
 }

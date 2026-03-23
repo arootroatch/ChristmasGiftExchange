@@ -40,6 +40,7 @@ describe('api-exchange-post', () => {
             httpMethod: 'POST',
             body: JSON.stringify(body),
             path: '/.netlify/functions/api-exchange-post',
+            headers: {},
         };
     }
 
