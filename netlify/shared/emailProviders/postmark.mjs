@@ -7,6 +7,7 @@ const templateModules = {
     "contact-info": () => import("../emails/contactInfo.mjs"),
     "error-alert": () => import("../emails/errorAlert.mjs"),
     "wishlist-link": () => import("../emails/wishlistLink.mjs"),
+    "token-recovery": () => import("../emails/tokenRecovery.mjs"),
 };
 
 sendNotificationEmail.defmethod("postmark", async (templateName, to, subject, parameters) => {
