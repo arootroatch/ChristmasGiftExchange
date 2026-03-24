@@ -27,7 +27,7 @@ sendNotificationEmail.defmethod("postmark", async (templateName, to, subject, pa
             "Accept": "application/json",
         },
         body: JSON.stringify({
-            From: "alex@soundrootsproductions.com",
+            From: "alex@gift-exchange-generator.com",
             To: to,
             Subject: subject,
             HtmlBody: htmlBody,
@@ -44,7 +44,7 @@ sendBatchNotificationEmails.defmethod("postmark", async (messages) => {
     const postmarkMessages = await Promise.all(messages.map(async (m) => {
         const templateModule = await templateModules[m.templateName]();
         return {
-            From: "alex@soundrootsproductions.com",
+            From: "alex@gift-exchange-generator.com",
             To: m.to,
             Subject: m.subject,
             HtmlBody: templateModule.render(m.parameters),

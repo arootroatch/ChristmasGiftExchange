@@ -18,8 +18,7 @@ describe("prerenderPlugin", () => {
 </head>
 <body>
     <div data-slot="instructions"></div>
-    <div data-slot="recipient-search"></div>
-    <div data-slot="reuse-link"></div>
+    <div data-slot="dashboard-link"></div>
 </body>
 </html>`;
 
@@ -29,14 +28,9 @@ describe("prerenderPlugin", () => {
       expect(result).toContain("Drawing names for a gift exchange");
     });
 
-    it("injects recipientSearchTemplate into recipient-search slot", () => {
+    it("injects dashboardLinkTemplate into dashboard-link slot", () => {
       const result = plugin.transformIndexHtml(indexHtml, {path: "/index.html"});
-      expect(result).toContain('data-slot="recipient-search"><div id="query"');
-    });
-
-    it("injects reuseLinkTemplate into reuse-link slot", () => {
-      const result = plugin.transformIndexHtml(indexHtml, {path: "/index.html"});
-      expect(result).toContain('data-slot="reuse-link"><div class="reuseLink"');
+      expect(result).toContain('data-slot="dashboard-link"><div class="dashboardLink"');
     });
 
     it("does not inject templates into non-index pages", () => {

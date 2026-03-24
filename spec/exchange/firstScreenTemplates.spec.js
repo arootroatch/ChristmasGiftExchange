@@ -2,9 +2,7 @@ import {describe, it, expect} from "vitest";
 import {
   introTemplate,
   introId,
-  recipientSearchTemplate,
-  queryDivId,
-  reuseLinkTemplate,
+  dashboardLinkTemplate,
 } from "../../src/exchange/firstScreenTemplates";
 
 describe("firstScreenTemplates", () => {
@@ -32,31 +30,21 @@ describe("firstScreenTemplates", () => {
     });
   });
 
-  describe("recipientSearchTemplate", () => {
-    it("wraps content in a div with queryDivId and recipientSearch class", () => {
-      const html = recipientSearchTemplate();
-      expect(html).toContain(`id="${queryDivId}"`);
-      expect(html).toContain('class="recipientSearch"');
+  describe("dashboardLinkTemplate", () => {
+    it("contains a link to /dashboard", () => {
+      expect(dashboardLinkTemplate()).toContain('href="/dashboard"');
     });
 
-    it("returns an empty container div", () => {
-      const html = recipientSearchTemplate();
-      expect(html).not.toContain("password");
-      expect(html).not.toContain("token");
-    });
-  });
-
-  describe("reuseLinkTemplate", () => {
-    it("contains the 'Been here before?' label", () => {
-      expect(reuseLinkTemplate()).toContain("Been here before?");
+    it("wraps content in a div with dashboardLink class", () => {
+      expect(dashboardLinkTemplate()).toContain('class="dashboardLink"');
     });
 
-    it("contains a link to /reuse", () => {
-      expect(reuseLinkTemplate()).toContain('href="/reuse"');
+    it("contains descriptive text about dashboard features", () => {
+      expect(dashboardLinkTemplate().toLowerCase()).toContain("gift");
     });
 
-    it("wraps content in a div with reuseLink class", () => {
-      expect(reuseLinkTemplate()).toContain('class="reuseLink"');
+    it("does not use inline styles on the link", () => {
+      expect(dashboardLinkTemplate()).not.toContain('style=');
     });
   });
 });

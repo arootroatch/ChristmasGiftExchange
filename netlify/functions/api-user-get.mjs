@@ -9,7 +9,9 @@ export const handler = apiHandler("GET", async (event) => {
 
     return ok({
         name: user.name,
+        email: user.email,
         wishlists: user.wishlists ?? [],
         wishItems: user.wishItems ?? [],
+        currency: user.currency ?? 'USD',
     });
 }, {maxRequests: 30, windowMs: 60000});

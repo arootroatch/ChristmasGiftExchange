@@ -68,7 +68,7 @@ export const handler = apiHandler("POST", async (event) => {
         try {
             await sendNotificationEmail(
                 "error-alert",
-                "alex@soundrootsproductions.com",
+                "alex@gift-exchange-generator.com",
                 "Gift Exchange - Email Send Failures",
                 {
                     endpoint: "api-giver-retry-post",

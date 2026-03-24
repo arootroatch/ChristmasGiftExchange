@@ -90,7 +90,7 @@ export function apiHandler(method, fn, rateLimitConfig) {
             try {
                 await sendNotificationEmail(
                     "error-alert",
-                    "alex@soundrootsproductions.com",
+                    "alex@gift-exchange-generator.com",
                     `Server Error: ${error.message}`,
                     {
                         endpoint: `${event.httpMethod} ${event.path}`,

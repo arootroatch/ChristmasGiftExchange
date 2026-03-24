@@ -1,5 +1,6 @@
-import {wishlistEditEvents, WishlistEditEvents, addWishlist, deleteWishlist} from '../state.js';
+import {dashboardEvents, DashboardEvents, addWishlist, deleteWishlist} from '../state.js';
 import {escape, escapeAttr, selectElement, addEventListener} from '../../utils.js';
+import {showError} from '../../Snackbar.js';
 
 function template() {
     return `<section id="wishlists-section">
@@ -28,8 +29,8 @@ const entryTemplate = (url, title, index) => `
 
 export function init() {
     selectElement('[data-slot="wishlists"]').innerHTML = template();
-    wishlistEditEvents.on(WishlistEditEvents.USER_LOADED, render);
-    wishlistEditEvents.on(WishlistEditEvents.WISHLISTS_CHANGED, render);
+    dashboardEvents.on(DashboardEvents.USER_LOADED, render);
+    dashboardEvents.on(DashboardEvents.WISHLISTS_CHANGED, render);
     addEventListener("#add-wishlist-btn", "click", handleAdd);
     addEventListener("#wishlists-list", "click", handleDelete);
 }
@@ -44,6 +45,12 @@ function handleAdd() {
     const url = selectElement("#wishlist-url").value.trim();
     const title = selectElement("#wishlist-title").value.trim();
     if (!url) return;
+    try {
+        new URL(url);
+    } catch {
+        showError("Please enter a valid URL");
+        return;
+    }
     addWishlist({url, title: title || url});
     selectElement("#wishlist-url").value = "";
     selectElement("#wishlist-title").value = "";

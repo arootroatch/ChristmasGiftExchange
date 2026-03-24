@@ -31,12 +31,13 @@ describe('api-user-wishlist-put contract', () => {
             const user = makeUser({name: 'Alice', email: 'alice@test.com'});
             await seedUsers(db, user);
 
-            // Mirrors: src/wishlistEdit/components/SaveButton.js
+            // Mirrors: src/dashboard/components/WishlistSection.js
             const event = buildEvent('PUT', {
                 path: '/.netlify/functions/api-user-wishlist-put',
                 body: {
                     wishlists: [{url: 'https://amazon.com/list', title: 'My List'}],
-                    wishItems: [{url: 'https://amazon.com/item', title: 'A Thing', price: '$15'}],
+                    wishItems: [{url: 'https://amazon.com/item', title: 'A Thing', price: 1500}],
+                    currency: 'USD',
                 },
                 headers: {cookie: await authCookie(user._id)},
             });

@@ -2,21 +2,31 @@ import {ExchangeEvents as Events, exchangeEvents as stateEvents, setOrganizer} f
 import {selectElement} from "../../utils.js";
 import {showError} from "../../Snackbar.js";
 import {authGateTemplate, initAuthGate} from "../../authGate.js";
+import {getSessionUser} from "../../session.js";
 
 const containerId = "organizerFormContainer";
 
 export function init() {
   stateEvents.on(Events.RECIPIENTS_ASSIGNED, (state) => {
     if (state.isSecretSanta) {
-      render();
+      renderOrSkip();
     }
   });
   stateEvents.on(Events.EMAIL_RESULTS_REQUESTED, () => {
-    render();
+    renderOrSkip();
   });
   stateEvents.on(Events.EXCHANGE_STARTED, () => {
     selectElement(`#${containerId}`)?.remove();
   });
+}
+
+function renderOrSkip() {
+  const user = getSessionUser();
+  if (user) {
+    setOrganizer(user.name, user.email);
+    return;
+  }
+  render();
 }
 
 function render() {

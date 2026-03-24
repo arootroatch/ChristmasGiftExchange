@@ -70,6 +70,14 @@ export function pageRoutesPlugin() {
                 const target = routes[cleanPath];
                 if (target) {
                     req.url = target + (query ? '?' + query : '');
+                } else {
+                    // SPA fallback: /dashboard/wishlist → /pages/dashboard/index.html
+                    for (const [route, file] of Object.entries(routes)) {
+                        if (cleanPath.startsWith(route + '/')) {
+                            req.url = file + (query ? '?' + query : '');
+                            break;
+                        }
+                    }
                 }
                 next();
             });

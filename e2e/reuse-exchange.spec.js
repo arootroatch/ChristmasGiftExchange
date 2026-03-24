@@ -33,42 +33,39 @@ test.describe('Reuse Exchange', () => {
         await disconnectDB();
     });
 
-    test('search by email shows past exchange details with Households label', async ({page, baseURL}) => {
-        await page.goto('/reuse');
+    test('auto-loads past exchange details with Households label', async ({page, baseURL}) => {
+        await page.goto('/dashboard/reuse');
 
         // Auth gate appears first
         await expect(page.locator('#auth-gate')).toBeVisible();
         await authenticateViaUI(page, 'alice@test.com');
 
-        // Search section now visible
-        await expect(page.locator('#reuse-search-btn')).toBeVisible();
-        await page.locator('#reuse-search-btn').click();
-
-        const results = page.locator('#results-section');
+        // Exchanges auto-load
+        const results = page.locator('#reuse-results');
         await expect(results).toContainText('Alice');
         await expect(results).toContainText('Bob');
         await expect(results).toContainText('Households:');
         await expect(results).toContainText('Family');
     });
 
-    test('shows error snackbar when no exchanges found', async ({page, baseURL}) => {
+    test('shows inline empty state when no exchanges found', async ({page, baseURL}) => {
         // Seed a user who has no exchanges
         const carol = makeUser({name: 'Carol', email: 'carol@test.com'});
         await seedUsers(carol);
 
-        await page.goto('/reuse');
+        await page.goto('/dashboard/reuse');
         await expect(page.locator('#auth-gate')).toBeVisible();
         await authenticateViaUI(page, 'carol@test.com');
 
-        await page.locator('#reuse-search-btn').click();
-        await expect(page.locator('#snackbar')).toContainText('No past exchanges found');
+        await expect(page.locator('#reuse-results')).toContainText('No past exchanges found');
     });
 
     test('Use This Exchange button stores data in sessionStorage', async ({page, baseURL}) => {
-        await page.goto('/reuse');
+        await page.goto('/dashboard/reuse');
+        await expect(page.locator('#auth-gate')).toBeVisible();
         await authenticateViaUI(page, 'alice@test.com');
 
-        await page.locator('#reuse-search-btn').click();
+        // Exchanges auto-load
         await expect(page.locator('.use-exchange-btn')).toBeVisible();
 
         // Intercept sessionStorage.setItem before click — the home page consumes and removes the item on load
@@ -89,10 +86,11 @@ test.describe('Reuse Exchange', () => {
     });
 
     test('reusing exchange populates participants, houses, and ghost house', async ({page, baseURL}) => {
-        await page.goto('/reuse');
+        await page.goto('/dashboard/reuse');
+        await expect(page.locator('#auth-gate')).toBeVisible();
         await authenticateViaUI(page, 'alice@test.com');
 
-        await page.locator('#reuse-search-btn').click();
+        // Exchanges auto-load
         await expect(page.locator('.use-exchange-btn')).toBeVisible();
 
         await page.locator('.use-exchange-btn').first().click();

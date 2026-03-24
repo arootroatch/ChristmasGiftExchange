@@ -34,7 +34,7 @@ describe("api-user-wishlist-get", () => {
             name: "Whitney",
             email: "recipient@test.com",
             wishlists: [{url: "https://amazon.com/list", title: "My List"}],
-            wishItems: [{url: "https://amazon.com/item", title: "Cool Thing", price: "$25"}],
+            wishItems: [{url: "https://amazon.com/item", title: "Cool Thing", price: 25}],
         });
         const outsider = makeUser({name: "Outsider", email: "outsider@test.com"});
 

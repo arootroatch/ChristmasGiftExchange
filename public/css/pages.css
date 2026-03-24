@@ -83,7 +83,7 @@ section:nth-child(4) { animation-delay: 0.24s; }
 hr {
   border: none;
   height: 1px;
-  background: linear-gradient(90deg, transparent, var(--frost-border), transparent);
+  background: var(--frost-border);
   margin: 8px 0 20px;
 }
 
@@ -93,6 +93,7 @@ input[type="email"],
 input[type="url"],
 input[type="text"],
 input[type="tel"],
+input[type="number"],
 textarea {
   width: 100%;
   margin-bottom: 10px;
@@ -318,6 +319,24 @@ textarea {
   margin-top: 32px;
 }
 
+/* ── Auth Gate ──────────────────────────────────────────────── */
+#auth-gate {
+  max-width: 400px;
+  margin: 60px auto 0;
+  background: var(--frost);
+  border: 1px solid var(--frost-border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: var(--shadow-card);
+  animation: cardSlide 0.5s ease-out both;
+  h2 {
+    margin-top: 0;
+    margin-bottom: 12px;
+  }
+}
+
 /* ── Snackbar Overrides ─────────────────────────────────────── */
 #snackbar {
   min-width: 280px;
@@ -417,6 +436,273 @@ textarea {
   font-size: 1.1em;
 }
 
+/* ── Dashboard Sidebar Layout ─────────────────────────────── */
+#container.dashboard-page {
+  max-width: none;
+  padding: 0;
+  margin: 0;
+}
+
+.dashboard-page .back-link,
+.dashboard-page h1 {
+  display: none;
+}
+
+.dashboard-layout {
+  min-height: 100vh;
+  margin-left: 220px;
+}
+
+.dashboard-sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.04);
+  border-right: 1px solid var(--frost-border);
+  padding: 24px 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  overflow-y: auto;
+}
+
+.sidebar-title {
+  padding: 0 20px 20px;
+  font-family: 'Source Sans 3', 'Georgia', serif;
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: #fff;
+  letter-spacing: -0.01em;
+}
+
+.sidebar-welcome {
+  padding: 0 20px 16px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+}
+
+.nav-item {
+  display: block;
+  padding: 10px 20px;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  border-left: 3px solid transparent;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  cursor: pointer;
+}
+
+.nav-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-primary);
+}
+
+.nav-item.active {
+  background: rgba(255, 255, 255, 0.06);
+  border-left-color: var(--burgundy);
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.sidebar-logout {
+  display: block;
+  padding: 10px 20px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  border-top: 1px solid var(--frost-border);
+  margin-top: auto;
+  position: absolute;
+  bottom: 24px;
+  left: 0;
+  right: 0;
+  transition: color 0.15s;
+}
+
+.sidebar-logout:hover {
+  color: var(--text-primary);
+}
+
+.hamburger-logout {
+  margin-left: auto;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.hamburger-logout:hover {
+  color: var(--text-primary);
+}
+
+.dashboard-main {
+  max-width: 620px;
+  margin: 0 auto;
+  padding: 40px 32px 60px;
+}
+
+.dashboard-section {
+  animation: cardSlide 0.5s ease-out both;
+}
+
+.dashboard-section section {
+  box-shadow: none;
+  border: none;
+  padding: 0;
+  margin-bottom: 20px;
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  animation: none;
+}
+
+/* ── Hamburger (mobile only) ──────────────────────────────── */
+.hamburger-bar {
+  display: none;
+}
+
+.hamburger-btn {
+  background: var(--frost);
+  border: 1px solid var(--frost-border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 1.4rem;
+  padding: 6px 12px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.sidebar-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 10;
+}
+
+.sidebar-backdrop.open {
+  display: block;
+}
+
+/* ── Recipient Card ────────────────────────────────────────── */
+#recipient-card {
+  text-align: left;
+}
+
+.recipient-reveal {
+  font-size: 1.2rem;
+  color: var(--text-primary);
+  margin: 0 0 4px;
+}
+
+.recipient-reveal strong {
+  color: #198c0a;
+  font-size: 1.4rem;
+}
+
+.date-secondary {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin: 0 0 16px;
+}
+
+#recipient-wishlist-view ul {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 0;
+}
+
+#recipient-wishlist-view li {
+  padding: 10px 14px;
+  margin-bottom: 6px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-sm);
+}
+
+#recipient-wishlist-view a {
+  color: rgba(255, 255, 255, 0.9);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+#recipient-wishlist-view a:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+
+/* ── Empty State ───────────────────────────────────────────── */
+.empty-state {
+  text-align: center;
+  color: var(--text-secondary);
+  font-style: italic;
+  margin-top: 16px;
+}
+
+/* ── Unsaved Changes Modal ─────────────────────────────────── */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.15s ease-out;
+}
+
+.modal-dialog {
+  background: var(--burgundy-deep);
+  border: 1px solid var(--frost-border);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6);
+}
+
+.modal-dialog h3 {
+  font-family: 'Source Sans 3', 'Georgia', serif;
+  font-weight: 600;
+  font-size: 1.15rem;
+  color: #fff;
+  margin: 0 0 8px;
+}
+
+.modal-dialog p {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin: 0 0 20px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.modal-leave {
+  background: transparent !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  color: var(--text-secondary) !important;
+}
+
+.modal-leave:hover {
+  color: var(--text-primary) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 /* ── Responsive ─────────────────────────────────────────────── */
 @media screen and (max-width: 480px) {
   #container {
@@ -449,5 +735,59 @@ textarea {
     width: 100%;
     height: auto;
     padding: 10px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .dashboard-page {
+    display: block;
+  }
+
+  .dashboard-layout {
+    display: block;
+  }
+
+  .hamburger-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--frost-border);
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  .hamburger-bar .dashboard-welcome {
+    margin: 0;
+    padding: 0;
+    font-size: 0.85rem;
+  }
+
+  .dashboard-sidebar {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 260px;
+    z-index: 20;
+    border-radius: 0;
+    border-right: 1px solid var(--frost-border);
+    background: var(--burgundy-deep);
+    overflow-y: auto;
+    animation: slideIn 0.2s ease-out;
+  }
+
+  .dashboard-sidebar.open {
+    display: block;
+  }
+
+  .dashboard-main {
+    margin-left: 0;
+    padding: 24px 16px 48px;
+  }
+
+  @keyframes slideIn {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(0); }
   }
 }

@@ -1,9 +1,9 @@
-export function wishlistEditPath() {
-    return "/wishlist/edit";
+export function dashboardPath() {
+    return "/dashboard";
 }
 
-export function wishlistViewPath(exchangeId) {
-    return `/wishlist/view?exchange=${exchangeId}`;
+export function dashboardWishlistPath() {
+    return "/dashboard/wishlist";
 }
 
 export function absoluteUrl(path) {

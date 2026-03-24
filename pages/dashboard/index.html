@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Your participant dashboard for the gift exchange.">
+    <title>Participant Dashboard</title>
+    <link rel="stylesheet" href="/css/pages.css" type="text/css"/>
+</head>
+<body>
+<div id="snackbar" class="hidden"></div>
+<div id="container" class="dashboard-page">
+    <a href="/" class="back-link">Back to Generator</a>
+    <h1>Participant Dashboard</h1>
+    <div id="dashboard-content">
+        <div class="spinner-container"><div class="spinner"></div></div>
+    </div>
+</div>
+<script type="module">
+    import {main} from '/src/dashboard/index.js';
+    main();
+</script>
+</body>
+</html>

@@ -24,7 +24,7 @@ export function render({name, recipient}) {
     </tr>
     <tr>
         <td align="center" style="padding: 30px 50px; font-size: 16px; color: #999;">
-            If you lose this email, you can enter your email on <a href="https://gift-exchange-generator.com/" style="color: #69292a;">gift-exchange-generator.com</a> to get a verification code and look up your recipient.
+            If you lose this email, head to your <a href="https://gift-exchange-generator.com/dashboard" style="color: #69292a;">Participant Dashboard</a> to look up your recipient, view wishlists, and more.
         </td>
     </tr>`);
 }

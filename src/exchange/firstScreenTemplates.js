@@ -28,17 +28,11 @@ export function introTemplate() {
   </div>`;
 }
 
-export const queryDivId = "query";
-
-export function recipientSearchTemplate() {
-  return `<div id="${queryDivId}" class="recipientSearch"></div>`;
-}
-
-export function reuseLinkTemplate() {
-  return `<div class="reuseLink">
-        <label>Been here before?</label>
-        <div>
-            <a href="/reuse" class="button" style="text-decoration: none; width: auto;">Reuse a Previous Exchange</a>
-        </div>
-    </div>`;
+export function dashboardLinkTemplate() {
+  return `<div class="dashboardLink">
+    <a href="/dashboard" class="button dashboardLink-btn">Participant Dashboard</a>
+    <p class="dashboardLink-desc">
+      Find out who you're buying a gift for, peek at their wishlist, share your own wishes and mailing info with your Secret Santa, or even reuse last year's exchange!
+    </p>
+  </div>`;
 }

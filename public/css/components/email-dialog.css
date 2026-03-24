@@ -61,3 +61,48 @@
     border-color: red;
   }
 }
+
+#organizerFormContainer {
+  min-width: 400px;
+  width: auto;
+  position: fixed;
+  left: 50%;
+  top: 20px;
+  border-radius: 16px;
+  transform: translateX(-50%);
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  padding: 20px;
+  #auth-gate {
+    h2 {
+      margin-top: 0;
+      margin-bottom: 15px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 15px;
+    }
+    label {
+      display: block;
+      margin-bottom: 10px;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: inherit;
+      font-weight: normal;
+      text-transform: none;
+      letter-spacing: normal;
+    }
+    input {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 6px;
+      color: #f0f0f0;
+      padding: 8px;
+      margin-top: 4px;
+      box-sizing: border-box;
+    }
+  }
+}

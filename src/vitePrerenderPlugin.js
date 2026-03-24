@@ -1,4 +1,4 @@
-import {introTemplate, recipientSearchTemplate, reuseLinkTemplate} from "./exchange/firstScreenTemplates.js";
+import {introTemplate, dashboardLinkTemplate} from "./exchange/firstScreenTemplates.js";
 
 const BASE_URL = "https://gift-exchange-generator.com";
 const OG_IMAGE = `${BASE_URL}/Gift-Giving-Banner.webp`;
@@ -15,12 +15,8 @@ function injectSlots(html) {
       `<div data-slot="instructions">${introTemplate()}</div>`
     )
     .replace(
-      '<div data-slot="recipient-search"></div>',
-      `<div data-slot="recipient-search">${recipientSearchTemplate()}</div>`
-    )
-    .replace(
-      '<div data-slot="reuse-link"></div>',
-      `<div data-slot="reuse-link">${reuseLinkTemplate()}</div>`
+      '<div data-slot="dashboard-link"></div>',
+      `<div data-slot="dashboard-link">${dashboardLinkTemplate()}</div>`
     );
 }
 

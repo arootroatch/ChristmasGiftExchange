@@ -1,6 +1,8 @@
 import {describe, it, expect, beforeEach, vi} from "vitest";
 import {authGateTemplate, initAuthGate} from "../src/authGate.js";
 
+vi.mock("../src/session.js", () => ({setSessionUser: vi.fn()}));
+
 const flush = () => new Promise(r => setTimeout(r, 0));
 
 describe("authGate", () => {
@@ -29,6 +31,17 @@ describe("authGate", () => {
         it("renders code step hidden initially", () => {
             const html = authGateTemplate();
             expect(html).toContain('id="auth-code-step" style="display: none;"');
+        });
+
+        it("renders send button with 'button' class", () => {
+            const html = authGateTemplate();
+            expect(html).toContain('class="button"');
+        });
+
+        it("renders verify button with 'button' class", () => {
+            const html = authGateTemplate();
+            const codeStep = html.slice(html.indexOf('auth-code-step'));
+            expect(codeStep).toContain('class="button"');
         });
     });
 
@@ -101,6 +114,20 @@ describe("authGate", () => {
 
             await flush();
             expect(onSuccess).toHaveBeenCalledWith({email: "test@test.com", name: "Alex"});
+        });
+
+        it("calls setSessionUser after successful verification", async () => {
+            const {setSessionUser} = await import("../src/session.js");
+            stubFetch({success: true});
+            initAuthGate({onSuccess: vi.fn(), showName: true});
+
+            document.getElementById("auth-email").value = "test@test.com";
+            document.getElementById("auth-code").value = "12345678";
+            document.getElementById("auth-name").value = "Alex";
+            document.getElementById("auth-verify-code").click();
+
+            await flush();
+            expect(setSessionUser).toHaveBeenCalledWith({name: "Alex", email: "test@test.com"});
         });
     });
 });

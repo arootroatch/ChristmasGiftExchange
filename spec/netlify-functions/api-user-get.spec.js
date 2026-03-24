@@ -55,6 +55,7 @@ describe("api-user-get", () => {
 
         const body = JSON.parse(response.body);
         expect(body.name).toBe("Alex");
+        expect(body.email).toBe("alex@test.com");
         expect(body.wishlists).toHaveLength(1);
         expect(body.wishlists[0].url).toBe("https://amazon.com/list");
         expect(body.wishItems).toHaveLength(1);

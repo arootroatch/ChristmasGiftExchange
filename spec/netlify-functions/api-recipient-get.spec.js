@@ -42,7 +42,13 @@ describe("api-recipient-get", () => {
 
     it("returns recipient name, giverName, date, and exchangeId for authenticated user", async () => {
         const giver = makeUser({name: "Alex", email: "alex@test.com"});
-        const recipient = makeUser({name: "Whitney", email: "whitney@test.com"});
+        const recipient = makeUser({
+            name: "Whitney",
+            email: "whitney@test.com",
+            wishlists: [{url: "https://amazon.com/list", title: "My List"}],
+            wishItems: [{url: "https://amazon.com/item", title: "Cool Thing", price: 2500}],
+            currency: "USD",
+        });
 
         await db.collection("users").insertMany([giver, recipient]);
 
@@ -66,6 +72,11 @@ describe("api-recipient-get", () => {
         expect(body.recipient).toBe("Whitney");
         expect(body.date).toBeDefined();
         expect(body.exchangeId).toBe("exchange-123");
+        expect(body.wishlists).toHaveLength(1);
+        expect(body.wishlists[0].title).toBe("My List");
+        expect(body.wishItems).toHaveLength(1);
+        expect(body.wishItems[0].title).toBe("Cool Thing");
+        expect(body.currency).toBe("USD");
     });
 
     it("returns the most recent exchange", async () => {

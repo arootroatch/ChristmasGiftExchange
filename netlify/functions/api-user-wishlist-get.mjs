@@ -1,7 +1,7 @@
-import {getUsersCollection, getExchangesCollection} from "../shared/db.mjs";
+import {getExchangesCollection} from "../shared/db.mjs";
 import {apiHandler, requireAuth} from "../shared/middleware.mjs";
 import {ok, badRequest, forbidden, notFound} from "../shared/responses.mjs";
-import {userSchema} from "../shared/schemas/user.mjs";
+import {getRecipientWishlist} from "../shared/recipientWishlist.mjs";
 
 export const handler = apiHandler("GET", async (event) => {
     const authError = await requireAuth(event);
@@ -15,17 +15,8 @@ export const handler = apiHandler("GET", async (event) => {
     const exchange = await exchangesCol.findOne({exchangeId});
     if (!exchange) return notFound("Exchange not found");
 
-    const assignment = exchange.assignments.find(a => a.giverId.equals(giver._id));
-    if (!assignment) return forbidden("You don't have access to view that participant's wish list");
+    const wishlistData = await getRecipientWishlist(exchange, giver._id);
+    if (!wishlistData) return forbidden("You don't have access to view that participant's wish list");
 
-    const usersCol = await getUsersCollection();
-    const doc = await usersCol.findOne({_id: assignment.recipientId});
-    if (!doc) return notFound("Recipient not found");
-    const recipient = userSchema.parse(doc);
-
-    return ok({
-        recipientName: recipient.name,
-        wishlists: recipient.wishlists,
-        wishItems: recipient.wishItems,
-    });
+    return ok(wishlistData);
 }, {maxRequests: 30, windowMs: 60000});

@@ -18,8 +18,10 @@ export default defineConfig({
             'spec/exchange/**/*.spec.js',
             'spec/authGate.spec.js',
             'spec/CookieBanner.spec.js',
+            'spec/session.spec.js',
             'spec/Snackbar.spec.js',
             'spec/utils.spec.js',
+            'spec/UserBadge.spec.js',
             'spec/vitePageRoutes.spec.js',
             'spec/vitePrerenderPlugin.spec.js',
           ],
@@ -31,6 +33,7 @@ export default defineConfig({
           environment: 'jsdom',
           include: [
             'spec/wishlistEdit/**/*.spec.js',
+            'spec/dashboard/**/*.spec.js',
             'spec/wishlistView.spec.js',
             'spec/reuse.spec.js',
           ],

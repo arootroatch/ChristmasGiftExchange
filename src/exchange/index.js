@@ -10,14 +10,17 @@ import * as generateButton from "./components/ControlStrip/GenerateButton.js";
 import * as instructions from "./components/Instructions.js";
 import * as organizerForm from "./components/OrganizerForm.js";
 import * as emailTable from "./components/EmailTable/EmailTable.js";
-import * as recipientSearch from "./components/RecipientSearch.js";
+import * as dashboardLink from "./components/DashboardLink.js";
 import * as completionModal from "./components/CompletionModal.js";
-import * as reuseLink from "./components/ReuseLink.js";
 import * as snackbar from "../Snackbar.js";
 import * as cookieBanner from "../CookieBanner.js";
+import * as userBadge from "../UserBadge.js";
 import {loadExchange} from "./state.js";
+import {loadSession} from "../session.js";
 
-export default function main() {
+export default async function main() {
+  try { await loadSession(); } catch { /* not authenticated or server error — organizer form will handle it */ }
+  userBadge.init();
   snackbar.init();
   cookieBanner.init();
   house.init();
@@ -33,8 +36,7 @@ export default function main() {
   organizerForm.init();
   emailTable.init();
   completionModal.init();
-  recipientSearch.init();
-  reuseLink.init();
+  dashboardLink.init();
 
   initDragDrop();
 
@@ -43,6 +45,4 @@ export default function main() {
     sessionStorage.removeItem("reuseExchange");
     loadExchange(JSON.parse(reuseData));
   }
-
-
 }

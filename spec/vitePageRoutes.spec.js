@@ -28,16 +28,9 @@ describe("pageRoutesPlugin", () => {
                 const d = dir.replace("/project/", "");
                 const dirs = {
                     "pages": [
-                        {name: "reuse", isDirectory: () => true},
-                        {name: "wishlist", isDirectory: () => true},
+                        {name: "dashboard", isDirectory: () => true},
                     ],
-                    "pages/reuse": [{name: "index.html", isDirectory: () => false}],
-                    "pages/wishlist": [
-                        {name: "edit", isDirectory: () => true},
-                        {name: "view", isDirectory: () => true},
-                    ],
-                    "pages/wishlist/edit": [{name: "index.html", isDirectory: () => false}],
-                    "pages/wishlist/view": [{name: "index.html", isDirectory: () => false}],
+                    "pages/dashboard": [{name: "index.html", isDirectory: () => false}],
                 };
                 return dirs[d] || [];
             });
@@ -50,9 +43,7 @@ describe("pageRoutesPlugin", () => {
 
             expect(result.build.rollupOptions.input).toEqual({
                 main: "/project/index.html",
-                reuse: "/project/pages/reuse/index.html",
-                wishlistEdit: "/project/pages/wishlist/edit/index.html",
-                wishlistView: "/project/pages/wishlist/view/index.html",
+                dashboard: "/project/pages/dashboard/index.html",
             });
         });
     });
@@ -78,12 +69,9 @@ describe("pageRoutesPlugin", () => {
                 const d = dir.replace("/project/", "");
                 const dirs = {
                     "pages": [
-                        {name: "reuse", isDirectory: () => true},
-                        {name: "wishlist", isDirectory: () => true},
+                        {name: "dashboard", isDirectory: () => true},
                     ],
-                    "pages/reuse": [{name: "index.html", isDirectory: () => false}],
-                    "pages/wishlist": [{name: "edit", isDirectory: () => true}],
-                    "pages/wishlist/edit": [{name: "index.html", isDirectory: () => false}],
+                    "pages/dashboard": [{name: "index.html", isDirectory: () => false}],
                     "dev": [{name: "emails", isDirectory: () => true}],
                     "dev/emails": [{name: "index.html", isDirectory: () => false}],
                 };
@@ -91,33 +79,33 @@ describe("pageRoutesPlugin", () => {
             });
         });
 
-        it("rewrites /reuse to /pages/reuse/index.html", () => {
-            const {req, res, next, middlewares} = createMockServer("/reuse");
+        it("rewrites /dashboard to /pages/dashboard/index.html", () => {
+            const {req, res, next, middlewares} = createMockServer("/dashboard");
             const middleware = getMiddleware({middlewares});
 
             middleware(req, res, next);
 
-            expect(req.url).toBe("/pages/reuse/index.html");
+            expect(req.url).toBe("/pages/dashboard/index.html");
             expect(next).toHaveBeenCalled();
         });
 
-        it("rewrites /reuse/ (trailing slash) to /pages/reuse/index.html", () => {
-            const {req, res, next, middlewares} = createMockServer("/reuse/");
+        it("rewrites /dashboard/ (trailing slash) to /pages/dashboard/index.html", () => {
+            const {req, res, next, middlewares} = createMockServer("/dashboard/");
             const middleware = getMiddleware({middlewares});
 
             middleware(req, res, next);
 
-            expect(req.url).toBe("/pages/reuse/index.html");
+            expect(req.url).toBe("/pages/dashboard/index.html");
             expect(next).toHaveBeenCalled();
         });
 
         it("preserves query strings through rewrite", () => {
-            const {req, res, next, middlewares} = createMockServer("/wishlist/edit?user=abc-123");
+            const {req, res, next, middlewares} = createMockServer("/dashboard?user=abc-123");
             const middleware = getMiddleware({middlewares});
 
             middleware(req, res, next);
 
-            expect(req.url).toBe("/pages/wishlist/edit/index.html?user=abc-123");
+            expect(req.url).toBe("/pages/dashboard/index.html?user=abc-123");
             expect(next).toHaveBeenCalled();
         });
 

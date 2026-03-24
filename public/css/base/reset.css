@@ -56,6 +56,36 @@ h1 {
   max-width: 600px;
 }
 
+.dashboardLink {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.85);
+  border-radius: 16px;
+  padding: 20px;
+  margin: 0 auto 20px;
+  text-align: center;
+  max-width: 600px;
+}
+
+.dashboardLink-btn {
+  text-decoration: none;
+  width: auto;
+  padding: 14px 28px;
+  font-size: 1rem;
+}
+
+.dashboardLink-desc {
+  margin-top: 12px;
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.5;
+  max-width: 420px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 .ghost-text {
   color: rgba(255, 255, 255, 0.45);
   font-style: italic;

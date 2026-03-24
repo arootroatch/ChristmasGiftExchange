@@ -1,6 +1,12 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import main from '../../src/exchange/index';
 
+vi.mock('../../src/session', () => ({
+  loadSession: vi.fn().mockResolvedValue(null),
+}));
+
+vi.mock('../../src/UserBadge.js', () => ({init: vi.fn(), remove: vi.fn()}));
+
 vi.mock('../../src/exchange/dragDrop', () => ({
   initDragDrop: vi.fn(),
 }));
@@ -47,15 +53,11 @@ vi.mock('../../src/exchange/components/EmailTable/EmailTable', () => ({
   init: vi.fn(),
 }));
 
-vi.mock('../../src/exchange/components/RecipientSearch', () => ({
+vi.mock('../../src/exchange/components/DashboardLink', () => ({
   init: vi.fn(),
 }));
 
 vi.mock('../../src/exchange/components/Instructions', () => ({
-  init: vi.fn(),
-}));
-
-vi.mock('../../src/exchange/components/ReuseLink', () => ({
   init: vi.fn(),
 }));
 
@@ -73,7 +75,7 @@ describe('main', () => {
   it('calls house.init', async () => {
     const {init} = await import('../../src/exchange/components/House');
 
-    main();
+    await main();
 
     expect(init).toHaveBeenCalledTimes(1);
   });
@@ -81,7 +83,7 @@ describe('main', () => {
   it('calls name.init', async () => {
     const {init} = await import('../../src/exchange/components/Name');
 
-    main();
+    await main();
 
     expect(init).toHaveBeenCalledTimes(1);
   });
@@ -89,7 +91,7 @@ describe('main', () => {
   it('calls select.init', async () => {
     const {init} = await import('../../src/exchange/components/Select');
 
-    main();
+    await main();
 
     expect(init).toHaveBeenCalledTimes(1);
   });
@@ -97,7 +99,7 @@ describe('main', () => {
   it('calls resultsTable.init', async () => {
     const {init} = await import('../../src/exchange/components/ResultsTable');
 
-    main();
+    await main();
 
     expect(init).toHaveBeenCalledTimes(1);
   });
@@ -105,7 +107,7 @@ describe('main', () => {
 it('calls controlStrip.init', async () => {
   const {init} = await import('../../src/exchange/components/ControlStrip/ControlStrip');
 
-  main();
+  await main();
 
   expect(init).toHaveBeenCalledTimes(1);
 });
@@ -113,7 +115,7 @@ it('calls controlStrip.init', async () => {
 it('calls ghostHouse.init', async () => {
   const {init} = await import('../../src/exchange/components/GhostHouse');
 
-  main();
+  await main();
 
   expect(init).toHaveBeenCalledTimes(1);
 });
@@ -121,7 +123,7 @@ it('calls ghostHouse.init', async () => {
 it('calls generateButton.init', async () => {
   const {init} = await import('../../src/exchange/components/ControlStrip/GenerateButton');
 
-  main();
+  await main();
 
   expect(init).toHaveBeenCalledTimes(1);
 });
@@ -129,15 +131,15 @@ it('calls generateButton.init', async () => {
   it('calls emailTable.init', async () => {
     const {init} = await import('../../src/exchange/components/EmailTable/EmailTable');
 
-    main();
+    await main();
 
     expect(init).toHaveBeenCalledTimes(1);
   });
 
-  it('calls recipientSearch.init', async () => {
-    const {init} = await import('../../src/exchange/components/RecipientSearch');
+  it('calls dashboardLink.init', async () => {
+    const {init} = await import('../../src/exchange/components/DashboardLink');
 
-    main();
+    await main();
 
     expect(init).toHaveBeenCalledTimes(1);
   });
@@ -145,15 +147,7 @@ it('calls generateButton.init', async () => {
   it('calls instructions.init', async () => {
     const {init} = await import('../../src/exchange/components/Instructions');
 
-    main();
-
-    expect(init).toHaveBeenCalledTimes(1);
-  });
-
-  it('calls reuseLink.init', async () => {
-    const {init} = await import('../../src/exchange/components/ReuseLink');
-
-    main();
+    await main();
 
     expect(init).toHaveBeenCalledTimes(1);
   });
@@ -161,14 +155,14 @@ it('calls generateButton.init', async () => {
   it('calls snackbar.init', async () => {
     const {init} = await import('../../src/Snackbar');
 
-    main();
+    await main();
 
     expect(init).toHaveBeenCalledTimes(1);
   });
 
   it('calls initDragDrop', async () => {
     const {initDragDrop} = await import('../../src/exchange/dragDrop');
-    main();
+    await main();
     expect(initDragDrop).toHaveBeenCalledTimes(1);
   });
 
@@ -182,12 +176,11 @@ it('calls generateButton.init', async () => {
     const generateButton = await import('../../src/exchange/components/ControlStrip/GenerateButton');
     const ghostHouse = await import('../../src/exchange/components/GhostHouse');
     const emailTable = await import('../../src/exchange/components/EmailTable/EmailTable');
-    const recipientSearch = await import('../../src/exchange/components/RecipientSearch');
+    const dashboardLink = await import('../../src/exchange/components/DashboardLink');
     const instructions = await import('../../src/exchange/components/Instructions');
-    const reuseLink = await import('../../src/exchange/components/ReuseLink');
     const {initDragDrop} = await import('../../src/exchange/dragDrop');
 
-    main();
+    await main();
 
     expect(snackbar.init).toHaveBeenCalledTimes(1);
     expect(house.init).toHaveBeenCalledTimes(1);
@@ -198,9 +191,8 @@ it('calls generateButton.init', async () => {
     expect(generateButton.init).toHaveBeenCalledTimes(1);
     expect(ghostHouse.init).toHaveBeenCalledTimes(1);
     expect(emailTable.init).toHaveBeenCalledTimes(1);
-    expect(recipientSearch.init).toHaveBeenCalledTimes(1);
+    expect(dashboardLink.init).toHaveBeenCalledTimes(1);
     expect(instructions.init).toHaveBeenCalledTimes(1);
-    expect(reuseLink.init).toHaveBeenCalledTimes(1);
     expect(initDragDrop).toHaveBeenCalledTimes(1);
 
     const snackbarOrder = snackbar.init.mock.invocationCallOrder[0];
@@ -213,8 +205,7 @@ it('calls generateButton.init', async () => {
     const ghostHouseOrder = ghostHouse.init.mock.invocationCallOrder[0];
     const instructionsOrder = instructions.init.mock.invocationCallOrder[0];
     const emailTableOrder = emailTable.init.mock.invocationCallOrder[0];
-    const recipientSearchOrder = recipientSearch.init.mock.invocationCallOrder[0];
-    const reuseLinkOrder = reuseLink.init.mock.invocationCallOrder[0];
+    const dashboardLinkOrder = dashboardLink.init.mock.invocationCallOrder[0];
     const dragDropOrder = initDragDrop.mock.invocationCallOrder[0];
 
     expect(snackbarOrder).toBeLessThan(houseOrder);
@@ -226,9 +217,8 @@ it('calls generateButton.init', async () => {
     expect(generateOrder).toBeLessThan(ghostHouseOrder);
     expect(ghostHouseOrder).toBeLessThan(instructionsOrder);
     expect(instructionsOrder).toBeLessThan(emailTableOrder);
-    expect(emailTableOrder).toBeLessThan(recipientSearchOrder);
-    expect(recipientSearchOrder).toBeLessThan(reuseLinkOrder);
-    expect(reuseLinkOrder).toBeLessThan(dragDropOrder);
+    expect(emailTableOrder).toBeLessThan(dashboardLinkOrder);
+    expect(dashboardLinkOrder).toBeLessThan(dragDropOrder);
   });
 
   describe('sessionStorage reuse', () => {
@@ -245,7 +235,7 @@ it('calls generateButton.init', async () => {
       sessionStorage.setItem("reuseExchange", JSON.stringify(exchangeData));
       const {loadExchange} = await import('../../src/exchange/state');
 
-      main();
+      await main();
 
       expect(loadExchange).toHaveBeenCalledWith(exchangeData);
     });
@@ -254,7 +244,7 @@ it('calls generateButton.init', async () => {
       const exchangeData = {isSecretSanta: false, houses: [], participants: []};
       sessionStorage.setItem("reuseExchange", JSON.stringify(exchangeData));
 
-      main();
+      await main();
 
       expect(sessionStorage.getItem("reuseExchange")).toBeNull();
     });
@@ -262,7 +252,7 @@ it('calls generateButton.init', async () => {
     it('does not call loadExchange when no reuseExchange in sessionStorage', async () => {
       const {loadExchange} = await import('../../src/exchange/state');
 
-      main();
+      await main();
 
       expect(loadExchange).not.toHaveBeenCalled();
     });

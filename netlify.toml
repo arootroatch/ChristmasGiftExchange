@@ -9,6 +9,11 @@
   status = 308
   force = true
 
+[[redirects]]
+  from = "/dashboard/*"
+  to = "/dashboard/index.html"
+  status = 200
+
 [dev]
   command = "npx vite"
   targetPort = 5173

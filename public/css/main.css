@@ -20,6 +20,7 @@
 @import url('components/email-confirmation.css');
 @import url('components/recipient-search.css');
 @import url('components/cookie-banner.css');
+@import url('components/user-badge.css');
 
 /* Themes */
 @import url('themes/secret-santa.css');

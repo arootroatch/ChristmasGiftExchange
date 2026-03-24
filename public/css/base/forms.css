@@ -15,6 +15,7 @@ input[type="email"],
 input[type="url"],
 input[type="text"],
 input[type="tel"],
+input[type="number"],
 textarea {
   padding: 10px 14px;
   border: 1px solid rgba(255, 255, 255, 0.12);
@@ -30,6 +31,23 @@ textarea {
 
 input::placeholder, textarea::placeholder {
   color: rgba(240, 240, 240, 0.35);
+}
+
+/* ── Number Input Spinners ────────────────────────────────── */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  opacity: 1;
+  height: 1.5em;
+  cursor: pointer;
+  filter: invert(0.85);
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+input[type="number"]:hover::-webkit-inner-spin-button {
+  filter: invert(1);
 }
 
 select:focus,

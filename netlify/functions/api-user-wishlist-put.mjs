@@ -4,7 +4,7 @@ import {getUsersCollection} from "../shared/db.mjs";
 import {forEachGiverOf, sendNotificationEmail} from "../shared/giverNotification.mjs";
 import {userSchema} from "../shared/schemas/user.mjs";
 
-const wishlistPutRequestSchema = userSchema.pick({wishlists: true, wishItems: true});
+const wishlistPutRequestSchema = userSchema.pick({wishlists: true, wishItems: true, currency: true});
 
 export const handler = apiHandler("PUT", async (event) => {
     const authError = await requireAuth(event);
@@ -19,7 +19,7 @@ export const handler = apiHandler("PUT", async (event) => {
     const usersCol = await getUsersCollection();
     await usersCol.updateOne(
         {_id: user._id},
-        {$set: {wishlists: data.wishlists, wishItems: data.wishItems}}
+        {$set: {wishlists: data.wishlists, wishItems: data.wishItems, currency: data.currency}}
     );
 
     let notifiedGivers = false;

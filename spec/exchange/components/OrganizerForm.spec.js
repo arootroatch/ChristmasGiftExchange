@@ -17,6 +17,11 @@ import {alex, whitney} from "../../testData";
 import {init} from "../../../src/exchange/components/OrganizerForm";
 import {init as initSnackbar} from "../../../src/Snackbar";
 import {init as initEmailTable} from "../../../src/exchange/components/EmailTable/EmailTable";
+import {getSessionUser} from "../../../src/session.js";
+vi.mock("../../../src/session.js", () => ({
+  getSessionUser: vi.fn(() => null),
+  setSessionUser: vi.fn(),
+}));
 
 function stubAuthCodeFetch() {
   global.fetch = vi.fn(() => Promise.resolve({
@@ -67,6 +72,7 @@ describe("OrganizerForm", () => {
     document.querySelector("#organizerFormContainer")?.remove();
     document.querySelector("#emailTable")?.remove();
     vi.spyOn(state, "setOrganizer");
+    getSessionUser.mockReturnValue(null);
   });
 
   describe("reactive rendering", () => {
@@ -215,6 +221,32 @@ describe("OrganizerForm", () => {
       fillAndVerifyCode("");
 
       expect(global.fetch).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("authenticated user bypass", () => {
+    it("calls setOrganizer directly when user is authenticated (secret santa)", () => {
+      getSessionUser.mockReturnValue({name: "Alice", email: "alice@test.com"});
+      triggerSecretSantaAssign();
+
+      expect(state.setOrganizer).toHaveBeenCalledWith("Alice", "alice@test.com");
+      shouldNotSelect("#organizerFormContainer");
+    });
+
+    it("calls setOrganizer directly when user is authenticated (email results)", () => {
+      getSessionUser.mockReturnValue({name: "Alice", email: "alice@test.com"});
+      triggerNonSecretSantaEmailResults();
+
+      expect(state.setOrganizer).toHaveBeenCalledWith("Alice", "alice@test.com");
+      shouldNotSelect("#organizerFormContainer");
+    });
+
+    it("shows organizer form when no authenticated user", () => {
+      getSessionUser.mockReturnValue(null);
+      triggerSecretSantaAssign();
+
+      shouldSelect("#organizerFormContainer");
+      expect(state.setOrganizer).not.toHaveBeenCalled();
     });
   });
 });

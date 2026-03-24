@@ -1,6 +1,7 @@
-import {getUsersCollection, getExchangesCollection} from "../shared/db.mjs";
+import {getExchangesCollection} from "../shared/db.mjs";
 import {apiHandler, requireAuth} from "../shared/middleware.mjs";
 import {ok, notFound} from "../shared/responses.mjs";
+import {getRecipientWishlist} from "../shared/recipientWishlist.mjs";
 
 export const handler = apiHandler("GET", async (event) => {
     const authError = await requireAuth(event);
@@ -18,17 +19,16 @@ export const handler = apiHandler("GET", async (event) => {
     if (exchange.length === 0) return notFound("No exchange found");
 
     const latestExchange = exchange[0];
-    const assignment = latestExchange.assignments.find(a => a.giverId.equals(user._id));
-    if (!assignment) return notFound("No assignment found");
-
-    const usersCol = await getUsersCollection();
-    const recipient = await usersCol.findOne({_id: assignment.recipientId});
-    if (!recipient) return notFound("Recipient not found");
+    const wishlistData = await getRecipientWishlist(latestExchange, user._id);
+    if (!wishlistData) return notFound("No assignment found");
 
     return ok({
         giverName: user.name,
-        recipient: recipient.name,
+        recipient: wishlistData.recipientName,
         date: latestExchange.createdAt,
         exchangeId: latestExchange.exchangeId,
+        wishlists: wishlistData.wishlists,
+        wishItems: wishlistData.wishItems,
+        currency: wishlistData.currency,
     });
 }, {maxRequests: 30, windowMs: 60000});

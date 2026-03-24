@@ -42,7 +42,7 @@ describe('postmark email provider', () => {
             expect(options.headers['Content-Type']).toBe('application/json');
 
             const body = JSON.parse(options.body);
-            expect(body.From).toBe('alex@soundrootsproductions.com');
+            expect(body.From).toBe('alex@gift-exchange-generator.com');
             expect(body.To).toBe('user@test.com');
             expect(body.Subject).toBe('Subject');
             expect(body.HtmlBody).toContain('Alex');
@@ -106,7 +106,7 @@ describe('postmark email provider', () => {
 
             const body = JSON.parse(options.body);
             expect(body).toHaveLength(2);
-            expect(body[0].From).toBe('alex@soundrootsproductions.com');
+            expect(body[0].From).toBe('alex@gift-exchange-generator.com');
             expect(body[0].To).toBe('alex@test.com');
             expect(body[0].HtmlBody).toContain('Alex');
             expect(body[1].To).toBe('whitney@test.com');

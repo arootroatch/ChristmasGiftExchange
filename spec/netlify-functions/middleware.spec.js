@@ -35,7 +35,7 @@ describe("apiHandler", () => {
         await handler({httpMethod: "GET", path: "/api/test"});
         expect(sendNotificationEmail).toHaveBeenCalledWith(
             "error-alert",
-            "alex@soundrootsproductions.com",
+            "alex@gift-exchange-generator.com",
             "Server Error: db exploded",
             expect.objectContaining({
                 endpoint: "GET /api/test",

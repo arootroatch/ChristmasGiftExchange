@@ -1,4 +1,5 @@
 import {apiFetch} from "./utils.js";
+import {setSessionUser} from "./session.js";
 
 export function authGateTemplate({heading, showName} = {}) {
     return `
@@ -7,12 +8,12 @@ export function authGateTemplate({heading, showName} = {}) {
             <div id="auth-email-step">
                 ${showName ? '<label>Your name<input type="text" id="auth-name" required></label>' : ''}
                 <label>Your email<input type="email" id="auth-email" required></label>
-                <button id="auth-send-code" class="btn">Send Verification Code</button>
+                <button id="auth-send-code" class="button">Send Verification Code</button>
             </div>
             <div id="auth-code-step" style="display: none;">
                 <p>Check your email for a verification code</p>
                 <label>Verification code<input type="text" id="auth-code" inputmode="numeric" maxlength="8" required></label>
-                <button id="auth-verify-code" class="btn">Verify</button>
+                <button id="auth-verify-code" class="button">Verify</button>
             </div>
         </div>`;
 }
@@ -43,7 +44,10 @@ export function initAuthGate({onSuccess, onError, showName} = {}) {
         apiFetch("/.netlify/functions/api-auth-verify-post", {
             method: "POST",
             body: {email, code, ...(name && {name})},
-            onSuccess: () => onSuccess({email, name}),
+            onSuccess: () => {
+                setSessionUser({name, email});
+                onSuccess({email, name});
+            },
             onError: onError || (() => {}),
         });
     });

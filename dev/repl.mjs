@@ -2,7 +2,7 @@ import {MongoClient} from "mongodb";
 import repl from "node:repl";
 import readline from "node:readline";
 import fs from "node:fs";
-import {wishlistEditPath, wishlistViewPath} from "../netlify/shared/links.mjs";
+import {dashboardPath} from "../netlify/shared/links.mjs";
 
 const ENV_FILES = {
     dev: ".env.local",
@@ -41,7 +41,7 @@ function userExchangeData(r, db, queryOrEmail) {
 
         console.log(`\n${user.name} (${user.email})`);
         console.log(`  Exchanges: ${exs.length}`);
-        console.log(`  Edit wishlist: ${base}${wishlistEditPath()}`);
+        console.log(`  Dashboard: ${base}${dashboardPath()}`);
 
         for (const ex of exs) {
             console.log(`\n  Exchange: ${ex.exchangeId}`);
@@ -49,13 +49,11 @@ function userExchangeData(r, db, queryOrEmail) {
             if (giverAssignment) {
                 const recipient = await usersCol.findOne({_id: giverAssignment.recipientId});
                 console.log(`    Recipient: ${recipient.name}`);
-                console.log(`    View ${recipient.name}'s wishlist: ${base}${wishlistViewPath(ex.exchangeId)}`);
             }
             const recipientAssignment = ex.assignments.find(a => a.recipientId.equals(user._id));
             if (recipientAssignment) {
                 const giver = await usersCol.findOne({_id: recipientAssignment.giverId});
                 console.log(`    Secret Santa: ${giver.name}`);
-                console.log(`    View ${user.name}'s wishlist (as ${giver.name}): ${base}${wishlistViewPath(ex.exchangeId)}`);
             }
         }
         console.log();

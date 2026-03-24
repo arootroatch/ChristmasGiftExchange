@@ -30,7 +30,7 @@ The backend is well-structured with consistent patterns: Zod validation on moder
 This endpoint accepts any email address and assignment data, then sends an email via Postmark with no authentication. An attacker can:
 - Send spam through your Postmark account to arbitrary addresses
 - Exhaust your Postmark sending quota
-- Send phishing-like emails from your domain (`alex@soundrootsproductions.com`)
+- Send phishing-like emails from your domain (`alex@gift-exchange-generator.com`)
 
 **Recommendation:** Require token authentication, or verify the email belongs to a known exchange participant before sending.
 

@@ -79,7 +79,8 @@ describe('api-user-wishlist-put', () => {
         const event = buildEvent('PUT', {
             body: {
                 wishlists: [{url: 'https://amazon.com/list', title: 'My Amazon List'}],
-                wishItems: [{url: 'https://amazon.com/item', title: 'Cool Gadget', price: '$30'}],
+                wishItems: [{url: 'https://amazon.com/item', title: 'Cool Gadget', price: 3000}],
+                currency: 'USD',
             },
             headers: {cookie},
         });
@@ -95,6 +96,7 @@ describe('api-user-wishlist-put', () => {
         expect(updated.wishlists[0].url).toBe('https://amazon.com/list');
         expect(updated.wishItems).toHaveLength(1);
         expect(updated.wishItems[0].title).toBe('Cool Gadget');
+        expect(updated.currency).toBe('USD');
     });
 
     it('returns notifiedGivers false when wishlists were already populated', async () => {
