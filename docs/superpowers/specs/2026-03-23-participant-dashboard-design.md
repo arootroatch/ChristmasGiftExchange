@@ -24,11 +24,12 @@ A new `/dashboard` page that consolidates all participant-facing features into a
 - HTML: `pages/dashboard/index.html`
 - Module: `src/dashboard/`
 
-### Auth Flow
-1. Page loads, renders auth gate (`authGateTemplate` + `initAuthGate`)
-2. On successful auth, replace auth gate with dashboard layout
-3. Fetch user data (`api-user-get`) and recipient data (`api-recipient-get`) in parallel
-4. Render sections as data arrives
+### Auth Flow (Optimistic Pattern)
+Following the existing wishlist edit page pattern:
+1. Page loads, renders dashboard layout immediately, initializes components, calls `snackbar.init()` and `cookieBanner.init()`
+2. Fetch user data (`api-user-get`) and recipient data (`api-recipient-get`) in parallel
+3. On success, render sections as data arrives
+4. On 401 from either endpoint, show auth gate; on successful auth, re-render layout and re-fetch data
 
 ### Layout: Hybrid Collapsible
 Mobile responsive design throughout.
@@ -39,8 +40,10 @@ Mobile responsive design throughout.
 - Shows "You're buying a gift for [Name]" with exchange date
 - "View [Name]'s Wishlist" button that expands an inline wishlist view
 - Wishlist view uses `api-user-wishlist-get` with the `exchangeId` from the recipient response
-- Handles case where no exchange is found (message + no expand button)
+- Handles case where no exchange is found (friendly message, no expand button)
 - "Email Me [Name]'s Wish List" button (uses `api-wishlist-email-post`)
+
+**No-exchange state:** When `api-recipient-get` returns 404, the recipient card shows a "No exchange found" message. The Your Wishlist, Contact Info, and Reuse Exchange sections still render — they are independent of having a recipient assignment.
 
 **Your Wishlist** (collapsible, collapsed by default):
 - Reuses wishlist edit components moved from `src/wishlistEdit/`: WishlistList, ItemList, SaveButton
@@ -53,11 +56,12 @@ Mobile responsive design throughout.
 **Reuse Exchange** (collapsible, collapsed by default):
 - Search button triggers `api-my-exchanges-get`
 - Renders exchange results with "Use This Exchange" buttons
+- Empty state: inline "No past exchanges found" message within the section (not just a snackbar)
 - Selecting an exchange saves to `sessionStorage` and navigates to `/`
 
 ### State Module (`src/dashboard/state.js`)
 - Private state object (following existing pattern)
-- Holds: user data (name, wishlists, wishItems), recipient data (name, exchangeId, date), recipient wishlist data
+- Holds: user data (name, wishlists, wishItems) from `api-user-get`, recipient data (recipientName from `recipient` field, exchangeId, date) from `api-recipient-get`, recipient wishlist data from `api-user-wishlist-get`
 - EventEmitter for component subscriptions
 - Getter functions for components that need current state
 - State mutation functions that emit events with `{...state}` spread
@@ -73,6 +77,12 @@ Mobile responsive design throughout.
 - `ReuseSection.js` — collapsible wrapper for reuse exchange search + results
 - `Collapsible.js` — shared collapsible section component (expand/collapse with heading)
 
+### Greeting
+The existing `Greeting.js` from wishlist edit is not needed — the dashboard has its own header context. The user's name can be shown in a welcome line at the top of the dashboard after auth.
+
+## Legacy Token Handling
+Old email links containing `?user=TOKEN` (from before cookie-based auth) are no longer supported. The old pages are deleted. Users with old emails will get a 404 and can navigate to `/dashboard` manually. This is acceptable since the legacy tokens were already non-functional after the auth migration.
+
 ## Pages Removed
 - `pages/wishlist/edit/index.html` — editing moves to dashboard
 - `pages/wishlist/view/index.html` — viewing moves to dashboard
@@ -83,11 +93,13 @@ Mobile responsive design throughout.
 
 ## Email Template Updates
 
-All email templates that link to wishlist edit or wishlist view pages update to link to `/dashboard`:
-- `netlify/shared/emails/wishlistLink.mjs` — edit link → `/dashboard`
-- `netlify/shared/emails/wishlistNotification.mjs` — view link → `/dashboard`
+All email templates that link to wishlist edit or wishlist view pages update to link to `/dashboard` with a hash fragment to auto-expand the relevant section:
+- `netlify/shared/emails/wishlistLink.mjs` — edit link → `/dashboard#wishlist`
+- `netlify/shared/emails/wishlistNotification.mjs` — view link → `/dashboard` (recipient wishlist is always visible)
 - `netlify/shared/emails/secretSanta.mjs` — any wishlist links → `/dashboard`
 - Other templates as needed
+
+The dashboard reads `window.location.hash` on load and auto-expands the matching collapsible section (e.g., `#wishlist` expands Your Wishlist, `#contact` expands Contact Info, `#reuse` expands Reuse Exchange).
 
 ## API Endpoints
 
