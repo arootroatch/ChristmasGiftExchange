@@ -24,12 +24,11 @@ A new `/dashboard` page that consolidates all participant-facing features into a
 - HTML: `pages/dashboard/index.html`
 - Module: `src/dashboard/`
 
-### Auth Flow (Optimistic Pattern)
-Following the existing wishlist edit page pattern:
-1. Page loads, renders dashboard layout immediately, initializes components, calls `snackbar.init()` and `cookieBanner.init()`
-2. Fetch user data (`api-user-get`) and recipient data (`api-recipient-get`) in parallel
-3. On success, render sections as data arrives
-4. On 401 from either endpoint, show auth gate; on successful auth, re-render layout and re-fetch data
+### Auth Flow (Loading → Auth Gate or Dashboard)
+1. Page loads, calls `snackbar.init()` and `cookieBanner.init()`, shows a loading spinner
+2. Attempt to fetch user data (`api-user-get`) to check for existing session
+3. On success, replace spinner with dashboard layout, initialize components, fetch remaining data (`api-recipient-get`)
+4. On 401, replace spinner with auth gate; on successful auth, replace auth gate with dashboard layout, initialize components, fetch data
 
 ### Layout: Hybrid Collapsible
 Mobile responsive design throughout.
