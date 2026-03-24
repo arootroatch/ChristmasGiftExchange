@@ -28,6 +28,7 @@ function dashboardLayout(userName) {
           ${SECTIONS.map(s =>
             `<a class="nav-item${s === defaultSection() ? ' active' : ''}" data-section="${s}">${LABELS[s]}</a>`
           ).join('')}
+          <a class="sidebar-back" href="/">Back to Exchange Generator</a>
         </div>
         <a class="sidebar-logout" id="sidebar-logout" href="#">Log out</a>
       </nav>

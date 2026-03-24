@@ -509,6 +509,22 @@ textarea {
   font-weight: 600;
 }
 
+.sidebar-back {
+  display: block;
+  padding: 10px 20px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  border-top: 1px solid var(--frost-border);
+  margin-top: 12px;
+  padding-top: 14px;
+  transition: color 0.15s;
+}
+
+.sidebar-back:hover {
+  color: var(--text-primary);
+}
+
 .sidebar-logout {
   display: block;
   padding: 10px 20px;

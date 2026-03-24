@@ -149,6 +149,13 @@ describe('Dashboard index', () => {
       expect(recipientNav.classList.contains('active')).toBe(false);
     });
 
+    it('renders back to exchange generator link in sidebar', () => {
+      const backLink = document.querySelector('.sidebar-back');
+      expect(backLink).not.toBeNull();
+      expect(backLink.textContent).toBe('Back to Exchange Generator');
+      expect(backLink.getAttribute('href')).toBe('/');
+    });
+
     it('renders logout link in sidebar', () => {
       const logout = document.getElementById('sidebar-logout');
       expect(logout).not.toBeNull();
