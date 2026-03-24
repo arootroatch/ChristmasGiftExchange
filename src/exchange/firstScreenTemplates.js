@@ -30,9 +30,9 @@ export function introTemplate() {
 
 export function dashboardLinkTemplate() {
   return `<div class="dashboardLink">
-    <a href="/dashboard" class="button dashboardLink-btn">Participant Dashboard</a>
     <p class="dashboardLink-desc">
       Find out who you're buying a gift for, peek at their wishlist, share your own wishes and mailing info with your Secret Santa, or even reuse last year's exchange!
     </p>
+    <a href="/dashboard" class="button dashboardLink-btn">Participant Dashboard</a>
   </div>`;
 }
