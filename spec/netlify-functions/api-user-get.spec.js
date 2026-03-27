@@ -45,7 +45,7 @@ describe("api-user-get", () => {
             name: "Alex",
             email: "alex@test.com",
             wishlists: [{url: "https://amazon.com/list", title: "My List"}],
-            wishItems: [{url: "https://amazon.com/item", title: "Cool Thing", price: "$25"}],
+            wishItems: [{url: "https://amazon.com/item", title: "Cool Thing", price: 2500}],
         });
         await db.collection("users").insertOne(user);
 

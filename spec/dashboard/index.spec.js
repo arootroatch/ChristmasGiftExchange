@@ -15,10 +15,25 @@ const flush = () => new Promise(r => setTimeout(r, 0));
 function setupDOM(url = 'http://localhost/dashboard') {
   dom = new JSDOM(html, {url});
   document = dom.window.document;
-  window = dom.window;
+
+  const loc = dom.window.location;
+  const locationMock = {
+    pathname: loc.pathname,
+    search: loc.search,
+    href: loc.href,
+    reload: vi.fn(),
+  };
+
+  window = new Proxy(dom.window, {
+    get(target, prop) {
+      if (prop === 'location') return locationMock;
+      return Reflect.get(target, prop);
+    },
+  });
+
   globalThis.document = document;
   globalThis.window = window;
-  globalThis.sessionStorage = window.sessionStorage;
+  globalThis.sessionStorage = dom.window.sessionStorage;
 }
 
 function mockFetchSequence(...responses) {

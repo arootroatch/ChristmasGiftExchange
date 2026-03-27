@@ -9,7 +9,7 @@ function template() {
 export function init() {
     selectElement('[data-slot="save"]').innerHTML = template();
     let userData;
-    const updateUserData = (state) => { userData = state.userData; };
+    const updateUserData = (state) => { userData = state.user; };
     dashboardEvents.on(DashboardEvents.USER_LOADED, updateUserData);
     dashboardEvents.on(DashboardEvents.WISHLISTS_CHANGED, updateUserData);
     dashboardEvents.on(DashboardEvents.ITEMS_CHANGED, updateUserData);

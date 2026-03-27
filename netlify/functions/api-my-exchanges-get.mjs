@@ -1,5 +1,5 @@
 import {getUsersCollection, getExchangesCollection} from "../shared/db.mjs";
-import {apiHandler, requireAuth} from "../shared/middleware.mjs";
+import {apiHandler} from "../shared/middleware.mjs";
 import {ok} from "../shared/responses.mjs";
 import {exchangeSchema} from "../shared/schemas/exchange.mjs";
 
@@ -30,9 +30,6 @@ async function enrichExchange(exchange, usersCol) {
 }
 
 export const handler = apiHandler("GET", async (event) => {
-    const authError = await requireAuth(event);
-    if (authError) return authError;
-
     const user = event.user;
     const usersCol = await getUsersCollection();
     const exchangesCol = await getExchangesCollection();
@@ -46,4 +43,4 @@ export const handler = apiHandler("GET", async (event) => {
 
     const results = await Promise.all(exchanges.map(ex => enrichExchange(exchangeSchema.parse(ex), usersCol)));
     return ok(results);
-}, {maxRequests: 30, windowMs: 60000});
+}, {auth: true, maxRequests: 30, windowMs: 60000});

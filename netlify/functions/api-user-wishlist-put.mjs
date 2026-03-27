@@ -1,4 +1,4 @@
-import {apiHandler, validateBody, requireAuth} from "../shared/middleware.mjs";
+import {apiHandler, validateBody} from "../shared/middleware.mjs";
 import {ok, badRequest} from "../shared/responses.mjs";
 import {getUsersCollection} from "../shared/db.mjs";
 import {forEachGiverOf, sendNotificationEmail} from "../shared/giverNotification.mjs";
@@ -7,9 +7,6 @@ import {userSchema} from "../shared/schemas/user.mjs";
 const wishlistPutRequestSchema = userSchema.pick({wishlists: true, wishItems: true, currency: true});
 
 export const handler = apiHandler("PUT", async (event) => {
-    const authError = await requireAuth(event);
-    if (authError) return authError;
-
     const {data, error} = validateBody(wishlistPutRequestSchema, event);
     if (error) return badRequest(error);
 
@@ -38,4 +35,4 @@ export const handler = apiHandler("PUT", async (event) => {
     }
 
     return ok({success: true, notifiedGivers});
-}, {maxRequests: 30, windowMs: 60000});
+}, {auth: true, maxRequests: 30, windowMs: 60000});

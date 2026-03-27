@@ -38,33 +38,19 @@ test('startExchange initializes state', () => {
   expect(getState().nameNumber).toEqual(1);
 })
 
-test('startExchange resets organizer fields', () => {
-  setOrganizer('Alex', 'alex@test.com');
-  startExchange();
-  expect(getState().organizerName).toBe('');
-  expect(getState().organizerEmail).toBe('');
-})
-
 describe('setOrganizer', () => {
   beforeEach(() => {
     startExchange();
-  });
-
-  it('updates organizer fields in state', () => {
-    setOrganizer('Alex', 'alex@test.com');
-    expect(getState().organizerName).toBe('Alex');
-    expect(getState().organizerEmail).toBe('alex@test.com');
   });
 
   it('emits ORGANIZER_SET with state spread', () => {
     const spy = vi.fn();
     const unsubscribe = stateEvents.on(Events.ORGANIZER_SET, spy);
 
-    setOrganizer('Alex', 'alex@test.com');
+    setOrganizer();
 
     expect(spy).toHaveBeenCalledWith(expect.objectContaining({
-      organizerName: 'Alex',
-      organizerEmail: 'alex@test.com',
+      exchangeId: expect.any(String),
     }));
     unsubscribe();
   });

@@ -66,7 +66,7 @@ export function init() {
 }
 
 function onDataLoaded(state) {
-    currentCurrency = state.userData.currency || 'USD';
+    currentCurrency = state.user.currency || 'USD';
     selectElement('[data-slot="items"]').innerHTML = template(currentCurrency);
     addEventListener("#add-item-btn", "click", handleAdd);
     addEventListener("#items-list", "click", handleDelete);
@@ -74,9 +74,9 @@ function onDataLoaded(state) {
     render(state);
 }
 
-function render({userData}) {
-    currentCurrency = userData.currency || 'USD';
-    selectElement("#items-list").innerHTML = userData.wishItems.map((item, i) =>
+function render({user}) {
+    currentCurrency = user.currency || 'USD';
+    selectElement("#items-list").innerHTML = user.wishItems.map((item, i) =>
         entryTemplate(item.url, item.title, item.price, currentCurrency, i)
     ).join("");
     updatePriceInput();

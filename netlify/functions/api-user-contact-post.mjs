@@ -1,5 +1,5 @@
 import {z} from "zod";
-import {apiHandler, requireAuth, validateBody} from "../shared/middleware.mjs";
+import {apiHandler, validateBody} from "../shared/middleware.mjs";
 import {ok, badRequest} from "../shared/responses.mjs";
 import {forEachGiverOf, sendNotificationEmail} from "../shared/giverNotification.mjs";
 
@@ -10,9 +10,6 @@ const contactPostRequestSchema = z.object({
 });
 
 export const handler = apiHandler("POST", async (event) => {
-    const authError = await requireAuth(event);
-    if (authError) return authError;
-
     const {data, error} = validateBody(contactPostRequestSchema, event);
     if (error) return badRequest(error);
 
@@ -33,4 +30,4 @@ export const handler = apiHandler("POST", async (event) => {
     });
 
     return ok({success: true});
-}, {maxRequests: 5, windowMs: 60000});
+}, {auth: true, maxRequests: 5, windowMs: 60000});

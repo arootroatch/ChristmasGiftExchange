@@ -9,7 +9,7 @@ function setupState() {
   getState().isSecretSanta = false;
   getState().participants = [{name: "Alex", email: ""}, {name: "Whitney", email: ""}];
   getState().assignments = [{giver: "Alex", recipient: "Whitney"}, {giver: "Whitney", recipient: "Alex"}];
-  setOrganizer("Organizer", "org@test.com", "test-token");
+  setOrganizer();
 }
 
 describe("SendResults", () => {

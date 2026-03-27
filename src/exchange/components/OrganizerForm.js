@@ -23,7 +23,7 @@ export function init() {
 function renderOrSkip() {
   const user = getSessionUser();
   if (user) {
-    setOrganizer(user.name, user.email);
+    setOrganizer();
     return;
   }
   render();
@@ -36,7 +36,7 @@ function render() {
   initAuthGate({
     onSuccess: ({email, name}) => {
       selectElement(`#${containerId}`)?.remove();
-      setOrganizer(name, email);
+      setOrganizer();
     },
     onError: (msg) => showError(msg),
     showName: true,

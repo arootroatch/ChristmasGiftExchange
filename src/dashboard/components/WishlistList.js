@@ -35,8 +35,8 @@ export function init() {
     addEventListener("#wishlists-list", "click", handleDelete);
 }
 
-function render({userData}) {
-    selectElement("#wishlists-list").innerHTML = userData.wishlists.map((w, i) =>
+function render({user}) {
+    selectElement("#wishlists-list").innerHTML = user.wishlists.map((w, i) =>
         entryTemplate(w.url, w.title, i)
     ).join("");
 }

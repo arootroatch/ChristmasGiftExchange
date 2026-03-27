@@ -1,5 +1,5 @@
 import {z} from "zod";
-import {apiHandler, validateBody, requireAuth} from "../shared/middleware.mjs";
+import {apiHandler, validateBody} from "../shared/middleware.mjs";
 import {ok, badRequest, forbidden, notFound} from "../shared/responses.mjs";
 import {sendNotificationEmail, sendBatchEmails} from "../shared/giverNotification.mjs";
 import {getUsersCollection, getExchangesCollection} from "../shared/db.mjs";
@@ -77,9 +77,6 @@ async function lookupParticipantUsers(assignments) {
 }
 
 export const handler = apiHandler("POST", async (event) => {
-    const authError = await requireAuth(event);
-    if (authError) return authError;
-
     const {data, error} = validateBody(requestSchema, event);
     if (error) return badRequest(error);
 
@@ -104,4 +101,4 @@ export const handler = apiHandler("POST", async (event) => {
     }
 
     return ok(buildSendResult(assignments.length, emailsFailed));
-}, {maxRequests: 5, windowMs: 60000});
+}, {auth: true, maxRequests: 5, windowMs: 60000});

@@ -30,8 +30,7 @@ describe('dashboardState', () => {
       setUserData({name: '', wishlists: [], wishItems: []});
 
       expect(spy).toHaveBeenCalledWith(expect.objectContaining({
-        userName: '',
-        userData: expect.objectContaining({wishlists: [], wishItems: []}),
+        user: expect.objectContaining({name: '', wishlists: [], wishItems: []}),
       }));
       unsub();
     });
@@ -45,8 +44,7 @@ describe('dashboardState', () => {
       setUserData({name: 'Jane', wishlists: [{url: 'https://a.com', title: 'A'}], wishItems: []});
 
       expect(spy).toHaveBeenCalledWith(expect.objectContaining({
-        userName: 'Jane',
-        userData: expect.objectContaining({wishlists: [{url: 'https://a.com', title: 'A'}], wishItems: []}),
+        user: expect.objectContaining({name: 'Jane', wishlists: [{url: 'https://a.com', title: 'A'}], wishItems: []}),
       }));
       unsub();
     });
@@ -60,7 +58,7 @@ describe('dashboardState', () => {
       addWishlist({url: 'https://amazon.com', title: 'My List'});
 
       expect(spy).toHaveBeenCalledWith(expect.objectContaining({
-        userData: expect.objectContaining({wishlists: [{url: 'https://amazon.com', title: 'My List'}], wishItems: []}),
+        user: expect.objectContaining({wishlists: [{url: 'https://amazon.com', title: 'My List'}], wishItems: []}),
       }));
       unsub();
     });
@@ -76,7 +74,7 @@ describe('dashboardState', () => {
       deleteWishlist(0);
 
       expect(spy).toHaveBeenCalledWith(expect.objectContaining({
-        userData: expect.objectContaining({wishlists: [{url: 'https://b.com', title: 'B'}], wishItems: []}),
+        user: expect.objectContaining({wishlists: [{url: 'https://b.com', title: 'B'}], wishItems: []}),
       }));
       unsub();
     });
@@ -90,7 +88,7 @@ describe('dashboardState', () => {
       addItem({url: 'https://example.com/thing', title: 'Thing', price: '$15'});
 
       expect(spy).toHaveBeenCalledWith(expect.objectContaining({
-        userData: expect.objectContaining({wishlists: [], wishItems: [{url: 'https://example.com/thing', title: 'Thing', price: '$15'}]}),
+        user: expect.objectContaining({wishlists: [], wishItems: [{url: 'https://example.com/thing', title: 'Thing', price: '$15'}]}),
       }));
       unsub();
     });
@@ -106,7 +104,7 @@ describe('dashboardState', () => {
       deleteItem(0);
 
       expect(spy).toHaveBeenCalledWith(expect.objectContaining({
-        userData: expect.objectContaining({wishlists: [], wishItems: [{url: 'https://b.com', title: 'B', price: '$10'}]}),
+        user: expect.objectContaining({wishlists: [], wishItems: [{url: 'https://b.com', title: 'B', price: '$10'}]}),
       }));
       unsub();
     });
@@ -175,23 +173,12 @@ describe('dashboardState', () => {
   });
 
   describe('currency', () => {
-    it('defaults currency to USD', () => {
-      setUserData({name: 'Jane', wishlists: [], wishItems: []});
-      const spy = vi.fn();
-      const unsub = dashboardEvents.on(DashboardEvents.USER_LOADED, spy);
-      setUserData({name: 'Jane', wishlists: [], wishItems: []});
-      expect(spy).toHaveBeenCalledWith(expect.objectContaining({
-        userData: expect.objectContaining({currency: 'USD'}),
-      }));
-      unsub();
-    });
-
     it('reads currency from server data', () => {
       const spy = vi.fn();
       const unsub = dashboardEvents.on(DashboardEvents.USER_LOADED, spy);
       setUserData({name: 'Jane', wishlists: [], wishItems: [], currency: 'EUR'});
       expect(spy).toHaveBeenCalledWith(expect.objectContaining({
-        userData: expect.objectContaining({currency: 'EUR'}),
+        user: expect.objectContaining({currency: 'EUR'}),
       }));
       unsub();
     });
@@ -202,7 +189,7 @@ describe('dashboardState', () => {
       const unsub = dashboardEvents.on(DashboardEvents.ITEMS_CHANGED, spy);
       setCurrency('GBP');
       expect(spy).toHaveBeenCalledWith(expect.objectContaining({
-        userData: expect.objectContaining({currency: 'GBP'}),
+        user: expect.objectContaining({currency: 'GBP'}),
       }));
       unsub();
     });

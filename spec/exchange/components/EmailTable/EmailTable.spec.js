@@ -45,20 +45,20 @@ function renderEmailTableInputs(participants) {
 function triggerEmailTableRender() {
   installGivers([{...alex}, {...whitney}]);
   assignRecipients(["Whitney", "Alex"]);
-  setOrganizer("Organizer", "org@test.com", "test-token");
+  setOrganizer();
 }
 
 function triggerEmailTableRenderWith3() {
   installGivers([{...alex}, {...whitney}, {...hunter}]);
   assignRecipients(["Whitney", "Hunter", "Alex"]);
-  setOrganizer("Organizer", "org@test.com", "test-token");
+  setOrganizer();
 }
 
 function triggerNonSecretSantaEmailTable() {
   getState().isSecretSanta = false;
   installGivers([{...alex}, {...whitney}]);
   assignRecipients(["Whitney", "Alex"]);
-  setOrganizer("Organizer", "org@test.com", "test-token");
+  setOrganizer();
 }
 
 function submitEmailForm() {
@@ -91,7 +91,7 @@ describe('emailTable', () => {
       installGivers([{...alex}, {...whitney}]);
       assignRecipients(["Whitney", "Alex"]);
 
-      setOrganizer("Organizer", "org@test.com", "test-token");
+      setOrganizer();
 
       shouldDisplayEmailTable("Alex", "Whitney");
     });
@@ -128,7 +128,7 @@ describe('emailTable', () => {
       installGivers([{...alex}, {...whitney}]);
       assignRecipients(["Whitney", "Alex"]);
 
-      setOrganizer("Organizer", "org@test.com", "test-token");
+      setOrganizer();
 
       expect(document.querySelector("#hideEmails")).not.toBeNull();
     });
@@ -138,7 +138,7 @@ describe('emailTable', () => {
       installGivers([{...alex}, {...whitney}]);
       assignRecipients(["Whitney", "Alex"]);
 
-      setOrganizer("Organizer", "org@test.com", "test-token");
+      setOrganizer();
 
       expect(document.querySelector("#hideEmails")).toBeNull();
     });

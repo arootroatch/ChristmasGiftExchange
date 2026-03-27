@@ -1,5 +1,5 @@
 import {getExchangesCollection, getUsersCollection} from "../shared/db.mjs";
-import {apiHandler, validateBody, requireAuth} from "../shared/middleware.mjs";
+import {apiHandler, validateBody} from "../shared/middleware.mjs";
 import {badRequest, ok} from "../shared/responses.mjs";
 import {sendBatchEmails} from "../shared/giverNotification.mjs";
 import {z} from "zod";
@@ -111,9 +111,6 @@ function buildResponse(exchangeId, participants) {
 }
 
 export const handler = apiHandler("POST", async (event) => {
-    const authError = await requireAuth(event);
-    if (authError) return authError;
-
     const {data, error} = validateBody(exchangePostRequestSchema, event);
     if (error) return badRequest(error);
 
@@ -133,4 +130,4 @@ export const handler = apiHandler("POST", async (event) => {
     const {emailsFailed} = await sendBatchEmails(data.participants, data.assignments, userByEmail, data.exchangeId);
 
     return ok({...buildResponse(data.exchangeId, data.participants), emailsFailed});
-}, {maxRequests: 30, windowMs: 60000});
+}, {auth: true, maxRequests: 30, windowMs: 60000});

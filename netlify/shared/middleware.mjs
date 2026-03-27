@@ -64,41 +64,55 @@ export async function requireAuth(event) {
     return null;
 }
 
-export function apiHandler(method, fn, rateLimitConfig) {
+function extractClientIp(event) {
+    return event.headers?.["x-forwarded-for"]?.split(",")[0]?.trim()
+        || event.headers?.["client-ip"]
+        || "unknown";
+}
+
+async function applyRateLimit(event, rateLimitConfig) {
+    if (!rateLimitConfig.maxRequests) return null;
+    const ip = extractClientIp(event);
+    const endpoint = event.path.split("/").pop();
+    return checkRateLimit(ip, endpoint, rateLimitConfig);
+}
+
+async function reportError(event, error) {
+    console.error("Unhandled error in API handler:", error);
+    try {
+        await sendNotificationEmail(
+            "error-alert",
+            "alex@gift-exchange-generator.com",
+            `Server Error: ${error.message}`,
+            {
+                endpoint: `${event.httpMethod} ${event.path}`,
+                timestamp: new Date().toISOString(),
+                stackTrace: error.stack || error.message,
+            }
+        );
+    } catch {}
+}
+
+export function apiHandler(method, fn, {auth = false, ...rateLimitConfig} = {}) {
     return async (event) => {
-        if (event.httpMethod !== method) {
-            return methodNotAllowed();
-        }
+        if (event.httpMethod !== method) return methodNotAllowed();
         setRequestOrigin(event);
 
         const originError = validateOrigin(event);
         if (originError) return originError;
 
-        if (rateLimitConfig) {
-            const ip = event.headers?.["x-forwarded-for"]?.split(",")[0]?.trim()
-                || event.headers?.["client-ip"]
-                || "unknown";
-            const endpoint = event.path.split("/").pop();
-            const limited = await checkRateLimit(ip, endpoint, rateLimitConfig);
-            if (limited) return limited;
+        const limited = await applyRateLimit(event, rateLimitConfig);
+        if (limited) return limited;
+
+        if (auth) {
+            const authError = await requireAuth(event);
+            if (authError) return authError;
         }
 
         try {
             return await fn(event);
         } catch (error) {
-            console.error("Unhandled error in API handler:", error);
-            try {
-                await sendNotificationEmail(
-                    "error-alert",
-                    "alex@gift-exchange-generator.com",
-                    `Server Error: ${error.message}`,
-                    {
-                        endpoint: `${event.httpMethod} ${event.path}`,
-                        timestamp: new Date().toISOString(),
-                        stackTrace: error.stack || error.message,
-                    }
-                );
-            } catch {}
+            await reportError(event, error);
             return serverError("Something went wrong");
         }
     };

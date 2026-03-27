@@ -1,12 +1,9 @@
 import {getExchangesCollection} from "../shared/db.mjs";
-import {apiHandler, requireAuth} from "../shared/middleware.mjs";
+import {apiHandler} from "../shared/middleware.mjs";
 import {ok, notFound} from "../shared/responses.mjs";
 import {getRecipientWishlist} from "../shared/recipientWishlist.mjs";
 
 export const handler = apiHandler("GET", async (event) => {
-    const authError = await requireAuth(event);
-    if (authError) return authError;
-
     const user = event.user;
     const exchangesCol = await getExchangesCollection();
 
@@ -27,4 +24,4 @@ export const handler = apiHandler("GET", async (event) => {
         date: latestExchange.createdAt,
         exchangeId: latestExchange.exchangeId,
     });
-}, {maxRequests: 30, windowMs: 60000});
+}, {auth: true, maxRequests: 30, windowMs: 60000});

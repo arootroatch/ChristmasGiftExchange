@@ -21,25 +21,19 @@ const state = {
   exchangeId: '',
   houses: [],
   isSecretSanta: false,
-  organizerName: '',
-  organizerEmail: '',
   participants: [],
   assignments: [],
   nameNumber: 1,
 };
 
-let isReuse = false;
-
 export function getState() {
   return state;
 }
 
-export function startExchange(isSecretSanta = false) {
+export function startExchange(isSecretSanta = false, {isReuse = false} = {}) {
   state.exchangeId = crypto.randomUUID();
   state.houses = [];
   state.isSecretSanta = isSecretSanta;
-  state.organizerName = '';
-  state.organizerEmail = '';
   state.participants = [];
   state.assignments = [];
   state.nameNumber = 1;
@@ -54,9 +48,7 @@ export function completeExchange(mode) {
   exchangeEvents.emit(ExchangeEvents.EXCHANGE_COMPLETE, {...state, mode});
 }
 
-export function setOrganizer(name, email) {
-  state.organizerName = name;
-  state.organizerEmail = email;
+export function setOrganizer() {
   exchangeEvents.emit(ExchangeEvents.ORGANIZER_SET, {...state});
 }
 
@@ -180,9 +172,7 @@ export function getParticipantNames() {
 }
 
 export function loadExchange(exchangeData) {
-  isReuse = true;
-  startExchange(exchangeData.isSecretSanta);
-  isReuse = false;
+  startExchange(exchangeData.isSecretSanta, {isReuse: true});
 
   exchangeData.participants.forEach(p => {
     addParticipant(p.name);

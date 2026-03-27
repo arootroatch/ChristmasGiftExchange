@@ -11,10 +11,13 @@ export const DashboardEvents = {
   RECIPIENT_WISHLIST_LOADED: 'recipient-wishlist:loaded',
 };
 
+function defaultUser() {
+  return {name: '', email: '', wishlists: [], wishItems: [], currency: 'USD'};
+}
+
 const dashboardState = {
-  userName: '',
-  userData: {wishlists: [], wishItems: [], currency: 'USD'},
-  savedUserData: null,
+  user: defaultUser(),
+  savedSnapshot: null,
   recipientName: '',
   date: '',
   exchangeId: '',
@@ -22,30 +25,29 @@ const dashboardState = {
 };
 
 export function resetState() {
-  dashboardState.userName = '';
-  dashboardState.userData = {wishlists: [], wishItems: [], currency: 'USD'};
-  dashboardState.savedUserData = null;
+  dashboardState.user = defaultUser();
+  dashboardState.savedSnapshot = null;
   dashboardState.recipientName = '';
   dashboardState.date = '';
   dashboardState.exchangeId = '';
   dashboardState.recipientWishlist = null;
 }
 
-function snapshotUserData() {
+function snapshot() {
   return JSON.stringify({
-    wishlists: dashboardState.userData.wishlists,
-    wishItems: dashboardState.userData.wishItems,
-    currency: dashboardState.userData.currency,
+    wishlists: dashboardState.user.wishlists,
+    wishItems: dashboardState.user.wishItems,
+    currency: dashboardState.user.currency,
   });
 }
 
 export function isDirty() {
-  if (!dashboardState.savedUserData) return false;
-  return snapshotUserData() !== dashboardState.savedUserData;
+  if (!dashboardState.savedSnapshot) return false;
+  return snapshot() !== dashboardState.savedSnapshot;
 }
 
 export function markClean() {
-  dashboardState.savedUserData = snapshotUserData();
+  dashboardState.savedSnapshot = snapshot();
   dashboardEvents.emit(DashboardEvents.DIRTY_CHANGED, {dirty: false});
 }
 
@@ -54,42 +56,37 @@ function emitDirtyIfChanged() {
 }
 
 export function setUserData(data) {
-  dashboardState.userName = data.name;
-  dashboardState.userData = {
-    wishlists: data.wishlists,
-    wishItems: data.wishItems,
-    currency: data.currency || 'USD',
-  };
-  dashboardState.savedUserData = snapshotUserData();
+  dashboardState.user = data;
+  dashboardState.savedSnapshot = snapshot();
   dashboardEvents.emit(DashboardEvents.USER_LOADED, {...dashboardState});
 }
 
 export function setCurrency(code) {
-  dashboardState.userData.currency = code;
+  dashboardState.user.currency = code;
   dashboardEvents.emit(DashboardEvents.ITEMS_CHANGED, {...dashboardState});
   emitDirtyIfChanged();
 }
 
 export function addWishlist(wishlist) {
-  dashboardState.userData.wishlists.push(wishlist);
+  dashboardState.user.wishlists.push(wishlist);
   dashboardEvents.emit(DashboardEvents.WISHLISTS_CHANGED, {...dashboardState});
   emitDirtyIfChanged();
 }
 
 export function deleteWishlist(index) {
-  dashboardState.userData.wishlists.splice(index, 1);
+  dashboardState.user.wishlists.splice(index, 1);
   dashboardEvents.emit(DashboardEvents.WISHLISTS_CHANGED, {...dashboardState});
   emitDirtyIfChanged();
 }
 
 export function addItem(item) {
-  dashboardState.userData.wishItems.push(item);
+  dashboardState.user.wishItems.push(item);
   dashboardEvents.emit(DashboardEvents.ITEMS_CHANGED, {...dashboardState});
   emitDirtyIfChanged();
 }
 
 export function deleteItem(index) {
-  dashboardState.userData.wishItems.splice(index, 1);
+  dashboardState.user.wishItems.splice(index, 1);
   dashboardEvents.emit(DashboardEvents.ITEMS_CHANGED, {...dashboardState});
   emitDirtyIfChanged();
 }
