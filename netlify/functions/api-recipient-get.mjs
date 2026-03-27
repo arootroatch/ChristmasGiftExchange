@@ -23,12 +23,8 @@ export const handler = apiHandler("GET", async (event) => {
     if (!wishlistData) return notFound("No assignment found");
 
     return ok({
-        giverName: user.name,
-        recipient: wishlistData.recipientName,
+        ...wishlistData,
         date: latestExchange.createdAt,
         exchangeId: latestExchange.exchangeId,
-        wishlists: wishlistData.wishlists,
-        wishItems: wishlistData.wishItems,
-        currency: wishlistData.currency,
     });
 }, {maxRequests: 30, windowMs: 60000});

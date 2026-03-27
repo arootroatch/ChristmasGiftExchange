@@ -38,7 +38,7 @@ function renderWishlist({recipientWishlist}) {
 
   const data = recipientWishlist;
   if (data.wishlists.length === 0 && data.wishItems.length === 0) {
-    container.innerHTML = `<p>${escape(data.recipientName)} hasn't added any wishlists yet. Check back later!</p>`;
+    container.innerHTML = `<p>${escape(data.name)} hasn't added any wishlists yet. Check back later!</p>`;
     return;
   }
 

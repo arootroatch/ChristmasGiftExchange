@@ -227,10 +227,9 @@ describe('dashboardState', () => {
       const spy = vi.fn();
       const unsub = dashboardEvents.on(DashboardEvents.RECIPIENT_LOADED, spy);
 
-      setRecipientData({giverName: 'Alice', recipient: 'Bob', date: '2024-12-25', exchangeId: 'abc123'});
+      setRecipientData({name: 'Bob', date: '2024-12-25', exchangeId: 'abc123'});
 
       expect(spy).toHaveBeenCalledWith(expect.objectContaining({
-        giverName: 'Alice',
         recipientName: 'Bob',
         date: '2024-12-25',
         exchangeId: 'abc123',

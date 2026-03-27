@@ -15,7 +15,6 @@ const dashboardState = {
   userName: '',
   userData: {wishlists: [], wishItems: [], currency: 'USD'},
   savedUserData: null,
-  giverName: '',
   recipientName: '',
   date: '',
   exchangeId: '',
@@ -26,7 +25,6 @@ export function resetState() {
   dashboardState.userName = '';
   dashboardState.userData = {wishlists: [], wishItems: [], currency: 'USD'};
   dashboardState.savedUserData = null;
-  dashboardState.giverName = '';
   dashboardState.recipientName = '';
   dashboardState.date = '';
   dashboardState.exchangeId = '';
@@ -97,15 +95,14 @@ export function deleteItem(index) {
 }
 
 export function setRecipientData(data) {
-  dashboardState.giverName = data.giverName;
-  dashboardState.recipientName = data.recipient;
+  dashboardState.recipientName = data.name;
   dashboardState.date = data.date;
   dashboardState.exchangeId = data.exchangeId;
   dashboardEvents.emit(DashboardEvents.RECIPIENT_LOADED, {...dashboardState});
 
   if (data.wishlists !== undefined) {
     dashboardState.recipientWishlist = {
-      recipientName: data.recipient,
+      name: data.name,
       wishlists: data.wishlists,
       wishItems: data.wishItems,
       currency: data.currency,

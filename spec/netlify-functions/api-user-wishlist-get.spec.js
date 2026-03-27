@@ -102,7 +102,7 @@ describe("api-user-wishlist-get", () => {
         expect(response.statusCode).toBe(200);
 
         const body = JSON.parse(response.body);
-        expect(body.recipientName).toBe("Whitney");
+        expect(body.name).toBe("Whitney");
         expect(body.wishlists).toHaveLength(1);
         expect(body.wishlists[0].url).toBe("https://amazon.com/list");
         expect(body.wishItems).toHaveLength(1);

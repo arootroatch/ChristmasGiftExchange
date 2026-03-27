@@ -129,5 +129,79 @@ describe("authGate", () => {
             await flush();
             expect(setSessionUser).toHaveBeenCalledWith({name: "Alex", email: "test@test.com"});
         });
+
+        it("does not call API when email is empty", async () => {
+            initAuthGate({onSuccess: vi.fn()});
+
+            document.getElementById("auth-email").value = "";
+            document.getElementById("auth-send-code").click();
+
+            await flush();
+            expect(mockFetch).not.toHaveBeenCalled();
+        });
+
+        it("does not call API when code is empty", async () => {
+            initAuthGate({onSuccess: vi.fn()});
+
+            document.getElementById("auth-email").value = "test@test.com";
+            document.getElementById("auth-code").value = "";
+            document.getElementById("auth-verify-code").click();
+
+            await flush();
+            expect(mockFetch).not.toHaveBeenCalled();
+        });
+
+        it("calls onError when verification fails", async () => {
+            mockFetch = vi.fn(() => Promise.resolve({
+                ok: false, status: 400,
+                json: () => Promise.resolve({error: "Invalid code"}),
+            }));
+            global.fetch = mockFetch;
+
+            const onError = vi.fn();
+            initAuthGate({onSuccess: vi.fn(), onError});
+
+            document.getElementById("auth-email").value = "test@test.com";
+            document.getElementById("auth-code").value = "00000000";
+            document.getElementById("auth-verify-code").click();
+
+            await flush();
+            expect(onError).toHaveBeenCalledWith("Invalid code");
+        });
+
+        it("does not call onSuccess when verification fails", async () => {
+            mockFetch = vi.fn(() => Promise.resolve({
+                ok: false, status: 400,
+                json: () => Promise.resolve({error: "Invalid code"}),
+            }));
+            global.fetch = mockFetch;
+
+            const onSuccess = vi.fn();
+            initAuthGate({onSuccess, onError: vi.fn()});
+
+            document.getElementById("auth-email").value = "test@test.com";
+            document.getElementById("auth-code").value = "00000000";
+            document.getElementById("auth-verify-code").click();
+
+            await flush();
+            expect(onSuccess).not.toHaveBeenCalled();
+        });
+
+        it("calls onError when code send fails", async () => {
+            mockFetch = vi.fn(() => Promise.resolve({
+                ok: false, status: 429,
+                json: () => Promise.resolve({error: "Too many requests"}),
+            }));
+            global.fetch = mockFetch;
+
+            const onError = vi.fn();
+            initAuthGate({onSuccess: vi.fn(), onError});
+
+            document.getElementById("auth-email").value = "test@test.com";
+            document.getElementById("auth-send-code").click();
+
+            await flush();
+            expect(onError).toHaveBeenCalledWith("Too many requests");
+        });
     });
 });

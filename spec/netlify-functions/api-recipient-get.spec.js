@@ -68,8 +68,7 @@ describe("api-recipient-get", () => {
         expect(response.statusCode).toBe(200);
 
         const body = JSON.parse(response.body);
-        expect(body.giverName).toBe("Alex");
-        expect(body.recipient).toBe("Whitney");
+        expect(body.name).toBe("Whitney");
         expect(body.date).toBeDefined();
         expect(body.exchangeId).toBe("exchange-123");
         expect(body.wishlists).toHaveLength(1);
@@ -104,7 +103,7 @@ describe("api-recipient-get", () => {
         const response = await handler(event);
         const body = JSON.parse(response.body);
 
-        expect(body.recipient).toBe("New Recipient");
+        expect(body.name).toBe("New Recipient");
         expect(body.exchangeId).toBe("new-exchange");
     });
 

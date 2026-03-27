@@ -27,21 +27,21 @@ describe('RecipientCard', () => {
 
   describe('RECIPIENT_LOADED event', () => {
     it('renders recipient name when RECIPIENT_LOADED fires', () => {
-      setRecipientData({recipient: 'Alice', date: '2025-12-01', exchangeId: 'ex123', giverName: 'Bob'});
+      setRecipientData({name: 'Alice', date: '2025-12-01', exchangeId: 'ex123'});
 
       const text = document.querySelector('#recipient-card').textContent;
       expect(text).toContain('Alice');
     });
 
     it('renders the exchange date', () => {
-      setRecipientData({recipient: 'Alice', date: '2025-12-15', exchangeId: 'ex123', giverName: 'Bob'});
+      setRecipientData({name: 'Alice', date: '2025-12-15', exchangeId: 'ex123'});
 
       const text = document.querySelector('#recipient-card').textContent;
       expect(text).toContain('Dec');
     });
 
     it('shows no-exchange message when recipientName is falsy', () => {
-      setRecipientData({recipient: '', date: '', exchangeId: '', giverName: ''});
+      setRecipientData({name: '', date: '', exchangeId: ''});
 
       const text = document.querySelector('#recipient-card').textContent;
       expect(text).toContain("No exchange found yet");
@@ -49,7 +49,7 @@ describe('RecipientCard', () => {
 
     it('renders wishlist inline when data includes wishlists', () => {
       setRecipientData({
-        recipient: 'Alice', date: '2025-12-01', exchangeId: 'ex123', giverName: 'Bob',
+        name: 'Alice', date: '2025-12-01', exchangeId: 'ex123',
         wishlists: [{url: 'https://example.com/list', title: 'My List'}],
         wishItems: [],
         currency: 'USD',
@@ -62,7 +62,7 @@ describe('RecipientCard', () => {
 
     it('shows empty message when recipient has no wishlists', () => {
       setRecipientData({
-        recipient: 'Alice', date: '2025-12-01', exchangeId: 'ex123', giverName: 'Bob',
+        name: 'Alice', date: '2025-12-01', exchangeId: 'ex123',
         wishlists: [], wishItems: [], currency: 'USD',
       });
 
@@ -74,12 +74,12 @@ describe('RecipientCard', () => {
 
   describe('RECIPIENT_WISHLIST_LOADED event (via setRecipientWishlist)', () => {
     beforeEach(() => {
-      setRecipientData({recipient: 'Alice', date: '2025-12-01', exchangeId: 'ex123', giverName: 'Bob'});
+      setRecipientData({name: 'Alice', date: '2025-12-01', exchangeId: 'ex123'});
     });
 
     it('renders wishlist links when wishlists are present', () => {
       setRecipientWishlist({
-        recipientName: 'Alice',
+        name: 'Alice',
         wishlists: [{url: 'https://example.com/list', title: 'My Amazon List'}],
         wishItems: [],
       });
@@ -92,7 +92,7 @@ describe('RecipientCard', () => {
 
     it('renders individual wish items when items are present', () => {
       setRecipientWishlist({
-        recipientName: 'Alice',
+        name: 'Alice',
         wishlists: [],
         wishItems: [{url: 'https://example.com/item', title: 'Nice Scarf', price: 2500}],
         currency: 'USD',
@@ -104,7 +104,7 @@ describe('RecipientCard', () => {
     });
 
     it('shows the wishlist container after wishlist loads', () => {
-      setRecipientWishlist({recipientName: 'Alice', wishlists: [], wishItems: []});
+      setRecipientWishlist({name: 'Alice', wishlists: [], wishItems: []});
 
       const container = document.querySelector('#recipient-wishlist-view');
       expect(container.hidden).toBe(false);

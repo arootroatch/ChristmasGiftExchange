@@ -41,7 +41,6 @@ test.describe('Recipient Search', () => {
 
         // After auth, recipient card shows the result
         const result = page.locator('#recipient-card');
-        await expect(result).toContainText('Alice');
         await expect(result).toContainText('buying a gift for');
         await expect(result).toContainText('Bob');
         await expect(result).toContainText('As of');

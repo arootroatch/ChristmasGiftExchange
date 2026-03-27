@@ -131,7 +131,7 @@ test.describe('Create Exchange → View Wishlist', () => {
         await expect(page.locator('#name-list #wrapper-Alice')).not.toBeVisible();
     });
 
-    test('giver can view recipient wishlist page', async ({page, baseURL}) => {
+    test('giver can view recipient wishlist on dashboard', async ({page, baseURL}) => {
         const giver = makeUser({name: 'Alice', email: 'alice@test.com'});
         const recipient = makeUser({name: 'Bob', email: 'bob@test.com'});
         const exchangeId = crypto.randomUUID();
@@ -146,11 +146,11 @@ test.describe('Create Exchange → View Wishlist', () => {
         // Authenticate as Alice programmatically
         await authenticateUser(page, baseURL, 'alice@test.com');
 
-        await page.goto(`/wishlist/view?exchange=${exchangeId}`);
+        await page.goto('/dashboard');
 
-        const heading = page.locator('#heading');
-        await expect(heading).toBeVisible();
-        await expect(heading).toContainText('Wishlist');
-        await expect(page.locator('#wishlist-content')).toContainText("hasn't added any wishlists yet");
+        // Recipient card shows Bob and the empty wishlist message
+        const recipientCard = page.locator('#recipient-card');
+        await expect(recipientCard).toContainText('Bob');
+        await expect(page.locator('#recipient-wishlist-view')).toContainText("hasn't added any wishlists yet");
     });
 });

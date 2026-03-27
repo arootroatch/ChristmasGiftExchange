@@ -52,8 +52,7 @@ const recipientResponse = {
   ok: true,
   status: 200,
   json: async () => ({
-    giverName: 'Alice',
-    recipient: 'Bob',
+    name: 'Bob',
     date: '2025-12-25',
     exchangeId: 'ex123',
   }),
@@ -190,6 +189,71 @@ describe('Dashboard index', () => {
 
       expect(document.querySelector('#section-wishlist').hidden).toBe(false);
       expect(document.querySelector('#section-recipient').hidden).toBe(true);
+    });
+  });
+
+  describe('unsaved changes modal', () => {
+    beforeEach(async () => {
+      mockFetchSequence(successUserResponse, recipientResponse);
+
+      const {main} = await import('../../src/dashboard/index.js');
+      main();
+      await flush();
+    });
+
+    function makeDirty() {
+      // Navigate to wishlist section, add a wishlist via the form
+      document.querySelector('[data-section="wishlist"]').click();
+      document.getElementById('wishlist-url').value = 'https://amazon.com/list';
+      document.getElementById('wishlist-title').value = 'Test';
+      document.getElementById('add-wishlist-btn').click();
+    }
+
+    it('shows modal when navigating away with unsaved changes', () => {
+      makeDirty();
+
+      document.querySelector('[data-section="recipient"]').click();
+
+      expect(document.getElementById('unsaved-modal')).not.toBeNull();
+    });
+
+    it('does not show modal when navigating without unsaved changes', () => {
+      document.querySelector('[data-section="wishlist"]').click();
+      document.querySelector('[data-section="recipient"]').click();
+
+      expect(document.getElementById('unsaved-modal')).toBeNull();
+    });
+
+    it('"Stay" button removes modal and keeps current section', () => {
+      makeDirty();
+
+      document.querySelector('[data-section="recipient"]').click();
+      document.getElementById('modal-cancel').click();
+
+      expect(document.getElementById('unsaved-modal')).toBeNull();
+      expect(document.querySelector('#section-wishlist').hidden).toBe(false);
+    });
+
+    it('"Leave" button removes modal and navigates', () => {
+      makeDirty();
+
+      document.querySelector('[data-section="recipient"]').click();
+      document.getElementById('modal-leave').click();
+
+      expect(document.getElementById('unsaved-modal')).toBeNull();
+      expect(document.querySelector('#section-recipient').hidden).toBe(false);
+      expect(document.querySelector('#section-wishlist').hidden).toBe(true);
+    });
+
+    it('clicking backdrop removes modal without navigating', () => {
+      makeDirty();
+
+      document.querySelector('[data-section="recipient"]').click();
+      const modal = document.getElementById('unsaved-modal');
+      modal.dispatchEvent(new window.Event('click', {bubbles: true}));
+
+      expect(document.getElementById('unsaved-modal')).toBeNull();
+      expect(document.querySelector('#section-wishlist').hidden).toBe(false);
     });
   });
 

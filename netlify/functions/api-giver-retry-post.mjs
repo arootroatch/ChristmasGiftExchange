@@ -9,6 +9,73 @@ const requestSchema = z.object({
     participantEmails: z.array(z.email()).optional(),
 });
 
+function buildIdToUser(users) {
+    return Object.fromEntries(users.map(u => [u._id.toString(), u]));
+}
+
+function resolveAssignments(assignments, idToUser) {
+    return assignments.map(a => ({
+        giver: idToUser[a.giverId.toString()]?.name,
+        recipient: idToUser[a.recipientId.toString()]?.name,
+    }));
+}
+
+function toParticipantList(users) {
+    return users.map(p => ({name: p.name, email: p.email}));
+}
+
+function applyEmailFilter(participants, assignments, emails) {
+    const allEmails = new Set(participants.map(p => p.email));
+    const invalid = emails.filter(e => !allEmails.has(e));
+    if (invalid.length > 0) {
+        return {error: badRequest(`Emails not found in exchange: ${invalid.join(', ')}`)};
+    }
+    const filterSet = new Set(emails);
+    const filtered = participants.filter(p => filterSet.has(p.email));
+    const filterNames = new Set(filtered.map(p => p.name));
+    return {
+        participants: filtered,
+        assignments: assignments.filter(a => filterNames.has(a.giver)),
+    };
+}
+
+function buildSendResult(total, emailsFailed) {
+    return {sent: total - emailsFailed.length, total, emailsFailed};
+}
+
+async function alertEmailFailures(emailsFailed, assignments) {
+    try {
+        await sendNotificationEmail(
+            "error-alert",
+            "alex@gift-exchange-generator.com",
+            "Gift Exchange - Email Send Failures",
+            {
+                endpoint: "api-giver-retry-post",
+                timestamp: new Date().toISOString(),
+                stackTrace: `Failed to send emails to:\n${emailsFailed.join('\n')}\n\nAssignments: ${JSON.stringify(assignments, null, 2)}`,
+            }
+        );
+    } catch (err) {
+        console.error("Failed to send error-alert email:", err);
+    }
+}
+
+async function fetchExchangeAsOrganizer(exchangeId, user) {
+    const exchangesCol = await getExchangesCollection();
+    const exchange = await exchangesCol.findOne({exchangeId});
+    if (!exchange) return {error: notFound("Exchange not found")};
+    if (!exchange.organizer || !exchange.organizer.equals(user._id)) {
+        return {error: forbidden("Only the organizer can resend giver emails")};
+    }
+    return {exchange};
+}
+
+async function lookupParticipantUsers(assignments) {
+    const usersCol = await getUsersCollection();
+    const participantIds = [...new Set(assignments.flatMap(a => [a.giverId, a.recipientId]))];
+    return usersCol.find({_id: {$in: participantIds}}).toArray();
+}
+
 export const handler = apiHandler("POST", async (event) => {
     const authError = await requireAuth(event);
     if (authError) return authError;
@@ -16,70 +83,25 @@ export const handler = apiHandler("POST", async (event) => {
     const {data, error} = validateBody(requestSchema, event);
     if (error) return badRequest(error);
 
-    const usersCol = await getUsersCollection();
-    const user = event.user;
+    const {exchange, error: exchangeError} = await fetchExchangeAsOrganizer(data.exchangeId, event.user);
+    if (exchangeError) return exchangeError;
 
-    const exchangesCol = await getExchangesCollection();
-    const exchange = await exchangesCol.findOne({exchangeId: data.exchangeId});
-    if (!exchange) return notFound("Exchange not found");
+    const participantUsers = await lookupParticipantUsers(exchange.assignments);
+    const idToUser = buildIdToUser(participantUsers);
+    const allParticipants = toParticipantList(participantUsers);
+    const allAssignments = resolveAssignments(exchange.assignments, idToUser);
 
-    if (!exchange.organizer || !exchange.organizer.equals(user._id)) {
-        return forbidden("Only the organizer can resend giver emails");
-    }
+    const {participants, assignments, error: filterError} = data.participantEmails
+        ? applyEmailFilter(allParticipants, allAssignments, data.participantEmails)
+        : {participants: allParticipants, assignments: allAssignments};
+    if (filterError) return filterError;
 
-    // Look up all participants from DB
-    const participantIds = [...new Set(exchange.assignments.flatMap(a => [a.giverId, a.recipientId]))];
-    const participantUsers = await usersCol.find({_id: {$in: participantIds}}).toArray();
-
-    const idToUser = {};
-    participantUsers.forEach(p => { idToUser[p._id.toString()] = p; });
-
-    let participants = participantUsers.map(p => ({name: p.name, email: p.email}));
-    let assignments = exchange.assignments.map(a => ({
-        giver: idToUser[a.giverId.toString()]?.name,
-        recipient: idToUser[a.recipientId.toString()]?.name,
-    }));
-
-    // If participantEmails provided, validate and filter
-    if (data.participantEmails) {
-        const allEmails = new Set(participants.map(p => p.email));
-        const invalid = data.participantEmails.filter(e => !allEmails.has(e));
-        if (invalid.length > 0) {
-            return badRequest(`Emails not found in exchange: ${invalid.join(', ')}`);
-        }
-
-        const filterSet = new Set(data.participantEmails);
-        participants = participants.filter(p => filterSet.has(p.email));
-
-        const filterNames = new Set(participants.map(p => p.name));
-        assignments = assignments.filter(a => filterNames.has(a.giver));
-    }
-
-    // Build userByEmail map
-    const userByEmail = {};
-    participantUsers.forEach(u => { userByEmail[u.email] = u; });
-
+    const userByEmail = Object.fromEntries(participantUsers.map(u => [u.email, u]));
     const {emailsFailed} = await sendBatchEmails(participants, assignments, userByEmail, data.exchangeId);
 
-    const total = assignments.length;
-    const sent = total - emailsFailed.length;
-
     if (emailsFailed.length > 0) {
-        try {
-            await sendNotificationEmail(
-                "error-alert",
-                "alex@gift-exchange-generator.com",
-                "Gift Exchange - Email Send Failures",
-                {
-                    endpoint: "api-giver-retry-post",
-                    timestamp: new Date().toISOString(),
-                    stackTrace: `Failed to send emails to:\n${emailsFailed.join('\n')}\n\nAssignments: ${JSON.stringify(assignments, null, 2)}`,
-                }
-            );
-        } catch (err) {
-            console.error("Failed to send error-alert email:", err);
-        }
+        await alertEmailFailures(emailsFailed, assignments);
     }
 
-    return ok({sent, total, emailsFailed});
+    return ok(buildSendResult(assignments.length, emailsFailed));
 }, {maxRequests: 5, windowMs: 60000});
