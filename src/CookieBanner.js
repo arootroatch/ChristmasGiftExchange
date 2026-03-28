@@ -22,8 +22,9 @@ export function loadBmcWidget() {
   script.dataset.message = "Love the site? Have ideas? Become a supporter! ";
   script.dataset.color = "#FF5F5F";
   script.dataset.position = "Right";
-  script.dataset.xMargin = "18";
-  script.dataset.yMargin = "18";
+  script.setAttribute("data-x_margin", "18");
+  script.setAttribute("data-y_margin", "18");
+  script.onload = () => window.dispatchEvent(new Event("DOMContentLoaded"));
   document.head.appendChild(script);
 }
 
