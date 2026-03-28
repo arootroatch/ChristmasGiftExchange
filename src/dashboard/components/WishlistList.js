@@ -3,13 +3,14 @@ import {escape, escapeAttr, selectElement, addEventListener} from '../../utils.j
 import {showError} from '../../Snackbar.js';
 import btnStyles from '../../../assets/styles/dashboard/components/buttons.module.css';
 import cardStyles from '../../../assets/styles/dashboard/components/cards.module.css';
+import wishStyles from '../../../assets/styles/dashboard/components/wishlist.module.css';
 
 function template() {
     return `<section id="wishlists-section" class="${cardStyles.card}">
         <h2>External Wishlists</h2>
         <p class="helper-text">Add links to your Amazon, Wishlist.com, or other wishlists</p>
         <div id="wishlists-list"></div>
-        <div id="add-wishlist-form">
+        <div id="add-wishlist-form" class="${wishStyles.addForm}">
             <div>
                 <label for="wishlist-url">Wishlist URL</label>
                 <input type="url" id="wishlist-url" placeholder="https://amazon.com/hz/wishlist/ls/..."/>
@@ -24,7 +25,7 @@ function template() {
 }
 
 const entryTemplate = (url, title, index) => `
-    <div class="wishlist-entry">
+    <div class="${wishStyles.wishlistEntry}">
         <a href="${escapeAttr(url)}" target="_blank">${escape(title || url)}</a>
         <button class="delete-btn" data-type="wishlists" data-index="${index}">X</button>
     </div>`;

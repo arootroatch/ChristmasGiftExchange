@@ -1,5 +1,7 @@
 import '../../assets/styles/all.css';
 import btnStyles from '../../assets/styles/dashboard/components/buttons.module.css';
+import authGateStyles from '../../assets/styles/dashboard/components/auth-gate.module.css';
+import modalStyles from '../../assets/styles/dashboard/components/modal.module.css';
 import {apiFetch} from '../utils.js';
 import * as snackbar from '../Snackbar.js';
 import * as cookieBanner from '../CookieBanner.js';
@@ -110,12 +112,12 @@ function showUnsavedModal(onLeave) {
 
   const modal = document.createElement('div');
   modal.id = 'unsaved-modal';
-  modal.className = 'modal-backdrop';
+  modal.className = modalStyles.backdrop;
   modal.innerHTML = `
-    <div class="modal-dialog">
+    <div class="${modalStyles.dialog}">
       <h3>Unsaved Changes</h3>
       <p>You have unsaved wishlist changes. Do you want to leave without saving?</p>
-      <div class="modal-actions">
+      <div class="${modalStyles.actions}">
         <button class="${btnStyles.button}" id="modal-cancel">Stay</button>
         <button class="${btnStyles.button} ${btnStyles.modalLeave}" id="modal-leave">Leave</button>
       </div>
@@ -161,7 +163,7 @@ function initDashboard() {
 
 function showAuthGate() {
   const content = document.getElementById('dashboard-content');
-  content.innerHTML = authGateTemplate({heading: 'Verify Your Email', buttonClass: btnStyles.button});
+  content.innerHTML = authGateTemplate({heading: 'Verify Your Email', buttonClass: btnStyles.button, gateClass: authGateStyles.authGate});
   initAuthGate({
     onSuccess: () => {
       content.innerHTML = '<div class="spinner-container"><div class="spinner"></div></div>';

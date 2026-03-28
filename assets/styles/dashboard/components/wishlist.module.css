@@ -1,41 +1,34 @@
-/* Wishlist add-form row (URL + Title + Button) */
-
-#add-wishlist-form,
-#add-item-form {
+.addForm {
   display: grid;
   grid-template-columns: 1fr 1fr auto;
   gap: 8px;
   align-items: start;
 }
 
-#add-item-form {
+.addFormItems {
   grid-template-columns: 1fr auto auto;
 }
 
-#add-item-form .item-form-url {
+.itemFormUrl {
   grid-column: 1 / -1;
 }
 
-#add-wishlist-form input,
-#add-item-form input {
+.addForm input {
   margin-bottom: 0;
 }
 
-#add-wishlist-form label,
-#add-item-form label {
+.addForm label {
   margin-bottom: 2px;
 }
 
-#add-wishlist-form .button,
-#add-item-form .button {
+.addForm button {
   height: 40px;
   padding: 0 16px;
   white-space: nowrap;
   align-self: end;
 }
 
-/* Item price */
-.item-price {
+.itemPrice {
   color: var(--text-secondary);
   font-size: 0.9rem;
   white-space: nowrap;
@@ -46,8 +39,7 @@
   width: 100px;
 }
 
-/* Wishlist entries */
-.wishlist-entry {
+.wishlistEntry {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -59,11 +51,11 @@
   transition: background 0.15s;
 }
 
-.wishlist-entry:hover {
+.wishlistEntry:hover {
   background: rgba(0, 0, 0, 0.3);
 }
 
-.wishlist-entry a {
+.wishlistEntry a {
   color: rgba(255, 255, 255, 0.9);
   text-decoration: underline;
   text-decoration-color: rgba(255, 255, 255, 0.3);
@@ -76,7 +68,6 @@
   transition: color 0.15s;
 }
 
-.wishlist-entry a:hover {
+.wishlistEntry a:hover {
   color: #fff;
 }
-

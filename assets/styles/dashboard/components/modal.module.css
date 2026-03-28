@@ -1,6 +1,4 @@
-/* Unsaved changes modal */
-
-.modal-backdrop {
+.backdrop {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.6);
@@ -11,7 +9,7 @@
   animation: fadeIn 0.15s ease-out;
 }
 
-.modal-dialog {
+.dialog {
   background: var(--burgundy-deep);
   border: 1px solid var(--frost-border);
   border-radius: var(--radius-lg);
@@ -21,7 +19,7 @@
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6);
 }
 
-.modal-dialog h3 {
+.dialog h3 {
   font-family: 'Source Sans 3', 'Georgia', serif;
   font-weight: 600;
   font-size: 1.15rem;
@@ -29,28 +27,17 @@
   margin: 0 0 8px;
 }
 
-.modal-dialog p {
+.dialog p {
   color: var(--text-secondary);
   font-size: 0.9rem;
   line-height: 1.5;
   margin: 0 0 20px;
 }
 
-.modal-actions {
+.actions {
   display: flex;
   gap: 10px;
   justify-content: flex-end;
-}
-
-.modal-leave {
-  background: transparent !important;
-  border-color: rgba(255, 255, 255, 0.15) !important;
-  color: var(--text-secondary) !important;
-}
-
-.modal-leave:hover {
-  color: var(--text-primary) !important;
-  border-color: rgba(255, 255, 255, 0.3) !important;
 }
 
 @keyframes fadeIn {

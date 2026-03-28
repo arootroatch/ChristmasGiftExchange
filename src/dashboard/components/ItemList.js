@@ -4,6 +4,7 @@ import {showError} from '../../Snackbar.js';
 import {formatPrice, toSmallestUnit, currencyDecimals} from '../formatPrice.js';
 import btnStyles from '../../../assets/styles/dashboard/components/buttons.module.css';
 import cardStyles from '../../../assets/styles/dashboard/components/cards.module.css';
+import wishStyles from '../../../assets/styles/dashboard/components/wishlist.module.css';
 
 const CURRENCIES = [
     {code: 'USD', label: '$ USD'},
@@ -31,8 +32,8 @@ function template(currency) {
             </select>
         </div>
         <div id="items-list"></div>
-        <div id="add-item-form">
-            <div class="item-form-url">
+        <div id="add-item-form" class="${wishStyles.addForm} ${wishStyles.addFormItems}">
+            <div class="${wishStyles.itemFormUrl}">
                 <label for="item-url">Product URL</label>
                 <input type="url" id="item-url" placeholder="https://amazon.com/dp/..."/>
             </div>
@@ -50,9 +51,9 @@ function template(currency) {
 }
 
 const entryTemplate = (url, title, price, currency, index) => `
-    <div class="wishlist-entry">
+    <div class="${wishStyles.wishlistEntry}">
         <a href="${escapeAttr(url)}" target="_blank">${escape(title)}</a>
-        ${price ? `<span class="item-price">${formatPrice(price, currency)}</span>` : ''}
+        ${price ? `<span class="${wishStyles.itemPrice}">${formatPrice(price, currency)}</span>` : ''}
         <button class="delete-btn" data-type="wishItems" data-index="${index}">X</button>
     </div>`;
 
