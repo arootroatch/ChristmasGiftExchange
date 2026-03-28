@@ -12,7 +12,7 @@ export function render({name, assignments}) {
     return layout(`
     <tr>
         <td align="center" style="padding-top: 50px; padding-bottom: 30px; font-size: 36px; color: #69292a;">
-            Hi ${escapeHtml(name)}, here are your gift exchange results:
+            Hi ${escapeHtml(name)},<br/>here are your Gift Exchange results:
         </td>
     </tr>
     <tr>

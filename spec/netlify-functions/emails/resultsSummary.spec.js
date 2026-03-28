@@ -12,7 +12,8 @@ describe('resultsSummary', () => {
 
         it('renders greeting with organizer name', () => {
             const html = render({name: 'Alex', assignments});
-            expect(html).toContain('Hi Alex, here are your gift exchange results:');
+            expect(html).toContain('Hi Alex,');
+            expect(html).toContain('Gift Exchange results:');
         });
 
         it('renders assignment table with giver and recipient columns', () => {

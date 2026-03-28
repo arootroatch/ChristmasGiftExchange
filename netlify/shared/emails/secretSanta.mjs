@@ -23,8 +23,15 @@ export function render({name, recipient}) {
         </td>
     </tr>
     <tr>
-        <td align="center" style="padding: 30px 50px; font-size: 16px; color: #999;">
-            If you lose this email, head to your <a href="https://gift-exchange-generator.com/dashboard" style="color: #69292a;">Participant Dashboard</a> to look up your recipient, view wishlists, and more.
+        <td align="center" style="padding: 20px 50px 10px; font-size: 16px; color: #333;">
+            View ${escapeHtml(recipient)}'s wish list and send your Secret Santa your wishlist in your participant dashboard.
+        </td>
+    </tr>
+    <tr>
+        <td align="center" style="padding: 10px 50px 30px;">
+            <a href="https://gift-exchange-generator.com/dashboard" style="display: inline-block; padding: 14px 32px; background-color: #198c0a; color: #fff; font-size: 18px; font-weight: bold; text-decoration: none; border-radius: 8px;">
+                Open Dashboard
+            </a>
         </td>
     </tr>`);
 }

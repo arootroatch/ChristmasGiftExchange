@@ -47,7 +47,10 @@ describe('api-email-preview-get', () => {
         expect(body).toContain('wishlistNotification');
         expect(body).toContain('contactInfo');
         expect(body).toContain('errorAlert');
+        expect(body).toContain('verificationCode');
         expect(body).not.toContain('layout');
+        expect(body).not.toContain('escapeHtml');
+        expect(body).not.toContain('wishlistLink');
     });
 
     it('returns rendered HTML for a valid template', async () => {

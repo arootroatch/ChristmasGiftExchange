@@ -1,6 +1,10 @@
 import {layout} from './layout.mjs';
 import {escapeHtml} from './escapeHtml.mjs';
 
+export async function getData() {
+    return {code: '483291'};
+}
+
 export function render({code}) {
     return layout(`
     <tr>

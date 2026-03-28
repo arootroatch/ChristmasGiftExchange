@@ -63,10 +63,10 @@ describe('dev email provider', () => {
 
     describe('sendNotificationEmail', () => {
         it('logs template, recipient, subject, and parameters', async () => {
-            await sendNotificationEmail('wishlist-link', 'alex@test.com', 'Subject', {url: 'http://test'});
+            await sendNotificationEmail('secret-santa', 'alex@test.com', 'Subject', {name: 'Alex', recipient: 'Hunter'});
 
             expect(console.log).toHaveBeenCalledWith(
-                expect.stringContaining('[DEV EMAIL] Template: wishlist-link | To: alex@test.com')
+                expect.stringContaining('[DEV EMAIL] Template: secret-santa | To: alex@test.com')
             );
         });
 

@@ -6,7 +6,7 @@ const emailsDir = path.resolve(process.cwd(), 'netlify', 'shared', 'emails');
 
 function listTemplates() {
     return fs.readdirSync(emailsDir)
-        .filter(f => f.endsWith('.mjs') && f !== 'layout.mjs')
+        .filter(f => f.endsWith('.mjs') && f !== 'layout.mjs' && f !== 'escapeHtml.mjs')
         .map(f => f.replace('.mjs', ''));
 }
 

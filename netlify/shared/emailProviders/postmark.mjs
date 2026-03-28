@@ -6,7 +6,6 @@ const templateModules = {
     "wishlist-notification": () => import("../emails/wishlistNotification.mjs"),
     "contact-info": () => import("../emails/contactInfo.mjs"),
     "error-alert": () => import("../emails/errorAlert.mjs"),
-    "wishlist-link": () => import("../emails/wishlistLink.mjs"),
     "verification-code": () => import("../emails/verificationCode.mjs"),
 };
 

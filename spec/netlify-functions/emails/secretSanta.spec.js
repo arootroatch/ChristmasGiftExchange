@@ -21,15 +21,15 @@ describe('secretSanta', () => {
             expect(html).toContain('Happy gift giving!');
         });
 
-        it('includes retrieval link', () => {
+        it('includes dashboard button', () => {
             const html = render({name: 'Alex', recipient: 'Hunter'});
-            expect(html).toContain('gift-exchange-generator.com');
+            expect(html).toContain('gift-exchange-generator.com/dashboard');
+            expect(html).toContain('Open Dashboard');
         });
 
-        it('does not display token section', () => {
+        it('includes recipient name in dashboard CTA', () => {
             const html = render({name: 'Alex', recipient: 'Hunter'});
-            expect(html).not.toContain('Your personal token');
-            expect(html).not.toContain('Save this token');
+            expect(html).toContain("View Hunter's wish list");
         });
     });
 
