@@ -64,3 +64,29 @@
   0%, 100% { box-shadow: 0 0 15px rgba(255, 150, 160, 0.4), 0 0 40px rgba(255, 140, 150, 0.2); }
   50% { box-shadow: 0 0 45px rgba(255, 150, 160, 0.9), 0 0 100px rgba(255, 140, 150, 0.5); }
 }
+
+/* Spinner inside buttons */
+.button :global(.spinner) {
+  width: 16px;
+  height: 16px;
+  border-width: 2px;
+}
+
+/* Mobile responsive overrides */
+@media screen and (max-width: 630px) {
+  .button,
+  .btnBottom {
+    padding: 12px 20px;
+    font-size: 1em;
+    min-height: 44px;
+    max-height: none;
+    box-sizing: border-box;
+  }
+
+  :global(#get-started) .button,
+  :global(#get-started) .btnBottom {
+    width: 100%;
+    max-width: 280px;
+    font-size: 1.1em;
+  }
+}

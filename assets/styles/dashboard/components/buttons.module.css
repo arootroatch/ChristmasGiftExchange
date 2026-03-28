@@ -51,3 +51,20 @@
   color: var(--text-primary) !important;
   border-color: rgba(255, 255, 255, 0.3) !important;
 }
+
+/* Spinner inside buttons */
+.button :global(.spinner) {
+  width: 16px;
+  height: 16px;
+  border-width: 2px;
+}
+
+/* Mobile responsive overrides */
+@media screen and (max-width: 480px) {
+  :global(#add-wishlist-form) .button,
+  :global(#add-item-form) .button {
+    width: 100%;
+    height: auto;
+    padding: 10px;
+  }
+}

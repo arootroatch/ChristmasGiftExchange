@@ -93,12 +93,6 @@ textarea {
   padding: 8px 0;
 }
 
-.button .spinner {
-  width: 16px;
-  height: 16px;
-  border-width: 2px;
-}
-
 @keyframes spin {
   to { transform: rotate(360deg); }
 }

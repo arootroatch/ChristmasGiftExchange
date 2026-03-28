@@ -73,7 +73,7 @@
   & label {
     color: var(--text-secondary);
   }
-  & .button {
+  & button {
     margin: 0;
     display: block;
   }

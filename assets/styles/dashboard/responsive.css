@@ -26,12 +26,6 @@
     width: 100%;
   }
 
-  #add-wishlist-form .button,
-  #add-item-form .button {
-    width: 100%;
-    height: auto;
-    padding: 10px;
-  }
 }
 
 @media screen and (max-width: 768px) {
