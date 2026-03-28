@@ -45,12 +45,12 @@ export function showConfirmation(state) {
   });
 }
 
-async function submitResults({exchangeId}) {
+async function submitResults({assignments}) {
   selectElement(`#${confirmId}`)?.remove();
 
   await apiFetch("/.netlify/functions/api-results-email-post", {
     method: "POST",
-    body: {exchangeId},
+    body: {assignments},
     onSuccess: () => {
       completeExchange("success");
     },
