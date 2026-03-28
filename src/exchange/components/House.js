@@ -5,6 +5,7 @@ import {
   renameHouse
 } from "../state.js";
 import {addEventListener, leftContainerId, pushHTML, selectElement} from "../../utils.js";
+import btnStyles from '../../../assets/styles/exchange/components/buttons.module.css';
 
 export function init() {
   stateEvents.on(Events.HOUSE_ADDED, onHouseAdded);
@@ -34,7 +35,7 @@ function template(houseID, displayName) {
           <p class="house-placeholder ghost-text">Drop names here or select them from the dropdown</p>
         </div>
         <div data-slot="select-${houseID}"></div>
-        <button class="button deleteHouse" id="${houseID}-delete">Delete House</button>
+        <button class="${btnStyles.button} ${btnStyles.deleteHouse}" id="${houseID}-delete">Delete House</button>
       </div>`;
 }
 

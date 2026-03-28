@@ -3,6 +3,7 @@ import {ExchangeEvents as Events, exchangeEvents as stateEvents, assignRecipient
 import {generate} from "../../generate.js";
 import {showError} from "../../../Snackbar.js";
 import * as self from "./GenerateButton.js";
+import btnStyles from '../../../../assets/styles/exchange/components/buttons.module.css';
 
 const generateId = "generate";
 const slotSelector = '[data-slot="generate"]';
@@ -11,7 +12,7 @@ let participantCount = 0;
 let hintShown = false;
 let initialized = false;
 
-const glowClasses = ["generate-glow-1", "generate-glow-2", "generate-glow-3"];
+const glowClasses = [btnStyles.generateGlow1, btnStyles.generateGlow2, btnStyles.generateGlow3];
 
 export function getGlowClass(count) {
   if (count >= 8) return glowClasses[2];
@@ -70,7 +71,7 @@ export function init() {
 
 function template() {
   return `
-    <button class="btn-bottom" id="${generateId}">
+    <button class="${btnStyles.btnBottom}" id="${generateId}">
       Generate List<br /><span class="shortcut">(Ctrl+Enter)</span>
     </button>
   `;

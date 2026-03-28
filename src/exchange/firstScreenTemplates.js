@@ -1,6 +1,8 @@
 export const introId = "intro";
 
-export function introTemplate() {
+export function introTemplate(styles = {}) {
+  const btn = styles.button || "button";
+  const btnBottom = styles.btnBottom || "btn-bottom";
   return `<div id="${introId}">
     <p>
       Drawing names for a gift exchange or Secret Santa? Here's a
@@ -22,17 +24,18 @@ export function introTemplate() {
     </p>
     <div id="get-started">
       <p>Ready to get started?</p>
-      <button class="button" id="letsGo" style="margin-bottom: 0;">Let's go!</button>
-      <button class="btn-bottom" id="secretSantaBtn">Secret Santa Mode</button>
+      <button class="${btn}" id="letsGo" style="margin-bottom: 0;">Let's go!</button>
+      <button class="${btnBottom}" id="secretSantaBtn">Secret Santa Mode</button>
     </div>
   </div>`;
 }
 
-export function dashboardLinkTemplate() {
+export function dashboardLinkTemplate(styles = {}) {
+  const btn = styles.button || "button";
   return `<div class="dashboardLink">
     <p class="dashboardLink-desc">
       Find out who you're buying a gift for, peek at their wishlist, share your own wishes and mailing info with your Secret Santa, or even reuse last year's exchange!
     </p>
-    <a href="/dashboard" class="button dashboardLink-btn">Participant Dashboard</a>
+    <a href="/dashboard" class="${btn} dashboardLink-btn">Participant Dashboard</a>
   </div>`;
 }

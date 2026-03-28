@@ -1,5 +1,6 @@
 import {addEventListener, pushHTML, selectElement} from "../../utils.js";
 import {ExchangeEvents as Events, exchangeEvents as stateEvents, requestEmailResults} from "../state.js";
+import btnStyles from '../../../assets/styles/exchange/components/buttons.module.css';
 
 const tableId = "results-table";
 const tableBodyId = "table-body";
@@ -23,7 +24,7 @@ function template() {
 function renderEmailResultsButton() {
   const slot = selectElement("#email-results-slot");
   if (!slot) return;
-  slot.innerHTML = `<button class="btn-bottom" id="email-results-btn">Email Results</button>`;
+  slot.innerHTML = `<button class="${btnStyles.btnBottom}" id="email-results-btn">Email Results</button>`;
   addEventListener("#email-results-btn", "click", requestEmailResults);
 }
 

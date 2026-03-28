@@ -2,6 +2,7 @@ import {addEventListener, pushHTML, selectElement} from "../../utils.js";
 import {ExchangeEvents as Events, exchangeEvents as stateEvents} from "../state.js";
 import {resultsTableHtml} from "./EmailTable/SendResults.js";
 import {isBmcConsented} from "../../CookieBanner.js";
+import btnStyles from '../../../assets/styles/exchange/components/buttons.module.css';
 
 const modalId = "completionModal";
 const newExchangeBtnId = "newExchangeBtn";
@@ -32,7 +33,7 @@ function template({mode, assignments}) {
   }
   html += messageForMode(mode);
   html += bmcButtonHtml();
-  html += `<button class="button" id="${newExchangeBtnId}">Start New Exchange</button>`;
+  html += `<button class="${btnStyles.button}" id="${newExchangeBtnId}">Start New Exchange</button>`;
   html += `</div>`;
   return html;
 }

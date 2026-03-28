@@ -1,5 +1,6 @@
 import {addEventListener, pushHTML, selectElement, setLoadingState, escapeAttr, apiFetch} from "../../../utils.js";
 import {completeExchange} from "../../state.js";
+import btnStyles from '../../../../assets/styles/exchange/components/buttons.module.css';
 
 const failedEmailsId = "failedEmails";
 const retryEmailsBtnId = "retryEmailsBtn";
@@ -41,7 +42,7 @@ export function showFailedEmails(emailsFailed, payload, {onBack} = {}) {
     pushHTML("body", failedEmailsTemplate(emailsFailed, {
       message: "We're sorry, but we were unable to send emails to the following addresses after multiple attempts:",
       footer: "<p>Please contact these participants directly.</p>",
-      buttons: `<button class="button" id="${viewResultsBtnId}">View Results</button>`,
+      buttons: `<button class="${btnStyles.button}" id="${viewResultsBtnId}">View Results</button>`,
     }));
     addEventListener(`#${viewResultsBtnId}`, "click", () => {
       completeExchange("results");
@@ -49,8 +50,8 @@ export function showFailedEmails(emailsFailed, payload, {onBack} = {}) {
   } else {
     pushHTML("body", failedEmailsTemplate(emailsFailed, {
       message: "However, we were unable to send emails to the following addresses:",
-      buttons: `<button class="button" id="${retryEmailsBtnId}">Retry</button>
-      <button class="button" id="${backToEmailsBtnId}">\u2190 Back</button>`,
+      buttons: `<button class="${btnStyles.button}" id="${retryEmailsBtnId}">Retry</button>
+      <button class="${btnStyles.button}" id="${backToEmailsBtnId}">\u2190 Back</button>`,
     }));
     addEventListener(`#${retryEmailsBtnId}`, "click", () =>
       retryFailedEmails(failedParticipants, failedAssignments, exchangeId, onBack)

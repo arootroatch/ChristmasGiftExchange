@@ -1,6 +1,7 @@
 import {addEventListener, pushHTML, selectElement, escapeAttr, apiFetch} from "../../../utils.js";
 import {showError} from "../../../Snackbar.js";
 import {completeExchange} from "../../state.js";
+import btnStyles from '../../../../assets/styles/exchange/components/buttons.module.css';
 
 const confirmId = "sendResultsConfirm";
 const confirmBtnId = "sendResultsConfirmBtn";
@@ -30,8 +31,8 @@ function confirmationTemplate({isSecretSanta}) {
   }
   html += `
       <div>
-        <button class="button" id="${confirmBtnId}">Continue</button>
-        <button class="button" id="${cancelBtnId}">Cancel</button>
+        <button class="${btnStyles.button}" id="${confirmBtnId}">Continue</button>
+        <button class="${btnStyles.button}" id="${cancelBtnId}">Cancel</button>
       </div>
     </div>`;
   return html;

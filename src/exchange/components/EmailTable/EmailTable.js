@@ -3,6 +3,7 @@ import {addEventListener, pushHTML, selectElement, setLoadingState, escapeAttr, 
 import {showError} from "../../../Snackbar.js";
 import {removeFailedEmails, showFailedEmails, resetRetryCount} from "./FailedEmails.js";
 import {confirmId, showConfirmation, removeAll as removeAllSendResults} from "./SendResults.js";
+import btnStyles from '../../../../assets/styles/exchange/components/buttons.module.css';
 
 const emailTableId = "emailTable";
 const emailTableBodyId = "emailTableBody";
@@ -30,13 +31,13 @@ function template({participants, heading, showDismiss = false, showSendResults =
       <form id="${emailTableBodyId}">
       ${participants.map((participant, i) => emailInput(participant, i)).join("")}
         <div id="emailBtnDiv">
-          ${showDismiss ? `<button class="button" id="${hideEmailsId}">Dismiss</button>` : ""}
-          <button type="submit" class="button" id="${submitEmailsId}">Submit Emails</button>
+          ${showDismiss ? `<button class="${btnStyles.button}" id="${hideEmailsId}">Dismiss</button>` : ""}
+          <button type="submit" class="${btnStyles.button}" id="${submitEmailsId}">Submit Emails</button>
         </div>
       </form>
       ${showSendResults ? `<hr style="border-color: rgba(255,255,255,0.1); margin: 10px 0;"/>
       <p style="text-align:center;">Don't want to send out emails to everyone?</p>
-      <div style="text-align:center;"><button class="button" id="${sendResultsBtnId}">Send Me the Results</button></div>` : ""}
+      <div style="text-align:center;"><button class="${btnStyles.button}" id="${sendResultsBtnId}">Send Me the Results</button></div>` : ""}
     </div>`;
 }
 
