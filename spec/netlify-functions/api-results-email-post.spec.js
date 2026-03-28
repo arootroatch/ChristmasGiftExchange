@@ -161,6 +161,15 @@ describe('api-results-email-post', () => {
         expect(response.statusCode).toBe(400);
     });
 
+    it('returns 400 when assignment has empty giver or recipient', async () => {
+        const event = buildEvent('POST', {
+            body: {assignments: [{giver: '', recipient: 'Alex'}]},
+            headers: {cookie: await authCookie(organizer._id)},
+        });
+        const response = await handler(event);
+        expect(response.statusCode).toBe(400);
+    });
+
     it('returns success response body', async () => {
         mockFetch.mockResolvedValueOnce({ok: true, json: () => Promise.resolve([])});
         const event = buildEvent('POST', {body: {exchangeId: exchange.exchangeId}, headers: {cookie: await authCookie(organizer._id)}});

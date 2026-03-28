@@ -5,8 +5,8 @@ import {sendNotificationEmail} from "../shared/giverNotification.mjs";
 import {getUsersCollection, getExchangesCollection} from "../shared/db.mjs";
 
 const assignmentSchema = z.object({
-    giver: z.string(),
-    recipient: z.string(),
+    giver: z.string().min(1),
+    recipient: z.string().min(1),
 });
 
 const exchangeIdRequestSchema = z.object({
