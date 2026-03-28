@@ -4,6 +4,8 @@ import {showError} from "../../../Snackbar.js";
 import {removeFailedEmails, showFailedEmails, resetRetryCount} from "./FailedEmails.js";
 import {confirmId, showConfirmation, removeAll as removeAllSendResults} from "./SendResults.js";
 import btnStyles from '../../../../assets/styles/exchange/components/buttons.module.css';
+import dialogStyles from '../../../../assets/styles/exchange/components/email-dialog.module.css';
+import confirmStyles from '../../../../assets/styles/exchange/components/email-confirmation.module.css';
 
 const emailTableId = "emailTable";
 const emailTableBodyId = "emailTableBody";
@@ -44,7 +46,7 @@ function template({participants, heading, showDismiss = false, showSendResults =
 export function emailInput(participant, i) {
   const safeName = escapeAttr(participant.name);
   return `
-    <div class="emailDiv">
+    <div class="${dialogStyles.emailDiv}">
       <label for=${i}>${safeName}</label>
       <input type="email"
              class="emailInput"

@@ -13,6 +13,7 @@
 @import './exchange/base.css';
 @import './exchange/layout.css';
 @import './exchange/responsive.css';
+@import './exchange/components/recipient-search.css';
 
 /* Themes */
 @import './themes/secret-santa.css';

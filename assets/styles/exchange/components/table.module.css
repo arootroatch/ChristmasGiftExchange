@@ -1,0 +1,91 @@
+.resultsCard {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  padding: 1rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  width: 300px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 10px;
+  align-self: flex-start;
+  z-index: 5;
+}
+
+.resultsCard h2 {
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.resultsHeader {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  padding: 6px 10px;
+  margin-bottom: 6px;
+}
+
+.resultsHeader span {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.resultsHeader span:first-child {
+  text-align: left;
+}
+
+.resultsHeader span:last-child {
+  text-align: right;
+}
+
+.resultRow {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  padding: 8px 10px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+  margin-bottom: 5px;
+  animation: cardSlide 0.4s ease-out both;
+}
+
+.resultRow span:first-child {
+  text-align: left;
+}
+
+.resultRow span:last-child {
+  text-align: right;
+}
+
+.resultArrow {
+  color: rgba(255, 255, 255, 0.3);
+  width: 24px;
+  text-align: center;
+}
+
+.resultsCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.resultsCardHeader h2 {
+  margin: 0;
+}
+
+#email-results-btn {
+  font-size: 0.8rem;
+  padding: 6px 12px;
+}
+
+/* Embedded variant — used when results card is inside a modal */
+.embedded {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  position: static;
+}

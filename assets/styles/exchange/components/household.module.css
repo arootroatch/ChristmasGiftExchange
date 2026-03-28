@@ -1,0 +1,51 @@
+#house1-header {
+  margin-top: 0;
+}
+
+.household,
+:global(#name-list) {
+  min-height: 5rem;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  padding: 1rem;
+  max-width: 347px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+:global(#name-list) {
+  margin-top: 0;
+}
+
+.household {
+  margin-top: 1rem;
+  animation: cardSlide 0.5s ease-out both;
+}
+
+.household p,
+:global(#name-list) p {
+  margin: 5px;
+  display: inline-block;
+}
+
+.household h2,
+:global(#name-list) h2 {
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.nameSelect {
+  width: 100%;
+  margin-top: 15px;
+}
+
+.nameContainer {
+  min-height: 3rem;
+  padding-bottom: 10px;
+}
+
+.household .nameContainer:empty {
+  min-height: 3rem;
+}

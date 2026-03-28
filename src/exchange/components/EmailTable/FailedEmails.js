@@ -1,6 +1,7 @@
 import {addEventListener, pushHTML, selectElement, setLoadingState, escapeAttr, apiFetch} from "../../../utils.js";
 import {completeExchange} from "../../state.js";
 import btnStyles from '../../../../assets/styles/exchange/components/buttons.module.css';
+import confirmStyles from '../../../../assets/styles/exchange/components/email-confirmation.module.css';
 
 const failedEmailsId = "failedEmails";
 const retryEmailsBtnId = "retryEmailsBtn";
@@ -19,7 +20,7 @@ export function removeFailedEmails() {
 
 function failedEmailsTemplate(emailsFailed, {message, buttons, footer = ""}) {
   return `
-    <div id="${failedEmailsId}" class="sendEmails show">
+    <div id="${failedEmailsId}" class="${confirmStyles.sendEmails} show">
       <p>Your exchange data has been saved. You can retrieve it by entering a participant's email in the recipient search on the home page.</p>
       <p>${message}</p>
       <ul>${emailsFailed.map(e => `<li>${escapeAttr(e)}</li>`).join('')}</ul>

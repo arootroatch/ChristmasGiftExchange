@@ -2,6 +2,8 @@ import {addEventListener, pushHTML, selectElement, escapeAttr, apiFetch} from ".
 import {showError} from "../../../Snackbar.js";
 import {completeExchange} from "../../state.js";
 import btnStyles from '../../../../assets/styles/exchange/components/buttons.module.css';
+import {tableStyles} from '../ResultsTable.js';
+import confirmStyles from '../../../../assets/styles/exchange/components/email-confirmation.module.css';
 
 const confirmId = "sendResultsConfirm";
 const confirmBtnId = "sendResultsConfirmBtn";
@@ -14,9 +16,9 @@ export function removeAll() {
 }
 
 export function resultsTableHtml({assignments}) {
-  let html = '<div class="results-card" style="margin: 0 auto;"><h2>Results</h2><div class="results-header"><span>Giver</span><span></span><span>Recipient</span></div><div>';
+  let html = `<div class="${tableStyles.resultsCard} ${tableStyles.embedded}"><h2>Results</h2><div class="${tableStyles.resultsHeader}"><span>Giver</span><span></span><span>Recipient</span></div><div>`;
   for (const a of assignments) {
-    html += `<div class="result-row"><span>${escapeAttr(a.giver)}</span><span class="result-arrow">&#8594;</span><span>${escapeAttr(a.recipient)}</span></div>`;
+    html += `<div class="${tableStyles.resultRow}"><span>${escapeAttr(a.giver)}</span><span class="${tableStyles.resultArrow}">&#8594;</span><span>${escapeAttr(a.recipient)}</span></div>`;
   }
   html += '</div></div>';
   return html;
@@ -24,7 +26,7 @@ export function resultsTableHtml({assignments}) {
 
 function confirmationTemplate({isSecretSanta}) {
   let html = `
-    <div id="${confirmId}" class="sendEmails show">
+    <div id="${confirmId}" class="${confirmStyles.sendEmails} show">
       <p>Your exchange will not be saved. Recipients will not be able to look up wishlists or contact info. Be sure to save your results email or take a screenshot!</p>`;
   if (isSecretSanta) {
     html += `<p>This will reveal all gift exchange assignments on your screen.</p>`;

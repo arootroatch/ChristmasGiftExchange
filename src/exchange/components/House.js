@@ -6,6 +6,7 @@ import {
 } from "../state.js";
 import {addEventListener, leftContainerId, pushHTML, selectElement} from "../../utils.js";
 import btnStyles from '../../../assets/styles/exchange/components/buttons.module.css';
+import houseStyles from '../../../assets/styles/exchange/components/household.module.css';
 
 export function init() {
   stateEvents.on(Events.HOUSE_ADDED, onHouseAdded);
@@ -29,9 +30,9 @@ function onHouseRemoved({houseID}) {
 
 function template(houseID, displayName) {
   return `
-      <div class="household" id="${houseID}">
+      <div class="${houseStyles.household}" id="${houseID}">
         <h2 contenteditable="true">${displayName} <span class="edit-span">(Click here to rename)</span></h2>
-        <div data-slot="names-${houseID}" class="name-container">
+        <div data-slot="names-${houseID}" class="${houseStyles.nameContainer}">
           <p class="house-placeholder ghost-text">Drop names here or select them from the dropdown</p>
         </div>
         <div data-slot="select-${houseID}"></div>
@@ -45,7 +46,7 @@ function attachListeners(houseID) {
 }
 
 function onHouseRenamed() {
-  const houseDiv = this.closest('.household');
+  const houseDiv = this.closest(`.${houseStyles.household}`);
   const houseID = houseDiv.id;
   const newName = this.textContent.trim();
   renameHouse(houseID, newName);
@@ -58,7 +59,7 @@ function onNameChange({houseID, members}) {
 }
 
 function deleteHouse() {
-  const houseDiv = this.closest('.household') || this.parentNode;
+  const houseDiv = this.closest(`.${houseStyles.household}`) || this.parentNode;
   const houseID = houseDiv.id;
   removeHouseFromState(houseID);
 }

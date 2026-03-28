@@ -1,18 +1,21 @@
 import {addEventListener, pushHTML, selectElement} from "../../utils.js";
 import {ExchangeEvents as Events, exchangeEvents as stateEvents, requestEmailResults} from "../state.js";
 import btnStyles from '../../../assets/styles/exchange/components/buttons.module.css';
+import tableStyles from '../../../assets/styles/exchange/components/table.module.css';
+
+export {tableStyles};
 
 const tableId = "results-table";
 const tableBodyId = "table-body";
 const flexDivSelector = "#flex-div";
 
 function template() {
-  return `<div class="results-card" id="${tableId}">
-    <div class="results-card-header">
+  return `<div class="${tableStyles.resultsCard}" id="${tableId}">
+    <div class="${tableStyles.resultsCardHeader}">
       <h2>Results</h2>
       <div id="email-results-slot"></div>
     </div>
-    <div class="results-header">
+    <div class="${tableStyles.resultsHeader}">
       <span>Giver</span>
       <span></span>
       <span>Recipient</span>
@@ -50,9 +53,9 @@ function renderResults(assignments) {
   for (let i = 0; i < assignments.length; i++) {
     const assignment = assignments[i];
     const delay = i > 0 ? ` style="animation-delay: ${(i * 0.07).toFixed(2)}s"` : '';
-    html += `<div class="result-row"${delay}>
+    html += `<div class="${tableStyles.resultRow}"${delay}>
                 <span>${assignment.giver}</span>
-                <span class="result-arrow">&#8594;</span>
+                <span class="${tableStyles.resultArrow}">&#8594;</span>
                 <span>${assignment.recipient}</span>
             </div>`;
   }

@@ -1,5 +1,6 @@
 import {addEventListener, nameListId, selectElement} from "../../utils.js";
 import {ExchangeEvents as Events, exchangeEvents as stateEvents, addNameToHouse, removeNameFromHouse} from "../state.js";
+import houseStyles from '../../../assets/styles/exchange/components/household.module.css';
 
 export function init() {
   stateEvents.on(Events.PARTICIPANT_ADDED, ({participants, houses}) => updateAllSelects(participants, houses));
@@ -21,11 +22,11 @@ export function insertNameFromSelect() {
   if (name === "default") return;
 
   const sourceContainer = selectElement(`#wrapper-${name}`)?.parentNode;
-  const sourceHouse = sourceContainer?.closest('.household');
+  const sourceHouse = sourceContainer?.closest(`.${houseStyles.household}`);
   const sourceHouseID = sourceHouse?.id;
 
   const isDestMainList = (this.parentNode.id === nameListId);
-  const destHouse = this.closest('.household');
+  const destHouse = this.closest(`.${houseStyles.household}`);
   const destHouseID = isDestMainList ? null : destHouse?.id;
 
   if (sourceHouseID) {
@@ -81,7 +82,7 @@ function renderIntoSlot(slot, participants, houses) {
 
 function template(houseID, participants) {
   return `
-      <select class="name-select" id="${houseID}-select">
+      <select class="${houseStyles.nameSelect}" id="${houseID}-select">
         ${defaultOption()}
         ${allNameOptions(participants)}
       </select>`;

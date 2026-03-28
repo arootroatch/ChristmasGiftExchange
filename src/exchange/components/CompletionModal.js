@@ -3,6 +3,7 @@ import {ExchangeEvents as Events, exchangeEvents as stateEvents} from "../state.
 import {resultsTableHtml} from "./EmailTable/SendResults.js";
 import {isBmcConsented} from "../../CookieBanner.js";
 import btnStyles from '../../../assets/styles/exchange/components/buttons.module.css';
+import confirmStyles from '../../../assets/styles/exchange/components/email-confirmation.module.css';
 
 const modalId = "completionModal";
 const newExchangeBtnId = "newExchangeBtn";
@@ -27,7 +28,7 @@ function bmcButtonHtml() {
 }
 
 function template({mode, assignments}) {
-  let html = `<div id="${modalId}" class="sendEmails show">`;
+  let html = `<div id="${modalId}" class="${confirmStyles.sendEmails} show">`;
   if (mode === "results") {
     html += resultsTableHtml({assignments});
   }
