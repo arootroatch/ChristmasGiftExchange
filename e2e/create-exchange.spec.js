@@ -120,7 +120,7 @@ test.describe('Create Exchange → View Wishlist', () => {
 
         // Add a house
         await page.locator('.ghost-house-btn').click();
-        const house = page.locator('.household').first();
+        const house = page.locator('[data-testid="household"]').first();
         await expect(house).toBeVisible();
 
         // Move Alice into the house via dropdown

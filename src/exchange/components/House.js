@@ -30,7 +30,7 @@ function onHouseRemoved({houseID}) {
 
 function template(houseID, displayName) {
   return `
-      <div class="${houseStyles.household}" id="${houseID}">
+      <div class="${houseStyles.household}" id="${houseID}" data-testid="household">
         <h2 contenteditable="true">${displayName} <span class="edit-span">(Click here to rename)</span></h2>
         <div data-slot="names-${houseID}" class="${houseStyles.nameContainer}">
           <p class="house-placeholder ghost-text">Drop names here or select them from the dropdown</p>

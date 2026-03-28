@@ -101,7 +101,7 @@ test.describe('Reuse Exchange', () => {
         await expect(page.locator('#wrapper-Bob')).toBeVisible();
 
         // House should appear with correct name
-        const house = page.locator('.household').first();
+        const house = page.locator('[data-testid="household"]').first();
         await expect(house).toBeVisible();
         await expect(house.locator('h2')).toContainText('Family');
 
