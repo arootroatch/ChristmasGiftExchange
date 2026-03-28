@@ -78,12 +78,6 @@ describe('api-results-email-post', () => {
         expect(response.statusCode).toBe(401);
     });
 
-    it('returns 400 for missing exchangeId', async () => {
-        const event = buildEvent('POST', {body: {}, headers: {cookie: await authCookie(organizer._id)}});
-        const response = await handler(event);
-        expect(response.statusCode).toBe(400);
-    });
-
     it('returns 400 when neither exchangeId nor assignments is provided', async () => {
         const event = buildEvent('POST', {body: {}, headers: {cookie: await authCookie(organizer._id)}});
         const response = await handler(event);
