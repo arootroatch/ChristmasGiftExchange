@@ -57,10 +57,10 @@ const successUserResponse = {
   }),
 };
 
-const unauthorizedResponse = {
-  ok: false,
-  status: 401,
-  json: async () => ({error: 'Unauthorized'}),
+const noSessionResponse = {
+  ok: true,
+  status: 200,
+  json: async () => null,
 };
 
 const recipientResponse = {
@@ -90,9 +90,9 @@ describe('Dashboard index', () => {
     expect(spinner).not.toBeNull();
   });
 
-  describe('loadData: 401 response', () => {
-    it('shows auth gate when api-user-get returns 401', async () => {
-      mockFetchSequence(unauthorizedResponse);
+  describe('loadData: no session', () => {
+    it('shows auth gate when api-user-get returns null', async () => {
+      mockFetchSequence(noSessionResponse);
 
       const {main} = await import('../../src/dashboard/index.js');
       main();
@@ -103,7 +103,7 @@ describe('Dashboard index', () => {
     });
 
     it('shows auth gate heading "Verify Your Email"', async () => {
-      mockFetchSequence(unauthorizedResponse);
+      mockFetchSequence(noSessionResponse);
 
       const {main} = await import('../../src/dashboard/index.js');
       main();

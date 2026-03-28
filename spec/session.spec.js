@@ -26,10 +26,10 @@ describe("session", () => {
       expect(fetch).toHaveBeenCalledWith("/.netlify/functions/api-user-get", {method: "GET"});
     });
 
-    it("returns null on 401", async () => {
+    it("returns null when response body is null", async () => {
       globalThis.fetch = vi.fn(() => Promise.resolve({
-        ok: false, status: 401,
-        json: async () => ({error: "Unauthorized"}),
+        ok: true, status: 200,
+        json: async () => null,
       }));
 
       const data = await loadSession();

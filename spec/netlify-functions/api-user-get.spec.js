@@ -34,10 +34,11 @@ describe("api-user-get", () => {
         expect(response.statusCode).toBe(405);
     });
 
-    it("returns 401 when no cookie present", async () => {
+    it("returns 200 with null body when no cookie present", async () => {
         const event = buildEvent("GET");
         const response = await handler(event);
-        expect(response.statusCode).toBe(401);
+        expect(response.statusCode).toBe(200);
+        expect(JSON.parse(response.body)).toBeNull();
     });
 
     it("returns user data for authenticated user", async () => {
