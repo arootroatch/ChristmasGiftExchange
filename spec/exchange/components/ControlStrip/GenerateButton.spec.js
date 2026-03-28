@@ -17,11 +17,12 @@ import {
 import * as generateButtonModule from "../../../../src/exchange/components/ControlStrip/GenerateButton";
 import {init as initControlStrip} from "../../../../src/exchange/components/ControlStrip/ControlStrip";
 import {init as initGenerateButton, generateList, getGlowClass} from "../../../../src/exchange/components/ControlStrip/GenerateButton";
-import {init as initResultsTable} from "../../../../src/exchange/components/ResultsTable";
+import {init as initResultsTable, tableStyles} from "../../../../src/exchange/components/ResultsTable";
 import {init as initEmailTable} from "../../../../src/exchange/components/EmailTable/EmailTable";
 import {init as initOrganizerForm} from "../../../../src/exchange/components/OrganizerForm";
 import {addParticipant, assignRecipients, getState, removeParticipant} from "../../../../src/exchange/state";
 import {selectElement} from "../../../../src/utils";
+import btnStyles from '../../../../assets/styles/exchange/components/buttons.module.css';
 
 const noPossibleComboError = "No possible combinations! Please try a different configuration/number of names."
 
@@ -33,18 +34,18 @@ describe("getGlowClass", () => {
   });
 
   it("returns generate-glow-1 for 3-4 participants", () => {
-    expect(getGlowClass(3)).toBe("generate-glow-1");
-    expect(getGlowClass(4)).toBe("generate-glow-1");
+    expect(getGlowClass(3)).toBe(btnStyles.generateGlow1);
+    expect(getGlowClass(4)).toBe(btnStyles.generateGlow1);
   });
 
   it("returns generate-glow-2 for 5-7 participants", () => {
-    expect(getGlowClass(5)).toBe("generate-glow-2");
-    expect(getGlowClass(7)).toBe("generate-glow-2");
+    expect(getGlowClass(5)).toBe(btnStyles.generateGlow2);
+    expect(getGlowClass(7)).toBe(btnStyles.generateGlow2);
   });
 
   it("returns generate-glow-3 for 8+ participants", () => {
-    expect(getGlowClass(8)).toBe("generate-glow-3");
-    expect(getGlowClass(15)).toBe("generate-glow-3");
+    expect(getGlowClass(8)).toBe(btnStyles.generateGlow3);
+    expect(getGlowClass(15)).toBe(btnStyles.generateGlow3);
   });
 });
 
@@ -201,7 +202,7 @@ describe("generateButton", () => {
       addParticipant("Whitney");
       addParticipant("Carol");
       const btn = selectElement("#generate");
-      expect(btn.classList.contains("generate-glow-1")).toBe(true);
+      expect(btn.classList.contains(btnStyles.generateGlow1)).toBe(true);
     });
 
     it("applies generate-glow-2 after 5th participant", () => {
@@ -212,8 +213,8 @@ describe("generateButton", () => {
       addParticipant("Dave");
       addParticipant("Eve");
       const btn = selectElement("#generate");
-      expect(btn.classList.contains("generate-glow-2")).toBe(true);
-      expect(btn.classList.contains("generate-glow-1")).toBe(false);
+      expect(btn.classList.contains(btnStyles.generateGlow2)).toBe(true);
+      expect(btn.classList.contains(btnStyles.generateGlow1)).toBe(false);
     });
 
     it("applies generate-glow-3 after 8th participant", () => {
@@ -222,8 +223,8 @@ describe("generateButton", () => {
         addParticipant(name);
       }
       const btn = selectElement("#generate");
-      expect(btn.classList.contains("generate-glow-3")).toBe(true);
-      expect(btn.classList.contains("generate-glow-2")).toBe(false);
+      expect(btn.classList.contains(btnStyles.generateGlow3)).toBe(true);
+      expect(btn.classList.contains(btnStyles.generateGlow2)).toBe(false);
     });
 
     it("resets glow when new exchange started", () => {
@@ -231,12 +232,12 @@ describe("generateButton", () => {
       addParticipant("Alex");
       addParticipant("Whitney");
       addParticipant("Carol");
-      expect(selectElement("#generate").classList.contains("generate-glow-1")).toBe(true);
+      expect(selectElement("#generate").classList.contains(btnStyles.generateGlow1)).toBe(true);
       resetState();
       addParticipant("Alex");
       expect(selectElement("#generate")).not.toBeNull();
       const btn = selectElement("#generate");
-      expect(btn.classList.contains("generate-glow-1")).toBe(false);
+      expect(btn.classList.contains(btnStyles.generateGlow1)).toBe(false);
     });
   });
 });
@@ -298,9 +299,9 @@ describe("generateList", () => {
     for (let i = 0; i < assignments.length; i++) {
       const assignment = assignments[i];
       const delay = i > 0 ? ` style="animation-delay: ${(i * 0.07).toFixed(2)}s"` : '';
-      tableHTML += `<div class="result-row"${delay}>
+      tableHTML += `<div class="${tableStyles.resultRow}"${delay}>
                 <span>${assignment.giver}</span>
-                <span class="result-arrow">→</span>
+                <span class="${tableStyles.resultArrow}">→</span>
                 <span>${assignment.recipient}</span>
             </div>`;
     }
@@ -321,9 +322,9 @@ describe("generateList", () => {
     for (let i = 0; i < assignments.length; i++) {
       const assignment = assignments[i];
       const delay = i > 0 ? ` style="animation-delay: ${(i * 0.07).toFixed(2)}s"` : '';
-      tableHTML += `<div class="result-row"${delay}>
+      tableHTML += `<div class="${tableStyles.resultRow}"${delay}>
                 <span>${assignment.giver}</span>
-                <span class="result-arrow">→</span>
+                <span class="${tableStyles.resultArrow}">→</span>
                 <span>${assignment.recipient}</span>
             </div>`;
     }

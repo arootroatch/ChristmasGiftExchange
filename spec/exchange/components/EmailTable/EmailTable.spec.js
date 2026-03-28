@@ -19,6 +19,8 @@ import {
   renderWithSubset,
 } from "../../../../src/exchange/components/EmailTable/EmailTable";
 import {init as initSnackbar} from "../../../../src/Snackbar";
+import confirmStyles from '../../../../assets/styles/exchange/components/email-confirmation.module.css';
+import dialogStyles from '../../../../assets/styles/exchange/components/email-dialog.module.css';
 
 function stubExchangeApiFetch() {
   global.fetch = vi.fn(() => Promise.resolve({
@@ -157,7 +159,7 @@ describe('emailTable', () => {
       triggerEmailTableRender();
       // Clear render-generated inputs and givers, replace with test data
       const body = document.querySelector("#emailTableBody");
-      body.querySelectorAll(".emailDiv").forEach(el => el.remove());
+      body.querySelectorAll(`.${dialogStyles.emailDiv}`).forEach(el => el.remove());
       getState().participants = [];
       installParticipantNames("Alex", "Whitney", "Hunter", "Megan");
       renderEmailTableInputs([
@@ -222,7 +224,7 @@ describe('emailTable', () => {
     beforeEach(() => {
       triggerEmailTableRender();
       const body = document.querySelector("#emailTableBody");
-      body.querySelectorAll(".emailDiv").forEach(el => el.remove());
+      body.querySelectorAll(`.${dialogStyles.emailDiv}`).forEach(el => el.remove());
       getState().participants = [];
       installParticipantNames("Alex", "Whitney", "Hunter");
       renderEmailTableInputs([
@@ -277,7 +279,7 @@ describe('emailTable', () => {
 
       const confirm = document.querySelector("#sendResultsConfirm");
       expect(confirm).not.toBeNull();
-      expect(confirm.classList).toContain("sendEmails");
+      expect(confirm.classList).toContain(confirmStyles.sendEmails);
       expect(confirm.textContent).toContain("Your exchange will not be saved");
     });
 
@@ -383,7 +385,7 @@ describe('emailTable', () => {
     getState().participants = [{name: "Alex", email: ""}, {name: "Whitney", email: ""}];
     const result = emailInput(getState().participants[0], 0);
 
-    expect(result).toContain('<div class="emailDiv">');
+    expect(result).toContain(`<div class="${dialogStyles.emailDiv}">`);
     expect(result).toContain('<label for=0>Alex</label>');
     expect(result).toContain('type="email"');
     expect(result).toContain('class="emailInput"');

@@ -2,6 +2,8 @@ import {beforeAll, beforeEach, describe, expect, it, vi} from "vitest";
 import {ExchangeEvents as Events, exchangeEvents as stateEvents, startExchange} from "../../../src/exchange/state";
 import {init} from "../../../src/exchange/components/CompletionModal";
 import {init as initSnackbar} from "../../../src/Snackbar";
+import confirmStyles from '../../../assets/styles/exchange/components/email-confirmation.module.css';
+import {tableStyles} from "../../../src/exchange/components/ResultsTable";
 
 describe("CompletionModal", () => {
   beforeAll(() => {
@@ -21,7 +23,7 @@ describe("CompletionModal", () => {
 
       const modal = document.querySelector("#completionModal");
       expect(modal).not.toBeNull();
-      expect(modal.classList).toContain("sendEmails");
+      expect(modal.classList).toContain(confirmStyles.sendEmails);
     });
 
     it("shows success message with save confirmation", () => {
@@ -35,7 +37,7 @@ describe("CompletionModal", () => {
     it("does not show results table", () => {
       stateEvents.emit(Events.EXCHANGE_COMPLETE, {mode: "success", assignments: []});
 
-      expect(document.querySelector("#completionModal .results-card")).toBeNull();
+      expect(document.querySelector(`#completionModal .${tableStyles.resultsCard}`)).toBeNull();
     });
 
     it("shows Start New Exchange button", () => {
@@ -85,7 +87,7 @@ describe("CompletionModal", () => {
     it("does not show results table", () => {
       stateEvents.emit(Events.EXCHANGE_COMPLETE, {mode: "error", assignments: []});
 
-      expect(document.querySelector("#completionModal .results-card")).toBeNull();
+      expect(document.querySelector(`#completionModal .${tableStyles.resultsCard}`)).toBeNull();
     });
 
     it("shows Start New Exchange button", () => {
@@ -104,7 +106,7 @@ describe("CompletionModal", () => {
     it("shows results table", () => {
       stateEvents.emit(Events.EXCHANGE_COMPLETE, {mode: "results", assignments});
 
-      const resultsCard = document.querySelector("#completionModal .results-card");
+      const resultsCard = document.querySelector(`#completionModal .${tableStyles.resultsCard}`);
       expect(resultsCard).not.toBeNull();
       expect(resultsCard.textContent).toContain("Alex");
       expect(resultsCard.textContent).toContain("Whitney");

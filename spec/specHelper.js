@@ -1,4 +1,6 @@
 import {addHouseToState, getState, startExchange} from "../src/exchange/state";
+import houseStyles from '../assets/styles/exchange/components/household.module.css';
+import dialogStyles from '../assets/styles/exchange/components/email-dialog.module.css';
 import {expect, vi} from "vitest";
 import {indexHtml} from "./setupTests";
 import {selectElement} from "../src/utils";
@@ -109,7 +111,7 @@ export function change(selector, value) {
 }
 
 export function clearNameSelects() {
-  let selects = Array.from(document.getElementsByClassName("name-select"));
+  let selects = Array.from(document.getElementsByClassName(houseStyles.nameSelect));
   selects.map((select) => {
     select.innerHTML = `<option disabled selected value="default">-- Select a name --</option>`;
   });
@@ -134,7 +136,7 @@ export function removeAllNames() {
 }
 
 export function removeAllHouses() {
-  document.querySelectorAll('.household').forEach(el => el.remove());
+  document.querySelectorAll(`.${houseStyles.household}`).forEach(el => el.remove());
 }
 
 export function enterName(name) {
@@ -182,7 +184,7 @@ export function shouldDisplayEmailTable(...names) {
 
   expect(table.classList).toContain("show");
   expect(table.classList).not.toContain("hidden");
-  expect(body.innerHTML).toContain('class="emailDiv"');
+  expect(body.innerHTML).toContain(`class="${dialogStyles.emailDiv}"`);
   for (let i = 0; i > names.length; i++) {
     expect(body.innerHTML).toContain(`<label for="${i}">${names[i]}</label>`);
   }

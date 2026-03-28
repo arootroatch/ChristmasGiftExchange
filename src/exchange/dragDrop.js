@@ -1,5 +1,6 @@
 import {leftContainerId, participantsId, selectElement} from "../utils";
 import { addNameToHouse, removeNameFromHouse } from "./state.js";
+import houseStyles from '../../assets/styles/exchange/components/household.module.css';
 
 const SCROLL_ZONE = 80;
 const SCROLL_SPEED = 20;
@@ -32,7 +33,7 @@ function stopAutoScroll() {
 }
 
 function findContainer(target) {
-  return target.closest('.name-container');
+  return target.closest(`.${houseStyles.nameContainer}`);
 }
 
 function createDropPreview() {
@@ -87,12 +88,12 @@ export function drag(e) {
 
 function getSourceHouse(nameWrapper){
   const sourceContainer = nameWrapper.parentNode;
-  const sourceHouse = sourceContainer.closest('.household');
+  const sourceHouse = sourceContainer.closest(`.${houseStyles.household}`);
   return sourceHouse?.id
 }
 
 function getDestHouse(container){
-  const destHouse = container.closest('.household');
+  const destHouse = container.closest(`.${houseStyles.household}`);
   const isDestMainList = (container.id === participantsId);
   return isDestMainList ? null : destHouse?.id;
 }

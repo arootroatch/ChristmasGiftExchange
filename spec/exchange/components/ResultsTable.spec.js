@@ -1,5 +1,5 @@
 import {beforeAll, beforeEach, describe, expect, it, vi} from "vitest";
-import {init} from "../../../src/exchange/components/ResultsTable";
+import {init, tableStyles} from "../../../src/exchange/components/ResultsTable";
 import {initReactiveSystem, installParticipantNames, resetDOM, resetState} from "../../specHelper";
 import {assignRecipients, startExchange, getState} from "../../../src/exchange/state";
 import * as stateModule from "../../../src/exchange/state";
@@ -57,7 +57,7 @@ describe('resultsTable', () => {
     assignRecipients(["Whitney", "Hunter", "Alex"]);
 
     const tableBody = document.querySelector('#table-body');
-    const rows = tableBody.querySelectorAll('.result-row');
+    const rows = tableBody.querySelectorAll(`.${tableStyles.resultRow}`);
 
     expect(rows.length).toBe(3);
 
@@ -87,7 +87,7 @@ describe('resultsTable', () => {
 
     assignRecipients(["Whitney", "Hunter", "Alex"]);
 
-    const rows = document.querySelectorAll('.result-row');
+    const rows = document.querySelectorAll(`.${tableStyles.resultRow}`);
     expect(rows[0].style.animationDelay).toBe('');
     expect(rows[1].style.animationDelay).toBe('0.07s');
     expect(rows[2].style.animationDelay).toBe('0.14s');

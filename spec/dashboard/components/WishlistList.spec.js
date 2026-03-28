@@ -3,6 +3,7 @@ import {JSDOM} from 'jsdom';
 import {dashboardEvents, DashboardEvents, resetState, setUserData, addWishlist} from '../../../src/dashboard/state.js';
 import {init} from '../../../src/dashboard/components/WishlistList.js';
 import {init as initSnackbar} from '../../../src/Snackbar.js';
+import wishStyles from '../../../assets/styles/dashboard/components/wishlist.module.css';
 
 function setupDOM() {
   const dom = new JSDOM(`<!DOCTYPE html><html><body>
@@ -55,7 +56,7 @@ describe('WishlistList', () => {
         {url: 'https://target.com/list2', title: 'List 2'},
       ]}));
 
-      const entries = document.querySelectorAll('#wishlists-list .wishlist-entry');
+      const entries = document.querySelectorAll(`#wishlists-list .${wishStyles.wishlistEntry}`);
       expect(entries.length).toBe(2);
     });
 
@@ -76,7 +77,7 @@ describe('WishlistList', () => {
     it('does nothing when URL is empty', () => {
       document.getElementById('add-wishlist-btn').click();
 
-      expect(document.querySelectorAll('#wishlists-list .wishlist-entry').length).toBe(0);
+      expect(document.querySelectorAll(`#wishlists-list .${wishStyles.wishlistEntry}`).length).toBe(0);
     });
 
     it('shows error for invalid URL', () => {
@@ -114,7 +115,7 @@ describe('WishlistList', () => {
 
       document.querySelector('.delete-btn[data-index="0"]').click();
 
-      const entries = document.querySelectorAll('#wishlists-list .wishlist-entry');
+      const entries = document.querySelectorAll(`#wishlists-list .${wishStyles.wishlistEntry}`);
       expect(entries.length).toBe(1);
       expect(document.getElementById('wishlists-list').textContent).toContain('List 2');
       expect(document.getElementById('wishlists-list').textContent).not.toContain('List 1');
@@ -125,7 +126,7 @@ describe('WishlistList', () => {
 
       document.getElementById('wishlists-list').click();
 
-      expect(document.querySelectorAll('#wishlists-list .wishlist-entry').length).toBe(1);
+      expect(document.querySelectorAll(`#wishlists-list .${wishStyles.wishlistEntry}`).length).toBe(1);
     });
   });
 });

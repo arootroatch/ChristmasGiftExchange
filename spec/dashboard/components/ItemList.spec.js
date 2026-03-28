@@ -3,6 +3,7 @@ import {JSDOM} from 'jsdom';
 import {dashboardEvents, resetState, setUserData, addItem, setCurrency} from '../../../src/dashboard/state.js';
 import {init} from '../../../src/dashboard/components/ItemList.js';
 import {init as initSnackbar} from '../../../src/Snackbar.js';
+import wishStyles from '../../../assets/styles/dashboard/components/wishlist.module.css';
 
 function setupDOM() {
   const dom = new JSDOM(`<!DOCTYPE html><html><body>
@@ -59,7 +60,7 @@ describe('ItemList', () => {
     it('does not render price when price is 0', () => {
       setUserData(userData({wishItems: [{url: 'https://amazon.com/item', title: 'Headphones', price: 0}]}));
 
-      expect(document.querySelector('#items-list .item-price')).toBeNull();
+      expect(document.querySelector(`#items-list .${wishStyles.itemPrice}`)).toBeNull();
     });
 
     it('renders multiple entries', () => {
@@ -68,7 +69,7 @@ describe('ItemList', () => {
         {url: 'https://amazon.com/item2', title: 'Item 2', price: 2000},
       ]}));
 
-      const entries = document.querySelectorAll('#items-list .wishlist-entry');
+      const entries = document.querySelectorAll(`#items-list .${wishStyles.wishlistEntry}`);
       expect(entries.length).toBe(2);
     });
 
@@ -196,7 +197,7 @@ describe('ItemList', () => {
       document.getElementById('add-item-btn').click();
 
       expect(document.getElementById('items-list').textContent).toContain('Free Thing');
-      expect(document.querySelector('#items-list .item-price')).toBeNull();
+      expect(document.querySelector(`#items-list .${wishStyles.itemPrice}`)).toBeNull();
     });
 
     it('converts price to smallest unit', () => {
@@ -219,7 +220,7 @@ describe('ItemList', () => {
 
       document.querySelector('.delete-btn[data-index="0"]').click();
 
-      const entries = document.querySelectorAll('#items-list .wishlist-entry');
+      const entries = document.querySelectorAll(`#items-list .${wishStyles.wishlistEntry}`);
       expect(entries.length).toBe(1);
       expect(document.getElementById('items-list').textContent).toContain('Item 2');
       expect(document.getElementById('items-list').textContent).not.toContain('Item 1');
@@ -230,7 +231,7 @@ describe('ItemList', () => {
 
       document.getElementById('items-list').click();
 
-      expect(document.querySelectorAll('#items-list .wishlist-entry').length).toBe(1);
+      expect(document.querySelectorAll(`#items-list .${wishStyles.wishlistEntry}`).length).toBe(1);
     });
   });
 });

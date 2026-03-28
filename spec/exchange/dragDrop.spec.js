@@ -1,6 +1,7 @@
 import {afterEach, beforeAll, beforeEach, describe, expect, it, vi} from 'vitest';
 import {allowDrop, drag, dragLeave, drop, initDragDrop} from '../../src/exchange/dragDrop';
 import {getState, addNameToHouse} from '../../src/exchange/state';
+import houseStyles from '../../assets/styles/exchange/components/household.module.css';
 import {
   addHouseToDOM,
   enterName,
@@ -69,7 +70,7 @@ describe('dragDrop', () => {
       enterName('Alex');
       addHouseToDOM();
 
-      const houseContainer = document.querySelector('#house-0 .name-container');
+      const houseContainer = document.querySelector(`#house-0 .${houseStyles.nameContainer}`);
 
       const mockEvent = {
         target: houseContainer,
@@ -83,7 +84,7 @@ describe('dragDrop', () => {
 
       expect(getState().houses.find(h => h.id === "house-0").members).toContain('Alex');
       // Check that a name wrapper for Alex exists in the house container (re-rendered)
-      shouldSelect('#house-0 .name-container #wrapper-Alex');
+      shouldSelect(`#house-0 .${houseStyles.nameContainer} #wrapper-Alex`);
     });
 
     it('updates state when moving name between houses', () => {
@@ -92,8 +93,8 @@ describe('dragDrop', () => {
       addHouseToDOM();
 
       const nameWrapper = document.querySelector('#wrapper-Alex');
-      const house0Container = document.querySelector('#house-0 .name-container');
-      const house1Container = document.querySelector('#house-1 .name-container');
+      const house0Container = document.querySelector(`#house-0 .${houseStyles.nameContainer}`);
+      const house1Container = document.querySelector(`#house-1 .${houseStyles.nameContainer}`);
 
       house0Container.appendChild(nameWrapper);
       addNameToHouse("house-0", "Alex");
@@ -111,7 +112,7 @@ describe('dragDrop', () => {
       expect(getState().houses.find(h => h.id === "house-0").members).not.toContain('Alex');
       expect(getState().houses.find(h => h.id === "house-1").members).toContain('Alex');
       // Check that a name wrapper for Alex exists in house-1 (re-rendered)
-      shouldSelect('#house-1 .name-container #wrapper-Alex');
+      shouldSelect(`#house-1 .${houseStyles.nameContainer} #wrapper-Alex`);
     });
 
     it('positions dropped name at preview location instead of bottom', () => {
@@ -120,7 +121,7 @@ describe('dragDrop', () => {
       enterName('Carl');
       addHouseToDOM();
 
-      const houseContainer = document.querySelector('#house-0 .name-container');
+      const houseContainer = document.querySelector(`#house-0 .${houseStyles.nameContainer}`);
 
       // Move Alex and Carl into the house first
       drop({
@@ -378,7 +379,7 @@ describe('dragDrop', () => {
     });
 
     it("inserts drop preview on dragover of name-container", () => {
-      const houseContainer = document.querySelector("#house-0 .name-container");
+      const houseContainer = document.querySelector(`#house-0 .${houseStyles.nameContainer}`);
       const event = new Event("dragover", {bubbles: true, cancelable: true});
       Object.defineProperty(event, "target", {value: houseContainer});
       event.clientY = 400;
@@ -387,7 +388,7 @@ describe('dragDrop', () => {
     });
 
     it("removes drop preview on dragleave when leaving container", () => {
-      const houseContainer = document.querySelector("#house-0 .name-container");
+      const houseContainer = document.querySelector(`#house-0 .${houseStyles.nameContainer}`);
       const overEvent = new Event("dragover", {bubbles: true, cancelable: true});
       Object.defineProperty(overEvent, "target", {value: houseContainer});
       overEvent.clientY = 400;
@@ -402,7 +403,7 @@ describe('dragDrop', () => {
     });
 
     it("does not remove preview on dragleave when moving to child element", () => {
-      const houseContainer = document.querySelector("#house-0 .name-container");
+      const houseContainer = document.querySelector(`#house-0 .${houseStyles.nameContainer}`);
       const overEvent = new Event("dragover", {bubbles: true, cancelable: true});
       Object.defineProperty(overEvent, "target", {value: houseContainer});
       overEvent.clientY = 400;

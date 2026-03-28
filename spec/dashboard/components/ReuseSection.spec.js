@@ -1,6 +1,7 @@
 import {describe, it, expect, beforeEach, vi} from 'vitest';
 import {JSDOM} from 'jsdom';
 import {init} from '../../../src/dashboard/components/ReuseSection.js';
+import cardStyles from '../../../assets/styles/dashboard/components/cards.module.css';
 
 const flush = () => new Promise(r => setTimeout(r, 0));
 
@@ -63,7 +64,7 @@ describe('ReuseSection', () => {
       await flush();
 
       const results = document.querySelector('#reuse-results');
-      expect(results.querySelector('.exchange-result')).not.toBeNull();
+      expect(results.querySelector(`.${cardStyles.exchangeResult}`)).not.toBeNull();
       expect(results.textContent).toContain('Alice');
       expect(results.textContent).toContain('Bob');
     });
