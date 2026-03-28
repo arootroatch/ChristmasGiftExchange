@@ -315,7 +315,7 @@ describe('emailTable', () => {
   });
 
   describe("send results Continue button", () => {
-    it("removes confirmation and calls API with exchangeId on Continue", async () => {
+    it("removes confirmation and calls API with assignments on Continue", async () => {
       global.fetch = vi.fn(() => Promise.resolve({
         ok: true,
         status: 200,
@@ -334,10 +334,10 @@ describe('emailTable', () => {
       );
       const body = JSON.parse(global.fetch.mock.calls[0][1].body);
       expect(body.token).toBeUndefined();
-      expect(body.exchangeId).toBe(getState().exchangeId);
+      expect(body.exchangeId).toBeUndefined();
       expect(body.name).toBeUndefined();
       expect(body.email).toBeUndefined();
-      expect(body.assignments).toBeUndefined();
+      expect(body.assignments).toEqual(getState().assignments);
     });
 
     it("does not render name or email inputs", () => {
