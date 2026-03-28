@@ -71,7 +71,7 @@ export function init() {
 
 function template() {
   return `
-    <button class="${btnStyles.btnBottom}" id="${generateId}">
+    <button class="${btnStyles.btnBottom} ${btnStyles.generate}" id="${generateId}">
       Generate List<br /><span class="shortcut">(Ctrl+Enter)</span>
     </button>
   `;

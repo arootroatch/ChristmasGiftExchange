@@ -77,7 +77,7 @@
   margin: 0;
 }
 
-:global(#email-results-btn) {
+.emailResultsBtn {
   font-size: 0.8rem;
   padding: 6px 12px;
 }

@@ -4,7 +4,7 @@ import {showError} from "../../../Snackbar.js";
 import {removeFailedEmails, showFailedEmails, resetRetryCount} from "./FailedEmails.js";
 import {confirmId, showConfirmation, removeAll as removeAllSendResults} from "./SendResults.js";
 import btnStyles from '../../../../assets/styles/exchange/components/buttons.module.css';
-import '../../../../assets/styles/exchange/components/email-dialog.css';
+import dialogStyles from '../../../../assets/styles/exchange/components/email-dialog.module.css';
 import confirmStyles from '../../../../assets/styles/exchange/components/email-confirmation.module.css';
 
 const emailTableId = "emailTable";
@@ -28,12 +28,12 @@ export function init() {
 
 function template({participants, heading, showDismiss = false, showSendResults = false}) {
   return `
-    <div id="${emailTableId}" class="show">
+    <div id="${emailTableId}" class="${dialogStyles.emailTable} show">
       <h3>${heading}</h3>
       <form id="${emailTableBodyId}">
       ${participants.map((participant, i) => emailInput(participant, i)).join("")}
-        <div id="emailBtnDiv">
-          ${showDismiss ? `<button class="${btnStyles.button}" id="${hideEmailsId}">Dismiss</button>` : ""}
+        <div id="emailBtnDiv" class="${dialogStyles.emailBtnDiv}">
+          ${showDismiss ? `<button class="${btnStyles.button} ${confirmStyles.hideEmails}" id="${hideEmailsId}">Dismiss</button>` : ""}
           <button type="submit" class="${btnStyles.button}" id="${submitEmailsId}">Submit Emails</button>
         </div>
       </form>
@@ -46,7 +46,7 @@ function template({participants, heading, showDismiss = false, showSendResults =
 export function emailInput(participant, i) {
   const safeName = escapeAttr(participant.name);
   return `
-    <div class="emailDiv">
+    <div class="${dialogStyles.emailDiv}">
       <label for=${i}>${safeName}</label>
       <input type="email"
              class="emailInput"

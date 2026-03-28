@@ -1,4 +1,4 @@
-#emailTable {
+.emailTable {
   min-height: 250px;
   min-width: 400px;
   width: auto;
@@ -18,7 +18,7 @@
   overflow: hidden;
 }
 
-#emailTable h3 {
+.emailTable h3 {
   position: relative;
   top: -20px;
   padding: 20px;
@@ -26,7 +26,7 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-#emailBtnDiv {
+.emailBtnDiv {
   display: flex;
   justify-content: space-around;
   margin-top: 5px;
@@ -64,11 +64,11 @@
   color: var(--text-primary);
 }
 
-.emailInput.duplicate-email {
+:global(.emailInput.duplicate-email) {
   border-color: red;
 }
 
-#organizerFormContainer {
+.organizerFormContainer {
   min-width: 400px;
   width: auto;
   position: fixed;
@@ -86,7 +86,7 @@
   padding: 20px;
 }
 
-#organizerFormContainer #auth-gate {
+.organizerFormContainer :global(#auth-gate) {
   background: none;
   border: none;
   border-radius: 0;
@@ -99,14 +99,14 @@
   animation: none;
 }
 
-#organizerFormContainer #auth-gate h2 {
+.organizerFormContainer :global(#auth-gate) h2 {
   margin-top: 0;
   margin-bottom: 15px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   padding-bottom: 15px;
 }
 
-#organizerFormContainer #auth-gate label {
+.organizerFormContainer :global(#auth-gate) label {
   display: block;
   margin-bottom: 10px;
   color: rgba(255, 255, 255, 0.7);
@@ -116,7 +116,7 @@
   letter-spacing: normal;
 }
 
-#organizerFormContainer #auth-gate input {
+.organizerFormContainer :global(#auth-gate) input {
   width: 100%;
   background: rgba(0, 0, 0, 0.25);
   border: 1px solid rgba(255, 255, 255, 0.12);

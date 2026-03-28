@@ -20,7 +20,7 @@
   max-height: calc(100vh - 40px);
 }
 
-:global(#hideEmails) {
+.hideEmails {
   margin-left: 15px;
 }
 

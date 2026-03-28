@@ -33,7 +33,7 @@ export function init() {
 function template() {
   return `
   <div id="${nameListId}" style="display: none;">
-    <h2 id="house1-header">Participant Names</h2>
+    <h2 id="house1-header" class="${houseStyles.house1Header}">Participant Names</h2>
     ${ghostTextHTML}
     <div class="${houseStyles.nameContainer}" id="${participantsId}" data-slot="names-${participantsId}"></div>
     <label for="name-input">Name</label>

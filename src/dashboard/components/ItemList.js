@@ -43,7 +43,7 @@ function template(currency) {
             </div>
             <div>
                 <label for="item-price">Price</label>
-                <input type="number" id="item-price" min="0" step="${step}" placeholder="${placeholder}"/>
+                <input type="number" id="item-price" class="${wishStyles.itemPriceInput}" min="0" step="${step}" placeholder="${placeholder}"/>
             </div>
             <button id="add-item-btn" class="${btnStyles.button}">Add</button>
         </div>

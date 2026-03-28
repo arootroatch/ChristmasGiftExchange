@@ -27,7 +27,7 @@ function template() {
 function renderEmailResultsButton() {
   const slot = selectElement("#email-results-slot");
   if (!slot) return;
-  slot.innerHTML = `<button class="${btnStyles.btnBottom}" id="email-results-btn">Email Results</button>`;
+  slot.innerHTML = `<button class="${btnStyles.btnBottom} ${tableStyles.emailResultsBtn}" id="email-results-btn">Email Results</button>`;
   addEventListener("#email-results-btn", "click", requestEmailResults);
 }
 

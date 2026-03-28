@@ -18,7 +18,7 @@
   margin: 5px auto 0 auto;
 }
 
-:global(#secretGenerate) {
+.secretGenerate {
   padding: 10px;
 }
 
@@ -33,7 +33,7 @@
 }
 
 /* Generate button progressive glow */
-:global(#generate) {
+.generate {
   transition: box-shadow 0.4s, background 0.4s;
   margin-top: 0;
   margin-bottom: 0;

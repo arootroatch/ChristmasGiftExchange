@@ -22,10 +22,6 @@
     grid-column: 1;
   }
 
-  #item-price {
-    width: 100%;
-  }
-
 }
 
 @media screen and (max-width: 768px) {

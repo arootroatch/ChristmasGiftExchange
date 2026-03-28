@@ -35,8 +35,14 @@
   margin-right: 12px;
 }
 
-:global(#item-price) {
+.itemPriceInput {
   width: 100px;
+}
+
+@media screen and (max-width: 480px) {
+  .itemPriceInput {
+    width: 100%;
+  }
 }
 
 .wishlistEntry {
