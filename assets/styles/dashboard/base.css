@@ -1,10 +1,6 @@
-/* Dashboard page base styles */
+/* Dashboard page base styles — scoped to .dashboard-page */
 
-html {
-  font-family: 'Source Sans 3', 'Segoe UI', sans-serif;
-}
-
-body {
+body:has(.dashboard-page) {
   margin: 0;
   padding: 0;
   min-height: 100vh;
@@ -12,6 +8,7 @@ body {
   background: var(--burgundy-deep);
   background-image: radial-gradient(ellipse at 30% 0%, rgba(90, 35, 36, 0.25) 0%, transparent 50%);
   background-attachment: fixed;
+  font-family: 'Source Sans 3', 'Segoe UI', sans-serif;
 }
 
 #container.dashboard-page {
@@ -21,7 +18,7 @@ body {
   animation: pageReveal 0.6s ease-out;
 }
 
-h1 {
+.dashboard-page h1 {
   font-family: 'Source Sans 3', 'Georgia', serif;
   font-weight: 700;
   font-size: 2rem;
@@ -30,7 +27,7 @@ h1 {
   letter-spacing: -0.01em;
 }
 
-h2 {
+.dashboard-page h2 {
   font-family: 'Source Sans 3', 'Georgia', serif;
   font-weight: 600;
   font-size: 1.25rem;
@@ -39,34 +36,34 @@ h2 {
   letter-spacing: 0.01em;
 }
 
-.helper-text {
+.dashboard-page .helper-text {
   font-size: 0.875rem;
   color: var(--text-secondary);
   margin: 0 0 16px;
   font-weight: 300;
 }
 
-hr {
+.dashboard-page hr {
   border: none;
   height: 1px;
   background: var(--frost-border);
   margin: 8px 0 20px;
 }
 
-/* Form input overrides (dashboard pages) */
-select,
-input[type="email"],
-input[type="url"],
-input[type="text"],
-input[type="tel"],
-input[type="number"],
-textarea {
+/* Form input overrides (scoped to dashboard) */
+.dashboard-page select,
+.dashboard-page input[type="email"],
+.dashboard-page input[type="url"],
+.dashboard-page input[type="text"],
+.dashboard-page input[type="tel"],
+.dashboard-page input[type="number"],
+.dashboard-page textarea {
   width: 100%;
   margin-bottom: 10px;
 }
 
 /* Empty state */
-.empty-state {
+.dashboard-page .empty-state {
   text-align: center;
   color: var(--text-secondary);
   font-style: italic;

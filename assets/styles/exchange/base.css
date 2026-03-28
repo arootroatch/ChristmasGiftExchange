@@ -1,10 +1,7 @@
 /* Exchange page base styles */
 
-html {
+body:has(.exchange) {
   font-family: Arial, Helvetica, sans-serif;
-}
-
-body {
   overscroll-behavior-y: none;
   color: var(--text-primary);
   margin-right: 0;
