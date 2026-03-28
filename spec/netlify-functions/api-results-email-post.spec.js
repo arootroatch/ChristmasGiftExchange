@@ -84,6 +84,12 @@ describe('api-results-email-post', () => {
         expect(response.statusCode).toBe(400);
     });
 
+    it('returns 400 when neither exchangeId nor assignments is provided', async () => {
+        const event = buildEvent('POST', {body: {}, headers: {cookie: await authCookie(organizer._id)}});
+        const response = await handler(event);
+        expect(response.statusCode).toBe(400);
+    });
+
     it('returns 404 for non-existent exchangeId', async () => {
         const event = buildEvent('POST', {body: {exchangeId: 'non-existent'}, headers: {cookie: await authCookie(organizer._id)}});
         const response = await handler(event);
@@ -110,6 +116,49 @@ describe('api-results-email-post', () => {
         expect(body.HtmlBody).toContain('Alex');
         expect(body.HtmlBody).toContain('Whitney');
         expect(body.HtmlBody).toContain('Hunter');
+    });
+
+    it('sends results email using client-sent assignments', async () => {
+        mockFetch.mockResolvedValueOnce({ok: true, json: () => Promise.resolve([])});
+        const assignments = [
+            {giver: 'Alex', recipient: 'Whitney'},
+            {giver: 'Whitney', recipient: 'Hunter'},
+            {giver: 'Hunter', recipient: 'Alex'},
+        ];
+        const event = buildEvent('POST', {
+            body: {assignments},
+            headers: {cookie: await authCookie(organizer._id)},
+        });
+        const response = await handler(event);
+
+        expect(response.statusCode).toBe(200);
+        expect(mockFetch).toHaveBeenCalledTimes(1);
+
+        const fetchCall = mockFetch.mock.calls[0];
+        const body = JSON.parse(fetchCall[1].body);
+        expect(body.To).toBe('alex@test.com');
+        expect(body.HtmlBody).toContain('Alex');
+        expect(body.HtmlBody).toContain('Whitney');
+        expect(body.HtmlBody).toContain('Hunter');
+    });
+
+    it('returns 400 when assignments array exceeds 50 items', async () => {
+        const assignments = Array.from({length: 51}, (_, i) => ({giver: `Giver${i}`, recipient: `Recipient${i}`}));
+        const event = buildEvent('POST', {
+            body: {assignments},
+            headers: {cookie: await authCookie(organizer._id)},
+        });
+        const response = await handler(event);
+        expect(response.statusCode).toBe(400);
+    });
+
+    it('returns 400 when assignments array is empty', async () => {
+        const event = buildEvent('POST', {
+            body: {assignments: []},
+            headers: {cookie: await authCookie(organizer._id)},
+        });
+        const response = await handler(event);
+        expect(response.statusCode).toBe(400);
     });
 
     it('returns success response body', async () => {
