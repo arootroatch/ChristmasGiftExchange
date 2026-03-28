@@ -64,3 +64,27 @@
   display: block;
   margin-top: 10px;
 }
+
+/* Secret Santa Mode Layout */
+#left-container.secret {
+  flex: 1 1 0%;
+  min-width: 0;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+#left-container.secret #name-list,
+#left-container.secret .ghost-house {
+  width: 333px;
+  margin: 10px;
+  box-sizing: border-box;
+}
+
+#left-container.secret #name-list .name-container:empty {
+  min-height: 0;
+}
+
+#left-container.secret #name-list select {
+  margin-top: 15px;
+}

@@ -49,3 +49,20 @@
 .household .nameContainer:empty {
   min-height: 3rem;
 }
+
+/* Secret Santa Mode */
+:global(#left-container.secret) .household {
+  width: 333px;
+  margin: 10px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+:global(#left-container.secret) .household .nameContainer {
+  flex: 1;
+}
+
+:global(#left-container.secret) .household select {
+  width: 100%;
+}
