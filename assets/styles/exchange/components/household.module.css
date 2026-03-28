@@ -1,4 +1,4 @@
-#house1-header {
+:global(#house1-header) {
   margin-top: 0;
 }
 

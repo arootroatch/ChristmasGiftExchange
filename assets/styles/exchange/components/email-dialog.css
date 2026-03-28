@@ -64,7 +64,7 @@
   color: var(--text-primary);
 }
 
-:global(.emailInput.duplicate-email) {
+.emailInput.duplicate-email {
   border-color: red;
 }
 

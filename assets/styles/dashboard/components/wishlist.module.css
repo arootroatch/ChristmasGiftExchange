@@ -35,7 +35,7 @@
   margin-right: 12px;
 }
 
-#item-price {
+:global(#item-price) {
   width: 100px;
 }
 
