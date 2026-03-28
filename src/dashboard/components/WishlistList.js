@@ -1,9 +1,11 @@
 import {dashboardEvents, DashboardEvents, addWishlist, deleteWishlist} from '../state.js';
 import {escape, escapeAttr, selectElement, addEventListener} from '../../utils.js';
 import {showError} from '../../Snackbar.js';
+import btnStyles from '../../../assets/styles/dashboard/components/buttons.module.css';
+import cardStyles from '../../../assets/styles/dashboard/components/cards.module.css';
 
 function template() {
-    return `<section id="wishlists-section">
+    return `<section id="wishlists-section" class="${cardStyles.card}">
         <h2>External Wishlists</h2>
         <p class="helper-text">Add links to your Amazon, Wishlist.com, or other wishlists</p>
         <div id="wishlists-list"></div>
@@ -16,7 +18,7 @@ function template() {
                 <label for="wishlist-title">Title (optional)</label>
                 <input type="text" id="wishlist-title" placeholder="My Amazon Wishlist"/>
             </div>
-            <button id="add-wishlist-btn" class="button">Add</button>
+            <button id="add-wishlist-btn" class="${btnStyles.button}">Add</button>
         </div>
     </section>`;
 }

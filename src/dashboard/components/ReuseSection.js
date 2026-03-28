@@ -1,4 +1,6 @@
 import {selectElement, escape, escapeAttr, apiFetch} from '../../utils.js';
+import btnStyles from '../../../assets/styles/dashboard/components/buttons.module.css';
+import cardStyles from '../../../assets/styles/dashboard/components/cards.module.css';
 
 export function init() {
   const container = selectElement('#section-reuse');
@@ -30,11 +32,11 @@ async function loadExchanges() {
 function renderResults(exchanges) {
   const container = selectElement('#reuse-results');
   container.innerHTML = exchanges.map(ex => `
-    <div class="exchange-result">
+    <div class="${cardStyles.exchangeResult}">
       <h3>${new Date(ex.createdAt).toLocaleDateString()}</h3>
       <p><strong>Participants:</strong> ${escape(ex.participantNames.join(', '))}</p>
       ${ex.houses.length > 0 ? `<p><strong>Households:</strong> ${ex.houses.map(h => `${escape(h.name)} (${escape(h.members.join(', '))})`).join('; ')}</p>` : ''}
-      <button class="button use-exchange-btn" data-exchange='${escapeAttr(JSON.stringify(ex))}'>
+      <button class="${btnStyles.button} use-exchange-btn" data-exchange='${escapeAttr(JSON.stringify(ex))}'>
         Use This Exchange
       </button>
     </div>

@@ -1,8 +1,10 @@
 import {addEventListener, selectElement, apiFetch} from '../../utils.js';
 import * as snackbar from '../../Snackbar.js';
+import btnStyles from '../../../assets/styles/dashboard/components/buttons.module.css';
+import cardStyles from '../../../assets/styles/dashboard/components/cards.module.css';
 
 function template() {
-    return `<section id="contact-section">
+    return `<section id="contact-section" class="${cardStyles.card}">
         <h2>Send Contact Info to Your Secret Santa</h2>
         <p class="helper-text">This information will be emailed directly to your Secret Santa and will NOT be stored in our database. Our email servers automatically delete email history after 45 days.</p>
         <label for="contact-address">Shipping Address</label>
@@ -11,7 +13,7 @@ function template() {
         <input type="tel" id="contact-phone" placeholder="(555) 123-4567"/>
         <label for="contact-notes">Notes</label>
         <textarea id="contact-notes" rows="2" placeholder="Allergies, size preferences, etc."></textarea>
-        <button id="send-contact-btn" class="button">Send to My Secret Santa</button>
+        <button id="send-contact-btn" class="${btnStyles.button}">Send to My Secret Santa</button>
     </section>`;
 }
 

@@ -1,9 +1,10 @@
 import {dashboardEvents, DashboardEvents, markClean} from '../state.js';
 import {addEventListener, selectElement, apiFetch} from '../../utils.js';
 import * as snackbar from '../../Snackbar.js';
+import btnStyles from '../../../assets/styles/dashboard/components/buttons.module.css';
 
 function template() {
-    return '<button id="save-wishlist-btn" class="button primary" disabled>Save Wishlist</button>';
+    return `<button id="save-wishlist-btn" class="${btnStyles.button} ${btnStyles.primary}" disabled>Save Wishlist</button>`;
 }
 
 export function init() {

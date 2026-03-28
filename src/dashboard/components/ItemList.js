@@ -2,6 +2,8 @@ import {dashboardEvents, DashboardEvents, addItem, deleteItem, setCurrency} from
 import {escape, escapeAttr, selectElement, addEventListener} from '../../utils.js';
 import {showError} from '../../Snackbar.js';
 import {formatPrice, toSmallestUnit, currencyDecimals} from '../formatPrice.js';
+import btnStyles from '../../../assets/styles/dashboard/components/buttons.module.css';
+import cardStyles from '../../../assets/styles/dashboard/components/cards.module.css';
 
 const CURRENCIES = [
     {code: 'USD', label: '$ USD'},
@@ -17,7 +19,7 @@ function template(currency) {
     const step = decimals === 0 ? '1' : '0.01';
     const placeholder = decimals === 0 ? '2500' : '25.00';
 
-    return `<section id="items-section">
+    return `<section id="items-section" class="${cardStyles.card}">
         <h2>Individual Items</h2>
         <p class="helper-text">Add links to specific products you'd like</p>
         <div id="currency-row">
@@ -42,7 +44,7 @@ function template(currency) {
                 <label for="item-price">Price</label>
                 <input type="number" id="item-price" min="0" step="${step}" placeholder="${placeholder}"/>
             </div>
-            <button id="add-item-btn" class="button">Add</button>
+            <button id="add-item-btn" class="${btnStyles.button}">Add</button>
         </div>
     </section>`;
 }

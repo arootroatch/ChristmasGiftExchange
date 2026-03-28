@@ -1,9 +1,10 @@
 import {dashboardEvents, DashboardEvents} from '../state.js';
 import {selectElement, escape, escapeAttr} from '../../utils.js';
 import {formatPrice} from '../formatPrice.js';
+import cardStyles from '../../../assets/styles/dashboard/components/cards.module.css';
 
 function template() {
-  return `<section id="recipient-card">
+  return `<section id="recipient-card" class="${cardStyles.card}">
     <div class="spinner-container"><div class="spinner"></div></div>
   </section>`;
 }
