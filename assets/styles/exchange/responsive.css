@@ -6,10 +6,6 @@
     flex-wrap: wrap;
     max-width: 800px;
   }
-  .results-card {
-    width: 45%;
-    min-width: 300px;
-  }
 }
 
 @media screen and (max-width: 740px) {
@@ -32,7 +28,6 @@
     display: block;
   }
   #left-container.secret #name-list,
-  #left-container.secret .household,
   #left-container.secret .ghost-house {
     width: auto;
     max-width: 347px;
@@ -60,31 +55,10 @@
     min-height: 44px;
     font-size: 1em;
   }
-  .table {
-    margin: 50px auto 0 auto;
-    width: 100%;
-    max-width: 350px;
-  }
-  .results-card {
-    position: static;
-    margin: 0 auto;
-    max-width: 320px;
-    width: 100%;
-    min-width: auto;
-  }
   html,
   body {
     overscroll-behavior-y: auto;
     background-attachment: scroll;
-  }
-  .household,
-  #name-list {
-    margin: 0 auto 12px;
-    max-width: 320px;
-  }
-  .household h2,
-  #name-list h2 {
-    text-align: center;
   }
   #left-container.secret {
     #name-list {
@@ -99,11 +73,9 @@
     max-width: 320px;
   }
   #left-container.secret #name-list,
-  #left-container.secret .household,
   #left-container.secret .ghost-house {
     max-width: 320px;
   }
-
 }
 
 @media screen and (max-width: 553px) {
@@ -157,9 +129,6 @@
   #generate,
   #secretGenerate {
     padding: 10px;
-  }
-  .table {
-    min-width: auto;
   }
 }
 

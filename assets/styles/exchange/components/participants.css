@@ -1,9 +1,0 @@
-#name-list input,
-#name-list select {
-  padding: 5px 10px;
-}
-
-.name-input {
-  text-transform: capitalize;
-  width: calc(100% - 165px);
-}

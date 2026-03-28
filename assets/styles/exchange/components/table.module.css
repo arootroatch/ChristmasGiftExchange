@@ -89,3 +89,21 @@
   box-sizing: border-box;
   position: static;
 }
+
+/* Responsive */
+@media screen and (max-width: 1120px) {
+  .resultsCard {
+    width: 45%;
+    min-width: 300px;
+  }
+}
+
+@media screen and (max-width: 630px) {
+  .resultsCard {
+    position: static;
+    margin: 0 auto;
+    max-width: 320px;
+    width: 100%;
+    min-width: auto;
+  }
+}

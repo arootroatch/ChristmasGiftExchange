@@ -66,3 +66,29 @@
 :global(#left-container.secret) .household select {
   width: 100%;
 }
+
+/* Responsive */
+@media screen and (max-width: 723px) {
+  :global(#left-container.secret) .household {
+    width: auto;
+    max-width: 347px;
+    margin: 0 auto 12px;
+  }
+}
+
+@media screen and (max-width: 630px) {
+  .household,
+  :global(#name-list) {
+    margin: 0 auto 12px;
+    max-width: 320px;
+  }
+
+  .household h2,
+  :global(#name-list) h2 {
+    text-align: center;
+  }
+
+  :global(#left-container.secret) .household {
+    max-width: 320px;
+  }
+}
