@@ -1,0 +1,82 @@
+/* Wishlist add-form row (URL + Title + Button) */
+
+#add-wishlist-form,
+#add-item-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 8px;
+  align-items: start;
+}
+
+#add-item-form {
+  grid-template-columns: 1fr auto auto;
+}
+
+#add-item-form .item-form-url {
+  grid-column: 1 / -1;
+}
+
+#add-wishlist-form input,
+#add-item-form input {
+  margin-bottom: 0;
+}
+
+#add-wishlist-form label,
+#add-item-form label {
+  margin-bottom: 2px;
+}
+
+#add-wishlist-form .button,
+#add-item-form .button {
+  height: 40px;
+  padding: 0 16px;
+  white-space: nowrap;
+  align-self: end;
+}
+
+/* Item price */
+.item-price {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  white-space: nowrap;
+  margin-right: 12px;
+}
+
+#item-price {
+  width: 100px;
+}
+
+/* Wishlist entries */
+.wishlist-entry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  margin-bottom: 8px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-sm);
+  transition: background 0.15s;
+}
+
+.wishlist-entry:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.wishlist-entry a {
+  color: rgba(255, 255, 255, 0.9);
+  text-decoration: underline;
+  text-decoration-color: rgba(255, 255, 255, 0.3);
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  margin-right: 12px;
+  transition: color 0.15s;
+}
+
+.wishlist-entry a:hover {
+  color: #fff;
+}
+

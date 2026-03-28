@@ -1,3 +1,4 @@
+import '../../assets/styles/all.css';
 import {initDragDrop} from "./dragDrop.js";
 import * as house from "./components/House.js";
 import * as name from "./components/Name.js";

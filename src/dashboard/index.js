@@ -1,3 +1,4 @@
+import '../../assets/styles/all.css';
 import {apiFetch} from '../utils.js';
 import * as snackbar from '../Snackbar.js';
 import * as cookieBanner from '../CookieBanner.js';

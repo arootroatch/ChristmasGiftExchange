@@ -1,0 +1,15 @@
+/* Shared base styles — common to all pages */
+
+html {
+  height: 100%;
+  overscroll-behavior-y: none;
+}
+
+h1 {
+  text-align: center;
+}
+
+@keyframes pageReveal {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}

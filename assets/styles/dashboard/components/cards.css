@@ -1,0 +1,57 @@
+/* Glass card sections */
+
+section {
+  background: var(--frost);
+  border: 1px solid var(--frost-border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-bottom: 20px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: var(--shadow-card);
+  animation: cardSlide 0.5s ease-out both;
+}
+
+section:nth-child(2) { animation-delay: 0.08s; }
+section:nth-child(3) { animation-delay: 0.16s; }
+section:nth-child(4) { animation-delay: 0.24s; }
+
+/* Exchange results (Reuse page) */
+.exchange-result {
+  background: var(--frost);
+  border: 1px solid var(--frost-border);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  margin-bottom: 14px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  animation: cardSlide 0.4s ease-out both;
+}
+
+.exchange-result:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.exchange-result h3 {
+  font-family: 'Source Sans 3', sans-serif;
+  font-weight: 600;
+  color: #fff;
+  margin: 0 0 8px;
+  font-size: 1.15rem;
+}
+
+.exchange-result p {
+  margin: 4px 0;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.exchange-result p strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.exchange-result .button {
+  margin-top: 12px;
+}

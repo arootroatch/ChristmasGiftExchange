@@ -1,0 +1,44 @@
+/* Dashboard button styles */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 22px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  font-family: 'Source Sans 3', sans-serif;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: auto;
+  max-height: none;
+  margin: 0;
+  background: #69292a;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.button:hover {
+  background: #7a3233;
+}
+
+.button:active {
+  background: #5a2122;
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.button.primary {
+  font-size: 1rem;
+  padding: 12px 32px;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.button.primary:hover {
+  background: #7a3233;
+}

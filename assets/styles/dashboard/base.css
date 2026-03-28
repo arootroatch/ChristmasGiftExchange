@@ -1,0 +1,83 @@
+/* Dashboard page base styles */
+
+html {
+  font-family: 'Source Sans 3', 'Segoe UI', sans-serif;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  color: var(--text-primary);
+  background: var(--burgundy-deep);
+  background-image: radial-gradient(ellipse at 30% 0%, rgba(90, 35, 36, 0.25) 0%, transparent 50%);
+  background-attachment: fixed;
+}
+
+#container.dashboard-page {
+  max-width: 620px;
+  margin: 0 auto;
+  padding: 40px 24px 60px;
+  animation: pageReveal 0.6s ease-out;
+}
+
+h1 {
+  font-family: 'Source Sans 3', 'Georgia', serif;
+  font-weight: 700;
+  font-size: 2rem;
+  color: #fff;
+  margin: 0 0 8px;
+  letter-spacing: -0.01em;
+}
+
+h2 {
+  font-family: 'Source Sans 3', 'Georgia', serif;
+  font-weight: 600;
+  font-size: 1.25rem;
+  color: #fff;
+  margin: 0 0 4px;
+  letter-spacing: 0.01em;
+}
+
+.helper-text {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin: 0 0 16px;
+  font-weight: 300;
+}
+
+hr {
+  border: none;
+  height: 1px;
+  background: var(--frost-border);
+  margin: 8px 0 20px;
+}
+
+/* Form input overrides (dashboard pages) */
+select,
+input[type="email"],
+input[type="url"],
+input[type="text"],
+input[type="tel"],
+input[type="number"],
+textarea {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  color: var(--text-secondary);
+  font-style: italic;
+  margin-top: 16px;
+}
+
+/* Contact section spacing */
+#contact-section label {
+  margin-top: 12px;
+}
+
+#contact-section label:first-of-type {
+  margin-top: 0;
+}

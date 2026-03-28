@@ -1,0 +1,47 @@
+/* Recipient card */
+
+#recipient-card {
+  text-align: left;
+}
+
+.recipient-reveal {
+  font-size: 1.2rem;
+  color: var(--text-primary);
+  margin: 0 0 4px;
+}
+
+.recipient-reveal strong {
+  color: #198c0a;
+  font-size: 1.4rem;
+}
+
+.date-secondary {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin: 0 0 16px;
+}
+
+#recipient-wishlist-view ul {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 0;
+}
+
+#recipient-wishlist-view li {
+  padding: 10px 14px;
+  margin-bottom: 6px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-sm);
+}
+
+#recipient-wishlist-view a {
+  color: rgba(255, 255, 255, 0.9);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+#recipient-wishlist-view a:hover {
+  color: #fff;
+  text-decoration: underline;
+}
