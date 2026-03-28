@@ -1,9 +1,9 @@
 .button,
 .btnBottom {
-  background-color: #69292a;
+  background-color: var(--burgundy);
   color: rgba(255, 255, 255, 0.9);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   transition: 0.2s;
   padding: 5px 10px;
   cursor: pointer;
@@ -44,7 +44,7 @@
 }
 
 .generateGlow2 {
-  background-color: #8e3a3b;
+  background-color: var(--burgundy-light);
   box-shadow: 0 0 25px rgba(255, 150, 160, 0.6), 0 0 50px rgba(255, 140, 150, 0.3);
   animation: generatePulseSoft 2.5s ease-in-out infinite;
 }

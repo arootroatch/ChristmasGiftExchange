@@ -6,7 +6,7 @@ html {
 
 body {
   overscroll-behavior-y: none;
-  color: rgb(255, 255, 255);
+  color: var(--text-primary);
   margin-right: 0;
   max-width: 100%;
   padding-bottom: 100px;
@@ -33,12 +33,12 @@ body {
 }
 
 #intro {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--frost);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid var(--frost-border);
   color: rgba(255, 255, 255, 0.85);
-  border-radius: 16px;
+  border-radius: var(--radius-lg);
   line-height: 1.5em;
   padding: 5px 10px;
   margin: 10px auto;
@@ -47,12 +47,12 @@ body {
 }
 
 .dashboardLink {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--frost);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid var(--frost-border);
   color: rgba(255, 255, 255, 0.85);
-  border-radius: 16px;
+  border-radius: var(--radius-lg);
   padding: 15px 10px;
   margin: 0 auto;
   text-align: center;
@@ -83,10 +83,10 @@ body {
 }
 
 .ghost-house {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--frost);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 2px dashed rgba(255, 255, 255, 0.15);
+  border: 2px dashed var(--frost-border);
   border-radius: 8px;
   padding: 20px 16px;
   margin-top: 1rem;
@@ -96,9 +96,9 @@ body {
 }
 
 .ghost-house .ghost-house-btn {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--frost);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   padding: 8px 20px;
   font-size: 13px;
   color: rgba(255, 255, 255, 0.6);
@@ -155,5 +155,5 @@ body.dragging * {
   display: flex;
   height: 36px;
   border: 2px dashed rgba(255, 255, 255, 0.3);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
 }

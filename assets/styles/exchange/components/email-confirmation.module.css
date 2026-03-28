@@ -1,15 +1,15 @@
 .sendEmails {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--frost);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid var(--frost-border);
   width: calc(100% - 40px);
   max-width: 400px;
   position: fixed;
   top: 20px;
   left: 50%;
   transform: translateX(-50%);
-  border-radius: 16px;
+  border-radius: var(--radius-lg);
   color: rgba(255, 255, 255, 0.9);
   padding: 20px;
   text-align: center;

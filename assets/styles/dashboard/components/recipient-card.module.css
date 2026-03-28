@@ -5,7 +5,7 @@
 }
 
 .recipientReveal strong {
-  color: #198c0a;
+  color: var(--green);
   font-size: 1.4rem;
 }
 
