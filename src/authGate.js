@@ -1,19 +1,19 @@
 import {apiFetch} from "./utils.js";
 import {setSessionUser} from "./session.js";
 
-export function authGateTemplate({heading, showName} = {}) {
+export function authGateTemplate({heading, showName, buttonClass = 'button', gateClass = ''} = {}) {
     return `
-        <div id="auth-gate">
+        <div id="auth-gate" class="${gateClass}">
             <h2>${heading || "Verify Your Email"}</h2>
             <div id="auth-email-step">
                 ${showName ? '<label>Your name<input type="text" id="auth-name" required></label>' : ''}
                 <label>Your email<input type="email" id="auth-email" required></label>
-                <button id="auth-send-code" class="button">Send Verification Code</button>
+                <button id="auth-send-code" class="${buttonClass}">Send Verification Code</button>
             </div>
             <div id="auth-code-step" style="display: none;">
                 <p>Check your email for a verification code</p>
                 <label>Verification code<input type="text" id="auth-code" inputmode="numeric" maxlength="8" required></label>
-                <button id="auth-verify-code" class="button">Verify</button>
+                <button id="auth-verify-code" class="${buttonClass}">Verify</button>
             </div>
         </div>`;
 }

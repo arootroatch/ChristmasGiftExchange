@@ -3,6 +3,7 @@ import {selectElement} from "../../utils.js";
 import {showError} from "../../Snackbar.js";
 import {authGateTemplate, initAuthGate} from "../../authGate.js";
 import {getSessionUser} from "../../session.js";
+import btnStyles from '../../../assets/styles/exchange/components/buttons.module.css';
 
 const containerId = "organizerFormContainer";
 
@@ -31,7 +32,7 @@ function renderOrSkip() {
 
 function render() {
   selectElement(`#${containerId}`)?.remove();
-  const html = `<div id="${containerId}" class="show">${authGateTemplate({heading: "Who's organizing this exchange?", showName: true})}</div>`;
+  const html = `<div id="${containerId}" class="show">${authGateTemplate({heading: "Who's organizing this exchange?", showName: true, buttonClass: btnStyles.button})}</div>`;
   document.body.insertAdjacentHTML("beforeend", html);
   initAuthGate({
     onSuccess: ({email, name}) => {
