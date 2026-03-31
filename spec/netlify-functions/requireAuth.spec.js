@@ -61,13 +61,8 @@ describe("validateOrigin", () => {
     let validateOrigin;
 
     beforeAll(async () => {
-        process.env.URL = "https://gift-exchange-generator.com";
         const mod = await import("../../netlify/shared/middleware.mjs");
         validateOrigin = mod.validateOrigin;
-    });
-
-    afterAll(() => {
-        delete process.env.URL;
     });
 
     it("allows requests with matching origin", () => {

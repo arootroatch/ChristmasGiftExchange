@@ -34,15 +34,14 @@ export function validateBody(schema, event) {
     return {data: result.data};
 }
 
+const ALLOWED_ORIGINS = ["gift-exchange-generator.com", "giftexchangegenerator.netlify.app"];
+
 export function validateOrigin(event) {
     const origin = event.headers?.origin;
     if (!origin) return null;
+    if (ALLOWED_ORIGINS.some((allowed) => origin.includes(allowed))) return null;
 
-    const allowedUrl = process.env.URL;
-    const deployUrl = process.env.DEPLOY_PRIME_URL;
-    if (origin === allowedUrl || origin === deployUrl) return null;
-
-    console.warn("Origin rejected:", {received: origin, allowedUrl, deployUrl});
+    console.warn("Origin rejected:", origin);
     return forbidden("Forbidden");
 }
 

@@ -5,7 +5,6 @@ describe("api-auth-logout-post", () => {
     let handler;
 
     beforeAll(async () => {
-        process.env.URL = "https://test.netlify.app";
         const mod = await import("../../netlify/functions/api-auth-logout-post.mjs");
         handler = mod.handler;
     });
@@ -18,7 +17,7 @@ describe("api-auth-logout-post", () => {
 
     it("returns 200 with Set-Cookie that clears session", async () => {
         const event = buildEvent("POST", {
-            headers: {origin: "https://test.netlify.app"},
+            headers: {origin: "https://gift-exchange-generator.com"},
         });
         const response = await handler(event);
         expect(response.statusCode).toBe(200);
@@ -28,7 +27,7 @@ describe("api-auth-logout-post", () => {
 
     it("returns success body", async () => {
         const event = buildEvent("POST", {
-            headers: {origin: "https://test.netlify.app"},
+            headers: {origin: "https://gift-exchange-generator.com"},
         });
         const response = await handler(event);
         const body = JSON.parse(response.body);
