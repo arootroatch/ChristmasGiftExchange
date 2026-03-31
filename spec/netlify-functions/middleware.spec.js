@@ -1,4 +1,4 @@
-import {describe, it, expect, vi} from 'vitest';
+import {afterEach, describe, it, expect, vi} from 'vitest';
 import {z} from "zod";
 
 vi.mock('../../netlify/shared/giverNotification.mjs', () => ({
@@ -6,7 +6,7 @@ vi.mock('../../netlify/shared/giverNotification.mjs', () => ({
     setRequestOrigin: vi.fn(),
 }));
 
-import {apiHandler, validateBody} from '../../netlify/shared/middleware.mjs';
+import {apiHandler, validateBody, validateOrigin} from '../../netlify/shared/middleware.mjs';
 import {sendNotificationEmail} from '../../netlify/shared/giverNotification.mjs';
 
 describe("apiHandler", () => {
@@ -40,6 +40,58 @@ describe("apiHandler", () => {
             expect.objectContaining({
                 endpoint: "GET /api/test",
                 stackTrace: expect.stringContaining("db exploded"),
+            })
+        );
+        consoleSpy.mockRestore();
+    });
+});
+
+describe("validateOrigin", () => {
+    const originalUrl = process.env.URL;
+    const originalDeployUrl = process.env.DEPLOY_PRIME_URL;
+
+    afterEach(() => {
+        process.env.URL = originalUrl;
+        process.env.DEPLOY_PRIME_URL = originalDeployUrl;
+    });
+
+    it("returns null when origin matches URL", () => {
+        process.env.URL = "https://gift-exchange-generator.com";
+        const event = {headers: {origin: "https://gift-exchange-generator.com"}};
+        expect(validateOrigin(event)).toBeNull();
+    });
+
+    it("returns 403 when origin doesn't match URL", () => {
+        process.env.URL = "https://gift-exchange-generator.com";
+        delete process.env.DEPLOY_PRIME_URL;
+        const event = {headers: {origin: "https://evil-site.com"}};
+        const result = validateOrigin(event);
+        expect(result.statusCode).toBe(403);
+    });
+
+    it("returns null when origin matches DEPLOY_PRIME_URL", () => {
+        process.env.URL = "https://gift-exchange-generator.com";
+        process.env.DEPLOY_PRIME_URL = "https://deploy-preview-42--gift-exchange.netlify.app";
+        const event = {headers: {origin: "https://deploy-preview-42--gift-exchange.netlify.app"}};
+        expect(validateOrigin(event)).toBeNull();
+    });
+
+    it("returns null when no origin header is present", () => {
+        const event = {headers: {}};
+        expect(validateOrigin(event)).toBeNull();
+    });
+
+    it("logs the origin and allowed URLs when origin is rejected", () => {
+        process.env.URL = "https://gift-exchange-generator.com";
+        delete process.env.DEPLOY_PRIME_URL;
+        const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+        const event = {headers: {origin: "https://evil-site.com"}};
+        validateOrigin(event);
+        expect(consoleSpy).toHaveBeenCalledWith(
+            "Origin rejected:",
+            expect.objectContaining({
+                received: "https://evil-site.com",
+                allowedUrl: "https://gift-exchange-generator.com",
             })
         );
         consoleSpy.mockRestore();

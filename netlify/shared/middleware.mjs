@@ -36,10 +36,14 @@ export function validateBody(schema, event) {
 
 export function validateOrigin(event) {
     const origin = event.headers?.origin;
-    if (origin && origin !== process.env.URL) {
-        return forbidden("Forbidden");
-    }
-    return null;
+    if (!origin) return null;
+
+    const allowedUrl = process.env.URL;
+    const deployUrl = process.env.DEPLOY_PRIME_URL;
+    if (origin === allowedUrl || origin === deployUrl) return null;
+
+    console.warn("Origin rejected:", {received: origin, allowedUrl, deployUrl});
+    return forbidden("Forbidden");
 }
 
 export async function requireAuth(event) {
@@ -95,6 +99,9 @@ async function reportError(event, error) {
 
 export function apiHandler(method, fn, {auth = false, ...rateLimitConfig} = {}) {
     return async (event) => {
+        const endpoint = `${event.httpMethod} ${event.path}`;
+        console.log(`[API] ${endpoint}`);
+
         if (event.httpMethod !== method) return methodNotAllowed();
         setRequestOrigin(event);
 
@@ -102,11 +109,17 @@ export function apiHandler(method, fn, {auth = false, ...rateLimitConfig} = {}) 
         if (originError) return originError;
 
         const limited = await applyRateLimit(event, rateLimitConfig);
-        if (limited) return limited;
+        if (limited) {
+            console.warn(`[API] Rate limited: ${endpoint}`);
+            return limited;
+        }
 
         if (auth) {
             const authError = await requireAuth(event);
-            if (authError) return authError;
+            if (authError) {
+                console.warn(`[API] Auth failed: ${endpoint}`);
+                return authError;
+            }
         }
 
         try {

@@ -66,5 +66,5 @@ describe("getDb with failed connection", () => {
 
         process.env.MONGO_DB_URI = originalUri;
         vi.resetModules();
-    }, 5000);
+    }, 15000);
 });

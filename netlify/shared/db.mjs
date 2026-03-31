@@ -1,6 +1,9 @@
 import {MongoClient} from "mongodb";
 
-const clientPromise = new MongoClient(process.env.MONGO_DB_URI).connect();
+const clientPromise = new MongoClient(process.env.MONGO_DB_URI, {
+    serverSelectionTimeoutMS: 5000,
+    connectTimeoutMS: 10000,
+}).connect();
 
 let _testDb;
 export function _setTestDb(db) { _testDb = db; }
