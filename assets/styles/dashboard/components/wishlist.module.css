@@ -25,7 +25,8 @@
   height: 40px;
   padding: 0 16px;
   white-space: nowrap;
-  align-self: end;
+  align-self: center;
+  margin-top: 10px;
 }
 
 .itemPrice {

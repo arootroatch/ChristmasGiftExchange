@@ -169,6 +169,38 @@ describe("authGate", () => {
             expect(onError).toHaveBeenCalledWith("Invalid code");
         });
 
+        it("shows loading state on verify button during fetch", async () => {
+            stubFetch({success: true});
+            initAuthGate({onSuccess: vi.fn(), showName: true});
+
+            document.getElementById("auth-email").value = "test@test.com";
+            document.getElementById("auth-code").value = "12345678";
+            document.getElementById("auth-verify-code").click();
+
+            const verifyBtn = document.getElementById("auth-verify-code");
+            expect(verifyBtn.innerHTML).toContain('class="spinner"');
+            expect(verifyBtn.disabled).toBe(true);
+        });
+
+        it("clears loading state on verify button after error", async () => {
+            mockFetch = vi.fn(() => Promise.resolve({
+                ok: false, status: 400,
+                json: () => Promise.resolve({error: "Invalid code"}),
+            }));
+            global.fetch = mockFetch;
+
+            initAuthGate({onSuccess: vi.fn(), onError: vi.fn(), showName: true});
+
+            document.getElementById("auth-email").value = "test@test.com";
+            document.getElementById("auth-code").value = "00000000";
+            document.getElementById("auth-verify-code").click();
+            await flush();
+
+            const verifyBtn = document.getElementById("auth-verify-code");
+            expect(verifyBtn.disabled).toBe(false);
+            expect(verifyBtn.textContent).toBe("Verify");
+        });
+
         it("does not call onSuccess when verification fails", async () => {
             mockFetch = vi.fn(() => Promise.resolve({
                 ok: false, status: 400,
@@ -185,6 +217,47 @@ describe("authGate", () => {
 
             await flush();
             expect(onSuccess).not.toHaveBeenCalled();
+        });
+
+        it("shows loading state on send button during fetch", async () => {
+            initAuthGate({onSuccess: vi.fn(), showName: true});
+
+            document.getElementById("auth-email").value = "test@test.com";
+            document.getElementById("auth-send-code").click();
+
+            const sendBtn = document.getElementById("auth-send-code");
+            expect(sendBtn.innerHTML).toContain('class="spinner"');
+            expect(sendBtn.disabled).toBe(true);
+        });
+
+        it("clears loading state on send button after successful fetch", async () => {
+            initAuthGate({onSuccess: vi.fn(), showName: true});
+
+            document.getElementById("auth-email").value = "test@test.com";
+            document.getElementById("auth-send-code").click();
+            await flush();
+
+            const sendBtn = document.getElementById("auth-send-code");
+            expect(sendBtn.disabled).toBe(false);
+            expect(sendBtn.textContent).toBe("Send Verification Code");
+        });
+
+        it("clears loading state on send button after error", async () => {
+            mockFetch = vi.fn(() => Promise.resolve({
+                ok: false, status: 429,
+                json: () => Promise.resolve({error: "Too many requests"}),
+            }));
+            global.fetch = mockFetch;
+
+            initAuthGate({onSuccess: vi.fn(), onError: vi.fn(), showName: true});
+
+            document.getElementById("auth-email").value = "test@test.com";
+            document.getElementById("auth-send-code").click();
+            await flush();
+
+            const sendBtn = document.getElementById("auth-send-code");
+            expect(sendBtn.disabled).toBe(false);
+            expect(sendBtn.textContent).toBe("Send Verification Code");
         });
 
         it("calls onError when code send fails", async () => {

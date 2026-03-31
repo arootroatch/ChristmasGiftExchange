@@ -1,4 +1,4 @@
-import {apiFetch} from "./utils.js";
+import {apiFetch, setLoadingState, clearLoadingState} from "./utils.js";
 import {setSessionUser} from "./session.js";
 
 export function authGateTemplate({heading, showName, buttonClass = 'button', gateClass = ''} = {}) {
@@ -25,14 +25,19 @@ export function initAuthGate({onSuccess, onError, showName} = {}) {
     sendBtn.addEventListener("click", () => {
         const email = document.getElementById("auth-email").value.trim();
         if (!email) return;
+        setLoadingState("#auth-send-code");
         apiFetch("/.netlify/functions/api-auth-code-post", {
             method: "POST",
             body: {email},
             onSuccess: () => {
+                clearLoadingState("#auth-send-code");
                 document.getElementById("auth-email-step").style.display = "none";
                 document.getElementById("auth-code-step").style.display = "";
             },
-            onError: onError || (() => {}),
+            onError: (...args) => {
+                clearLoadingState("#auth-send-code");
+                (onError || (() => {}))(...args);
+            },
         });
     });
 
@@ -41,14 +46,19 @@ export function initAuthGate({onSuccess, onError, showName} = {}) {
         const code = document.getElementById("auth-code").value.trim();
         const name = showName ? document.getElementById("auth-name")?.value.trim() : undefined;
         if (!code) return;
+        setLoadingState("#auth-verify-code");
         apiFetch("/.netlify/functions/api-auth-verify-post", {
             method: "POST",
             body: {email, code, ...(name && {name})},
             onSuccess: () => {
+                clearLoadingState("#auth-verify-code");
                 setSessionUser({name, email});
                 onSuccess({email, name});
             },
-            onError: onError || (() => {}),
+            onError: (...args) => {
+                clearLoadingState("#auth-verify-code");
+                (onError || (() => {}))(...args);
+            },
         });
     });
 }
