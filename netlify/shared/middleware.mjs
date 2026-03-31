@@ -40,6 +40,7 @@ export function validateOrigin(event) {
     const origin = event.headers?.origin;
     if (!origin) return null;
     if (ALLOWED_ORIGINS.some((allowed) => origin.includes(allowed))) return null;
+    if (origin === process.env.URL) return null;
 
     console.warn("Origin rejected:", origin);
     return forbidden("Forbidden");

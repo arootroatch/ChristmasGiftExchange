@@ -1,4 +1,4 @@
-import {describe, it, expect, vi} from 'vitest';
+import {afterEach, describe, it, expect, vi} from 'vitest';
 import {z} from "zod";
 
 vi.mock('../../netlify/shared/giverNotification.mjs', () => ({
@@ -47,6 +47,12 @@ describe("apiHandler", () => {
 });
 
 describe("validateOrigin", () => {
+    const originalUrl = process.env.URL;
+
+    afterEach(() => {
+        process.env.URL = originalUrl;
+    });
+
     it("returns null when origin matches production URL", () => {
         const event = {headers: {origin: "https://gift-exchange-generator.com"}};
         expect(validateOrigin(event)).toBeNull();
@@ -57,7 +63,14 @@ describe("validateOrigin", () => {
         expect(validateOrigin(event)).toBeNull();
     });
 
+    it("returns null when origin matches process.env.URL", () => {
+        process.env.URL = "http://localhost:8888";
+        const event = {headers: {origin: "http://localhost:8888"}};
+        expect(validateOrigin(event)).toBeNull();
+    });
+
     it("returns 403 when origin doesn't match any allowed pattern", () => {
+        delete process.env.URL;
         const event = {headers: {origin: "https://evil-site.com"}};
         const result = validateOrigin(event);
         expect(result.statusCode).toBe(403);
@@ -69,6 +82,7 @@ describe("validateOrigin", () => {
     });
 
     it("logs the origin when rejected", () => {
+        delete process.env.URL;
         const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
         const event = {headers: {origin: "https://evil-site.com"}};
         validateOrigin(event);
