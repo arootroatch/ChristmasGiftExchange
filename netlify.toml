@@ -4,12 +4,6 @@
   functions = "netlify/functions"
 
 [[redirects]]
-  from = "https://gift-exchange-generator.com/*"
-  to = "https://gift-exchange-generator.com/:splat"
-  status = 308
-  force = true
-
-[[redirects]]
   from = "/dashboard/*"
   to = "/dashboard/index.html"
   status = 200
