@@ -33,7 +33,6 @@ describe("authCodes", () => {
         expect(doc).not.toBeNull();
         expect(doc.codeHash).toBeDefined();
         expect(doc.codeHash).not.toBe(code);
-        expect(doc.used).toBe(false);
         expect(doc.attempts).toBe(0);
         expect(doc.expiresAt).toBeInstanceOf(Date);
     });
@@ -51,19 +50,19 @@ describe("authCodes", () => {
         expect(result.valid).toBe(true);
     });
 
-    it("marks code as used after verification", async () => {
+    it("deletes code after successful verification", async () => {
         const code = await generateAndStoreCode("test@test.com");
         await verifyCode("test@test.com", code);
         const doc = await db.collection("authCodes").findOne({email: "test@test.com"});
-        expect(doc.used).toBe(true);
+        expect(doc).toBeNull();
     });
 
-    it("rejects already-used code", async () => {
+    it("rejects code after it has been verified", async () => {
         const code = await generateAndStoreCode("test@test.com");
         await verifyCode("test@test.com", code);
         const result = await verifyCode("test@test.com", code);
         expect(result.valid).toBe(false);
-        expect(result.error).toBe("Code already used");
+        expect(result.error).toBe("Invalid code");
     });
 
     it("rejects wrong code and increments attempts", async () => {

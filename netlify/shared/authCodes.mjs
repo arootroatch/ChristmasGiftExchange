@@ -25,7 +25,6 @@ export async function generateAndStoreCode(email) {
         email,
         codeHash,
         expiresAt: new Date(Date.now() + 10 * 60 * 1000),
-        used: false,
         attempts: 0,
         createdAt: new Date(),
     });
@@ -41,7 +40,6 @@ export async function verifyCode(email, code) {
     });
 
     if (!doc) return {valid: false, error: "Invalid code"};
-    if (doc.used) return {valid: false, error: "Code already used"};
     if (doc.attempts >= 5) return {valid: false, error: "Too many attempts. Request a new code."};
 
     const codeHash = hmacHash(code);
@@ -50,6 +48,6 @@ export async function verifyCode(email, code) {
         return {valid: false, error: "Invalid code"};
     }
 
-    await col.updateOne({_id: doc._id}, {$set: {used: true}});
+    await col.deleteOne({_id: doc._id});
     return {valid: true};
 }
