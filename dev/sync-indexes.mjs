@@ -35,7 +35,7 @@ async function syncCollection(db, collectionName, desiredIndexes) {
 }
 
 async function loadSchemas() {
-    const files = await glob('*.mjs', {cwd: schemasDir});
+    const files = (await glob('*.mjs', {cwd: schemasDir})).sort();
     const schemas = [];
     for (const file of files) {
         const mod = await import(path.join(schemasDir, file));
@@ -68,7 +68,7 @@ async function main() {
             await syncCollection(db, schema.collection, schema.indexes);
         }
 
-        // One-time cleanup: remove used authCode docs from before delete-on-verify change
+        // TODO: Remove after first production run — cleans up legacy used authCode docs
         const deleted = await db.collection('authCodes').deleteMany({used: true});
         if (deleted.deletedCount > 0) {
             console.log(`\nCleaned up ${deleted.deletedCount} legacy used auth codes`);
