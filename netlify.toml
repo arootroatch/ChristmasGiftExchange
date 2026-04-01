@@ -4,6 +4,20 @@
   functions = "netlify/functions"
 
 [[redirects]]
+  from = "/wishlist/edit"
+  to = "/dashboard/wishlist"
+  status = 301
+  force = true
+  [redirects.query]
+
+[[redirects]]
+  from = "/wishlist/view"
+  to = "/dashboard/recipient"
+  status = 301
+  force = true
+  [redirects.query]
+
+[[redirects]]
   from = "/dashboard/*"
   to = "/dashboard/index.html"
   status = 200
