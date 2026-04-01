@@ -23,3 +23,11 @@ export const exchangeSchema = z.object({
     participants: z.array(objectIdSchema),
     assignments: z.array(assignmentSchema),
 });
+
+export const collection = 'exchanges';
+
+export const indexes = [
+    {key: {exchangeId: 1}, options: {unique: true}},
+    {key: {participants: 1}},
+    {key: {"assignments.recipientId": 1}},
+];

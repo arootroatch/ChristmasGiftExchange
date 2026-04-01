@@ -20,3 +20,9 @@ export const userSchema = z.object({
     wishItems: z.array(wishItemSchema).default([]),
     currency: z.string().default('USD'),
 });
+
+export const collection = 'users';
+
+export const indexes = [
+    {key: {email: 1}, options: {unique: true}},
+];
