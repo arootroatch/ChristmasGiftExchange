@@ -1,5 +1,8 @@
 import dotenv from 'dotenv';
-dotenv.config({path: '.env'});
+import fs from 'node:fs';
+if (fs.existsSync('.env')) {
+    dotenv.config({path: '.env'});
+}
 import {MongoClient} from 'mongodb';
 import {glob} from 'glob';
 import path from 'path';

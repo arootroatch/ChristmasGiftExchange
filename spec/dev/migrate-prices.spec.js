@@ -29,7 +29,7 @@ describe('migrate-prices', () => {
         });
         await db.collection('users').insertOne(user);
 
-        const {migratePrices} = await import('../../dev/migrate-prices.mjs');
+        const {migratePrices} = await import('../../dev/migrations/archive/migrate-prices.mjs');
         const result = await migratePrices(db);
 
         const updated = await db.collection('users').findOne({_id: user._id});
@@ -47,7 +47,7 @@ describe('migrate-prices', () => {
         });
         await db.collection('users').insertOne(user);
 
-        const {migratePrices} = await import('../../dev/migrate-prices.mjs');
+        const {migratePrices} = await import('../../dev/migrations/archive/migrate-prices.mjs');
         await migratePrices(db);
 
         const updated = await db.collection('users').findOne({_id: user._id});
@@ -58,7 +58,7 @@ describe('migrate-prices', () => {
         const user = makeUser({name: 'Carol', email: 'carol@test.com'});
         await db.collection('users').insertOne(user);
 
-        const {migratePrices} = await import('../../dev/migrate-prices.mjs');
+        const {migratePrices} = await import('../../dev/migrations/archive/migrate-prices.mjs');
         const result = await migratePrices(db);
 
         expect(result.migrated).toBe(0);
@@ -73,7 +73,7 @@ describe('migrate-prices', () => {
         });
         await db.collection('users').insertOne(user);
 
-        const {migratePrices} = await import('../../dev/migrate-prices.mjs');
+        const {migratePrices} = await import('../../dev/migrations/archive/migrate-prices.mjs');
         const result = await migratePrices(db);
 
         expect(result.migrated).toBe(0);

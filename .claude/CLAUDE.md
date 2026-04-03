@@ -53,6 +53,7 @@ Detailed guides are split into on-demand skills:
 - **`backend-conventions`** — Netlify serverless architecture, shared modules, auth middleware, Zod 4 schema conventions
 - **`backend-testing`** — MongoMemoryServer setup, buildEvent helper, fixture requirements
 - **`frontend-testing`** — specHelper.js API, DOM helpers, snackbar init, jsdom proxy pattern
+- **`writing-migrations`** — Migration file naming, contract, testing patterns, running locally and in CI
 
 ## User Preferences
 

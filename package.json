@@ -13,7 +13,9 @@
     "integration": "vitest spec/integration/",
     "e2e": "npx playwright test --config e2e/playwright.config.js",
     "coverage": "vitest run --coverage",
-    "repl": "node dev/repl.mjs"
+    "repl": "node dev/repl.mjs",
+    "migrate:dev": "node dev/run-migrations.mjs --env dev",
+    "migrate:prod": "node dev/run-migrations.mjs --env prod"
   },
   "repository": {
     "type": "git",
