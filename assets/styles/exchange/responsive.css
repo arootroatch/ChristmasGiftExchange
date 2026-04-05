@@ -33,6 +33,11 @@
     max-width: 347px;
     margin: 0 auto 12px;
   }
+  #left-container.secret [data-testid="household"] {
+    width: auto;
+    max-width: 347px;
+    margin: 0 auto 12px;
+  }
 }
 
 @media screen and (max-width: 630px) {
@@ -74,6 +79,20 @@
   }
   #left-container.secret #name-list,
   #left-container.secret .ghost-house {
+    max-width: 320px;
+  }
+  #name-list,
+  [data-testid="household"] {
+    margin: 0 auto 12px;
+    max-width: 320px;
+  }
+
+  #name-list h2,
+  [data-testid="household"] h2 {
+    text-align: center;
+  }
+
+  #left-container.secret [data-testid="household"] {
     max-width: 320px;
   }
 }

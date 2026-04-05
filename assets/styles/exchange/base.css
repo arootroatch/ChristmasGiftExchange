@@ -154,3 +154,13 @@ body.dragging * {
   border: 2px dashed rgba(255, 255, 255, 0.3);
   border-radius: var(--radius-sm);
 }
+
+/* Name list overrides */
+#name-list {
+  margin-top: 0;
+}
+
+#name-list input,
+#name-list select {
+  padding: 5px 10px;
+}

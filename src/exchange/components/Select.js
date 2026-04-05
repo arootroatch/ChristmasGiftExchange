@@ -1,5 +1,6 @@
 import {addEventListener, nameListId, selectElement} from "../../utils.js";
 import {ExchangeEvents as Events, exchangeEvents as stateEvents, addNameToHouse, removeNameFromHouse} from "../state.js";
+import cardStyles from '../../../assets/styles/exchange/components/participant-card.module.css';
 import houseStyles from '../../../assets/styles/exchange/components/household.module.css';
 
 export function init() {
@@ -82,7 +83,7 @@ function renderIntoSlot(slot, participants, houses) {
 
 function template(houseID, participants) {
   return `
-      <select class="${houseStyles.nameSelect}" id="${houseID}-select">
+      <select class="${cardStyles.nameSelect}" id="${houseID}-select">
         ${defaultOption()}
         ${allNameOptions(participants)}
       </select>`;

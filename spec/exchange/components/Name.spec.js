@@ -12,7 +12,7 @@ import {
   stubProperty
 } from "../../shared/specHelper";
 import {getState, addNameToHouse} from "../../../src/exchange/state";
-import houseStyles from '../../../assets/styles/exchange/components/household.module.css';
+import cardStyles from '../../../assets/styles/exchange/components/participant-card.module.css';
 import {alex, whitney} from "../../shared/testData";
 
 describe('addName', () => {
@@ -82,7 +82,7 @@ describe('addName', () => {
     addHouseToDOM();  // Need at least one house to have a select dropdown
     input.value = "whitney";
     click("#add-name-btn");
-    const nameSelects = document.getElementsByClassName(houseStyles.nameSelect);
+    const nameSelects = document.getElementsByClassName(cardStyles.nameSelect);
     expect(nameSelects[0].innerHTML).toContain("Alex");
     expect(nameSelects[0].innerHTML).toContain("Whitney");
   })
@@ -94,7 +94,7 @@ describe('addName', () => {
     // Get the delete button ID from the DOM (it may have changed due to re-rendering)
     const alexDeleteBtn = document.querySelector('[id^="delete-Alex"]');
     const deleteId = alexDeleteBtn.id;
-    const nameSelects = document.getElementsByClassName(houseStyles.nameSelect);
+    const nameSelects = document.getElementsByClassName(cardStyles.nameSelect);
     click(`#${deleteId}`);
     expect(nameSelects[0].innerHTML).not.toContain("Alex");
   });

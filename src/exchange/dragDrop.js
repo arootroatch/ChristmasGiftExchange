@@ -1,5 +1,6 @@
 import {leftContainerId, participantsId, selectElement} from "../utils";
 import { addNameToHouse, removeNameFromHouse } from "./state.js";
+import cardStyles from '../../assets/styles/exchange/components/participant-card.module.css';
 import houseStyles from '../../assets/styles/exchange/components/household.module.css';
 
 const SCROLL_ZONE = 80;
@@ -33,7 +34,7 @@ function stopAutoScroll() {
 }
 
 function findContainer(target) {
-  return target.closest(`.${houseStyles.nameContainer}`);
+  return target.closest(`.${cardStyles.nameContainer}`);
 }
 
 function createDropPreview() {

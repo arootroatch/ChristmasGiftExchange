@@ -6,6 +6,7 @@ import {
 } from "../state.js";
 import {addEventListener, leftContainerId, pushHTML, selectElement} from "../../utils.js";
 import btnStyles from '../../../assets/styles/exchange/components/buttons.module.css';
+import cardStyles from '../../../assets/styles/exchange/components/participant-card.module.css';
 import houseStyles from '../../../assets/styles/exchange/components/household.module.css';
 
 export function init() {
@@ -30,9 +31,9 @@ function onHouseRemoved({houseID}) {
 
 function template(houseID, displayName) {
   return `
-      <div class="${houseStyles.household} card-slide-slow" id="${houseID}" data-testid="household">
+      <div class="${cardStyles.card} ${houseStyles.household} card-slide-slow" id="${houseID}" data-testid="household">
         <h2 contenteditable="true">${displayName} <span class="edit-span">(Click here to rename)</span></h2>
-        <div data-slot="names-${houseID}" class="${houseStyles.nameContainer}">
+        <div data-slot="names-${houseID}" class="${cardStyles.nameContainer}">
           <p class="house-placeholder ghost-text">Drop names here or select them from the dropdown</p>
         </div>
         <div data-slot="select-${houseID}"></div>

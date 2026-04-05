@@ -88,3 +88,19 @@
 #left-container.secret #name-list select {
   margin-top: 15px;
 }
+
+#left-container.secret [data-testid="household"] {
+  width: 333px;
+  margin: 10px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+#left-container.secret [data-testid="household"] [data-slot^="names-"] {
+  flex: 1;
+}
+
+#left-container.secret [data-testid="household"] select {
+  width: 100%;
+}

@@ -15,7 +15,7 @@ import {
   stubProperty
 } from "../../shared/specHelper";
 import {addEventListener} from "../../../src/utils";
-import houseStyles from '../../../assets/styles/exchange/components/household.module.css';
+import cardStyles from '../../../assets/styles/exchange/components/participant-card.module.css';
 import {insertNameFromSelect} from "../../../src/exchange/components/Select";
 import {addHouseToState, getState} from "../../../src/exchange/state";
 import * as stateModule from "../../../src/exchange/state";
@@ -89,7 +89,7 @@ describe("deleteHouse", () => {
   });
 
   it("puts names back in participants list", () => {
-    expect(document.querySelectorAll(`#house-0 .${houseStyles.nameContainer} .name-wrapper`).length).toBe(2);
+    expect(document.querySelectorAll(`#house-0 .${cardStyles.nameContainer} .name-wrapper`).length).toBe(2);
     expect(getState().participants.length).toBe(2);
     expect(getState().houses.find(h => h.id === "house-0").members.length).toBe(2);
 
@@ -151,7 +151,7 @@ describe('insertNameFromSelect', () => {
   it("adds name to house div and removes from participant list", () => {
     change("#house-0-select", "Alex");
     // Check that Alex is now in the house container (re-rendered by reactive system)
-    shouldSelect(`#house-0 .${houseStyles.nameContainer} #wrapper-Alex`);
+    shouldSelect(`#house-0 .${cardStyles.nameContainer} #wrapper-Alex`);
     // Check that Alex is not in participants list
     shouldNotSelect("#participants #wrapper-Alex");
   })
@@ -167,7 +167,7 @@ describe('insertNameFromSelect', () => {
     // Check that Alex is now in participants list (re-rendered by reactive system)
     shouldSelect("#participants #wrapper-Alex");
     // Check that Alex is not in house container
-    shouldNotSelect(`#house-0 .${houseStyles.nameContainer} #wrapper-Alex`);
+    shouldNotSelect(`#house-0 .${cardStyles.nameContainer} #wrapper-Alex`);
   })
 
   it("calls removeNameFromHouse when moving name from house to main list", () => {

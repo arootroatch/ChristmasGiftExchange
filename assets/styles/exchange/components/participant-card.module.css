@@ -1,0 +1,40 @@
+.card {
+  min-height: 5rem;
+  background: var(--frost);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--frost-border);
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+  max-width: 347px;
+  box-shadow: var(--shadow-card);
+}
+
+.card p {
+  margin: 5px;
+  display: inline-block;
+}
+
+.card h2 {
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.header {
+  margin-top: 0;
+}
+
+.nameContainer {
+  min-height: 3rem;
+  padding-bottom: 10px;
+}
+
+.nameSelect {
+  width: 100%;
+  margin-top: 15px;
+}
+
+.nameInput {
+  text-transform: capitalize;
+  width: calc(100% - 165px);
+}
