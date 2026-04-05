@@ -15,5 +15,5 @@
 
 /* Dashboard (global only — modules are imported by JS) */
 @import './dashboard/base.css';
-@import './dashboard/components/sidebar.css';
+@import './dashboard/layout.css';
 @import './dashboard/responsive.css';
