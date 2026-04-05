@@ -20,9 +20,8 @@ Move these visibility utility classes and their `fadein`/`fadeout` keyframes fro
 
 After extracting the utility classes, what remains is `#snackbar` positioning/layout. Convert to a module:
 - Export a `snackbar` class replacing the `#snackbar` selector
-- Update `Snackbar.js` to import the module and have `init()` add `styles.snackbar` to the element it finds via `#snackbar`
-- The `<div id="snackbar" class="hidden">` in both HTML files stays as-is — the module class is applied at runtime by `init()`
-- The `id="snackbar"` stays for JS selection; the styling moves to the module class
+- Update `Snackbar.js` to import the module and have `init()` create the snackbar element, apply the module class + `hidden`, and append it to `<body>` (the snackbar is `position: fixed` so it doesn't need a specific DOM location)
+- Remove `<div id="snackbar" class="hidden"></div>` from both HTML files — the element is now created entirely by JS
 
 ### 3. Convert `cookie-banner.css` → `cookie-banner.module.css`
 
@@ -62,7 +61,8 @@ The `.household` and `#name-list` share the same frost card appearance (backgrou
 ### 6. Merge `participants.module.css` into globals
 
 - The `:global(#name-list) input, select` padding rule → move to `exchange/base.css`
-- The `.nameInput` class (text-transform, width) → since it's only used in NameList.js, add it to `household.module.css` (NameList already imports this module)
+- The `.nameInput` class (text-transform, width) → move to `exchange/base.css` as a global `.name-input` class (it's 2 properties, not worth a module)
+- Update `NameList.js` to use the global class name instead of `partStyles.nameInput`
 - Delete `participants.module.css`
 
 ### 7. Delete dead CSS
@@ -84,18 +84,21 @@ The `.household` and `#name-list` share the same frost card appearance (backgrou
 - `components/user-badge.css` → `components/user-badge.module.css`
 
 **Modified modules:**
-- `exchange/components/household.module.css` — remove all `:global()` rules, gains `.nameInput` from participants
+- `exchange/components/household.module.css` — remove all `:global()` rules
 
 **Deleted:**
 - `exchange/components/participants.module.css`
 
 **Modified JS:**
-- `Snackbar.js` — import snackbar module, apply class
+- `Snackbar.js` — import snackbar module, create element in `init()` and append to body
 - `CookieBanner.js` — import cookie-banner module, use scoped classes
 - `UserBadge.js` — import user-badge module, use scoped classes
 - `House.js` — add `participant-card` class
-- `NameList.js` — add `participant-card` class, update `partStyles.nameInput` → `houseStyles.nameInput`
-- HTML templates on both pages — update `<div id="snackbar" class="hidden">` if needed
+- `NameList.js` — add `participant-card` class, replace `partStyles.nameInput` with global `name-input` class, remove `participants.module.css` import
+
+**Modified HTML:**
+- `index.html` — remove `<div id="snackbar" class="hidden"></div>`
+- `pages/dashboard/index.html` — remove `<div id="snackbar" class="hidden"></div>`
 
 **Modified `main.css`:**
 - Remove `@import './components/snackbar.css'`
