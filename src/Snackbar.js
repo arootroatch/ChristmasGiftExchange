@@ -1,7 +1,14 @@
+import styles from '../assets/styles/components/snackbar.module.css';
+
 let bar;
 
 export function init() {
-  bar = document.querySelector("#snackbar");
+  if (!bar || !document.contains(bar)) {
+    bar = document.createElement('div');
+    bar.id = 'snackbar';
+    bar.className = `${styles.snackbar} hidden`;
+    document.body.appendChild(bar);
+  }
   const snackbarError = sessionStorage.getItem("snackbarError");
   if (snackbarError) {
     sessionStorage.removeItem("snackbarError");

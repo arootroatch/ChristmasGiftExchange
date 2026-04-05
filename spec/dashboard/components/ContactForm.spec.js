@@ -5,7 +5,6 @@ const flush = () => new Promise(r => setTimeout(r, 0));
 
 function setupDOM() {
   const dom = new JSDOM(`<!DOCTYPE html><html><body>
-    <div id="snackbar" class="hidden"></div>
     <div id="section-contact"><div data-slot="contact"></div></div>
   </body></html>`, {url: 'http://localhost/dashboard'});
 

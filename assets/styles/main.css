@@ -6,7 +6,6 @@
 @import './base/shared-base.css';
 
 /* Shared Components */
-@import './components/snackbar.css';
 @import './components/entries.css';
 @import './components/cookie-banner.css';
 @import './components/user-badge.css';

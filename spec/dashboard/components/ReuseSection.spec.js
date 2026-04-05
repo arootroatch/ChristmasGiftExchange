@@ -9,7 +9,6 @@ let locationMock;
 
 function setupDOM() {
   const dom = new JSDOM(`<!DOCTYPE html><html><body>
-    <div id="snackbar" class="hidden"></div>
     <div id="section-reuse"></div>
   </body></html>`, {url: 'http://localhost/dashboard'});
 

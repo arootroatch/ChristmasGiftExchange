@@ -5,7 +5,6 @@ import {init} from '../../../src/dashboard/components/RecipientCard.js';
 
 function setupDOM() {
   const dom = new JSDOM(`<!DOCTYPE html><html><body>
-    <div id="snackbar" class="hidden"></div>
     <div id="section-recipient"></div>
   </body></html>`, {url: 'http://localhost/dashboard'});
   globalThis.document = dom.window.document;

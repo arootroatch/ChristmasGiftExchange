@@ -7,7 +7,6 @@ import wishStyles from '../../../assets/styles/dashboard/components/wishlist.mod
 
 function setupDOM() {
   const dom = new JSDOM(`<!DOCTYPE html><html><body>
-    <div id="snackbar" class="hidden"></div>
     <div id="section-wishlist"><div data-slot="items"></div></div>
   </body></html>`, {url: 'http://localhost/dashboard'});
 

@@ -5,17 +5,10 @@ import {shouldDisplayErrorSnackbar, shouldDisplaySuccessSnackbar} from "./shared
 describe("snackbar", () => {
   let bar;
 
-  beforeAll(() => {
-    snackbar.init();
-  });
-
   beforeEach(() => {
+    document.querySelector("#snackbar")?.remove();
+    snackbar.init();
     bar = document.querySelector("#snackbar");
-    bar.textContent = "";
-    bar.className = "hidden";
-    bar.style.color = "";
-    bar.style.border = "";
-    bar.style.background = "";
     vi.useFakeTimers();
   });
 
