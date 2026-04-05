@@ -93,6 +93,6 @@ describe('api-auth-code-post', () => {
         expect(codes).toHaveLength(1);
         expect(codes[0].codeHash).toBeDefined();
         expect(codes[0].expiresAt).toBeDefined();
-        expect(codes[0].used).toBe(false);
+        expect(codes[0].createdAt).toBeDefined();
     });
 });

@@ -132,7 +132,7 @@ describe('api-auth-verify-post', () => {
         expect(body.success).toBe(true);
     });
 
-    it('marks code as used after verification', async () => {
+    it('deletes code after successfsl verification', async () => {
         const user = makeUser({email: 'test@test.com'});
         await db.collection('users').insertOne(user);
         const code = await generateAndStoreCode('test@test.com');
@@ -141,6 +141,6 @@ describe('api-auth-verify-post', () => {
         await handler(event);
 
         const authCode = await db.collection('authCodes').findOne({email: 'test@test.com'});
-        expect(authCode.used).toBe(true);
+        expect(authCode).toBeNull();
     });
 });
