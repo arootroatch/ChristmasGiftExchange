@@ -1,4 +1,4 @@
-#user-badge {
+.badge {
     position: fixed;
     top: 12px;
     right: 16px;
@@ -18,19 +18,20 @@
         color: rgba(255, 255, 255, 0.9);
         font-weight: 600;
     }
-    #user-badge-logout {
-        color: rgba(255, 255, 255, 0.5);
-        text-decoration: none;
-        font-size: 0.75rem;
-        transition: color 0.15s;
-        &:hover {
-            color: rgba(255, 255, 255, 0.9);
-        }
+}
+
+.logout {
+    color: rgba(255, 255, 255, 0.5);
+    text-decoration: none;
+    font-size: 0.75rem;
+    transition: color 0.15s;
+    &:hover {
+        color: rgba(255, 255, 255, 0.9);
     }
 }
 
 @media screen and (max-width: 499px) {
-    #user-badge {
+    .badge {
         position: fixed;
         top: 0;
         left: 0;
@@ -43,14 +44,11 @@
         font-size: 0.85rem;
         justify-content: center;
         gap: 12px;
-#user-badge-logout {
-            font-size: 0.85rem;
-            min-height: 44px;
-            display: inline-flex;
-            align-items: center;
-        }
     }
-    body:has(#user-badge) {
-        padding-top: 44px;
+    .logout {
+        font-size: 0.85rem;
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
     }
 }

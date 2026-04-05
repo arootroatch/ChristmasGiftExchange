@@ -37,3 +37,9 @@ h1 {
   from { top: 20px; opacity: 1; }
   to { top: 0; opacity: 0; }
 }
+
+@media screen and (max-width: 499px) {
+  body:has(#user-badge) {
+    padding-top: 44px;
+  }
+}

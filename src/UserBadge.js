@@ -1,8 +1,9 @@
 import {getSessionUser, clearSession} from "./session.js";
 import {escape} from "./utils.js";
+import styles from '../assets/styles/components/user-badge.module.css';
 
 const badgeId = "user-badge";
-const logoutId = "user-badge-logout";
+const logoutId = `${badgeId}-logout`;
 
 export function init() {
     const user = getSessionUser();
@@ -10,9 +11,9 @@ export function init() {
 
     remove();
 
-    const html = `<div id="${badgeId}">
+    const html = `<div id="${badgeId}" class="${styles.badge}">
         <span><span class="user-badge-prefix">Logged in as </span><strong>${escape(user.name)}</strong></span>
-        <a id="${logoutId}" href="#">Log out</a>
+        <a id="${logoutId}" class="${styles.logout}" href="#">Log out</a>
     </div>`;
     document.body.insertAdjacentHTML("beforeend", html);
 

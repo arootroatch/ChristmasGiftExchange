@@ -7,7 +7,6 @@
 
 /* Shared Components */
 @import './components/entries.css';
-@import './components/user-badge.css';
 
 /* Exchange (global only — modules are imported by JS) */
 @import './exchange/base.css';
