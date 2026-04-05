@@ -1,4 +1,4 @@
-import '../../assets/styles/all.css';
+import '../../assets/styles/main.css';
 import btnStyles from '../../assets/styles/dashboard/components/buttons.module.css';
 import authGateStyles from '../../assets/styles/dashboard/components/auth-gate.module.css';
 import modalStyles from '../../assets/styles/dashboard/components/modal.module.css';

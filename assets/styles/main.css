@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;500;600&display=swap');
 
-/* Shared */
+/* Base */
 @import './base/tokens.css';
 @import './base/forms.css';
 @import './base/shared-base.css';
@@ -9,6 +9,12 @@
 @import './components/snackbar.css';
 @import './components/entries.css';
 @import './components/cookie-banner.css';
+@import './components/user-badge.css';
+
+/* Exchange (global only — modules are imported by JS) */
+@import './exchange/base.css';
+@import './exchange/layout.css';
+@import './exchange/responsive.css';
 
 /* Dashboard (global only — modules are imported by JS) */
 @import './dashboard/base.css';
