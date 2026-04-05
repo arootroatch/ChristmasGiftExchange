@@ -282,13 +282,10 @@ export function makeExchange({exchangeId, organizer, participants, assignments, 
 
 ;region Shared Test Data
 
-export const alex = makeUser({name: 'Alex', email: 'alex@gmail.com'});
-export const whitney = makeUser({name: 'Whitney', email: 'whitney@gmail.com'});
-export const hunter = makeUser({name: 'Hunter', email: 'hunter@gmail.com'});
-export const megan = makeUser({name: 'Megan', email: 'megan@gmail.com'});
-export const alice = makeUser({name: 'Alice', email: 'alice@test.com'});
-export const bob = makeUser({name: 'Bob', email: 'bob@test.com'});
-export const carol = makeUser({name: 'Carol', email: 'carol@test.com'});
+export const alex = makeUser({name: 'Alex', email: 'alex@test.com'});
+export const whitney = makeUser({name: 'Whitney', email: 'whitney@test.com'});
+export const hunter = makeUser({name: 'Hunter', email: 'hunter@test.com'});
+export const megan = makeUser({name: 'Megan', email: 'megan@test.com'});
 
 ;endregion
 
@@ -313,17 +310,27 @@ export function findExchange(db, query) {
 ;endregion
 ```
 
-Note: `alex`, `whitney`, `hunter`, `megan` keep their `@gmail.com` emails because frontend tests (state.spec.js, Name.spec.js, EmailTable.spec.js) assert on those exact email values. `alice`, `bob`, `carol` use `@test.com` consistent with backend/E2E tests. The 4 frontend files that import the original names will get additional fields (`_id`, `wishlists`, etc.) but this won't break them since they only access `.name` and `.email`.
+Note: All emails use `@test.com`. Frontend tests that currently assert on hardcoded `@gmail.com` values must be updated to reference the test data (e.g., `alex.email` instead of `"alex@gmail.com"`). The 4 frontend files that import the original names will also get additional fields (`_id`, `wishlists`, etc.) but this won't break them since they only access `.name` and `.email`.
 
-- [ ] **Step 2: Run frontend tests to verify existing testData consumers still work**
+- [ ] **Step 2: Update frontend tests to reference test data instead of hardcoded emails**
+
+Frontend tests currently hardcode `@gmail.com` emails. Update them to reference the imported test data values.
+
+**`spec/exchange/state.spec.js`** — Lines 437-439 and 542-543 build inline objects like `{name: "Alex", email: "alex@gmail.com"}`. These should use the imported test data. Lines 455-457 assert `toBe("alex@gmail.com")` — change to `toBe(alex.email)`.
+
+**`spec/exchange/components/Name.spec.js`** — Line 34 asserts `toBe("alex@gmail.com")` — change to `toBe(alex.email)`.
+
+**`spec/exchange/components/EmailTable/EmailTable.spec.js`** — Lines 166-169 build inline objects with `@gmail.com` emails. Line 400 builds `{name: "Alex", email: "alex@gmail.com"}` and line 403 asserts `toContain('value="alex@gmail.com"')` — change to `toContain(\`value="${alex.email}"\`)`. Note line 166 uses `arootroatch@gmail.com` which differs from the test data — update this to use `alex.email` or keep as an inline override if it's intentional.
+
+- [ ] **Step 3: Run frontend tests**
 
 Run: `npx vitest run --project frontend`
-Expected: All tests pass. The 4 files importing `alex`, `whitney`, `hunter` from testData should work fine since they only use `name` and `email` properties.
+Expected: All tests pass.
 
-- [ ] **Step 3: Commit**
+- [ ] **Step 4: Commit**
 
 ```bash
-git add spec/testData.js
+git add spec/testData.js spec/exchange/
 git commit -m "refactor: expand testData.js with factories, shared documents, and seeding helpers"
 ```
 
@@ -591,6 +598,13 @@ Each E2E test file needs to:
 3. Import `connectDB`, `disconnectDB`, `cleanDB`, `getDB`, `authenticateUser`, `authenticateViaUI` from `'./helpers.js'`
 4. Pass `getDB()` as the first argument to `seedUsers()`, `seedExchange()`, `findUser()`, `findExchange()`
 
+Each E2E test file needs to:
+1. Import `makeUser`, `makeExchange` from `'../spec/testData.js'` (or shared constants like `alex`, `whitney`)
+2. Import `seedUsers`, `seedExchange`, `findUser`, `findExchange` from `'../spec/testData.js'`
+3. Import `connectDB`, `disconnectDB`, `cleanDB`, `getDB`, `authenticateUser`, `authenticateViaUI` from `'./helpers.js'`
+4. Pass `getDB()` as the first argument to `seedUsers()`, `seedExchange()`, `findUser()`, `findExchange()`
+5. Replace inline `makeUser` calls with shared test data constants where they match (e.g., `makeUser({name: 'Alice', email: 'alice@test.com'})` becomes the shared `alex` or `whitney` etc.)
+
 **`e2e/create-exchange.spec.js`:**
 
 Change:
@@ -600,7 +614,7 @@ import {connectDB, disconnectDB, cleanDB, findUser, findExchange, makeUser, make
 to:
 ```javascript
 import {connectDB, disconnectDB, cleanDB, getDB, authenticateUser, authenticateViaUI} from './helpers.js';
-import {alice, bob, carol, makeUser, makeExchange, seedUsers, seedExchange, findUser, findExchange} from '../spec/testData.js';
+import {alex, whitney, makeUser, makeExchange, seedUsers, seedExchange, findUser, findExchange} from '../spec/testData.js';
 ```
 
 Update seeding calls to pass `getDB()`:
@@ -625,10 +639,10 @@ import {connectDB, disconnectDB, cleanDB, makeUser, makeExchange, seedUsers, see
 to:
 ```javascript
 import {connectDB, disconnectDB, cleanDB, getDB, authenticateUser} from './helpers.js';
-import {alice, bob, makeExchange, seedUsers, seedExchange} from '../spec/testData.js';
+import {alex, whitney, makeExchange, seedUsers, seedExchange} from '../spec/testData.js';
 ```
 
-Replace inline `makeUser` calls with shared constants where they match:
+Replace inline `makeUser` calls with shared constants:
 ```javascript
 // Before
 giver = makeUser({name: 'Alice', email: 'alice@test.com'});
@@ -636,18 +650,10 @@ recipient = makeUser({name: 'Bob', email: 'bob@test.com'});
 await seedUsers(giver, recipient);
 
 // After
-await seedUsers(getDB(), alice, bob);
+await seedUsers(getDB(), alex, whitney);
 ```
 
-Update all `seedExchange` calls:
-```javascript
-// Before
-await seedExchange(makeExchange({...}));
-// After
-await seedExchange(getDB(), makeExchange({...}));
-```
-
-Note: Variable references to `giver`/`recipient` in the test body need to change to `alice`/`bob`.
+Update all `seedExchange` calls and variable references (`giver` -> `alex`, `recipient` -> `whitney`).
 
 **`e2e/auth-flow.spec.js`:**
 
@@ -658,10 +664,10 @@ import {connectDB, disconnectDB, cleanDB, makeUser, makeExchange, seedUsers, see
 to:
 ```javascript
 import {connectDB, disconnectDB, cleanDB, getDB, authenticateUser, authenticateViaUI} from './helpers.js';
-import {alice, bob, makeExchange, seedUsers, seedExchange} from '../spec/testData.js';
+import {alex, whitney, makeExchange, seedUsers, seedExchange} from '../spec/testData.js';
 ```
 
-Same pattern — replace inline `makeUser({name: 'Alice', email: 'alice@test.com'})` with `alice`, pass `getDB()` to seeding calls.
+Replace inline `makeUser` calls with shared constants, pass `getDB()` to seeding calls. Update variable references (`alice` -> `alex`, `bob` -> `whitney`).
 
 **`e2e/recipient-search.spec.js`:**
 
@@ -672,10 +678,10 @@ import {connectDB, disconnectDB, cleanDB, makeUser, makeExchange, seedUsers, see
 to:
 ```javascript
 import {connectDB, disconnectDB, cleanDB, getDB, authenticateViaUI} from './helpers.js';
-import {alice, makeUser, makeExchange, seedUsers, seedExchange} from '../spec/testData.js';
+import {alex, makeUser, makeExchange, seedUsers, seedExchange} from '../spec/testData.js';
 ```
 
-The `giver` can use shared `alice`, but `recipient` has custom wishlists so it stays as `makeUser(...)`. Replace `giver = makeUser(...)` with just using `alice` directly. Pass `getDB()` to seeding calls:
+The `giver` can use shared `alex`, but `recipient` has custom wishlists so it stays as `makeUser(...)`. Pass `getDB()` to seeding calls:
 ```javascript
 // Before
 giver = makeUser({name: 'Alice', email: 'alice@test.com'});
@@ -683,17 +689,17 @@ recipient = makeUser({name: 'Bob', email: 'bob@test.com', wishlists: [...]});
 await seedUsers(giver, recipient);
 await seedExchange(makeExchange({...}));
 
-// After (giver variable removed, use alice directly)
+// After (giver variable removed, use alex directly)
 recipient = makeUser({name: 'Bob', email: 'bob@test.com', wishlists: [...]});
-await seedUsers(getDB(), alice, recipient);
+await seedUsers(getDB(), alex, recipient);
 await seedExchange(getDB(), makeExchange({
     ...
-    participants: [alice._id, recipient._id],
-    assignments: [{giverId: alice._id, recipientId: recipient._id}],
+    participants: [alex._id, recipient._id],
+    assignments: [{giverId: alex._id, recipientId: recipient._id}],
 }));
 ```
 
-Update references from `giver` to `alice` throughout the test body.
+Update references from `giver` to `alex` throughout the test body.
 
 **`e2e/reuse-exchange.spec.js`:**
 
@@ -704,10 +710,10 @@ import {connectDB, disconnectDB, cleanDB, makeUser, makeExchange, seedUsers, see
 to:
 ```javascript
 import {connectDB, disconnectDB, cleanDB, getDB, authenticateUser, authenticateViaUI} from './helpers.js';
-import {alice, bob, makeExchange, seedUsers, seedExchange} from '../spec/testData.js';
+import {alex, whitney, makeExchange, seedUsers, seedExchange} from '../spec/testData.js';
 ```
 
-This file already uses `alice` and `bob` as variable names. Remove the `makeUser` calls and use shared constants directly. Pass `getDB()` to seeding calls:
+Replace inline `makeUser` calls with shared constants. Pass `getDB()` to seeding calls:
 ```javascript
 // Before
 alice = makeUser({name: 'Alice', email: 'alice@test.com'});
@@ -715,10 +721,10 @@ bob = makeUser({name: 'Bob', email: 'bob@test.com'});
 await seedUsers(alice, bob);
 
 // After (remove let declarations, use imports directly)
-await seedUsers(getDB(), alice, bob);
+await seedUsers(getDB(), alex, whitney);
 ```
 
-Remove the `let alice, bob` declarations at the top of the describe block (they shadow the imports). Keep `let exchangeId`.
+Remove the `let alice, bob` declarations at the top of the describe block (they shadow the imports). Keep `let exchangeId`. Update all references from `alice`/`bob` to `alex`/`whitney`.
 
 - [ ] **Step 4: Run E2E tests**
 
