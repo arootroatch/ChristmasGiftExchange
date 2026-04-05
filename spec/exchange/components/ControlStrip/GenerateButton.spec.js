@@ -299,7 +299,7 @@ describe("generateList", () => {
     for (let i = 0; i < assignments.length; i++) {
       const assignment = assignments[i];
       const delay = i > 0 ? ` style="animation-delay: ${(i * 0.07).toFixed(2)}s"` : '';
-      tableHTML += `<div class="${tableStyles.resultRow}"${delay}>
+      tableHTML += `<div class="${tableStyles.resultRow} card-slide"${delay}>
                 <span>${assignment.giver}</span>
                 <span class="${tableStyles.resultArrow}">→</span>
                 <span>${assignment.recipient}</span>
@@ -322,7 +322,7 @@ describe("generateList", () => {
     for (let i = 0; i < assignments.length; i++) {
       const assignment = assignments[i];
       const delay = i > 0 ? ` style="animation-delay: ${(i * 0.07).toFixed(2)}s"` : '';
-      tableHTML += `<div class="${tableStyles.resultRow}"${delay}>
+      tableHTML += `<div class="${tableStyles.resultRow} card-slide"${delay}>
                 <span>${assignment.giver}</span>
                 <span class="${tableStyles.resultArrow}">→</span>
                 <span>${assignment.recipient}</span>

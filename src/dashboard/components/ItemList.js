@@ -20,7 +20,7 @@ function template(currency) {
     const step = decimals === 0 ? '1' : '0.01';
     const placeholder = decimals === 0 ? '2500' : '25.00';
 
-    return `<section id="items-section" class="${cardStyles.card}">
+    return `<section id="items-section" class="${cardStyles.card} card-slide-slow">
         <h2>Individual Items</h2>
         <p class="helper-text">Add links to specific products you'd like</p>
         <div id="currency-row">

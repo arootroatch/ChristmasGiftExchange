@@ -6,7 +6,7 @@ import rcStyles from '../../../assets/styles/dashboard/components/recipient-card
 import wishStyles from '../../../assets/styles/dashboard/components/wishlist.module.css';
 
 function template() {
-  return `<section id="recipient-card" class="${cardStyles.card}">
+  return `<section id="recipient-card" class="${cardStyles.card} card-slide-slow">
     <div class="spinner-container"><div class="spinner"></div></div>
   </section>`;
 }

@@ -32,7 +32,7 @@ async function loadExchanges() {
 function renderResults(exchanges) {
   const container = selectElement('#reuse-results');
   container.innerHTML = exchanges.map(ex => `
-    <div class="${cardStyles.exchangeResult}">
+    <div class="${cardStyles.exchangeResult} card-slide">
       <h3>${new Date(ex.createdAt).toLocaleDateString()}</h3>
       <p><strong>Participants:</strong> ${escape(ex.participantNames.join(', '))}</p>
       ${ex.houses.length > 0 ? `<p><strong>Households:</strong> ${ex.houses.map(h => `${escape(h.name)} (${escape(h.members.join(', '))})`).join('; ')}</p>` : ''}

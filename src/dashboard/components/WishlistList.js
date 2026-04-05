@@ -6,7 +6,7 @@ import cardStyles from '../../../assets/styles/dashboard/components/cards.module
 import wishStyles from '../../../assets/styles/dashboard/components/wishlist.module.css';
 
 function template() {
-    return `<section id="wishlists-section" class="${cardStyles.card}">
+    return `<section id="wishlists-section" class="${cardStyles.card} card-slide-slow">
         <h2>External Wishlists</h2>
         <p class="helper-text">Add links to your Amazon, Wishlist.com, or other wishlists</p>
         <div id="wishlists-list"></div>

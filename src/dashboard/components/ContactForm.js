@@ -4,7 +4,7 @@ import btnStyles from '../../../assets/styles/dashboard/components/buttons.modul
 import cardStyles from '../../../assets/styles/dashboard/components/cards.module.css';
 
 function template() {
-    return `<section id="contact-section" class="${cardStyles.card}">
+    return `<section id="contact-section" class="${cardStyles.card} card-slide-slow">
         <h2>Send Contact Info to Your Secret Santa</h2>
         <p class="helper-text">This information will be emailed directly to your Secret Santa and will NOT be stored in our database. Our email servers automatically delete email history after 45 days.</p>
         <label for="contact-address">Shipping Address</label>

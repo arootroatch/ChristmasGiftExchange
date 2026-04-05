@@ -53,7 +53,7 @@ function renderResults(assignments) {
   for (let i = 0; i < assignments.length; i++) {
     const assignment = assignments[i];
     const delay = i > 0 ? ` style="animation-delay: ${(i * 0.07).toFixed(2)}s"` : '';
-    html += `<div class="${tableStyles.resultRow}"${delay}>
+    html += `<div class="${tableStyles.resultRow} card-slide"${delay}>
                 <span>${assignment.giver}</span>
                 <span class="${tableStyles.resultArrow}">&#8594;</span>
                 <span>${assignment.recipient}</span>

@@ -163,7 +163,7 @@ function initDashboard() {
 
 function showAuthGate() {
   const content = document.getElementById('dashboard-content');
-  content.innerHTML = authGateTemplate({heading: 'Verify Your Email', buttonClass: btnStyles.button, gateClass: authGateStyles.authGate});
+  content.innerHTML = authGateTemplate({heading: 'Verify Your Email', buttonClass: btnStyles.button, gateClass: `${authGateStyles.authGate} card-slide-slow`});
   initAuthGate({
     onSuccess: () => {
       content.innerHTML = '<div class="spinner-container"><div class="spinner"></div></div>';
