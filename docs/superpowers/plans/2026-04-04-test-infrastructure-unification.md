@@ -287,6 +287,48 @@ export const whitney = makeUser({name: 'Whitney', email: 'whitney@test.com'});
 export const hunter = makeUser({name: 'Hunter', email: 'hunter@test.com'});
 export const megan = makeUser({name: 'Megan', email: 'megan@test.com'});
 
+export const twoPersonExchange = makeExchange({
+    exchangeId: 'two-person-exchange',
+    organizer: alex._id,
+    createdAt: new Date('2025-12-01'),
+    participants: [alex._id, whitney._id],
+    assignments: [{giverId: alex._id, recipientId: whitney._id}],
+});
+
+export const threePersonExchange = makeExchange({
+    exchangeId: 'three-person-exchange',
+    organizer: alex._id,
+    createdAt: new Date('2025-12-01'),
+    participants: [alex._id, whitney._id, hunter._id],
+    assignments: [
+        {giverId: alex._id, recipientId: whitney._id},
+        {giverId: whitney._id, recipientId: hunter._id},
+        {giverId: hunter._id, recipientId: alex._id},
+    ],
+});
+
+export const twoPersonSecretSanta = makeExchange({
+    exchangeId: 'two-person-secret-santa',
+    organizer: alex._id,
+    createdAt: new Date('2025-12-01'),
+    isSecretSanta: true,
+    participants: [alex._id, whitney._id],
+    assignments: [{giverId: alex._id, recipientId: whitney._id}],
+});
+
+export const threePersonSecretSanta = makeExchange({
+    exchangeId: 'three-person-secret-santa',
+    organizer: alex._id,
+    createdAt: new Date('2025-12-01'),
+    isSecretSanta: true,
+    participants: [alex._id, whitney._id, hunter._id],
+    assignments: [
+        {giverId: alex._id, recipientId: whitney._id},
+        {giverId: whitney._id, recipientId: hunter._id},
+        {giverId: hunter._id, recipientId: alex._id},
+    ],
+});
+
 ;endregion
 
 ;region Seeding Helpers
