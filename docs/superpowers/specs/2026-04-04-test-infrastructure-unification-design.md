@@ -53,10 +53,13 @@ export function makeExchange({exchangeId, organizer, participants, assignments, 
 ```javascript
 ;region Shared Test Data
 
-export const alex = makeUser({name: 'Alex', email: 'alex@gmail.com'});
+export const alex = makeUser({name: 'Alex', email: 'alex@gmail.com'});     // @gmail.com — frontend tests assert on these emails
 export const whitney = makeUser({name: 'Whitney', email: 'whitney@gmail.com'});
 export const hunter = makeUser({name: 'Hunter', email: 'hunter@gmail.com'});
 export const megan = makeUser({name: 'Megan', email: 'megan@gmail.com'});
+export const alice = makeUser({name: 'Alice', email: 'alice@test.com'});   // @test.com — backend/E2E test users
+export const bob = makeUser({name: 'Bob', email: 'bob@test.com'});
+export const carol = makeUser({name: 'Carol', email: 'carol@test.com'});
 
 // Pre-built exchanges for common scenarios
 export const basicExchange = makeExchange({
