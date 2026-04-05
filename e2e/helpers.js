@@ -2,8 +2,6 @@ import {MongoClient} from 'mongodb';
 import {readFileSync} from 'fs';
 import path from 'path';
 
-export {makeUser, makeExchange} from '../spec/shared/testFactories.js';
-
 const STATE_FILE = path.join(import.meta.dirname, '.e2e-state.json');
 const JWT_SECRET = 'e2e-test-jwt-secret';
 
@@ -41,27 +39,17 @@ export async function disconnectDB() {
 
 export async function cleanDB() {
     const d = requireDB();
-    await d.collection('exchanges').deleteMany({});
-    await d.collection('users').deleteMany({});
-    await d.collection('legacy-names').deleteMany({});
-    await d.collection('authCodes').deleteMany({});
-    await d.collection('rateLimits').deleteMany({});
+    await Promise.all([
+        d.collection('exchanges').deleteMany({}),
+        d.collection('users').deleteMany({}),
+        d.collection('legacy-names').deleteMany({}),
+        d.collection('authCodes').deleteMany({}),
+        d.collection('rateLimits').deleteMany({}),
+    ]);
 }
 
-export async function seedUsers(...users) {
-    return requireDB().collection('users').insertMany(users);
-}
-
-export async function seedExchange(exchange) {
-    return requireDB().collection('exchanges').insertOne(exchange);
-}
-
-export async function findUser(query) {
-    return requireDB().collection('users').findOne(query);
-}
-
-export async function findExchange(query) {
-    return requireDB().collection('exchanges').findOne(query);
+export function getDB() {
+    return requireDB();
 }
 
 /**

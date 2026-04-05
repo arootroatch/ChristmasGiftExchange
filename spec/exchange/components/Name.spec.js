@@ -10,10 +10,10 @@ import {
   shouldNotSelect,
   shouldSelect,
   stubProperty
-} from "../../specHelper";
+} from "../../shared/specHelper";
 import {getState, addNameToHouse} from "../../../src/exchange/state";
 import houseStyles from '../../../assets/styles/exchange/components/household.module.css';
-import {alex, whitney} from "../../testData";
+import {alex, whitney} from "../../shared/testData";
 
 describe('addName', () => {
   let input;
@@ -31,7 +31,7 @@ describe('addName', () => {
   it('Participant object shape', () => {
     const participant = {...alex};
     expect(participant.name).toBe("Alex");
-    expect(participant.email).toBe("alex@gmail.com");
+    expect(participant.email).toBe(alex.email);
   });
 
   it('should add name to DOM', () => {

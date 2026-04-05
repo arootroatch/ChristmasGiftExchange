@@ -1,6 +1,7 @@
 import {afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi} from 'vitest';
-import {setupMongo, teardownMongo, cleanCollections} from './mongoHelper.js';
-import {makeUser, buildEvent} from '../shared/testFactories.js';
+import {setupMongo, teardownMongo, cleanCollections} from '../shared/mongoSetup.js';
+import {makeUser, seedUsers} from '../shared/testData.js';
+import {buildEvent} from '../shared/specHelper.js';
 
 describe('api-auth-code-post', () => {
     let db, handler, mongo, mockFetch;
@@ -61,7 +62,7 @@ describe('api-auth-code-post', () => {
 
     it('returns {sent: true} for existing user and sends verification email', async () => {
         const user = makeUser({email: 'exists@test.com'});
-        await db.collection('users').insertOne(user);
+        await seedUsers(db, user);
 
         const event = buildEvent('POST', {body: {email: 'exists@test.com'}});
         const response = await handler(event);
@@ -84,7 +85,7 @@ describe('api-auth-code-post', () => {
 
     it('stores a code in authCodes collection when user exists', async () => {
         const user = makeUser({email: 'exists@test.com'});
-        await db.collection('users').insertOne(user);
+        await seedUsers(db, user);
 
         const event = buildEvent('POST', {body: {email: 'exists@test.com'}});
         await handler(event);

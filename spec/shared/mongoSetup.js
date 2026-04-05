@@ -1,9 +1,28 @@
+import {MongoMemoryServer} from 'mongodb-memory-server';
 import {MongoClient} from 'mongodb';
 import crypto from 'crypto';
-import {vi} from 'vitest';
-import {_setTestDb} from '../../netlify/shared/db.mjs';
+
+//region MongoMemoryServer Lifecycle
+
+let server;
+
+export async function setup() {
+    server = await MongoMemoryServer.create();
+    process.env.MONGO_DB_URI = server.getUri();
+    process.env.MONGODB_DATABASE = 'test-db';
+}
+
+export async function teardown() {
+    await server.stop();
+}
+
+//endregion
+
+//region Per-Test Isolation
 
 export async function setupMongo() {
+    const {vi} = await import('vitest');
+    const {_setTestDb} = await import('../../netlify/shared/db.mjs');
     const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
@@ -15,10 +34,10 @@ export async function setupMongo() {
     const db = client.db(dbName);
     _setTestDb(db);
 
-    return {client, db, consoleLogSpy, consoleErrorSpy};
+    return {client, db, consoleLogSpy, consoleErrorSpy, _setTestDb};
 }
 
-export async function teardownMongo({client, consoleLogSpy, consoleErrorSpy}) {
+export async function teardownMongo({client, consoleLogSpy, consoleErrorSpy, _setTestDb}) {
     _setTestDb(null);
     consoleLogSpy.mockRestore();
     consoleErrorSpy.mockRestore();
@@ -30,3 +49,5 @@ export async function cleanCollections(db, ...names) {
         await db.collection(name).deleteMany({});
     }
 }
+
+//endregion

@@ -47,7 +47,7 @@ Migration tests go in `spec/dev/migrations/` and follow the standard MongoDB tes
 
 ```js
 import {describe, it, expect, beforeAll, afterAll, afterEach} from 'vitest';
-import {setupMongo, teardownMongo, cleanCollections} from '../../netlify-functions/mongoHelper.js';
+import {setupMongo, teardownMongo, cleanCollections} from '../shared/mongoSetup.js';
 
 describe('20260401-clean-legacy-auth-codes', () => {
     let db, mongo;

@@ -1,6 +1,7 @@
 import {afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi} from 'vitest';
-import {setupMongo, teardownMongo, cleanCollections} from './mongoHelper.js';
-import {makeUser, buildEvent} from '../shared/testFactories.js';
+import {setupMongo, teardownMongo, cleanCollections} from '../shared/mongoSetup.js';
+import {makeUser, seedUsers} from '../shared/testData.js';
+import {buildEvent} from '../shared/specHelper.js';
 import {generateAndStoreCode} from '../../netlify/shared/authCodes.mjs';
 
 describe('api-auth-verify-post', () => {
@@ -58,7 +59,7 @@ describe('api-auth-verify-post', () => {
 
     it('returns 401 for invalid code', async () => {
         const user = makeUser({email: 'test@test.com'});
-        await db.collection('users').insertOne(user);
+        await seedUsers(db, user);
         await generateAndStoreCode('test@test.com');
 
         const event = buildEvent('POST', {body: {email: 'test@test.com', code: '00000000'}});
@@ -91,7 +92,7 @@ describe('api-auth-verify-post', () => {
 
     it('updates name for existing user when name provided', async () => {
         const user = makeUser({email: 'existing@test.com', name: 'Old Name'});
-        await db.collection('users').insertOne(user);
+        await seedUsers(db, user);
         const code = await generateAndStoreCode('existing@test.com');
 
         const event = buildEvent('POST', {body: {email: 'existing@test.com', code, name: 'New Name'}});
@@ -104,7 +105,7 @@ describe('api-auth-verify-post', () => {
 
     it('sets httpOnly cookie with JWT on success', async () => {
         const user = makeUser({email: 'test@test.com'});
-        await db.collection('users').insertOne(user);
+        await seedUsers(db, user);
         const code = await generateAndStoreCode('test@test.com');
 
         const event = buildEvent('POST', {body: {email: 'test@test.com', code}});
@@ -121,7 +122,7 @@ describe('api-auth-verify-post', () => {
 
     it('returns {success: true} on success', async () => {
         const user = makeUser({email: 'test@test.com'});
-        await db.collection('users').insertOne(user);
+        await seedUsers(db, user);
         const code = await generateAndStoreCode('test@test.com');
 
         const event = buildEvent('POST', {body: {email: 'test@test.com', code}});
@@ -132,9 +133,9 @@ describe('api-auth-verify-post', () => {
         expect(body.success).toBe(true);
     });
 
-    it('deletes code after successfsl verification', async () => {
+    it('deletes code after successful verification', async () => {
         const user = makeUser({email: 'test@test.com'});
-        await db.collection('users').insertOne(user);
+        await seedUsers(db, user);
         const code = await generateAndStoreCode('test@test.com');
 
         const event = buildEvent('POST', {body: {email: 'test@test.com', code}});

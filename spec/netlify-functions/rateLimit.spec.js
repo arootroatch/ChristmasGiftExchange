@@ -1,5 +1,5 @@
 import {describe, it, expect, beforeAll, afterAll, afterEach} from "vitest";
-import {setupMongo, teardownMongo, cleanCollections} from "./mongoHelper.js";
+import {setupMongo, teardownMongo, cleanCollections} from '../shared/mongoSetup.js';
 
 describe("rateLimit", () => {
     let client, db, mongo, checkRateLimit;

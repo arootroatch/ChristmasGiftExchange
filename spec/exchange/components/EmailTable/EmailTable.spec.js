@@ -8,11 +8,11 @@ import {
   shouldDisplayEmailTable,
   shouldDisplayErrorSnackbar,
   shouldDisplaySuccessSnackbar,
-} from "../../../specHelper";
+} from "../../../shared/specHelper";
 import "../../../../src/exchange/components/Name";
 import {assignRecipients, setOrganizer, startExchange, getState, requestEmailResults} from "../../../../src/exchange/state";
 import * as state from "../../../../src/exchange/state";
-import {alex, whitney, hunter} from "../../../testData";
+import {alex, whitney, hunter, megan} from "../../../shared/testData";
 import {
   emailInput,
   init,
@@ -162,11 +162,7 @@ describe('emailTable', () => {
       body.querySelectorAll(`.${dialogStyles.emailDiv}`).forEach(el => el.remove());
       getState().participants = [];
       installParticipantNames("Alex", "Whitney", "Hunter", "Megan");
-      renderEmailTableInputs([
-        {name: "Alex", email: "arootroatch@gmail.com"},
-        {name: "Whitney", email: "whitney@gmail.com"},
-        {name: "Hunter", email: "hunter@gmail.com"},
-        {name: "Megan", email: "megan@gmail.com"}]);
+      renderEmailTableInputs([alex, whitney, hunter, megan]);
 
       submitEmailForm();
     });
@@ -205,10 +201,10 @@ describe('emailTable', () => {
         json: () => Promise.resolve({error: "Database connection failed"})
       }));
       triggerEmailTableRender();
-      renderEmailTableInputs([
-        {name: "Alex", email: "alex@test.com"},
-        {name: "Whitney", email: "whitney@test.com"}
-      ]);
+      const body = document.querySelector("#emailTableBody");
+      body.querySelectorAll(`.${dialogStyles.emailDiv}`).forEach(el => el.remove());
+      getState().participants = [];
+      renderEmailTableInputs([alex, whitney]);
       installParticipantNames("Alex", "Whitney");
     });
 
@@ -230,7 +226,7 @@ describe('emailTable', () => {
       renderEmailTableInputs([
         {name: "Alex", email: "same@test.com"},
         {name: "Whitney", email: "same@test.com"},
-        {name: "Hunter", email: "hunter@test.com"},
+        {name: "Hunter", email: hunter.email},
       ]);
     });
 
@@ -397,10 +393,10 @@ describe('emailTable', () => {
   });
 
   it("emailInput pre-fills value when participant has email", () => {
-    const participant = {name: "Alex", email: "alex@gmail.com"};
+    const participant = {name: "Alex", email: alex.email};
     const result = emailInput(participant, 0);
 
-    expect(result).toContain('value="alex@gmail.com"');
+    expect(result).toContain(`value="${alex.email}"`);
   });
 
   it("emailInput has empty value when participant has no email", () => {
@@ -411,9 +407,7 @@ describe('emailTable', () => {
   });
 
   describe("renderWithSubset", () => {
-    const subsetParticipants = [
-      {name: "Alex", email: "alex@test.com"},
-    ];
+    const subsetParticipants = [alex];
     const subsetAssignments = [
       {giver: "Alex", recipient: "Whitney"},
     ];
@@ -495,10 +489,10 @@ describe('emailTable', () => {
       json: () => Promise.resolve({exchangeId: "test-id", participants: [], emailsFailed: []})
     }));
     triggerEmailTableRender();
-    renderEmailTableInputs([
-      {name: "Alex", email: "alex@test.com"},
-      {name: "Whitney", email: "whitney@test.com"}
-    ]);
+    const body = document.querySelector("#emailTableBody");
+    body.querySelectorAll(`.${dialogStyles.emailDiv}`).forEach(el => el.remove());
+    getState().participants = [];
+    renderEmailTableInputs([alex, whitney]);
     installParticipantNames("Alex", "Whitney");
 
     submitEmailForm();
@@ -517,10 +511,10 @@ describe('emailTable', () => {
       json: () => Promise.resolve({exchangeId: "test-id", participants: [], emailsFailed: []})
     }));
     triggerEmailTableRender();
-    renderEmailTableInputs([
-      {name: "Alex", email: "alex@test.com"},
-      {name: "Whitney", email: "whitney@test.com"}
-    ]);
+    const body = document.querySelector("#emailTableBody");
+    body.querySelectorAll(`.${dialogStyles.emailDiv}`).forEach(el => el.remove());
+    getState().participants = [];
+    renderEmailTableInputs([alex, whitney]);
     installParticipantNames("Alex", "Whitney");
 
     submitEmailForm();
@@ -534,25 +528,29 @@ describe('emailTable', () => {
       document.querySelector("#failedEmails")?.remove();
     });
 
+    function clearAndRenderInputs(participants) {
+      const body = document.querySelector("#emailTableBody");
+      body.querySelectorAll(`.${dialogStyles.emailDiv}`).forEach(el => el.remove());
+      getState().participants = [];
+      renderEmailTableInputs(participants);
+      installParticipantNames(...participants.map(p => p.name));
+    }
+
     it("shows failed emails component when some emails fail", async () => {
       global.fetch = vi.fn(() => Promise.resolve({
         ok: true,
         status: 200,
-        json: () => Promise.resolve({exchangeId: "test-id", participants: [], emailsFailed: ["alex@test.com"]})
+        json: () => Promise.resolve({exchangeId: "test-id", participants: [], emailsFailed: [alex.email]})
       }));
       triggerEmailTableRender();
-      renderEmailTableInputs([
-        {name: "Alex", email: "alex@test.com"},
-        {name: "Whitney", email: "whitney@test.com"}
-      ]);
-      installParticipantNames("Alex", "Whitney");
+      clearAndRenderInputs([alex, whitney]);
 
       submitEmailForm();
 
       await vi.advanceTimersByTimeAsync(0);
       const failedEl = document.querySelector("#failedEmails");
       expect(failedEl).not.toBeNull();
-      expect(failedEl.textContent).toContain("alex@test.com");
+      expect(failedEl.textContent).toContain(alex.email);
       expect(failedEl.textContent).toContain("recipient search");
     });
 
@@ -561,7 +559,7 @@ describe('emailTable', () => {
         .mockResolvedValueOnce({
           ok: true,
           status: 200,
-          json: () => Promise.resolve({exchangeId: "test-id", participants: [], emailsFailed: ["alex@test.com"]})
+          json: () => Promise.resolve({exchangeId: "test-id", participants: [], emailsFailed: [alex.email]})
         })
         .mockResolvedValueOnce({
           ok: true,
@@ -570,11 +568,7 @@ describe('emailTable', () => {
         });
 
       triggerEmailTableRender();
-      renderEmailTableInputs([
-        {name: "Alex", email: "alex@test.com"},
-        {name: "Whitney", email: "whitney@test.com"}
-      ]);
-      installParticipantNames("Alex", "Whitney");
+      clearAndRenderInputs([alex, whitney]);
       submitEmailForm();
 
       await vi.advanceTimersByTimeAsync(0);
@@ -590,7 +584,7 @@ describe('emailTable', () => {
         .mockResolvedValueOnce({
           ok: true,
           status: 200,
-          json: () => Promise.resolve({exchangeId: "test-id", participants: [], emailsFailed: ["alex@test.com"]})
+          json: () => Promise.resolve({exchangeId: "test-id", participants: [], emailsFailed: [alex.email]})
         })
         .mockResolvedValueOnce({
           ok: false,
@@ -599,11 +593,7 @@ describe('emailTable', () => {
         });
 
       triggerEmailTableRender();
-      renderEmailTableInputs([
-        {name: "Alex", email: "alex@test.com"},
-        {name: "Whitney", email: "whitney@test.com"}
-      ]);
-      installParticipantNames("Alex", "Whitney");
+      clearAndRenderInputs([alex, whitney]);
       submitEmailForm();
 
       await vi.advanceTimersByTimeAsync(0);
@@ -619,7 +609,7 @@ describe('emailTable', () => {
         .mockResolvedValueOnce({
           ok: true,
           status: 200,
-          json: () => Promise.resolve({exchangeId: "test-id", participants: [], emailsFailed: ["alex@test.com"]})
+          json: () => Promise.resolve({exchangeId: "test-id", participants: [], emailsFailed: [alex.email]})
         })
         .mockResolvedValueOnce({
           ok: true,
@@ -628,11 +618,7 @@ describe('emailTable', () => {
         });
 
       triggerEmailTableRender();
-      renderEmailTableInputs([
-        {name: "Alex", email: "alex@test.com"},
-        {name: "Whitney", email: "whitney@test.com"}
-      ]);
-      installParticipantNames("Alex", "Whitney");
+      clearAndRenderInputs([alex, whitney]);
       submitEmailForm();
       await vi.advanceTimersByTimeAsync(0);
 
@@ -647,7 +633,7 @@ describe('emailTable', () => {
         .mockResolvedValueOnce({
           ok: true,
           status: 200,
-          json: () => Promise.resolve({exchangeId: "test-id", participants: [], emailsFailed: ["alex@test.com"]})
+          json: () => Promise.resolve({exchangeId: "test-id", participants: [], emailsFailed: [alex.email]})
         })
         .mockResolvedValueOnce({
           ok: false,
@@ -656,11 +642,7 @@ describe('emailTable', () => {
         });
 
       triggerEmailTableRender();
-      renderEmailTableInputs([
-        {name: "Alex", email: "alex@test.com"},
-        {name: "Whitney", email: "whitney@test.com"}
-      ]);
-      installParticipantNames("Alex", "Whitney");
+      clearAndRenderInputs([alex, whitney]);
       submitEmailForm();
       await vi.advanceTimersByTimeAsync(0);
 
@@ -675,20 +657,16 @@ describe('emailTable', () => {
         .mockResolvedValueOnce({
           ok: true,
           status: 200,
-          json: () => Promise.resolve({exchangeId: "test-id", participants: [], emailsFailed: ["alex@test.com"]})
+          json: () => Promise.resolve({exchangeId: "test-id", participants: [], emailsFailed: [alex.email]})
         })
         .mockResolvedValueOnce({
           ok: true,
           status: 200,
-          json: () => Promise.resolve({sent: 0, total: 1, emailsFailed: ["alex@test.com"]})
+          json: () => Promise.resolve({sent: 0, total: 1, emailsFailed: [alex.email]})
         });
 
       triggerEmailTableRender();
-      renderEmailTableInputs([
-        {name: "Alex", email: "alex@test.com"},
-        {name: "Whitney", email: "whitney@test.com"}
-      ]);
-      installParticipantNames("Alex", "Whitney");
+      clearAndRenderInputs([alex, whitney]);
       submitEmailForm();
       await vi.advanceTimersByTimeAsync(0);
 
@@ -708,50 +686,42 @@ describe('emailTable', () => {
         .mockResolvedValueOnce({
           ok: true,
           status: 200,
-          json: () => Promise.resolve({exchangeId: "test-id", participants: [], emailsFailed: ["alex@test.com", "whitney@test.com"]})
+          json: () => Promise.resolve({exchangeId: "test-id", participants: [], emailsFailed: [alex.email, whitney.email]})
         })
         .mockResolvedValueOnce({
           ok: true,
           status: 200,
-          json: () => Promise.resolve({sent: 1, total: 2, emailsFailed: ["whitney@test.com"]})
+          json: () => Promise.resolve({sent: 1, total: 2, emailsFailed: [whitney.email]})
         });
 
       triggerEmailTableRender();
-      renderEmailTableInputs([
-        {name: "Alex", email: "alex@test.com"},
-        {name: "Whitney", email: "whitney@test.com"}
-      ]);
-      installParticipantNames("Alex", "Whitney");
+      clearAndRenderInputs([alex, whitney]);
       submitEmailForm();
 
       await vi.advanceTimersByTimeAsync(0);
       expect(document.querySelector("#retryEmailsBtn")).not.toBeNull();
 
       const failedEl = document.querySelector("#failedEmails");
-      expect(failedEl.textContent).toContain("alex@test.com");
-      expect(failedEl.textContent).toContain("whitney@test.com");
+      expect(failedEl.textContent).toContain(alex.email);
+      expect(failedEl.textContent).toContain(whitney.email);
 
       document.querySelector("#retryEmailsBtn").click();
 
       await vi.advanceTimersByTimeAsync(0);
       const updatedFailed = document.querySelector("#failedEmails");
       expect(updatedFailed).not.toBeNull();
-      expect(updatedFailed.textContent).toContain("whitney@test.com");
-      expect(updatedFailed.textContent).not.toContain("alex@test.com");
+      expect(updatedFailed.textContent).toContain(whitney.email);
+      expect(updatedFailed.textContent).not.toContain(alex.email);
     });
 
     it("removes failed emails on EXCHANGE_STARTED", async () => {
       global.fetch = vi.fn(() => Promise.resolve({
         ok: true,
         status: 200,
-        json: () => Promise.resolve({exchangeId: "test-id", participants: [], emailsFailed: ["alex@test.com"]})
+        json: () => Promise.resolve({exchangeId: "test-id", participants: [], emailsFailed: [alex.email]})
       }));
       triggerEmailTableRender();
-      renderEmailTableInputs([
-        {name: "Alex", email: "alex@test.com"},
-        {name: "Whitney", email: "whitney@test.com"}
-      ]);
-      installParticipantNames("Alex", "Whitney");
+      clearAndRenderInputs([alex, whitney]);
       submitEmailForm();
 
       await vi.advanceTimersByTimeAsync(0);

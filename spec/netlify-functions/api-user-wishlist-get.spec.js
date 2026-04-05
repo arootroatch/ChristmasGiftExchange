@@ -1,15 +1,10 @@
 import {afterAll, afterEach, beforeAll, describe, expect, it} from "vitest";
-import {setupMongo, teardownMongo, cleanCollections} from "./mongoHelper.js";
-import {buildEvent, makeUser, makeExchange} from "../shared/testFactories.js";
+import {setupMongo, teardownMongo, cleanCollections} from '../shared/mongoSetup.js';
+import {makeUser, makeExchange, seedUsers, seedExchange} from "../shared/testData.js";
+import {authCookie, buildEvent} from "../shared/specHelper.js";
 
 describe("api-user-wishlist-get", () => {
     let db, handler, mongo;
-
-    async function authCookie(userId) {
-        const {signSession} = await import("../../netlify/shared/jwt.mjs");
-        const jwt = await signSession(userId.toString());
-        return `session=${jwt}`;
-    }
 
     beforeAll(async () => {
         mongo = await setupMongo();
@@ -38,7 +33,7 @@ describe("api-user-wishlist-get", () => {
         });
         const outsider = makeUser({name: "Outsider", email: "outsider@test.com"});
 
-        await db.collection("users").insertMany([giver, recipient, outsider]);
+        await seedUsers(db, giver, recipient, outsider);
 
         const exchange = makeExchange({
             exchangeId: "exchange-view",
@@ -46,7 +41,7 @@ describe("api-user-wishlist-get", () => {
             participants: [giver._id, recipient._id],
             assignments: [{giverId: giver._id, recipientId: recipient._id}],
         });
-        await db.collection("exchanges").insertOne(exchange);
+        await seedExchange(db, exchange);
 
         return {giver, recipient, outsider};
     }

@@ -1,18 +1,18 @@
-import {addHouseToState, getState, startExchange} from "../src/exchange/state";
-import houseStyles from '../assets/styles/exchange/components/household.module.css';
-import dialogStyles from '../assets/styles/exchange/components/email-dialog.module.css';
+import {addHouseToState, getState, startExchange} from "../../src/exchange/state";
+import houseStyles from '../../assets/styles/exchange/components/household.module.css';
+import dialogStyles from '../../assets/styles/exchange/components/email-dialog.module.css';
 import {expect, vi} from "vitest";
 import {indexHtml} from "./setupTests";
-import {selectElement} from "../src/utils";
-import * as house from "../src/exchange/components/House";
-import * as name from "../src/exchange/components/Name";
-import * as nameList from "../src/exchange/components/NameList";
-import * as select from "../src/exchange/components/Select";
-import * as controlStrip from "../src/exchange/components/ControlStrip/ControlStrip";
-import * as generateButton from "../src/exchange/components/ControlStrip/GenerateButton";
-import * as ghostHouse from "../src/exchange/components/GhostHouse";
-import * as instructions from "../src/exchange/components/Instructions";
-import * as snackbar from "../src/Snackbar";
+import {selectElement} from "../../src/utils";
+import * as house from "../../src/exchange/components/House";
+import * as name from "../../src/exchange/components/Name";
+import * as nameList from "../../src/exchange/components/NameList";
+import * as select from "../../src/exchange/components/Select";
+import * as controlStrip from "../../src/exchange/components/ControlStrip/ControlStrip";
+import * as generateButton from "../../src/exchange/components/ControlStrip/GenerateButton";
+import * as ghostHouse from "../../src/exchange/components/GhostHouse";
+import * as instructions from "../../src/exchange/components/Instructions";
+import * as snackbar from "../../src/Snackbar";
 
 let isReactiveSystemInitialized = false;
 
@@ -48,12 +48,6 @@ export function stubFetchError(message) {
     status: 500,
     message: message
   }));
-}
-
-export function installGiverNames(...giverNames) {
-  giverNames.forEach((name) => {
-    getState().participants.push({name: name, email: ""});
-  })
 }
 
 export function installParticipantNames(...participantNames) {
@@ -275,4 +269,20 @@ function colorsClose(actual, expected) {
     Math.abs(actual.b - expected.b) <= channelTolerance &&
     Math.abs(actual.a - expected.a) <= alphaTolerance
   );
+}
+
+export async function authCookie(userId) {
+    const {signSession} = await import("../../netlify/shared/jwt.mjs");
+    const jwt = await signSession(userId.toString());
+    return `session=${jwt}`;
+}
+
+export function buildEvent(httpMethod, {body, path, queryStringParameters, headers} = {}) {
+    return {
+        httpMethod,
+        body: body ? JSON.stringify(body) : undefined,
+        path: path ?? '/',
+        queryStringParameters: queryStringParameters ?? {},
+        headers: headers ?? {},
+    };
 }

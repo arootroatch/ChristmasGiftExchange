@@ -1,6 +1,7 @@
 import {describe, expect, it, vi, beforeAll, afterAll, afterEach} from 'vitest';
-import {setupMongo, teardownMongo, cleanCollections} from './mongoHelper.js';
+import {setupMongo, teardownMongo, cleanCollections} from '../shared/mongoSetup.js';
 import {ObjectId} from 'mongodb';
+import {makeUser, makeExchange, seedUsers, seedExchange} from '../shared/testData.js';
 
 describe('forEachGiverOf', () => {
     let forEachGiverOf, mongo, db;
@@ -21,37 +22,31 @@ describe('forEachGiverOf', () => {
     });
 
     it('calls callback with giver from most recent exchange only', async () => {
-        const recipientId = new ObjectId();
-        const oldGiverId = new ObjectId();
-        const newGiverId = new ObjectId();
+        const recipient = makeUser({name: 'Bob', email: 'bob@test.com'});
+        const oldGiver = makeUser({name: 'OldAlice', email: 'old@test.com'});
+        const newGiver = makeUser({name: 'NewAlice', email: 'new@test.com'});
 
-        await db.collection('users').insertMany([
-            {_id: recipientId, name: 'Bob', email: 'bob@test.com', wishlists: [], wishItems: []},
-            {_id: oldGiverId, name: 'OldAlice', email: 'old@test.com', wishlists: [], wishItems: []},
-            {_id: newGiverId, name: 'NewAlice', email: 'new@test.com', wishlists: [], wishItems: []},
-        ]);
+        await seedUsers(db, recipient, oldGiver, newGiver);
 
-        await db.collection('exchanges').insertMany([
-            {
-                exchangeId: 'old-exchange',
-                createdAt: new Date('2025-01-01'),
-                isSecretSanta: true,
-                participants: [oldGiverId, recipientId],
-                assignments: [{giverId: oldGiverId, recipientId}],
-                houses: [],
-            },
-            {
-                exchangeId: 'new-exchange',
-                createdAt: new Date('2026-01-01'),
-                isSecretSanta: true,
-                participants: [newGiverId, recipientId],
-                assignments: [{giverId: newGiverId, recipientId}],
-                houses: [],
-            },
-        ]);
+        const oldExchange = makeExchange({
+            exchangeId: 'old-exchange',
+            createdAt: new Date('2025-01-01'),
+            isSecretSanta: true,
+            participants: [oldGiver._id, recipient._id],
+            assignments: [{giverId: oldGiver._id, recipientId: recipient._id}],
+        });
+        const newExchange = makeExchange({
+            exchangeId: 'new-exchange',
+            createdAt: new Date('2026-01-01'),
+            isSecretSanta: true,
+            participants: [newGiver._id, recipient._id],
+            assignments: [{giverId: newGiver._id, recipientId: recipient._id}],
+        });
+        await seedExchange(db, oldExchange);
+        await seedExchange(db, newExchange);
 
         const calls = [];
-        await forEachGiverOf({_id: recipientId}, ({giver, exchange}) => {
+        await forEachGiverOf({_id: recipient._id}, ({giver, exchange}) => {
             calls.push({giverName: giver.name, exchangeId: exchange.exchangeId});
         });
 
@@ -61,9 +56,9 @@ describe('forEachGiverOf', () => {
     });
 
     it('does nothing when user has no exchanges', async () => {
-        const recipientId = new ObjectId();
+        const recipient = makeUser({name: 'Nobody', email: 'nobody@test.com'});
         const calls = [];
-        await forEachGiverOf({_id: recipientId}, ({giver}) => {
+        await forEachGiverOf({_id: recipient._id}, ({giver}) => {
             calls.push(giver);
         });
         expect(calls).toHaveLength(0);

@@ -20,9 +20,9 @@ import {
   isGenerated,
   completeExchange
 } from '/src/exchange/state.js'
-import {alex, whitney, hunter} from "../testData";
+import {alex, whitney, hunter} from "../shared/testData";
 import {ExchangeEvents as Events, exchangeEvents as stateEvents} from '/src/exchange/state.js'
-import {installParticipantNames} from "../specHelper";
+import {installParticipantNames} from "../shared/specHelper";
 
 test('state exists as an object before exchange starts', () => {
   expect(getState()).toBeDefined();
@@ -434,9 +434,9 @@ describe('state helper functions', () => {
         {name: "Jones Family", members: ["Hunter"]}
       ],
       participants: [
-        {name: "Alex", email: "alex@gmail.com"},
-        {name: "Whitney", email: "whitney@gmail.com"},
-        {name: "Hunter", email: "hunter@gmail.com"}
+        {name: alex.name, email: alex.email},
+        {name: whitney.name, email: whitney.email},
+        {name: hunter.name, email: hunter.email}
       ]
     };
 
@@ -452,9 +452,9 @@ describe('state helper functions', () => {
     it('sets participant emails from exchange data', () => {
       loadExchange(exchangeData);
 
-      expect(getState().participants[0].email).toBe("alex@gmail.com");
-      expect(getState().participants[1].email).toBe("whitney@gmail.com");
-      expect(getState().participants[2].email).toBe("hunter@gmail.com");
+      expect(getState().participants[0].email).toBe(alex.email);
+      expect(getState().participants[1].email).toBe(whitney.email);
+      expect(getState().participants[2].email).toBe(hunter.email);
     });
 
     it('populates houses with names and members', () => {
@@ -539,8 +539,8 @@ describe('state helper functions', () => {
         isSecretSanta: false,
         houses: [],
         participants: [
-          {name: "Alex", email: "alex@gmail.com"},
-          {name: "Whitney", email: "whitney@gmail.com"}
+          {name: alex.name, email: alex.email},
+          {name: whitney.name, email: whitney.email}
         ]
       };
 

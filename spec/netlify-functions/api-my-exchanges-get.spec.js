@@ -1,16 +1,10 @@
 import {afterAll, afterEach, beforeAll, describe, expect, it} from "vitest";
-import {ObjectId} from "mongodb";
-import {setupMongo, teardownMongo, cleanCollections} from "./mongoHelper.js";
-import {buildEvent} from "../shared/testFactories.js";
+import {setupMongo, teardownMongo, cleanCollections} from '../shared/mongoSetup.js';
+import {makeUser, makeExchange, alex, whitney, hunter, seedUsers, seedExchange} from "../shared/testData.js";
+import {authCookie, buildEvent} from "../shared/specHelper.js";
 
 describe("api-my-exchanges-get", () => {
     let db, handler, mongo;
-
-    async function authCookie(userId) {
-        const {signSession} = await import("../../netlify/shared/jwt.mjs");
-        const jwt = await signSession(userId.toString());
-        return `session=${jwt}`;
-    }
 
     beforeAll(async () => {
         mongo = await setupMongo();
@@ -30,43 +24,32 @@ describe("api-my-exchanges-get", () => {
     });
 
     async function setupExchanges() {
-        const alexId = new ObjectId();
-        const whitneyId = new ObjectId();
-        const hunterId = new ObjectId();
+        await seedUsers(db, alex, whitney, hunter);
 
-        await db.collection("users").insertMany([
-            {_id: alexId, email: "alex@test.com", name: "Alex", wishlists: [], wishItems: []},
-            {_id: whitneyId, email: "whitney@test.com", name: "Whitney", wishlists: [], wishItems: []},
-            {_id: hunterId, email: "hunter@test.com", name: "Hunter", wishlists: [], wishItems: []},
-        ]);
+        await seedExchange(db, makeExchange({
+            exchangeId: "exchange-2024",
+            createdAt: new Date("2024-12-01"),
+            isSecretSanta: true,
+            participants: [alex._id, whitney._id, hunter._id],
+            assignments: [
+                {giverId: alex._id, recipientId: whitney._id},
+                {giverId: whitney._id, recipientId: hunter._id},
+                {giverId: hunter._id, recipientId: alex._id},
+            ],
+            houses: [{name: "Family", members: [alex._id, whitney._id]}],
+        }));
+        await seedExchange(db, makeExchange({
+            exchangeId: "exchange-2023",
+            createdAt: new Date("2023-12-01"),
+            isSecretSanta: false,
+            participants: [alex._id, whitney._id],
+            assignments: [
+                {giverId: alex._id, recipientId: whitney._id},
+                {giverId: whitney._id, recipientId: alex._id},
+            ],
+        }));
 
-        await db.collection("exchanges").insertMany([
-            {
-                exchangeId: "exchange-2024",
-                createdAt: new Date("2024-12-01"),
-                isSecretSanta: true,
-                participants: [alexId, whitneyId, hunterId],
-                assignments: [
-                    {giverId: alexId, recipientId: whitneyId},
-                    {giverId: whitneyId, recipientId: hunterId},
-                    {giverId: hunterId, recipientId: alexId},
-                ],
-                houses: [{name: "Family", members: [alexId, whitneyId]}],
-            },
-            {
-                exchangeId: "exchange-2023",
-                createdAt: new Date("2023-12-01"),
-                isSecretSanta: false,
-                participants: [alexId, whitneyId],
-                assignments: [
-                    {giverId: alexId, recipientId: whitneyId},
-                    {giverId: whitneyId, recipientId: alexId},
-                ],
-                houses: [],
-            },
-        ]);
-
-        return {alexId, whitneyId, hunterId};
+        return {alexId: alex._id, whitneyId: whitney._id, hunterId: hunter._id};
     }
 
     it("returns 405 for non-GET requests", async () => {
@@ -131,12 +114,10 @@ describe("api-my-exchanges-get", () => {
     });
 
     it("returns empty array when user has no exchanges", async () => {
-        const userId = new ObjectId();
-        await db.collection("users").insertOne({
-            _id: userId, email: "loner@test.com", name: "Loner", wishlists: [], wishItems: [],
-        });
+        const loner = makeUser({name: "Loner", email: "loner@test.com"});
+        await seedUsers(db, loner);
 
-        const event = buildEvent("GET", {headers: {cookie: await authCookie(userId)}});
+        const event = buildEvent("GET", {headers: {cookie: await authCookie(loner._id)}});
         const response = await handler(event);
         expect(response.statusCode).toBe(200);
 

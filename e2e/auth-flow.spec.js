@@ -1,8 +1,9 @@
 import {test, expect} from './fixtures.js';
-import {connectDB, disconnectDB, cleanDB, makeUser, makeExchange, seedUsers, seedExchange, authenticateUser, authenticateViaUI} from './helpers.js';
+import {alex, whitney, makeExchange, seedUsers, seedExchange} from '../spec/shared/testData.js';
+import {connectDB, disconnectDB, cleanDB, getDB, authenticateUser, authenticateViaUI} from './helpers.js';
 
 test.describe('Auth Flow', () => {
-    let alice, bob, exchangeId;
+    let exchangeId;
 
     test.beforeAll(async () => {
         await connectDB();
@@ -11,15 +12,13 @@ test.describe('Auth Flow', () => {
     test.beforeEach(async () => {
         await cleanDB();
 
-        alice = makeUser({name: 'Alice', email: 'alice@test.com'});
-        bob = makeUser({name: 'Bob', email: 'bob@test.com'});
         exchangeId = crypto.randomUUID();
 
-        await seedUsers(alice, bob);
-        await seedExchange(makeExchange({
+        await seedUsers(getDB(), alex, whitney);
+        await seedExchange(getDB(), makeExchange({
             exchangeId,
-            participants: [alice._id, bob._id],
-            assignments: [{giverId: alice._id, recipientId: bob._id}],
+            participants: [alex._id, whitney._id],
+            assignments: [{giverId: alex._id, recipientId: whitney._id}],
         }));
     });
 
@@ -40,20 +39,20 @@ test.describe('Auth Flow', () => {
         await expect(page.locator('#auth-gate')).toBeVisible();
 
         // Authenticate via the auth gate UI
-        await authenticateViaUI(page, 'bob@test.com');
+        await authenticateViaUI(page, whitney.email);
 
         // After auth, the dashboard loads with welcome message
-        await expect(page.locator('.dashboard-welcome')).toContainText('Bob');
+        await expect(page.locator('.dashboard-welcome')).toContainText('Whitney');
     });
 
     test('programmatic auth allows direct dashboard access', async ({page, baseURL}) => {
         // Authenticate programmatically
-        await authenticateUser(page, baseURL, 'bob@test.com');
+        await authenticateUser(page, baseURL, whitney.email);
 
         await page.goto('/dashboard');
 
         // Should skip auth gate and go directly to dashboard content
-        await expect(page.locator('.dashboard-welcome')).toContainText('Bob');
+        await expect(page.locator('.dashboard-welcome')).toContainText('Whitney');
     });
 
     test('invalid verification code shows error', async ({page}) => {
@@ -61,7 +60,7 @@ test.describe('Auth Flow', () => {
         await expect(page.locator('#auth-gate')).toBeVisible();
 
         // Enter email and send code (intercepted so we control the code)
-        await page.locator('#auth-email').fill('bob@test.com');
+        await page.locator('#auth-email').fill(whitney.email);
         await page.locator('#auth-send-code').click();
         await expect(page.locator('#auth-code')).toBeVisible();
 
@@ -75,9 +74,9 @@ test.describe('Auth Flow', () => {
     });
 
     test('logout clears session and shows auth gate', async ({page, baseURL}) => {
-        await authenticateUser(page, baseURL, 'bob@test.com');
+        await authenticateUser(page, baseURL, whitney.email);
         await page.goto('/dashboard');
-        await expect(page.locator('.dashboard-welcome')).toContainText('Bob');
+        await expect(page.locator('.dashboard-welcome')).toContainText('Whitney');
 
         // Dismiss cookie banner if present, then click logout in sidebar
         const banner = page.locator('#cookie-banner');
@@ -91,7 +90,7 @@ test.describe('Auth Flow', () => {
     });
 
     test('/dashboard/wishlist deep link loads wishlist section', async ({page, baseURL}) => {
-        await authenticateUser(page, baseURL, 'bob@test.com');
+        await authenticateUser(page, baseURL, whitney.email);
 
         await page.goto('/dashboard/wishlist');
 
@@ -101,9 +100,9 @@ test.describe('Auth Flow', () => {
     });
 
     test('browser back button navigates between sections', async ({page, baseURL}) => {
-        await authenticateUser(page, baseURL, 'bob@test.com');
+        await authenticateUser(page, baseURL, whitney.email);
         await page.goto('/dashboard');
-        await expect(page.locator('.dashboard-welcome')).toContainText('Bob');
+        await expect(page.locator('.dashboard-welcome')).toContainText('Whitney');
 
         // Navigate to wishlist section
         await page.locator('[data-section="wishlist"]').click();

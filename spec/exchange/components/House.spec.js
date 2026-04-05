@@ -13,7 +13,7 @@ import {
   shouldNotSelect,
   shouldSelect,
   stubProperty
-} from "../../specHelper";
+} from "../../shared/specHelper";
 import {addEventListener} from "../../../src/utils";
 import houseStyles from '../../../assets/styles/exchange/components/household.module.css';
 import {insertNameFromSelect} from "../../../src/exchange/components/Select";

@@ -1,17 +1,13 @@
 import {afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi} from 'vitest';
 import {ObjectId} from 'mongodb';
-import {setupMongo, teardownMongo, cleanCollections} from './mongoHelper.js';
-import {buildEvent, makeUser, makeExchange} from '../shared/testFactories.js';
+import {setupMongo, teardownMongo, cleanCollections} from '../shared/mongoSetup.js';
+import {makeUser, makeExchange, alex, seedUsers, seedExchange} from '../shared/testData.js';
+import {authCookie, buildEvent} from '../shared/specHelper.js';
 
 describe('api-user-wishlist-put', () => {
     let client, db, handler;
     let mongo;
     let mockFetch;
-
-    async function authCookie(userId) {
-        const {signSession} = await import("../../netlify/shared/jwt.mjs");
-        return `session=${await signSession(userId.toString())}`;
-    }
 
     beforeAll(async () => {
         mongo = await setupMongo();
@@ -59,9 +55,8 @@ describe('api-user-wishlist-put', () => {
     });
 
     it('returns 400 for invalid body', async () => {
-        const user = makeUser({name: 'Alex', email: 'alex@test.com'});
-        await db.collection('users').insertOne(user);
-        const cookie = await authCookie(user._id);
+        await seedUsers(db, alex);
+        const cookie = await authCookie(alex._id);
 
         const event = buildEvent('PUT', {
             body: {wishlists: 'not-an-array'},
@@ -72,9 +67,8 @@ describe('api-user-wishlist-put', () => {
     });
 
     it('saves wishlists and wishItems to user doc', async () => {
-        const user = makeUser({name: 'Alex', email: 'alex@test.com'});
-        await db.collection('users').insertOne(user);
-        const cookie = await authCookie(user._id);
+        await seedUsers(db, alex);
+        const cookie = await authCookie(alex._id);
 
         const event = buildEvent('PUT', {
             body: {
@@ -91,7 +85,7 @@ describe('api-user-wishlist-put', () => {
         const body = JSON.parse(response.body);
         expect(body.success).toBe(true);
 
-        const updated = await db.collection('users').findOne({_id: user._id});
+        const updated = await db.collection('users').findOne({_id: alex._id});
         expect(updated.wishlists).toHaveLength(1);
         expect(updated.wishlists[0].url).toBe('https://amazon.com/list');
         expect(updated.wishItems).toHaveLength(1);
@@ -107,8 +101,8 @@ describe('api-user-wishlist-put', () => {
         });
         const giver = makeUser({name: 'Alex', email: 'giver@test.com'});
 
-        await db.collection('users').insertMany([recipient, giver]);
-        await db.collection('exchanges').insertOne(makeExchange({
+        await seedUsers(db, recipient, giver);
+        await seedExchange(db, makeExchange({
             exchangeId: 'exchange-2',
             isSecretSanta: true,
             participants: [recipient._id, giver._id],
@@ -138,8 +132,8 @@ describe('api-user-wishlist-put', () => {
         const recipient = makeUser({name: 'Whitney', email: 'recipient@test.com'});
         const giver = makeUser({name: 'Alex', email: 'giver@test.com'});
 
-        await db.collection('users').insertMany([recipient, giver]);
-        await db.collection('exchanges').insertOne(makeExchange({
+        await seedUsers(db, recipient, giver);
+        await seedExchange(db, makeExchange({
             exchangeId: 'exchange-1',
             isSecretSanta: true,
             participants: [recipient._id, giver._id],

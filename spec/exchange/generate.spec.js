@@ -6,7 +6,7 @@ import {
   installParticipantNames,
   resetState,
   initReactiveSystem
-} from "../specHelper";
+} from "../shared/specHelper";
 
 const noPossibleComboError = "No possible combinations! Please try a different configuration/number of names."
 

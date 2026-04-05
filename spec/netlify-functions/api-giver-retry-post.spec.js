@@ -1,16 +1,12 @@
 import {afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi} from 'vitest';
-import {setupMongo, teardownMongo, cleanCollections} from './mongoHelper.js';
-import {makeUser, makeExchange, buildEvent} from '../shared/testFactories.js';
+import {setupMongo, teardownMongo, cleanCollections} from '../shared/mongoSetup.js';
+import {makeUser, makeExchange, alex, whitney, hunter, threePersonExchange, seedUsers, seedExchange} from '../shared/testData.js';
+import {authCookie, buildEvent} from '../shared/specHelper.js';
 
 describe('api-giver-retry-post', () => {
     let db, handler, mongo, mockFetch;
 
-    async function authCookie(userId) {
-        const {signSession} = await import("../../netlify/shared/jwt.mjs");
-        return `session=${await signSession(userId.toString())}`;
-    }
-
-    let organizer, otherUser, participantA, participantB;
+    let otherUser;
     let exchange;
 
     beforeAll(async () => {
@@ -35,23 +31,12 @@ describe('api-giver-retry-post', () => {
     beforeEach(async () => {
         mockFetch.mockClear();
 
-        organizer = makeUser({name: 'Alex', email: 'alex@test.com'});
         otherUser = makeUser({name: 'Stranger', email: 'stranger@test.com'});
-        participantA = makeUser({name: 'Whitney', email: 'whitney@test.com'});
-        participantB = makeUser({name: 'Hunter', email: 'hunter@test.com'});
 
-        await db.collection('users').insertMany([organizer, otherUser, participantA, participantB]);
+        await seedUsers(db, alex, otherUser, whitney, hunter);
 
-        exchange = makeExchange({
-            organizer: organizer._id,
-            participants: [organizer._id, participantA._id, participantB._id],
-            assignments: [
-                {giverId: organizer._id, recipientId: participantA._id},
-                {giverId: participantA._id, recipientId: participantB._id},
-                {giverId: participantB._id, recipientId: organizer._id},
-            ],
-        });
-        await db.collection('exchanges').insertOne(exchange);
+        exchange = threePersonExchange;
+        await seedExchange(db, exchange);
     });
 
     afterEach(async () => {
@@ -104,14 +89,14 @@ describe('api-giver-retry-post', () => {
     });
 
     it('returns 404 for non-existent exchange', async () => {
-        const event = buildEvent('POST', {body: {exchangeId: 'non-existent'}, headers: {cookie: await authCookie(organizer._id)}});
+        const event = buildEvent('POST', {body: {exchangeId: 'non-existent'}, headers: {cookie: await authCookie(alex._id)}});
         const response = await handler(event);
         expect(response.statusCode).toBe(404);
     });
 
     it('sends batch emails to all participants using DB data', async () => {
         mockBatchResponse(['alex@test.com', 'whitney@test.com', 'hunter@test.com']);
-        const event = buildEvent('POST', {body: {exchangeId: exchange.exchangeId}, headers: {cookie: await authCookie(organizer._id)}});
+        const event = buildEvent('POST', {body: {exchangeId: exchange.exchangeId}, headers: {cookie: await authCookie(alex._id)}});
         const response = await handler(event);
 
         expect(response.statusCode).toBe(200);
@@ -130,7 +115,7 @@ describe('api-giver-retry-post', () => {
         const event = buildEvent('POST', {body: {
             exchangeId: exchange.exchangeId,
             participantEmails: ['alex@test.com'],
-        }, headers: {cookie: await authCookie(organizer._id)}});
+        }, headers: {cookie: await authCookie(alex._id)}});
         const response = await handler(event);
 
         expect(response.statusCode).toBe(200);
@@ -143,7 +128,7 @@ describe('api-giver-retry-post', () => {
         const event = buildEvent('POST', {body: {
             exchangeId: exchange.exchangeId,
             participantEmails: ['nobody@test.com'],
-        }, headers: {cookie: await authCookie(organizer._id)}});
+        }, headers: {cookie: await authCookie(alex._id)}});
         const response = await handler(event);
         expect(response.statusCode).toBe(400);
 
@@ -153,7 +138,7 @@ describe('api-giver-retry-post', () => {
 
     it('returns sent, total, and emailsFailed', async () => {
         mockBatchResponse(['alex@test.com', 'whitney@test.com', 'hunter@test.com']);
-        const event = buildEvent('POST', {body: {exchangeId: exchange.exchangeId}, headers: {cookie: await authCookie(organizer._id)}});
+        const event = buildEvent('POST', {body: {exchangeId: exchange.exchangeId}, headers: {cookie: await authCookie(alex._id)}});
         const response = await handler(event);
         const responseBody = JSON.parse(response.body);
 
@@ -169,7 +154,7 @@ describe('api-giver-retry-post', () => {
         );
         mockFetch.mockResolvedValueOnce({ok: true}); // error-alert
 
-        const event = buildEvent('POST', {body: {exchangeId: exchange.exchangeId}, headers: {cookie: await authCookie(organizer._id)}});
+        const event = buildEvent('POST', {body: {exchangeId: exchange.exchangeId}, headers: {cookie: await authCookie(alex._id)}});
         const response = await handler(event);
         const responseBody = JSON.parse(response.body);
 
@@ -185,7 +170,7 @@ describe('api-giver-retry-post', () => {
 
     it('sends email without token-based URLs', async () => {
         mockBatchResponse(['alex@test.com', 'whitney@test.com', 'hunter@test.com']);
-        const event = buildEvent('POST', {body: {exchangeId: exchange.exchangeId}, headers: {cookie: await authCookie(organizer._id)}});
+        const event = buildEvent('POST', {body: {exchangeId: exchange.exchangeId}, headers: {cookie: await authCookie(alex._id)}});
         await handler(event);
 
         const body = JSON.parse(mockFetch.mock.calls[0][1].body);

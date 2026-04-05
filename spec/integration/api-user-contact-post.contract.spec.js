@@ -1,13 +1,10 @@
 import {afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi} from 'vitest';
-import {setupMongo, teardownMongo, cleanCollections, buildEvent, makeUser, makeExchange, seedUsers, seedExchange} from './contractHelper.js';
+import {setupMongo, teardownMongo, cleanCollections} from '../shared/mongoSetup.js';
+import {makeUser, makeExchange, seedUsers, seedExchange} from '../shared/testData.js';
+import {authCookie, buildEvent} from '../shared/specHelper.js';
 
 describe('api-user-contact-post contract', () => {
     let handler, db, mongo, recipient;
-
-    async function authCookie(userId) {
-        const {signSession} = await import("../../netlify/shared/jwt.mjs");
-        return `session=${await signSession(userId.toString())}`;
-    }
 
     beforeAll(async () => {
         vi.stubGlobal('fetch', vi.fn(() => Promise.resolve({ok: true})));

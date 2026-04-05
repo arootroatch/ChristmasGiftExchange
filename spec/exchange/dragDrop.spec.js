@@ -12,7 +12,7 @@ import {
   resetDOM,
   resetState,
   shouldSelect
-} from '../specHelper';
+} from '../shared/specHelper';
 
 
 describe('dragDrop', () => {

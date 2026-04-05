@@ -1,5 +1,5 @@
 import {beforeAll, beforeEach, describe, expect, it, vi} from "vitest";
-import {resetState, shouldDisplayErrorSnackbar, stubFetch} from "../../../specHelper";
+import {resetState, shouldDisplayErrorSnackbar, stubFetch} from "../../../shared/specHelper";
 import {getState, setOrganizer} from "../../../../src/exchange/state";
 import {init as initSnackbar} from "../../../../src/Snackbar";
 import {init} from "../../../../src/exchange/components/EmailTable/EmailTable";

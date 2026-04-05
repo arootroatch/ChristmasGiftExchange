@@ -1,8 +1,9 @@
 import {test, expect} from './fixtures.js';
-import {connectDB, disconnectDB, cleanDB, makeUser, makeExchange, seedUsers, seedExchange, authenticateUser} from './helpers.js';
+import {alex, whitney, makeExchange, seedUsers, seedExchange} from '../spec/shared/testData.js';
+import {connectDB, disconnectDB, cleanDB, getDB, authenticateUser} from './helpers.js';
 
 test.describe('Edit Wishlist → Giver Sees Updates', () => {
-    let giver, recipient, exchangeId;
+    let exchangeId;
 
     test.beforeAll(async () => {
         await connectDB();
@@ -11,15 +12,13 @@ test.describe('Edit Wishlist → Giver Sees Updates', () => {
     test.beforeEach(async () => {
         await cleanDB();
 
-        giver = makeUser({name: 'Alice', email: 'alice@test.com'});
-        recipient = makeUser({name: 'Bob', email: 'bob@test.com'});
         exchangeId = crypto.randomUUID();
 
-        await seedUsers(giver, recipient);
-        await seedExchange(makeExchange({
+        await seedUsers(getDB(), alex, whitney);
+        await seedExchange(getDB(), makeExchange({
             exchangeId,
-            participants: [giver._id, recipient._id],
-            assignments: [{giverId: giver._id, recipientId: recipient._id}],
+            participants: [alex._id, whitney._id],
+            assignments: [{giverId: alex._id, recipientId: whitney._id}],
         }));
     });
 
@@ -28,10 +27,10 @@ test.describe('Edit Wishlist → Giver Sees Updates', () => {
     });
 
     test('recipient edits wishlist and giver sees the updates', async ({page, baseURL}) => {
-        // Authenticate as Bob (recipient) and navigate to dashboard
-        await authenticateUser(page, baseURL, 'bob@test.com');
+        // Authenticate as Whitney (recipient) and navigate to dashboard
+        await authenticateUser(page, baseURL, whitney.email);
         await page.goto('/dashboard/wishlist');
-        await expect(page.locator('.sidebar-welcome')).toContainText('Bob');
+        await expect(page.locator('.sidebar-welcome')).toContainText('Whitney');
 
         // Wishlist section is active via path
         await page.locator('#wishlist-url').fill('https://amazon.com/wishlist/123');
@@ -48,8 +47,8 @@ test.describe('Edit Wishlist → Giver Sees Updates', () => {
         await page.locator('#save-wishlist-btn').click();
         await expect(page.locator('#snackbar')).toContainText('Wishlist saved');
 
-        // Authenticate as Alice (giver) and view Bob's wishlist on the dashboard
-        await authenticateUser(page, baseURL, 'alice@test.com');
+        // Authenticate as Alex (giver) and view Whitney's wishlist on the dashboard
+        await authenticateUser(page, baseURL, alex.email);
         await page.goto('/dashboard');
 
         // Recipient wishlist auto-loads inline

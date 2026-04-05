@@ -1,8 +1,9 @@
 import {test, expect} from './fixtures.js';
-import {connectDB, disconnectDB, cleanDB, makeUser, makeExchange, seedUsers, seedExchange, authenticateUser, authenticateViaUI} from './helpers.js';
+import {alex, whitney, makeUser, makeExchange, seedUsers, seedExchange} from '../spec/shared/testData.js';
+import {connectDB, disconnectDB, cleanDB, getDB, authenticateUser, authenticateViaUI} from './helpers.js';
 
 test.describe('Reuse Exchange', () => {
-    let alice, bob, exchangeId;
+    let exchangeId;
 
     test.beforeAll(async () => {
         await connectDB();
@@ -11,20 +12,18 @@ test.describe('Reuse Exchange', () => {
     test.beforeEach(async () => {
         await cleanDB();
 
-        alice = makeUser({name: 'Alice', email: 'alice@test.com'});
-        bob = makeUser({name: 'Bob', email: 'bob@test.com'});
         exchangeId = crypto.randomUUID();
 
-        await seedUsers(alice, bob);
-        await seedExchange(makeExchange({
+        await seedUsers(getDB(), alex, whitney);
+        await seedExchange(getDB(), makeExchange({
             exchangeId,
             isSecretSanta: true,
-            participants: [alice._id, bob._id],
+            participants: [alex._id, whitney._id],
             assignments: [
-                {giverId: alice._id, recipientId: bob._id},
-                {giverId: bob._id, recipientId: alice._id},
+                {giverId: alex._id, recipientId: whitney._id},
+                {giverId: whitney._id, recipientId: alex._id},
             ],
-            houses: [{name: 'Family', members: [alice._id, bob._id]}],
+            houses: [{name: 'Family', members: [alex._id, whitney._id]}],
             createdAt: new Date('2025-12-25'),
         }));
     });
@@ -38,12 +37,12 @@ test.describe('Reuse Exchange', () => {
 
         // Auth gate appears first
         await expect(page.locator('#auth-gate')).toBeVisible();
-        await authenticateViaUI(page, 'alice@test.com');
+        await authenticateViaUI(page, alex.email);
 
         // Exchanges auto-load
         const results = page.locator('#reuse-results');
-        await expect(results).toContainText('Alice');
-        await expect(results).toContainText('Bob');
+        await expect(results).toContainText('Alex');
+        await expect(results).toContainText('Whitney');
         await expect(results).toContainText('Households:');
         await expect(results).toContainText('Family');
     });
@@ -51,7 +50,7 @@ test.describe('Reuse Exchange', () => {
     test('shows inline empty state when no exchanges found', async ({page, baseURL}) => {
         // Seed a user who has no exchanges
         const carol = makeUser({name: 'Carol', email: 'carol@test.com'});
-        await seedUsers(carol);
+        await seedUsers(getDB(), carol);
 
         await page.goto('/dashboard/reuse');
         await expect(page.locator('#auth-gate')).toBeVisible();
@@ -63,7 +62,7 @@ test.describe('Reuse Exchange', () => {
     test('Use This Exchange button stores data in sessionStorage', async ({page, baseURL}) => {
         await page.goto('/dashboard/reuse');
         await expect(page.locator('#auth-gate')).toBeVisible();
-        await authenticateViaUI(page, 'alice@test.com');
+        await authenticateViaUI(page, alex.email);
 
         // Exchanges auto-load
         await expect(page.locator('.use-exchange-btn')).toBeVisible();
@@ -88,7 +87,7 @@ test.describe('Reuse Exchange', () => {
     test('reusing exchange populates participants, houses, and ghost house', async ({page, baseURL}) => {
         await page.goto('/dashboard/reuse');
         await expect(page.locator('#auth-gate')).toBeVisible();
-        await authenticateViaUI(page, 'alice@test.com');
+        await authenticateViaUI(page, alex.email);
 
         // Exchanges auto-load
         await expect(page.locator('.use-exchange-btn')).toBeVisible();
@@ -97,8 +96,8 @@ test.describe('Reuse Exchange', () => {
         await page.waitForURL('/');
 
         // Participants should be loaded
-        await expect(page.locator('#wrapper-Alice')).toBeVisible();
-        await expect(page.locator('#wrapper-Bob')).toBeVisible();
+        await expect(page.locator('#wrapper-Alex')).toBeVisible();
+        await expect(page.locator('#wrapper-Whitney')).toBeVisible();
 
         // House should appear with correct name
         const house = page.locator('[data-testid="household"]').first();

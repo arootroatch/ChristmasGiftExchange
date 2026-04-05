@@ -1,6 +1,6 @@
 import {describe, it, expect, beforeAll, afterAll, afterEach} from 'vitest';
-import {setupMongo, teardownMongo, cleanCollections} from '../netlify-functions/mongoHelper.js';
-import {makeUser} from '../shared/testFactories.js';
+import {setupMongo, teardownMongo, cleanCollections} from '../shared/mongoSetup.js';
+import {makeUser} from '../shared/testData.js';
 
 describe('migrate-prices', () => {
     let mongo, db;

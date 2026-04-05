@@ -1,5 +1,6 @@
 import {test, expect} from './fixtures.js';
-import {connectDB, disconnectDB, cleanDB, findUser, findExchange, makeUser, makeExchange, seedUsers, seedExchange, authenticateUser, authenticateViaUI} from './helpers.js';
+import {alex, whitney, makeUser, makeExchange, seedUsers, seedExchange, findUser, findExchange} from '../spec/shared/testData.js';
+import {connectDB, disconnectDB, cleanDB, getDB, authenticateUser, authenticateViaUI} from './helpers.js';
 
 test.describe('Create Exchange → View Wishlist', () => {
     test.beforeAll(async () => {
@@ -59,7 +60,7 @@ test.describe('Create Exchange → View Wishlist', () => {
     test('full exchange creation flow creates exchange in DB', async ({page}) => {
         await createExchange(page, ['Alice', 'Bob', 'Carol']);
 
-        const exchange = await findExchange({});
+        const exchange = await findExchange(getDB(), {});
         expect(exchange).not.toBeNull();
         expect(exchange.participants).toHaveLength(3);
         expect(exchange.assignments).toHaveLength(3);
@@ -132,25 +133,23 @@ test.describe('Create Exchange → View Wishlist', () => {
     });
 
     test('giver can view recipient wishlist on dashboard', async ({page, baseURL}) => {
-        const giver = makeUser({name: 'Alice', email: 'alice@test.com'});
-        const recipient = makeUser({name: 'Bob', email: 'bob@test.com'});
         const exchangeId = crypto.randomUUID();
 
-        await seedUsers(giver, recipient);
-        await seedExchange(makeExchange({
+        await seedUsers(getDB(), alex, whitney);
+        await seedExchange(getDB(), makeExchange({
             exchangeId,
-            participants: [giver._id, recipient._id],
-            assignments: [{giverId: giver._id, recipientId: recipient._id}],
+            participants: [alex._id, whitney._id],
+            assignments: [{giverId: alex._id, recipientId: whitney._id}],
         }));
 
-        // Authenticate as Alice programmatically
-        await authenticateUser(page, baseURL, 'alice@test.com');
+        // Authenticate as Alex programmatically
+        await authenticateUser(page, baseURL, alex.email);
 
         await page.goto('/dashboard');
 
-        // Recipient card shows Bob and the empty wishlist message
+        // Recipient card shows Whitney and the empty wishlist message
         const recipientCard = page.locator('#recipient-card');
-        await expect(recipientCard).toContainText('Bob');
+        await expect(recipientCard).toContainText('Whitney');
         await expect(page.locator('#recipient-wishlist-view')).toContainText("hasn't added any wishlists yet");
     });
 });

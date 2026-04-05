@@ -6,11 +6,10 @@ import {
   resetRetryCount,
 } from "../../../../src/exchange/components/EmailTable/FailedEmails";
 import * as state from "../../../../src/exchange/state";
-import {shouldDisplaySuccessSnackbar} from "../../../specHelper";
+import {shouldDisplaySuccessSnackbar} from "../../../shared/specHelper";
+import {alex} from "../../../shared/testData";
 
-const failedParticipants = [
-  {name: "Alex", email: "alex@test.com"},
-];
+const failedParticipants = [alex];
 const failedAssignments = [
   {giver: "Alex", recipient: "Whitney"},
 ];
@@ -39,7 +38,7 @@ describe("FailedEmails", () => {
 
   describe("first failure (retryCount = 0)", () => {
     it("shows Retry button", () => {
-      showFailedEmails(["alex@test.com"], payload);
+      showFailedEmails([alex.email], payload);
 
       const retryBtn = document.querySelector("#retryEmailsBtn");
       expect(retryBtn).not.toBeNull();
@@ -47,7 +46,7 @@ describe("FailedEmails", () => {
     });
 
     it("shows Back button", () => {
-      showFailedEmails(["alex@test.com"], payload);
+      showFailedEmails([alex.email], payload);
 
       const backBtn = document.querySelector("#backToEmailsBtn");
       expect(backBtn).not.toBeNull();
@@ -55,22 +54,22 @@ describe("FailedEmails", () => {
     });
 
     it("does not show View Results button", () => {
-      showFailedEmails(["alex@test.com"], payload);
+      showFailedEmails([alex.email], payload);
 
       expect(document.querySelector("#viewResultsBtn")).toBeNull();
     });
 
     it("shows the failed email address", () => {
-      showFailedEmails(["alex@test.com"], payload);
+      showFailedEmails([alex.email], payload);
 
       const failedEl = document.querySelector("#failedEmails");
       expect(failedEl).not.toBeNull();
-      expect(failedEl.textContent).toContain("alex@test.com");
+      expect(failedEl.textContent).toContain(alex.email);
     });
 
     it("calls onBack with failed participants and assignments when Back button clicked", () => {
       const onBack = vi.fn();
-      showFailedEmails(["alex@test.com"], payload, {onBack});
+      showFailedEmails([alex.email], payload, {onBack});
 
       document.querySelector("#backToEmailsBtn").click();
 
@@ -78,13 +77,13 @@ describe("FailedEmails", () => {
     });
 
     it("does not throw when onBack is not provided and Back is clicked", () => {
-      showFailedEmails(["alex@test.com"], payload);
+      showFailedEmails([alex.email], payload);
 
       expect(() => document.querySelector("#backToEmailsBtn").click()).not.toThrow();
     });
 
     it("sends exchangeId and participantEmails to api-giver-retry-post on retry", async () => {
-      showFailedEmails(["alex@test.com"], payload);
+      showFailedEmails([alex.email], payload);
 
       document.querySelector("#retryEmailsBtn").click();
       await vi.advanceTimersByTimeAsync(0);
@@ -94,7 +93,7 @@ describe("FailedEmails", () => {
       const body = JSON.parse(callArgs[1].body);
       expect(body.token).toBeUndefined();
       expect(body.exchangeId).toBe("test-exchange-id");
-      expect(body.participantEmails).toEqual(["alex@test.com"]);
+      expect(body.participantEmails).toEqual([alex.email]);
       expect(body.participants).toBeUndefined();
       expect(body.assignments).toBeUndefined();
     });
@@ -103,12 +102,12 @@ describe("FailedEmails", () => {
   describe("second failure (retryCount >= 1)", () => {
     beforeEach(() => {
       // Simulate first retry by calling showFailedEmails with retryCount already at 1
-      showFailedEmails(["alex@test.com"], payload);
+      showFailedEmails([alex.email], payload);
       // Click retry to increment count
       global.fetch = vi.fn(() => Promise.resolve({
         ok: true,
         status: 200,
-        json: () => Promise.resolve({sent: 0, total: 1, emailsFailed: ["alex@test.com"]}),
+        json: () => Promise.resolve({sent: 0, total: 1, emailsFailed: [alex.email]}),
       }));
       document.querySelector("#retryEmailsBtn").click();
     });
@@ -147,7 +146,7 @@ describe("FailedEmails", () => {
 
   describe("removeFailedEmails", () => {
     it("removes the failed emails element from the DOM", () => {
-      showFailedEmails(["alex@test.com"], payload);
+      showFailedEmails([alex.email], payload);
       expect(document.querySelector("#failedEmails")).not.toBeNull();
 
       removeFailedEmails();

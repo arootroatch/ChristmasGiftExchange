@@ -1,7 +1,7 @@
 import {afterAll, afterEach, beforeAll, describe, expect, it} from 'vitest';
 import {render, getData} from '../../../netlify/shared/emails/secretSanta.mjs';
-import {setupMongo, teardownMongo, cleanCollections} from '../mongoHelper.js';
-import {ObjectId} from 'mongodb';
+import {setupMongo, teardownMongo, cleanCollections} from '../../shared/mongoSetup.js';
+import {makeUser, makeExchange, seedUsers, seedExchange} from '../../shared/testData.js';
 
 describe('secretSanta', () => {
     describe('render', () => {
@@ -50,22 +50,15 @@ describe('secretSanta', () => {
         });
 
         it('returns giver name and recipient name', async () => {
-            const giverId = new ObjectId();
-            const recipientId = new ObjectId();
-            const exchangeId = crypto.randomUUID();
+            const giver = makeUser({name: 'Alex', email: 'a@test.com'});
+            const recipient = makeUser({name: 'Hunter', email: 'h@test.com'});
 
-            await db.collection('users').insertMany([
-                {_id: giverId, name: 'Alex', email: 'a@test.com', wishlists: [], wishItems: []},
-                {_id: recipientId, name: 'Hunter', email: 'h@test.com', wishlists: [], wishItems: []},
-            ]);
-            await db.collection('exchanges').insertOne({
-                exchangeId,
-                createdAt: new Date(),
+            await seedUsers(db, giver, recipient);
+            await seedExchange(db, makeExchange({
                 isSecretSanta: true,
-                participants: [giverId, recipientId],
-                assignments: [{giverId, recipientId}],
-                houses: [],
-            });
+                participants: [giver._id, recipient._id],
+                assignments: [{giverId: giver._id, recipientId: recipient._id}],
+            }));
 
             const data = await getData(db);
 

@@ -1,5 +1,5 @@
 import {describe, it, expect, beforeEach} from 'vitest';
-import {initReactiveSystem, resetState, resetDOM, shouldSelect} from '../../specHelper.js';
+import {initReactiveSystem, resetState, resetDOM, shouldSelect} from '../../shared/specHelper.js';
 import * as dashboardLink from '../../../src/exchange/components/DashboardLink.js';
 import {startExchange} from '../../../src/exchange/state.js';
 

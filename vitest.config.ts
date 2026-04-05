@@ -2,7 +2,7 @@ import {defineConfig} from 'vitest/config';
 
 export default defineConfig({
   test: {
-    globalSetup: ['spec/netlify-functions/mongoSetup.js'],
+    globalSetup: ['spec/shared/mongoSetup.js'],
     coverage: {
       provider: 'v8',
       include: ['src/**', 'netlify/**'],
@@ -13,7 +13,7 @@ export default defineConfig({
           name: 'frontend',
           environment: 'jsdom',
           isolate: false,
-          setupFiles: ['spec/setupTests.js'],
+          setupFiles: ['spec/shared/setupTests.js'],
           include: [
             'spec/exchange/**/*.spec.js',
             'spec/authGate.spec.js',

@@ -1,13 +1,10 @@
 import {afterAll, afterEach, beforeAll, describe, expect, it, vi} from 'vitest';
-import {setupMongo, teardownMongo, cleanCollections, buildEvent, makeUser, seedUsers} from './contractHelper.js';
+import {setupMongo, teardownMongo, cleanCollections} from '../shared/mongoSetup.js';
+import {makeUser, seedUsers} from '../shared/testData.js';
+import {authCookie, buildEvent} from '../shared/specHelper.js';
 
 describe('api-user-wishlist-put contract', () => {
     let handler, db, mongo;
-
-    async function authCookie(userId) {
-        const {signSession} = await import("../../netlify/shared/jwt.mjs");
-        return `session=${await signSession(userId.toString())}`;
-    }
 
     beforeAll(async () => {
         // Mock fetch for email notifications

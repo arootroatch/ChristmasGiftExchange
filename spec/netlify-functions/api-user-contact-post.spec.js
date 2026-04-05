@@ -1,17 +1,13 @@
 import {afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi} from 'vitest';
 import {ObjectId} from 'mongodb';
-import {setupMongo, teardownMongo, cleanCollections} from './mongoHelper.js';
-import {buildEvent, makeUser, makeExchange} from '../shared/testFactories.js';
+import {setupMongo, teardownMongo, cleanCollections} from '../shared/mongoSetup.js';
+import {makeUser, makeExchange, seedUsers, seedExchange} from '../shared/testData.js';
+import {authCookie, buildEvent} from '../shared/specHelper.js';
 
 describe('api-user-contact-post', () => {
     let client, db, handler;
     let mongo;
     let mockFetch;
-
-    async function authCookie(userId) {
-        const {signSession} = await import("../../netlify/shared/jwt.mjs");
-        return `session=${await signSession(userId.toString())}`;
-    }
 
     beforeAll(async () => {
         mongo = await setupMongo();
@@ -71,8 +67,8 @@ describe('api-user-contact-post', () => {
         const recipient = makeUser({name: 'Whitney', email: 'recipient@test.com'});
         const giver = makeUser({name: 'Alex', email: 'giver@test.com'});
 
-        await db.collection('users').insertMany([recipient, giver]);
-        await db.collection('exchanges').insertOne(makeExchange({
+        await seedUsers(db, recipient, giver);
+        await seedExchange(db, makeExchange({
             participants: [recipient._id, giver._id],
             assignments: [{giverId: giver._id, recipientId: recipient._id}],
         }));
@@ -109,8 +105,8 @@ describe('api-user-contact-post', () => {
         const recipient = makeUser({name: 'Whitney', email: 'recipient@test.com'});
         const giver = makeUser({name: 'Alex', email: 'giver@test.com'});
 
-        await db.collection('users').insertMany([{...recipient}, giver]);
-        await db.collection('exchanges').insertOne(makeExchange({
+        await seedUsers(db, {...recipient}, giver);
+        await seedExchange(db, makeExchange({
             participants: [recipient._id, giver._id],
             assignments: [{giverId: giver._id, recipientId: recipient._id}],
         }));
@@ -136,8 +132,8 @@ describe('api-user-contact-post', () => {
         const recipient = makeUser({name: 'Whitney', email: 'recipient@test.com'});
         const giver = makeUser({name: 'Alex', email: 'giver@test.com'});
 
-        await db.collection('users').insertMany([recipient, giver]);
-        await db.collection('exchanges').insertOne(makeExchange({
+        await seedUsers(db, recipient, giver);
+        await seedExchange(db, makeExchange({
             participants: [recipient._id, giver._id],
             assignments: [{giverId: giver._id, recipientId: recipient._id}],
         }));
@@ -159,7 +155,7 @@ describe('api-user-contact-post', () => {
         const oldGiver = makeUser({name: 'OldAlex', email: 'old-giver@test.com'});
         const newGiver = makeUser({name: 'NewAlex', email: 'new-giver@test.com'});
 
-        await db.collection('users').insertMany([recipient, oldGiver, newGiver]);
+        await seedUsers(db, recipient, oldGiver, newGiver);
         await db.collection('exchanges').insertMany([
             makeExchange({
                 participants: [oldGiver._id, recipient._id],

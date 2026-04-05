@@ -1,15 +1,10 @@
 import {describe, it, expect, beforeAll, afterAll, afterEach} from "vitest";
-import {setupMongo, teardownMongo, cleanCollections} from "./mongoHelper.js";
-import {buildEvent, makeUser, makeExchange} from "../shared/testFactories.js";
+import {setupMongo, teardownMongo, cleanCollections} from '../shared/mongoSetup.js';
+import {makeUser, makeExchange, alex, seedUsers, seedExchange} from "../shared/testData.js";
+import {authCookie, buildEvent} from "../shared/specHelper.js";
 
 describe("api-recipient-get", () => {
     let db, handler, mongo;
-
-    async function authCookie(userId) {
-        const {signSession} = await import("../../netlify/shared/jwt.mjs");
-        const jwt = await signSession(userId.toString());
-        return `session=${jwt}`;
-    }
 
     beforeAll(async () => {
         mongo = await setupMongo();
@@ -50,7 +45,7 @@ describe("api-recipient-get", () => {
             currency: "USD",
         });
 
-        await db.collection("users").insertMany([giver, recipient]);
+        await seedUsers(db, giver, recipient);
 
         const exchange = makeExchange({
             exchangeId: "exchange-123",
@@ -61,7 +56,7 @@ describe("api-recipient-get", () => {
             ],
             createdAt: new Date("2025-12-01"),
         });
-        await db.collection("exchanges").insertOne(exchange);
+        await seedExchange(db, exchange);
 
         const event = buildEvent("GET", {headers: {cookie: await authCookie(giver._id)}});
         const response = await handler(event);
@@ -83,7 +78,7 @@ describe("api-recipient-get", () => {
         const oldRecipient = makeUser({name: "Old Recipient", email: "old@test.com"});
         const newRecipient = makeUser({name: "New Recipient", email: "new@test.com"});
 
-        await db.collection("users").insertMany([giver, oldRecipient, newRecipient]);
+        await seedUsers(db, giver, oldRecipient, newRecipient);
 
         const oldExchange = makeExchange({
             exchangeId: "old-exchange",
@@ -97,7 +92,8 @@ describe("api-recipient-get", () => {
             assignments: [{giverId: giver._id, recipientId: newRecipient._id}],
             createdAt: new Date("2025-12-01"),
         });
-        await db.collection("exchanges").insertMany([oldExchange, newExchange]);
+        await seedExchange(db, oldExchange);
+        await seedExchange(db, newExchange);
 
         const event = buildEvent("GET", {headers: {cookie: await authCookie(giver._id)}});
         const response = await handler(event);
@@ -109,7 +105,7 @@ describe("api-recipient-get", () => {
 
     it("returns 404 when user has no exchanges", async () => {
         const user = makeUser({name: "Lonely", email: "lonely@test.com"});
-        await db.collection("users").insertOne(user);
+        await seedUsers(db, user);
 
         const event = buildEvent("GET", {headers: {cookie: await authCookie(user._id)}});
         const response = await handler(event);
@@ -117,19 +113,18 @@ describe("api-recipient-get", () => {
     });
 
     it("returns 404 when user is not a giver in any exchange", async () => {
-        const user = makeUser({name: "Alex", email: "alex@test.com"});
         const otherGiver = makeUser({name: "Other", email: "other@test.com"});
 
-        await db.collection("users").insertMany([user, otherGiver]);
+        await seedUsers(db, alex, otherGiver);
 
         const exchange = makeExchange({
-            participants: [user._id, otherGiver._id],
-            assignments: [{giverId: otherGiver._id, recipientId: user._id}],
+            participants: [alex._id, otherGiver._id],
+            assignments: [{giverId: otherGiver._id, recipientId: alex._id}],
             createdAt: new Date("2025-12-01"),
         });
-        await db.collection("exchanges").insertOne(exchange);
+        await seedExchange(db, exchange);
 
-        const event = buildEvent("GET", {headers: {cookie: await authCookie(user._id)}});
+        const event = buildEvent("GET", {headers: {cookie: await authCookie(alex._id)}});
         const response = await handler(event);
         expect(response.statusCode).toBe(404);
     });

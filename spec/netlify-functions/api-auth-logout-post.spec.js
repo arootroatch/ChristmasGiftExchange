@@ -1,5 +1,5 @@
 import {describe, it, expect, beforeAll, vi} from "vitest";
-import {buildEvent} from "../shared/testFactories.js";
+import {buildEvent} from "../shared/specHelper.js";
 
 describe("api-auth-logout-post", () => {
     let handler;

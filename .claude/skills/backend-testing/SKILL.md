@@ -37,7 +37,7 @@ afterAll(async () => {
 
 ## Key Patterns
 
-- **`buildEvent(httpMethod, options?)`** helper constructs Netlify event objects (in `spec/shared/testFactories.js`)
+- **`buildEvent(httpMethod, options?)`** helper constructs Netlify event objects (in `spec/shared/specHelper.js`)
   - Accepts `{body, path, queryStringParameters, headers}`
   - `httpMethod` is the first positional argument (e.g., `"GET"`, `"POST"`, `"PUT"`)
 - **Dynamic `import()`** of handler module in `beforeAll` (after env setup) — ensures handler picks up test env vars
@@ -49,7 +49,8 @@ afterAll(async () => {
 Protected endpoints use `requireAuth()` which reads the JWT from the `session` cookie. In tests, create a signed JWT and pass it via the `headers` option:
 
 ```js
-import {buildEvent, makeUser} from '../shared/testFactories.js';
+import {makeUser} from '../shared/testData.js';
+import {buildEvent} from '../shared/specHelper.js';
 
 // In beforeAll (after env setup, before handler import):
 process.env.JWT_SECRET = 'test-secret';
@@ -83,13 +84,16 @@ Auth codes require `JWT_SECRET` in env for HMAC hashing and `getAuthCodesCollect
 
 Zod schemas validate these at parse time — invalid fixtures will cause test failures.
 
-## Shared Factories (`spec/shared/testFactories.js`)
+## Shared Test Data & Factories (`spec/shared/testData.js`)
 
 - `makeUser(overrides)` — Creates valid user document (with `_id` as ObjectId)
 - `makeExchange(overrides)` — Creates valid exchange document
-- `buildEvent(httpMethod, options?)` — Constructs Netlify function event object; options: `{body, path, queryStringParameters, headers}`
+- `alex`, `whitney`, `hunter`, `megan` — Pre-built shared user documents
+- `twoPersonExchange`, `threePersonExchange`, `twoPersonSecretSanta`, `threePersonSecretSanta` — Pre-built shared exchange documents
+- `seedUsers(db, ...users)`, `seedExchange(db, exchange)` — DB insertion helpers
+- `findUser(db, query)`, `findExchange(db, query)` — DB query helpers
+- `buildEvent(httpMethod, options?)` — In `spec/shared/specHelper.js`; options: `{body, path, queryStringParameters, headers}`
 
 ## Contract/Integration Tests (`spec/integration/`)
 
-- `contractHelper.js` re-exports factories + mongo helpers
-- Each contract spec mirrors its unit spec but hits real MongoDB
+- Each contract spec imports directly from `testData.js`, `specHelper.js`, and `shared/mongoSetup.js`

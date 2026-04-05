@@ -5,7 +5,7 @@ import {
   shouldDisplayErrorSnackbar,
   shouldNotSelect,
   shouldSelect,
-} from "../../specHelper";
+} from "../../shared/specHelper";
 import {
   assignRecipients,
   getState,
@@ -13,7 +13,7 @@ import {
   startExchange,
 } from "../../../src/exchange/state";
 import * as state from "../../../src/exchange/state";
-import {alex, whitney} from "../../testData";
+import {alex, whitney} from "../../shared/testData";
 import {init} from "../../../src/exchange/components/OrganizerForm";
 import {init as initSnackbar} from "../../../src/Snackbar";
 import {init as initEmailTable} from "../../../src/exchange/components/EmailTable/EmailTable";

@@ -12,7 +12,7 @@ import {
   enterName,
   addHouseToDOM,
   moveNameToHouse,
-} from "../../specHelper";
+} from "../../shared/specHelper";
 import {getState, removeParticipant} from "../../../src/exchange/state";
 
 describe('nameList', () => {

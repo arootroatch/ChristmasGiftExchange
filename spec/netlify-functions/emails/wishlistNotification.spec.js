@@ -1,7 +1,7 @@
 import {afterAll, afterEach, beforeAll, describe, expect, it} from 'vitest';
 import {render, getData} from '../../../netlify/shared/emails/wishlistNotification.mjs';
-import {setupMongo, teardownMongo, cleanCollections} from '../mongoHelper.js';
-import {ObjectId} from 'mongodb';
+import {setupMongo, teardownMongo, cleanCollections} from '../../shared/mongoSetup.js';
+import {makeUser, makeExchange, seedUsers, seedExchange} from '../../shared/testData.js';
 
 describe('wishlistNotification', () => {
     describe('render', () => {
@@ -33,23 +33,18 @@ describe('wishlistNotification', () => {
         });
 
         it('returns recipient name', async () => {
-            const giverId = new ObjectId();
-            const recipientId = new ObjectId();
-            const exchangeId = crypto.randomUUID();
-
-            await db.collection('users').insertMany([
-                {_id: giverId, name: 'Whitney', email: 'w@test.com', wishlists: [], wishItems: []},
-                {_id: recipientId, name: 'Alex', email: 'a@test.com',
-                    wishlists: [{url: 'https://amazon.com/list', title: 'My List'}], wishItems: []},
-            ]);
-            await db.collection('exchanges').insertOne({
-                exchangeId,
-                createdAt: new Date(),
-                isSecretSanta: true,
-                participants: [giverId, recipientId],
-                assignments: [{giverId, recipientId}],
-                houses: [],
+            const giver = makeUser({name: 'Whitney', email: 'w@test.com'});
+            const recipient = makeUser({
+                name: 'Alex', email: 'a@test.com',
+                wishlists: [{url: 'https://amazon.com/list', title: 'My List'}],
             });
+
+            await seedUsers(db, giver, recipient);
+            await seedExchange(db, makeExchange({
+                isSecretSanta: true,
+                participants: [giver._id, recipient._id],
+                assignments: [{giverId: giver._id, recipientId: recipient._id}],
+            }));
 
             const data = await getData(db);
 

@@ -2,7 +2,7 @@ import {describe, it, expect, beforeAll, afterAll, afterEach} from 'vitest';
 import crypto from 'node:crypto';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {setupMongo, teardownMongo, cleanCollections} from '../netlify-functions/mongoHelper.js';
+import {setupMongo, teardownMongo, cleanCollections} from '../shared/mongoSetup.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 

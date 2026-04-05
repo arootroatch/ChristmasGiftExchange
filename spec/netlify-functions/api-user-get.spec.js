@@ -1,15 +1,10 @@
 import {describe, it, expect, beforeAll, afterAll, afterEach} from "vitest";
-import {setupMongo, teardownMongo, cleanCollections} from "./mongoHelper.js";
-import {buildEvent, makeUser} from "../shared/testFactories.js";
+import {setupMongo, teardownMongo, cleanCollections} from '../shared/mongoSetup.js';
+import {makeUser, alex, seedUsers} from "../shared/testData.js";
+import {authCookie, buildEvent} from "../shared/specHelper.js";
 
 describe("api-user-get", () => {
     let db, handler, mongo;
-
-    async function authCookie(userId) {
-        const {signSession} = await import("../../netlify/shared/jwt.mjs");
-        const jwt = await signSession(userId.toString());
-        return `session=${jwt}`;
-    }
 
     beforeAll(async () => {
         mongo = await setupMongo();
@@ -48,7 +43,7 @@ describe("api-user-get", () => {
             wishlists: [{url: "https://amazon.com/list", title: "My List"}],
             wishItems: [{url: "https://amazon.com/item", title: "Cool Thing", price: 2500}],
         });
-        await db.collection("users").insertOne(user);
+        await seedUsers(db, user);
 
         const event = buildEvent("GET", {headers: {cookie: await authCookie(user._id)}});
         const response = await handler(event);
@@ -64,10 +59,9 @@ describe("api-user-get", () => {
     });
 
     it("does not include token or _id in response", async () => {
-        const user = makeUser({name: "Alex", email: "alex@test.com"});
-        await db.collection("users").insertOne(user);
+        await seedUsers(db, alex);
 
-        const event = buildEvent("GET", {headers: {cookie: await authCookie(user._id)}});
+        const event = buildEvent("GET", {headers: {cookie: await authCookie(alex._id)}});
         const response = await handler(event);
         expect(response.statusCode).toBe(200);
 

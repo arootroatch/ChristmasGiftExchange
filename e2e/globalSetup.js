@@ -1,4 +1,4 @@
-import {MongoMemoryServer} from 'mongodb-memory-server';
+import {setup as startMongo, teardown as stopMongo} from '../spec/shared/mongoSetup.js';
 import {spawn, execSync} from 'child_process';
 import {writeFileSync, unlinkSync, readFileSync} from 'fs';
 import path from 'path';
@@ -40,10 +40,11 @@ async function waitForServer(url, timeoutMs = 60000) {
 export default async function globalSetup() {
     cleanupStaleRun();
 
-    const port = await findAvailablePort();
-    const targetPort = await findAvailablePort();
-    const mongoServer = await MongoMemoryServer.create();
-    const mongoUri = mongoServer.getUri();
+    const [[port, targetPort]] = await Promise.all([
+        Promise.all([findAvailablePort(), findAvailablePort()]),
+        startMongo(),
+    ]);
+    const mongoUri = process.env.MONGO_DB_URI;
 
     const netlifyDev = spawn('npx', [
         'netlify', 'dev',
@@ -76,7 +77,7 @@ export default async function globalSetup() {
 
     return async () => {
         netlifyDev.kill('SIGTERM');
-        await mongoServer.stop();
+        await stopMongo();
         try { unlinkSync(STATE_FILE); } catch {}
     };
 }

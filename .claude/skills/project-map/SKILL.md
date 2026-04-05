@@ -155,9 +155,8 @@ spec/
     schemas/
       user.spec.js
   shared/
-    testFactories.js     # Shared makeUser, makeExchange, buildEvent factories
+    mongoSetup.js        # MongoMemoryServer lifecycle + per-test isolation helpers
   integration/
-    contractHelper.js    # Contract test setup (re-exports factories + mongo helpers)
     api-exchange-post.contract.spec.js
     api-giver-retry-post.contract.spec.js
     api-user-contact-post.contract.spec.js

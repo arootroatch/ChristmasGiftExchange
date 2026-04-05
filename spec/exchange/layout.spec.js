@@ -1,6 +1,6 @@
 import {afterEach, beforeAll, beforeEach, describe, expect, it, vi} from 'vitest';
 import {getState} from '../../src/exchange/state';
-import {initReactiveSystem, resetDOM} from "../specHelper";
+import {initReactiveSystem, resetDOM} from "../shared/specHelper";
 import {secretSantaMode, render as renderInstructions} from "../../src/exchange/components/Instructions";
 
 describe('layout', () => {

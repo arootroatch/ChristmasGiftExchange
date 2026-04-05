@@ -13,7 +13,7 @@ import {
   shouldDisplayEmailTable,
   shouldDisplayErrorSnackbar,
   shouldNotSelect
-} from "../../../specHelper";
+} from "../../../shared/specHelper";
 import * as generateButtonModule from "../../../../src/exchange/components/ControlStrip/GenerateButton";
 import {init as initControlStrip} from "../../../../src/exchange/components/ControlStrip/ControlStrip";
 import {init as initGenerateButton, generateList, getGlowClass} from "../../../../src/exchange/components/ControlStrip/GenerateButton";

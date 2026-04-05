@@ -1,17 +1,13 @@
 import {afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi} from 'vitest';
-import {setupMongo, teardownMongo, cleanCollections} from './mongoHelper.js';
-import {makeUser, makeExchange, buildEvent} from '../shared/testFactories.js';
+import {setupMongo, teardownMongo, cleanCollections} from '../shared/mongoSetup.js';
+import {makeUser, makeExchange, alex, whitney, hunter, seedUsers, seedExchange} from '../shared/testData.js';
+import {authCookie, buildEvent} from '../shared/specHelper.js';
 
 describe('api-results-email-post', () => {
     let db, handler, mongo, mockFetch;
 
-    let organizer, otherUser, participantA, participantB;
+    let otherUser;
     let exchange;
-
-    async function authCookie(userId) {
-        const {signSession} = await import('../../netlify/shared/jwt.mjs');
-        return `session=${await signSession(userId.toString())}`;
-    }
 
     beforeAll(async () => {
         mongo = await setupMongo();
@@ -35,22 +31,19 @@ describe('api-results-email-post', () => {
     beforeEach(async () => {
         mockFetch.mockClear();
 
-        organizer = makeUser({name: 'Alex', email: 'alex@test.com'});
         otherUser = makeUser({name: 'Stranger', email: 'stranger@test.com'});
-        participantA = makeUser({name: 'Whitney', email: 'whitney@test.com'});
-        participantB = makeUser({name: 'Hunter', email: 'hunter@test.com'});
 
-        await db.collection('users').insertMany([organizer, otherUser, participantA, participantB]);
+        await seedUsers(db, alex, otherUser, whitney, hunter);
 
         exchange = makeExchange({
-            organizer: organizer._id,
+            organizer: alex._id,
             assignments: [
-                {giverId: organizer._id, recipientId: participantA._id},
-                {giverId: participantA._id, recipientId: participantB._id},
-                {giverId: participantB._id, recipientId: organizer._id},
+                {giverId: alex._id, recipientId: whitney._id},
+                {giverId: whitney._id, recipientId: hunter._id},
+                {giverId: hunter._id, recipientId: alex._id},
             ],
         });
-        await db.collection('exchanges').insertOne(exchange);
+        await seedExchange(db, exchange);
     });
 
     afterEach(async () => {
@@ -79,13 +72,13 @@ describe('api-results-email-post', () => {
     });
 
     it('returns 400 when neither exchangeId nor assignments is provided', async () => {
-        const event = buildEvent('POST', {body: {}, headers: {cookie: await authCookie(organizer._id)}});
+        const event = buildEvent('POST', {body: {}, headers: {cookie: await authCookie(alex._id)}});
         const response = await handler(event);
         expect(response.statusCode).toBe(400);
     });
 
     it('returns 404 for non-existent exchangeId', async () => {
-        const event = buildEvent('POST', {body: {exchangeId: 'non-existent'}, headers: {cookie: await authCookie(organizer._id)}});
+        const event = buildEvent('POST', {body: {exchangeId: 'non-existent'}, headers: {cookie: await authCookie(alex._id)}});
         const response = await handler(event);
         expect(response.statusCode).toBe(404);
     });
@@ -98,7 +91,7 @@ describe('api-results-email-post', () => {
 
     it('sends results email to organizer using server-side data', async () => {
         mockFetch.mockResolvedValueOnce({ok: true, json: () => Promise.resolve([])});
-        const event = buildEvent('POST', {body: {exchangeId: exchange.exchangeId}, headers: {cookie: await authCookie(organizer._id)}});
+        const event = buildEvent('POST', {body: {exchangeId: exchange.exchangeId}, headers: {cookie: await authCookie(alex._id)}});
         const response = await handler(event);
 
         expect(response.statusCode).toBe(200);
@@ -121,7 +114,7 @@ describe('api-results-email-post', () => {
         ];
         const event = buildEvent('POST', {
             body: {assignments},
-            headers: {cookie: await authCookie(organizer._id)},
+            headers: {cookie: await authCookie(alex._id)},
         });
         const response = await handler(event);
 
@@ -140,7 +133,7 @@ describe('api-results-email-post', () => {
         const assignments = Array.from({length: 51}, (_, i) => ({giver: `Giver${i}`, recipient: `Recipient${i}`}));
         const event = buildEvent('POST', {
             body: {assignments},
-            headers: {cookie: await authCookie(organizer._id)},
+            headers: {cookie: await authCookie(alex._id)},
         });
         const response = await handler(event);
         expect(response.statusCode).toBe(400);
@@ -149,7 +142,7 @@ describe('api-results-email-post', () => {
     it('returns 400 when assignments array is empty', async () => {
         const event = buildEvent('POST', {
             body: {assignments: []},
-            headers: {cookie: await authCookie(organizer._id)},
+            headers: {cookie: await authCookie(alex._id)},
         });
         const response = await handler(event);
         expect(response.statusCode).toBe(400);
@@ -158,7 +151,7 @@ describe('api-results-email-post', () => {
     it('returns 400 when assignment has empty giver or recipient', async () => {
         const event = buildEvent('POST', {
             body: {assignments: [{giver: '', recipient: 'Alex'}]},
-            headers: {cookie: await authCookie(organizer._id)},
+            headers: {cookie: await authCookie(alex._id)},
         });
         const response = await handler(event);
         expect(response.statusCode).toBe(400);
@@ -166,7 +159,7 @@ describe('api-results-email-post', () => {
 
     it('returns success response body', async () => {
         mockFetch.mockResolvedValueOnce({ok: true, json: () => Promise.resolve([])});
-        const event = buildEvent('POST', {body: {exchangeId: exchange.exchangeId}, headers: {cookie: await authCookie(organizer._id)}});
+        const event = buildEvent('POST', {body: {exchangeId: exchange.exchangeId}, headers: {cookie: await authCookie(alex._id)}});
         const response = await handler(event);
 
         const responseBody = JSON.parse(response.body);

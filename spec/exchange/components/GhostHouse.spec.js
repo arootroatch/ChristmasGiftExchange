@@ -8,7 +8,7 @@ import {
   removeAllNames,
   resetDOM,
   resetState,
-} from "../../specHelper";
+} from "../../shared/specHelper";
 import {init as initGhostHouse} from "../../../src/exchange/components/GhostHouse";
 import {
   addParticipant,

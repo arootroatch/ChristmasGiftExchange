@@ -1,5 +1,6 @@
 import {afterAll, afterEach, beforeAll, describe, expect, it} from 'vitest';
-import {setupMongo, teardownMongo, cleanCollections} from './mongoHelper.js';
+import {setupMongo, teardownMongo, cleanCollections} from '../shared/mongoSetup.js';
+import {makeUser, makeExchange, seedUsers, seedExchange} from '../shared/testData.js';
 
 describe('api-email-preview-get', () => {
     let handler, mongo, db;
@@ -54,22 +55,15 @@ describe('api-email-preview-get', () => {
     });
 
     it('returns rendered HTML for a valid template', async () => {
-        const {ObjectId} = await import('mongodb');
-        const alexId = new ObjectId();
-        const hunterId = new ObjectId();
+        const alex = makeUser({name: 'Alex', email: 'a@test.com'});
+        const hunter = makeUser({name: 'Hunter', email: 'h@test.com'});
 
-        await db.collection('users').insertMany([
-            {_id: alexId, name: 'Alex', email: 'a@test.com', wishlists: [], wishItems: []},
-            {_id: hunterId, name: 'Hunter', email: 'h@test.com', wishlists: [], wishItems: []},
-        ]);
-        await db.collection('exchanges').insertOne({
-            exchangeId: crypto.randomUUID(),
-            createdAt: new Date(),
+        await seedUsers(db, alex, hunter);
+        await seedExchange(db, makeExchange({
             isSecretSanta: true,
-            participants: [alexId, hunterId],
-            assignments: [{giverId: alexId, recipientId: hunterId}],
-            houses: [],
-        });
+            participants: [alex._id, hunter._id],
+            assignments: [{giverId: alex._id, recipientId: hunter._id}],
+        }));
 
         const response = await handler({
             httpMethod: 'GET',

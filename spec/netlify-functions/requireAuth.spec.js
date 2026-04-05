@@ -1,5 +1,6 @@
 import {describe, it, expect, beforeAll, afterAll, afterEach} from "vitest";
-import {setupMongo, teardownMongo, cleanCollections} from "./mongoHelper.js";
+import {setupMongo, teardownMongo, cleanCollections} from '../shared/mongoSetup.js';
+import {makeUser, seedUsers} from '../shared/testData.js';
 
 describe("requireAuth", () => {
     let mongo, db, requireAuth, signSession;
@@ -44,11 +45,10 @@ describe("requireAuth", () => {
     });
 
     it("attaches user to event and returns null on success", async () => {
-        const {ObjectId} = await import("mongodb");
-        const userId = new ObjectId();
-        await db.collection("users").insertOne({_id: userId, name: "Test", email: "test@test.com", wishlists: [], wishItems: []});
+        const user = makeUser({name: "Test", email: "test@test.com"});
+        await seedUsers(db, user);
 
-        const jwt = await signSession(userId.toString());
+        const jwt = await signSession(user._id.toString());
         const event = {headers: {cookie: `session=${jwt}`}};
         const result = await requireAuth(event);
         expect(result).toBeNull();

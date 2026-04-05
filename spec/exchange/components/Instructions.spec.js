@@ -9,7 +9,7 @@ import {
   startExchange,
   loadExchange,
 } from "../../../src/exchange/state";
-import {installParticipantNames, resetDOM, resetState} from "../../specHelper";
+import {installParticipantNames, resetDOM, resetState} from "../../shared/specHelper";
 
 describe("instructions", () => {
   beforeAll(() => {

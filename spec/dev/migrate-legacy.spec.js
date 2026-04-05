@@ -1,5 +1,5 @@
 import {afterAll, afterEach, beforeAll, describe, expect, it} from 'vitest';
-import {setupMongo, teardownMongo, cleanCollections} from '../netlify-functions/mongoHelper.js';
+import {setupMongo, teardownMongo, cleanCollections} from '../shared/mongoSetup.js';
 
 describe('migrateLegacyData', () => {
     let db, migrateLegacyData;

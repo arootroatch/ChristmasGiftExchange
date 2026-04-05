@@ -1,14 +1,10 @@
 import {afterAll, afterEach, beforeAll, describe, expect, it, vi} from 'vitest';
-import {setupMongo, teardownMongo, cleanCollections, buildEvent} from './contractHelper.js';
+import {setupMongo, teardownMongo, cleanCollections} from '../shared/mongoSetup.js';
+import {makeUser, seedUsers} from '../shared/testData.js';
+import {authCookie, buildEvent} from '../shared/specHelper.js';
 
 describe('api-exchange-post contract', () => {
     let handler, db, mongo;
-
-    async function authCookie(userId) {
-        const {signSession} = await import('../../netlify/shared/jwt.mjs');
-        const jwt = await signSession(userId.toString());
-        return `session=${jwt}`;
-    }
 
     beforeAll(async () => {
         mongo = await setupMongo();
@@ -36,13 +32,9 @@ describe('api-exchange-post contract', () => {
     });
 
     async function insertOrganizer() {
-        const result = await db.collection('users').insertOne({
-            name: 'Organizer',
-            email: 'organizer@test.com',
-            wishlists: [],
-            wishItems: [],
-        });
-        return result.insertedId;
+        const organizer = makeUser({name: 'Organizer', email: 'organizer@test.com'});
+        await seedUsers(db, organizer);
+        return organizer._id;
     }
 
     // This mirrors the shape returned by getExchangePayload() in src/exchange/state.js:166-174
