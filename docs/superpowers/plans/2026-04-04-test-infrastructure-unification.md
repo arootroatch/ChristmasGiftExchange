@@ -293,6 +293,7 @@ export const twoPersonExchange = makeExchange({
     createdAt: new Date('2025-12-01'),
     participants: [alex._id, whitney._id],
     assignments: [{giverId: alex._id, recipientId: whitney._id}],
+    houses: [{name: 'Family', members: [alex._id, whitney._id]}],
 });
 
 export const threePersonExchange = makeExchange({
@@ -305,6 +306,7 @@ export const threePersonExchange = makeExchange({
         {giverId: whitney._id, recipientId: hunter._id},
         {giverId: hunter._id, recipientId: alex._id},
     ],
+    houses: [{name: 'Family', members: [alex._id, whitney._id, hunter._id]}],
 });
 
 export const twoPersonSecretSanta = makeExchange({
@@ -314,6 +316,7 @@ export const twoPersonSecretSanta = makeExchange({
     isSecretSanta: true,
     participants: [alex._id, whitney._id],
     assignments: [{giverId: alex._id, recipientId: whitney._id}],
+    houses: [{name: 'Family', members: [alex._id, whitney._id]}],
 });
 
 export const threePersonSecretSanta = makeExchange({
@@ -327,6 +330,7 @@ export const threePersonSecretSanta = makeExchange({
         {giverId: whitney._id, recipientId: hunter._id},
         {giverId: hunter._id, recipientId: alex._id},
     ],
+    houses: [{name: 'Family', members: [alex._id, whitney._id, hunter._id]}],
 });
 
 ;endregion
