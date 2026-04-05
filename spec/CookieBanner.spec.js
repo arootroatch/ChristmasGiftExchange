@@ -1,5 +1,6 @@
 import {beforeEach, describe, expect, it, vi} from "vitest";
 import * as cookieBanner from "../src/CookieBanner";
+import styles from "../assets/styles/components/cookie-banner.module.css";
 
 describe("CookieBanner", () => {
   beforeEach(() => {
@@ -33,7 +34,7 @@ describe("CookieBanner", () => {
 
       document.querySelector("#cookie-accept").click();
 
-      expect(banner.classList.contains("dismissing")).toBe(true);
+      expect(banner.classList.contains(styles.dismissing)).toBe(true);
     });
 
     it("injects BMC script on Accept click", () => {
@@ -62,7 +63,7 @@ describe("CookieBanner", () => {
 
       document.querySelector("#cookie-reject").click();
 
-      expect(banner.classList.contains("dismissing")).toBe(true);
+      expect(banner.classList.contains(styles.dismissing)).toBe(true);
     });
 
     it("does not inject BMC script on Reject click", () => {

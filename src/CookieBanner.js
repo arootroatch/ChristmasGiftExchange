@@ -1,12 +1,14 @@
+import styles from '../assets/styles/components/cookie-banner.module.css';
+
 const CONSENT_KEY = "cookie-consent";
 const bannerId = "cookie-banner";
 
 function template() {
-  return `<div id="${bannerId}">
-    <div class="cookie-banner-message"><img class="bmc-logo" src="https://cdn.buymeacoffee.com/buttons/bmc-new-btn-logo.svg" alt="BMC"><p class="cookie-banner-text">This site uses a session cookie for authentication and optional cookies from <strong>Buy Me a Coffee</strong> to power the support widget. No tracking, no ads.</p></div>
-    <div class="cookie-banner-buttons">
-      <button class="cookie-btn cookie-btn-reject" id="cookie-reject">Reject</button>
-      <button class="cookie-btn cookie-btn-accept" id="cookie-accept">Accept</button>
+  return `<div id="${bannerId}" class="${styles.banner}">
+    <div class="${styles.message}"><img class="${styles.logo}" src="https://cdn.buymeacoffee.com/buttons/bmc-new-btn-logo.svg" alt="BMC"><p class="${styles.text}">This site uses a session cookie for authentication and optional cookies from <strong>Buy Me a Coffee</strong> to power the support widget. No tracking, no ads.</p></div>
+    <div class="${styles.buttons}">
+      <button class="${styles.btn} ${styles.btnReject}" id="cookie-reject">Reject</button>
+      <button class="${styles.btn} ${styles.btnAccept}" id="cookie-accept">Accept</button>
     </div>
   </div>`;
 }
@@ -31,7 +33,7 @@ export function loadBmcWidget() {
 function removeBanner() {
   const banner = document.querySelector(`#${bannerId}`);
   if (!banner) return;
-  banner.classList.add("dismissing");
+  banner.classList.add(styles.dismissing);
   banner.addEventListener("animationend", () => banner.remove());
 }
 

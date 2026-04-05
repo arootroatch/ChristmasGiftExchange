@@ -1,4 +1,4 @@
-#cookie-banner {
+.banner {
   position: fixed;
   bottom: 0;
   left: 0;
@@ -16,24 +16,24 @@
   animation: cookieSlideUp 0.3s ease-out;
 }
 
-#cookie-banner.dismissing {
+.dismissing {
   animation: cookieSlideDown 0.3s ease-out forwards;
 }
 
-.cookie-banner-message {
+.message {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-.cookie-banner-text {
+.text {
   color: var(--text-primary);
   font-size: 0.9rem;
   line-height: 1.4;
   margin: 0;
 }
 
-.bmc-logo {
+.logo {
   height: 40px;
   flex-shrink: 0;
   background: #ffdd00;
@@ -41,13 +41,13 @@
   padding: 4px;
 }
 
-.cookie-banner-buttons {
+.buttons {
   display: flex;
   gap: 8px;
   flex-shrink: 0;
 }
 
-.cookie-btn {
+.btn {
   padding: 6px 14px;
   border-radius: var(--radius-sm);
   font-size: 0.85rem;
@@ -56,23 +56,23 @@
   font-family: inherit;
 }
 
-.cookie-btn-reject {
+.btnReject {
   background: var(--burgundy);
   color: var(--text-primary);
   border: 1px solid var(--frost-border);
 }
 
-.cookie-btn-reject:hover {
+.btnReject:hover {
   background: var(--burgundy-light);
 }
 
-.cookie-btn-accept {
+.btnAccept {
   background: var(--green);
   color: var(--text-primary);
   font-weight: bold;
 }
 
-.cookie-btn-accept:hover {
+.btnAccept:hover {
   filter: brightness(1.15);
 }
 
@@ -87,17 +87,17 @@
 }
 
 @media (max-width: 480px) {
-  #cookie-banner {
+  .banner {
     flex-direction: column;
     text-align: center;
     padding: 16px;
   }
 
-  .cookie-banner-buttons {
+  .buttons {
     width: 100%;
   }
 
-  .cookie-btn {
+  .btn {
     flex: 1;
     padding: 10px;
   }
