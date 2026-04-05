@@ -1,7 +1,6 @@
 import {addEventListener, nameListId, selectElement} from "../../utils.js";
 import {ExchangeEvents as Events, exchangeEvents as stateEvents, addNameToHouse, removeNameFromHouse} from "../state.js";
 import cardStyles from '../../../assets/styles/exchange/components/participant-card.module.css';
-import houseStyles from '../../../assets/styles/exchange/components/household.module.css';
 
 export function init() {
   stateEvents.on(Events.PARTICIPANT_ADDED, ({participants, houses}) => updateAllSelects(participants, houses));
@@ -23,11 +22,11 @@ export function insertNameFromSelect() {
   if (name === "default") return;
 
   const sourceContainer = selectElement(`#wrapper-${name}`)?.parentNode;
-  const sourceHouse = sourceContainer?.closest(`.${houseStyles.household}`);
+  const sourceHouse = sourceContainer?.closest(`.${cardStyles.household}`);
   const sourceHouseID = sourceHouse?.id;
 
   const isDestMainList = (this.parentNode.id === nameListId);
-  const destHouse = this.closest(`.${houseStyles.household}`);
+  const destHouse = this.closest(`.${cardStyles.household}`);
   const destHouseID = isDestMainList ? null : destHouse?.id;
 
   if (sourceHouseID) {

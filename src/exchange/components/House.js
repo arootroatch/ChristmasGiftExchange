@@ -7,7 +7,6 @@ import {
 import {addEventListener, leftContainerId, pushHTML, selectElement} from "../../utils.js";
 import btnStyles from '../../../assets/styles/exchange/components/buttons.module.css';
 import cardStyles from '../../../assets/styles/exchange/components/participant-card.module.css';
-import houseStyles from '../../../assets/styles/exchange/components/household.module.css';
 
 export function init() {
   stateEvents.on(Events.HOUSE_ADDED, onHouseAdded);
@@ -31,7 +30,7 @@ function onHouseRemoved({houseID}) {
 
 function template(houseID, displayName) {
   return `
-      <div class="${cardStyles.card} ${houseStyles.household} card-slide-slow" id="${houseID}" data-testid="household">
+      <div class="${cardStyles.card} ${cardStyles.household} card-slide-slow" id="${houseID}" data-testid="household">
         <h2 contenteditable="true">${displayName} <span class="edit-span">(Click here to rename)</span></h2>
         <div data-slot="names-${houseID}" class="${cardStyles.nameContainer}">
           <p class="house-placeholder ghost-text">Drop names here or select them from the dropdown</p>
@@ -47,7 +46,7 @@ function attachListeners(houseID) {
 }
 
 function onHouseRenamed() {
-  const houseDiv = this.closest(`.${houseStyles.household}`);
+  const houseDiv = this.closest(`.${cardStyles.household}`);
   const houseID = houseDiv.id;
   const newName = this.textContent.trim();
   renameHouse(houseID, newName);
@@ -60,7 +59,7 @@ function onNameChange({houseID, members}) {
 }
 
 function deleteHouse() {
-  const houseDiv = this.closest(`.${houseStyles.household}`) || this.parentNode;
+  const houseDiv = this.closest(`.${cardStyles.household}`) || this.parentNode;
   const houseID = houseDiv.id;
   removeHouseFromState(houseID);
 }

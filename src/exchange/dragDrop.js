@@ -1,7 +1,6 @@
 import {leftContainerId, participantsId, selectElement} from "../utils";
 import { addNameToHouse, removeNameFromHouse } from "./state.js";
 import cardStyles from '../../assets/styles/exchange/components/participant-card.module.css';
-import houseStyles from '../../assets/styles/exchange/components/household.module.css';
 
 const SCROLL_ZONE = 80;
 const SCROLL_SPEED = 20;
@@ -89,12 +88,12 @@ export function drag(e) {
 
 function getSourceHouse(nameWrapper){
   const sourceContainer = nameWrapper.parentNode;
-  const sourceHouse = sourceContainer.closest(`.${houseStyles.household}`);
+  const sourceHouse = sourceContainer.closest(`.${cardStyles.household}`);
   return sourceHouse?.id
 }
 
 function getDestHouse(container){
-  const destHouse = container.closest(`.${houseStyles.household}`);
+  const destHouse = container.closest(`.${cardStyles.household}`);
   const isDestMainList = (container.id === participantsId);
   return isDestMainList ? null : destHouse?.id;
 }

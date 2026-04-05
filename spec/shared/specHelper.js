@@ -1,5 +1,5 @@
 import {addHouseToState, getState, startExchange} from "../../src/exchange/state";
-import houseStyles from '../../assets/styles/exchange/components/household.module.css';
+import cardStyles from '../../assets/styles/exchange/components/participant-card.module.css';
 import dialogStyles from '../../assets/styles/exchange/components/email-dialog.module.css';
 import {expect, vi} from "vitest";
 import {indexHtml} from "./setupTests";
@@ -105,7 +105,7 @@ export function change(selector, value) {
 }
 
 export function clearNameSelects() {
-  let selects = Array.from(document.getElementsByClassName(houseStyles.nameSelect));
+  let selects = Array.from(document.getElementsByClassName(cardStyles.nameSelect));
   selects.map((select) => {
     select.innerHTML = `<option disabled selected value="default">-- Select a name --</option>`;
   });
@@ -130,7 +130,7 @@ export function removeAllNames() {
 }
 
 export function removeAllHouses() {
-  document.querySelectorAll(`.${houseStyles.household}`).forEach(el => el.remove());
+  document.querySelectorAll(`.${cardStyles.household}`).forEach(el => el.remove());
 }
 
 export function enterName(name) {

@@ -38,3 +38,11 @@
   text-transform: capitalize;
   width: calc(100% - 165px);
 }
+
+.household {
+  margin-top: 1rem;
+}
+
+.household [data-slot^="names-"]:empty {
+  min-height: 3rem;
+}

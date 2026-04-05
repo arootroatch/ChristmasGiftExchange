@@ -1,7 +1,0 @@
-.household {
-  margin-top: 1rem;
-}
-
-.household [data-slot^="names-"]:empty {
-  min-height: 3rem;
-}
