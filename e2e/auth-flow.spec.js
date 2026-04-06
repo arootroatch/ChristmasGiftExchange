@@ -89,6 +89,26 @@ test.describe('Auth Flow', () => {
         await expect(page.locator('#auth-gate')).toBeVisible();
     });
 
+    test('exchange navbar logout removes user info from navbar', async ({page, baseURL}) => {
+        await authenticateUser(page, baseURL, whitney.email);
+        await page.goto('/');
+
+        // Dismiss cookie banner if present
+        const banner = page.locator('#cookie-banner');
+        if (await banner.isVisible()) {
+            await banner.locator('#cookie-accept').click();
+        }
+
+        // Navbar should show user name and logout button
+        await expect(page.locator('#navbar')).toContainText('Whitney');
+        await expect(page.locator('#navbar-logout')).toBeVisible();
+
+        await page.locator('#navbar-logout').click();
+
+        // Navbar is removed after logout
+        await expect(page.locator('#navbar')).not.toBeVisible();
+    });
+
     test('/dashboard/wishlist deep link loads wishlist section', async ({page, baseURL}) => {
         await authenticateUser(page, baseURL, whitney.email);
 
