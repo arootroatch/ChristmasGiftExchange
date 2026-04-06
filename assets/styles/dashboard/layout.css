@@ -12,11 +12,11 @@
 
 .dashboard-layout {
   min-height: 100vh;
-  margin-left: 220px;
+  margin-left: 260px;
 }
 
 .dashboard-sidebar {
-  width: 220px;
+  width: 260px;
   flex-shrink: 0;
   background: rgba(255, 255, 255, 0.04);
   border-right: 1px solid var(--frost-border);

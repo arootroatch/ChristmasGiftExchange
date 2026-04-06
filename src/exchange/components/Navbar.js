@@ -28,7 +28,7 @@ function template(user) {
 
 export function init() {
   const container = document.getElementById("container");
-  container.insertAdjacentHTML("afterbegin", template(getSessionUser()));
+  container.insertAdjacentHTML("beforebegin", template(getSessionUser()));
 
   const logoutBtn = document.getElementById(logoutId);
   if (logoutBtn) {

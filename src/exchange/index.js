@@ -20,6 +20,7 @@ import {loadExchange} from "./state.js";
 import {loadSession} from "../session.js";
 
 export default async function main() {
+  document.body.style.opacity = '1';
   try { await loadSession(); } catch { /* not authenticated or server error — organizer form will handle it */ }
   navbar.init();
   snackbar.init();

@@ -201,6 +201,7 @@ function loadRecipient() {
 }
 
 export function main() {
+  document.body.style.opacity = '1';
   snackbar.init();
   cookieBanner.init();
   loadData();
