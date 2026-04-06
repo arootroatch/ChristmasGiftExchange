@@ -1,0 +1,83 @@
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  background: var(--frost);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--frost-border);
+}
+
+.siteLink {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-primary);
+  text-decoration: none;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.siteLink:hover {
+  color: var(--text-primary);
+}
+
+.favicon {
+  display: block;
+  width: 24px;
+  height: 24px;
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.userName {
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 600;
+}
+
+.logoutBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-sm);
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.75rem;
+  padding: 4px 10px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.logoutBtn:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.logoutIcon {
+  width: 12px;
+  height: 12px;
+}
+
+@media screen and (max-width: 499px) {
+  .navbar {
+    padding: 8px 12px;
+  }
+
+  .siteTitle {
+    display: none;
+  }
+
+  .loginPrefix {
+    display: none;
+  }
+}
