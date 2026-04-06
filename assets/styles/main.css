@@ -5,9 +5,6 @@
 @import './base/forms.css';
 @import './base/shared-base.css';
 
-/* Shared Components */
-@import './components/entries.css';
-
 /* Exchange (global only — modules are imported by JS) */
 @import './exchange/base.css';
 @import './exchange/layout.css';

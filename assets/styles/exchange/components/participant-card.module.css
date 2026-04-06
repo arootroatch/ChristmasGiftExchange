@@ -46,3 +46,19 @@
 .household [data-slot^="names-"]:empty {
   min-height: 3rem;
 }
+
+.entryRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-sm);
+  margin-bottom: 5px;
+  transition: background 0.15s;
+}
+
+.entryRow:hover {
+  background: rgba(0, 0, 0, 0.3);
+}

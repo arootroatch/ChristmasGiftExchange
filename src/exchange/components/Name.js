@@ -1,5 +1,6 @@
 import {ExchangeEvents as Events, exchangeEvents as stateEvents, removeParticipant, nextNameNumber} from "../state.js";
 import {participantsId, selectElement, escapeAttr} from "../../utils.js";
+import cardStyles from '../../../assets/styles/exchange/components/participant-card.module.css';
 
 export function init() {
   stateEvents.on(Events.PARTICIPANT_ADDED, ({name: addedName, houses, participants}) => {
@@ -41,7 +42,7 @@ function template(name) {
   const id = nextNameNumber();
   const safe = escapeAttr(name);
   return `
-      <div class="name-wrapper entry-row" id="wrapper-${safe}" draggable="true">
+      <div class="name-wrapper ${cardStyles.entryRow}" id="wrapper-${safe}" draggable="true">
         <span class="name-entered" id="${safe}${id}">${safe}</span>
         <button id="delete-${safe}${id}" class="delete-btn">&#10005;</button>
       </div>`;
@@ -50,7 +51,7 @@ function template(name) {
 function animateNewEntry(name) {
   const safe = escapeAttr(name);
   const wrapper = document.getElementById(`wrapper-${safe}`);
-  if (wrapper) wrapper.classList.add('animated');
+  if (wrapper) wrapper.classList.add('card-slide');
 }
 
 function attachListeners(container) {
