@@ -4,6 +4,12 @@
   functions = "netlify/functions"
 
 [[redirects]]
+  from = "https://giftexchangegenerator.netlify.app/*"
+  to = "https://gift-exchange-generator.com/:splat"
+  status = 308
+  force = true
+
+[[redirects]]
   from = "/wishlist/edit"
   to = "/dashboard/wishlist"
   status = 301
