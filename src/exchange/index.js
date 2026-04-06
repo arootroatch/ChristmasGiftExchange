@@ -15,13 +15,13 @@ import * as dashboardLink from "./components/DashboardLink.js";
 import * as completionModal from "./components/CompletionModal.js";
 import * as snackbar from "../Snackbar.js";
 import * as cookieBanner from "../CookieBanner.js";
-import * as userBadge from "../UserBadge.js";
+import * as navbar from "./components/Navbar.js";
 import {loadExchange} from "./state.js";
 import {loadSession} from "../session.js";
 
 export default async function main() {
   try { await loadSession(); } catch { /* not authenticated or server error — organizer form will handle it */ }
-  userBadge.init();
+  navbar.init();
   snackbar.init();
   cookieBanner.init();
   house.init();

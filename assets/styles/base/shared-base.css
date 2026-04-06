@@ -51,9 +51,3 @@ h1 {
 .card-slide-slow {
   animation: cardSlide 0.5s ease-out both;
 }
-
-@media screen and (max-width: 499px) {
-  body:has(#user-badge) {
-    padding-top: 44px;
-  }
-}

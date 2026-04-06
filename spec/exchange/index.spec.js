@@ -5,7 +5,7 @@ vi.mock('../../src/session', () => ({
   loadSession: vi.fn().mockResolvedValue(null),
 }));
 
-vi.mock('../../src/UserBadge.js', () => ({init: vi.fn(), remove: vi.fn()}));
+vi.mock('../../src/exchange/components/Navbar.js', () => ({init: vi.fn()}));
 
 vi.mock('../../src/exchange/dragDrop', () => ({
   initDragDrop: vi.fn(),
@@ -152,6 +152,14 @@ it('calls generateButton.init', async () => {
     expect(init).toHaveBeenCalledTimes(1);
   });
 
+  it('calls navbar.init', async () => {
+    const {init} = await import('../../src/exchange/components/Navbar.js');
+
+    await main();
+
+    expect(init).toHaveBeenCalledTimes(1);
+  });
+
   it('calls snackbar.init', async () => {
     const {init} = await import('../../src/Snackbar');
 
@@ -167,6 +175,7 @@ it('calls generateButton.init', async () => {
   });
 
   it('calls all initialization functions in order', async () => {
+    const navbar = await import('../../src/exchange/components/Navbar.js');
     const snackbar = await import('../../src/Snackbar');
     const house = await import('../../src/exchange/components/House');
     const name = await import('../../src/exchange/components/Name');
@@ -182,6 +191,7 @@ it('calls generateButton.init', async () => {
 
     await main();
 
+    expect(navbar.init).toHaveBeenCalledTimes(1);
     expect(snackbar.init).toHaveBeenCalledTimes(1);
     expect(house.init).toHaveBeenCalledTimes(1);
     expect(name.init).toHaveBeenCalledTimes(1);
@@ -195,6 +205,7 @@ it('calls generateButton.init', async () => {
     expect(instructions.init).toHaveBeenCalledTimes(1);
     expect(initDragDrop).toHaveBeenCalledTimes(1);
 
+    const navbarOrder = navbar.init.mock.invocationCallOrder[0];
     const snackbarOrder = snackbar.init.mock.invocationCallOrder[0];
     const houseOrder = house.init.mock.invocationCallOrder[0];
     const nameOrder = name.init.mock.invocationCallOrder[0];
@@ -208,6 +219,7 @@ it('calls generateButton.init', async () => {
     const dashboardLinkOrder = dashboardLink.init.mock.invocationCallOrder[0];
     const dragDropOrder = initDragDrop.mock.invocationCallOrder[0];
 
+    expect(navbarOrder).toBeLessThan(snackbarOrder);
     expect(snackbarOrder).toBeLessThan(houseOrder);
     expect(houseOrder).toBeLessThan(nameOrder);
     expect(nameOrder).toBeLessThan(selectOrder);
