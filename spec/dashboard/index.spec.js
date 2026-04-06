@@ -123,10 +123,18 @@ describe('Dashboard index', () => {
       await flush();
     });
 
-    it('renders sidebar with welcome message', () => {
+    it('renders sidebar title with site name and favicon', () => {
+      const title = document.querySelector('.sidebar-title');
+      expect(title).not.toBeNull();
+      expect(title.textContent).toContain('Gift Exchange Generator');
+      expect(title.getAttribute('href')).toBe('/');
+      expect(title.querySelector('img')).not.toBeNull();
+    });
+
+    it('renders sidebar welcome with possessive name', () => {
       const welcome = document.querySelector('.sidebar-welcome');
       expect(welcome).not.toBeNull();
-      expect(welcome.textContent).toContain('Alice');
+      expect(welcome.textContent).toContain("Alice's Dashboard");
     });
 
     it('renders sidebar navigation items', () => {

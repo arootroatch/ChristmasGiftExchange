@@ -20,14 +20,14 @@ function dashboardLayout(userName) {
   return `
     <div class="hamburger-bar">
       <button class="hamburger-btn" id="hamburger-btn" aria-label="Toggle menu">&#9776;</button>
-      <span class="dashboard-welcome">Welcome, ${userName}!</span>
+      <span class="dashboard-welcome"><strong>${userName}'s</strong> Dashboard</span>
       <a class="hamburger-logout" id="hamburger-logout" href="#">Log out</a>
     </div>
     <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
     <div class="dashboard-layout">
       <nav class="dashboard-sidebar" id="dashboard-sidebar">
-        <div class="sidebar-title">Participant Dashboard</div>
-        <div class="sidebar-welcome">Welcome, ${userName}!</div>
+        <a class="sidebar-title" href="/"><img src="/favicon-32x32.png" alt="" width="24" height="24"> Gift Exchange Generator</a>
+        <div class="sidebar-welcome"><strong>${userName}'s</strong> Dashboard</div>
         <div class="sidebar-nav">
           ${SECTIONS.map(s =>
             `<a class="nav-item${s === defaultSection() ? ' active' : ''}" data-section="${s}">${LABELS[s]}</a>`
