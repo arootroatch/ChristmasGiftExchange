@@ -8,15 +8,26 @@ const FAVICON_LINKS = `    <link rel="apple-touch-icon" sizes="180x180" href="/a
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">`;
 
-function injectSlots(html) {
+// Populated by `css.modules.getJSON` in vite.config.js. Keys are absolute file
+// paths to *.module.css files; values are { originalClass: hashedClass }.
+export const cssModuleClassMap = new Map();
+
+function findClassMap(suffix) {
+  for (const [file, json] of cssModuleClassMap) {
+    if (file.endsWith(suffix)) return json;
+  }
+  return {};
+}
+
+function injectSlots(html, btnStyles) {
   return html
     .replace(
       '<div data-slot="instructions"></div>',
-      `<div data-slot="instructions">${introTemplate()}</div>`
+      `<div data-slot="instructions">${introTemplate(btnStyles)}</div>`
     )
     .replace(
       '<div data-slot="dashboard-link"></div>',
-      `<div data-slot="dashboard-link">${dashboardLinkTemplate()}</div>`
+      `<div data-slot="dashboard-link">${dashboardLinkTemplate(btnStyles)}</div>`
     );
 }
 
@@ -47,15 +58,31 @@ function injectFavicons(html) {
   return html.replace(/<meta charset="[^"]*"[^>]*>/, (match) => `${match}\n${FAVICON_LINKS}`);
 }
 
+const BUTTONS_MODULE_SUFFIX = "exchange/components/buttons.module.css";
+
 export function prerenderPlugin() {
+  let devServer;
+
   return {
     name: "vite-prerender",
 
-    transformIndexHtml(html, ctx) {
+    configureServer(server) {
+      devServer = server;
+    },
+
+    async transformIndexHtml(html, ctx) {
       const filePath = ctx.path || "/index.html";
 
       if (filePath === "/index.html") {
-        html = injectSlots(html);
+        // In dev, the CSS module hasn't been processed yet on the very first
+        // request, so explicitly load it via SSR to populate cssModuleClassMap.
+        if (devServer) {
+          try {
+            await devServer.ssrLoadModule(`/${BUTTONS_MODULE_SUFFIX.replace("exchange/", "assets/styles/exchange/")}`);
+          } catch { /* best-effort warmup */ }
+        }
+        const btnStyles = findClassMap(BUTTONS_MODULE_SUFFIX);
+        html = injectSlots(html, btnStyles);
       }
 
       html = injectFavicons(html);
