@@ -3,6 +3,9 @@ import {setupMongo, teardownMongo, cleanCollections} from '../shared/mongoSetup.
 import {makeUser, makeExchange, alex, whitney, hunter, threePersonExchange, seedUsers, seedExchange} from '../shared/testData.js';
 import {authCookie, buildEvent} from '../shared/specHelper.js';
 
+vi.mock('../../netlify/shared/logger.mjs');
+import {logger} from '../../netlify/shared/logger.mjs';
+
 describe('api-giver-retry-post', () => {
     let db, handler, mongo, mockFetch;
 
@@ -176,5 +179,23 @@ describe('api-giver-retry-post', () => {
         const body = JSON.parse(mockFetch.mock.calls[0][1].body);
         const alexMsg = body.find(m => m.To === 'alex@test.com');
         expect(alexMsg.HtmlBody).not.toContain('wishlist/edit?user=');
+    });
+
+    it('logs info when giver retry is initiated', async () => {
+        mockBatchResponse(['alex@test.com', 'whitney@test.com', 'hunter@test.com']);
+        const event = buildEvent('POST', {body: {exchangeId: exchange.exchangeId}, headers: {cookie: await authCookie(alex._id)}});
+        await handler(event);
+        expect(vi.mocked(logger.info)).toHaveBeenCalledWith('Giver retry initiated', expect.objectContaining({exchangeId: exchange.exchangeId}));
+    });
+
+    it('logs error when giver retry has email failures', async () => {
+        mockBatchResponse(
+            ['alex@test.com', 'whitney@test.com', 'hunter@test.com'],
+            ['whitney@test.com']
+        );
+        mockFetch.mockResolvedValueOnce({ok: true});
+        const event = buildEvent('POST', {body: {exchangeId: exchange.exchangeId}, headers: {cookie: await authCookie(alex._id)}});
+        await handler(event);
+        expect(vi.mocked(logger.error)).toHaveBeenCalledWith('Giver retry email failures', expect.objectContaining({emailsFailed: ['whitney@test.com']}));
     });
 });

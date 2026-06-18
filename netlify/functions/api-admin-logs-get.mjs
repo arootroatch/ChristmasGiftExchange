@@ -7,7 +7,7 @@ export const handler = apiHandler("GET", async (event) => {
         return forbidden("Forbidden");
     }
 
-    const {level, endpoint, from, to, page = "1"} = event.queryStringParameters ?? {};
+    const {level, endpoint, message, from, to, page = "1"} = event.queryStringParameters ?? {};
     const pageNum = Math.max(1, parseInt(page) || 1);
     const pageSize = 50;
 
@@ -19,6 +19,10 @@ export const handler = apiHandler("GET", async (event) => {
     if (endpoint) {
         const escaped = endpoint.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         query.endpoint = {$regex: escaped, $options: "i"};
+    }
+    if (message) {
+        const escaped = message.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        query.message = {$regex: escaped, $options: "i"};
     }
 
     const col = await getLogsCollection();

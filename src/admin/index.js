@@ -18,10 +18,11 @@ function adminLayout() {
 }
 
 async function loadLogs() {
-    const {level, endpoint, from, to, page} = getFilterValues();
+    const {level, endpoint, message, from, to, page} = getFilterValues();
     const params = new URLSearchParams();
     if (level) params.set('level', level);
     if (endpoint) params.set('endpoint', endpoint);
+    if (message) params.set('message', message);
     if (from) params.set('from', from);
     if (to) params.set('to', to);
     params.set('page', String(page));

@@ -2,6 +2,7 @@ import {apiHandler, validateBody} from "../shared/middleware.mjs";
 import {ok, badRequest} from "../shared/responses.mjs";
 import {getUsersCollection} from "../shared/db.mjs";
 import {forEachGiverOf, sendNotificationEmail} from "../shared/giverNotification.mjs";
+import {logger} from "../shared/logger.mjs";
 import {userSchema} from "../shared/schemas/user.mjs";
 
 const wishlistPutRequestSchema = userSchema.pick({wishlists: true, wishItems: true, currency: true});
@@ -32,6 +33,7 @@ export const handler = apiHandler("PUT", async (event) => {
             );
         });
         notifiedGivers = true;
+        logger.info("Wishlist first added", {endpoint: event.path, ip: event.ip, userId: user._id.toString()});
     }
 
     return ok({success: true, notifiedGivers});

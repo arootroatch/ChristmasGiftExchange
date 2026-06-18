@@ -312,7 +312,7 @@ body:has(.admin-page) {
 
 .admin-table .col-meta pre {
   font-size: 0.75rem;
-  max-width: 320px;
+  max-width: min(600px, 50vw);
   overflow: auto;
   margin: 6px 0 0;
   padding: 8px;
@@ -320,7 +320,7 @@ body:has(.admin-page) {
   border-radius: var(--radius-sm);
   color: var(--text-secondary);
   white-space: pre-wrap;
-  word-break: break-all;
+  word-break: break-word;
 }
 
 /* ── Level badges ───────────────────────────────────────────── */

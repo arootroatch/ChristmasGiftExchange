@@ -3,6 +3,9 @@ import {setupMongo, teardownMongo, cleanCollections} from '../shared/mongoSetup.
 import {makeUser, seedUsers} from '../shared/testData.js';
 import {authCookie, buildEvent} from '../shared/specHelper.js';
 
+vi.mock('../../netlify/shared/logger.mjs');
+import {logger} from '../../netlify/shared/logger.mjs';
+
 describe('api-exchange-post', () => {
     let client, db, handler;
     let mongo;
@@ -285,6 +288,14 @@ describe('api-exchange-post', () => {
         const body = JSON.parse(response.body);
 
         expect(body.emailsFailed).toEqual([]);
+    });
+
+    it('logs info when exchange is created', async () => {
+        const organizerId = await insertOrganizer();
+        const cookie = await authCookie(organizerId);
+        const event = buildEvent('POST', {body: exchangePayload, path: postPath, headers: {cookie}});
+        await handler(event);
+        expect(vi.mocked(logger.info)).toHaveBeenCalledWith('Exchange created', expect.objectContaining({participantCount: 3}));
     });
 
     it('updates user name on upsert if different', async () => {

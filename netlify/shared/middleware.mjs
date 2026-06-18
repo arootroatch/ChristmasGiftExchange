@@ -105,6 +105,7 @@ export function apiHandler(method, fn, {auth = false, ...rateLimitConfig} = {}) 
     return async (event) => {
         const endpoint = `${event.httpMethod} ${event.path}`;
         const ip = extractClientIp(event);
+        event.ip = ip;
         logger.info(`[API] ${endpoint}`, {endpoint, ip});
         try {
             if (event.httpMethod !== method) return methodNotAllowed();
@@ -114,7 +115,10 @@ export function apiHandler(method, fn, {auth = false, ...rateLimitConfig} = {}) 
             if (originError) return originError;
 
             const limited = await applyRateLimit(event, rateLimitConfig);
-            if (limited) return limited;
+            if (limited) {
+                logger.warn("Rate limit exceeded", {endpoint, ip});
+                return limited;
+            }
 
             if (auth) {
                 const authError = await requireAuth(event);

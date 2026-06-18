@@ -4,6 +4,9 @@ import {setupMongo, teardownMongo, cleanCollections} from '../shared/mongoSetup.
 import {makeUser, makeExchange, seedUsers, seedExchange} from '../shared/testData.js';
 import {authCookie, buildEvent} from '../shared/specHelper.js';
 
+vi.mock('../../netlify/shared/logger.mjs');
+import {logger} from '../../netlify/shared/logger.mjs';
+
 describe('api-user-contact-post', () => {
     let client, db, handler;
     let mongo;
@@ -183,5 +186,13 @@ describe('api-user-contact-post', () => {
         expect(mockFetch).toHaveBeenCalledTimes(1);
         const emailBody = JSON.parse(mockFetch.mock.calls[0][1].body);
         expect(emailBody.To).toBe('new-giver@test.com');
+    });
+
+    it('logs info when contact info is shared', async () => {
+        const recipient = makeUser({email: 'recipient@test.com'});
+        await seedUsers(db, recipient);
+        const cookie = await authCookie(recipient._id);
+        await handler(buildEvent('POST', {headers: {cookie}, body: {address: '123 Main', phone: '555-0000', notes: ''}}));
+        expect(vi.mocked(logger.info)).toHaveBeenCalledWith('Contact info shared', expect.objectContaining({userId: recipient._id.toString()}));
     });
 });

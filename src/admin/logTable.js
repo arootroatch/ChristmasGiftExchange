@@ -20,7 +20,7 @@ export function renderTable({logs, total, page, pages}, onPageChange) {
             <td>${escapeHtml(log.message)}</td>
             <td class="col-endpoint">${escapeHtml(log.endpoint)}</td>
             <td class="col-ip">${escapeHtml(log.ip)}</td>
-            <td class="col-meta"><details><summary>view</summary><pre>${escapeHtml(JSON.stringify(log.metadata, null, 2))}</pre></details></td>
+            <td class="col-meta"><details><summary>view</summary><pre>${escapeHtml(JSON.stringify(log.metadata, null, 2).replace(/\\n/g, '\n'))}</pre></details></td>
         </tr>`).join('');
 
     container.innerHTML = `
