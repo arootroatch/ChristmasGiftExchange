@@ -58,10 +58,14 @@ export async function main() {
     document.body.style.opacity = '1';
     snackbar.init();
     cookieBanner.init();
-    const session = await loadSession();
-    if (session) {
-        initDashboard();
-    } else {
+    try {
+        const session = await loadSession();
+        if (session) {
+            initDashboard();
+        } else {
+            showAuthGate();
+        }
+    } catch {
         showAuthGate();
     }
 }
