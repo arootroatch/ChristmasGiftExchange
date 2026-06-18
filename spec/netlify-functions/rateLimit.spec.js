@@ -12,7 +12,7 @@ describe("rateLimit", () => {
     });
 
     afterEach(async () => {
-        await cleanCollections(db, "rateLimits");
+        await cleanCollections(db, "rateLimits", "logs");
     });
 
     afterAll(async () => {

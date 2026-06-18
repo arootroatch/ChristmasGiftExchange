@@ -3,6 +3,7 @@ import {sendNotificationEmail, setRequestOrigin} from "./giverNotification.mjs";
 import {checkRateLimit} from "./rateLimit.mjs";
 import {verifySession, parseCookies} from "./jwt.mjs";
 import {getUsersCollection} from "./db.mjs";
+import {logger} from "./logger.mjs";
 import {ObjectId} from "mongodb";
 
 export function formatZodError(zodError) {
@@ -42,7 +43,7 @@ export function validateOrigin(event) {
     if (ALLOWED_ORIGINS.some((allowed) => origin.includes(allowed))) return null;
     if (origin === process.env.URL) return null;
 
-    console.warn("Origin rejected:", origin);
+    logger.warn("Origin rejected", {endpoint: event.path, ip: extractClientIp(event), origin});
     return forbidden("Forbidden");
 }
 
@@ -82,7 +83,10 @@ async function applyRateLimit(event, rateLimitConfig) {
 }
 
 async function reportError(event, error) {
-    console.error("Unhandled error in API handler:", error);
+    logger.error("Unhandled error in API handler", {
+        endpoint: `${event.httpMethod} ${event.path}`,
+        stack: error.stack || error.message,
+    });
     try {
         await sendNotificationEmail(
             "error-alert",
@@ -100,7 +104,8 @@ async function reportError(event, error) {
 export function apiHandler(method, fn, {auth = false, ...rateLimitConfig} = {}) {
     return async (event) => {
         const endpoint = `${event.httpMethod} ${event.path}`;
-        console.log(`[API] ${endpoint}`);
+        const ip = extractClientIp(event);
+        logger.info(`[API] ${endpoint}`, {endpoint, ip});
 
         if (event.httpMethod !== method) return methodNotAllowed();
         setRequestOrigin(event);
@@ -109,15 +114,12 @@ export function apiHandler(method, fn, {auth = false, ...rateLimitConfig} = {}) 
         if (originError) return originError;
 
         const limited = await applyRateLimit(event, rateLimitConfig);
-        if (limited) {
-            console.warn(`[API] Rate limited: ${endpoint}`);
-            return limited;
-        }
+        if (limited) return limited;
 
         if (auth) {
             const authError = await requireAuth(event);
             if (authError) {
-                console.warn(`[API] Auth failed: ${endpoint}`);
+                logger.warn("Auth failed", {endpoint, ip});
                 return authError;
             }
         }
