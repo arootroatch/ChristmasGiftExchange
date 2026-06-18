@@ -14,8 +14,11 @@ describe("apiHandler", () => {
         const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
         const error = new Error("db exploded");
         const handler = apiHandler("GET", () => { throw error; });
-        await handler({httpMethod: "GET"});
-        expect(consoleSpy).toHaveBeenCalledWith("Unhandled error in API handler:", error);
+        await handler({httpMethod: "GET", path: "/api/test"});
+        expect(consoleSpy).toHaveBeenCalledWith(
+            "Unhandled error in API handler",
+            expect.objectContaining({stack: expect.stringContaining("db exploded")})
+        );
         consoleSpy.mockRestore();
     });
 
@@ -86,7 +89,10 @@ describe("validateOrigin", () => {
         const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
         const event = {headers: {origin: "https://evil-site.com"}};
         validateOrigin(event);
-        expect(consoleSpy).toHaveBeenCalledWith("Origin rejected:", "https://evil-site.com");
+        expect(consoleSpy).toHaveBeenCalledWith(
+            "Origin rejected",
+            expect.objectContaining({origin: "https://evil-site.com"})
+        );
         consoleSpy.mockRestore();
     });
 });

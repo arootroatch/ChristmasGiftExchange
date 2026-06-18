@@ -1,5 +1,6 @@
 import {getRateLimitsCollection} from "./db.mjs";
 import {tooManyRequests} from "./responses.mjs";
+import {logger} from "./logger.mjs";
 
 export async function checkRateLimit(ip, endpoint, {maxRequests = 30, windowMs = 60000} = {}) {
     const col = await getRateLimitsCollection();
@@ -15,6 +16,7 @@ export async function checkRateLimit(ip, endpoint, {maxRequests = 30, windowMs =
 
     if (result) {
         if (result.count > maxRequests) {
+            logger.warn("Rate limit exceeded", {ip, endpoint, count: result.count, maxRequests});
             return tooManyRequests("Rate limit exceeded");
         }
         return null;
