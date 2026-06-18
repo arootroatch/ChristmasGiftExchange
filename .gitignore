@@ -37,3 +37,4 @@ e2e/.e2e-state.json
 
 # Deno (auto-generated, not used)
 deno.lock
+.security-session-start-sha
