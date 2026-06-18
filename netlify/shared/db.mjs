@@ -37,3 +37,8 @@ export async function getAuthCodesCollection() {
     const db = await getDb();
     return db.collection("authCodes");
 }
+
+export async function getLogsCollection() {
+    const db = await getDb();
+    return db.collection("logs");
+}
