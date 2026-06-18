@@ -23,12 +23,16 @@ export async function verifySession(token) {
     }
 }
 
+function secureFlag() {
+    return process.env.CONTEXT === "dev" ? "" : "; Secure";
+}
+
 export function buildSessionCookie(jwt) {
-    return `session=${jwt}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=${SESSION_MAX_AGE}`;
+    return `session=${jwt}; HttpOnly${secureFlag()}; SameSite=Strict; Path=/; Max-Age=${SESSION_MAX_AGE}`;
 }
 
 export function clearSessionCookie() {
-    return "session=; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=0";
+    return `session=; HttpOnly${secureFlag()}; SameSite=Strict; Path=/; Max-Age=0`;
 }
 
 export function parseCookies(cookieHeader) {

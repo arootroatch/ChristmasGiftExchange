@@ -7,11 +7,14 @@ import {renderTable} from './logTable.js';
 
 function adminLayout() {
     return `
-        <div style="max-width:1200px;margin:0 auto;padding:16px">
+        <header class="admin-header">
             <h1>Admin Logs</h1>
+            <span class="admin-header-badge">Admin</span>
+        </header>
+        <main class="admin-main">
             <div id="filters-container"></div>
             <div id="logs-container"></div>
-        </div>`;
+        </main>`;
 }
 
 async function loadLogs() {
@@ -25,7 +28,7 @@ async function loadLogs() {
 
     const res = await fetch(`/.netlify/functions/api-admin-logs-get?${params}`);
     if (res.status === 403) {
-        document.getElementById('admin-content').innerHTML = '<p style="padding:16px">Access denied.</p>';
+        document.getElementById('admin-content').innerHTML = '<div class="admin-empty">Access denied.</div>';
         return;
     }
     if (!res.ok) {
@@ -46,16 +49,20 @@ function initDashboard() {
 
 function adminGateTemplate() {
     return `
-        <div id="admin-gate" style="max-width:400px;margin:60px auto;padding:24px">
-            <h2>Admin Access</h2>
-            <div id="admin-send-step">
-                <p>Send a verification code to the admin email address.</p>
-                <button id="admin-send-code">Send Verification Code</button>
-            </div>
-            <div id="admin-code-step" style="display:none">
-                <p>Check your email for a verification code.</p>
-                <label>Verification code<input type="text" id="admin-code" inputmode="numeric" maxlength="8" required></label>
-                <button id="admin-verify-code">Verify</button>
+        <div class="admin-gate">
+            <div class="admin-gate-card">
+                <h2>Admin Access</h2>
+                <div id="admin-send-step">
+                    <p>Send a verification code to the admin email address.</p>
+                    <button id="admin-send-code" class="admin-btn">Send Verification Code</button>
+                </div>
+                <div id="admin-code-step" style="display:none">
+                    <p>Check your email for a verification code.</p>
+                    <label>Verification code
+                        <input type="text" id="admin-code" inputmode="numeric" maxlength="8" required>
+                    </label>
+                    <button id="admin-verify-code" class="admin-btn">Verify</button>
+                </div>
             </div>
         </div>`;
 }

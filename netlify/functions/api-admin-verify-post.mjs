@@ -20,7 +20,7 @@ export const handler = apiHandler("POST", async (event) => {
     const usersCol = await getUsersCollection();
     const user = await usersCol.findOneAndUpdate(
         {email},
-        {$set: {email}, $setOnInsert: {wishlists: [], wishItems: []}},
+        {$set: {email}, $setOnInsert: {name: 'Admin', wishlists: [], wishItems: []}},
         {upsert: true, returnDocument: "after"}
     );
 

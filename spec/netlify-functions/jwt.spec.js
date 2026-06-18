@@ -55,6 +55,15 @@ describe("jwt", () => {
         expect(cookie).toContain("Max-Age=0");
     });
 
+    it("omits Secure flag in dev context", () => {
+        process.env.CONTEXT = "dev";
+        const cookie = buildSessionCookie("jwt-token-here");
+        const cleared = clearSessionCookie();
+        process.env.CONTEXT = "";
+        expect(cookie).not.toContain("Secure");
+        expect(cleared).not.toContain("Secure");
+    });
+
     it("parses cookies from header string", () => {
         const cookies = parseCookies("session=abc123; other=xyz");
         expect(cookies.session).toBe("abc123");

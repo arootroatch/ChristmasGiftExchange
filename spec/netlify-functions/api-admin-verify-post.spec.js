@@ -63,6 +63,7 @@ describe('api-admin-verify-post', () => {
         expect(response.headers['Set-Cookie']).toMatch(/session=/);
         const created = await db.collection('users').findOne({email: 'admin@example.com'});
         expect(created).not.toBeNull();
+        expect(created.name).toBe('Admin');
     });
 
     it('returns 429 when rate limit exceeded', async () => {
