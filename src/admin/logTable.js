@@ -5,6 +5,30 @@ function escapeHtml(str) {
     return String(str ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
+function hasMetadata(log) {
+    return log.metadata && Object.keys(log.metadata).length > 0;
+}
+
+function buildRows(logs) {
+    return logs.map((log, i) => {
+        const meta = hasMetadata(log)
+            ? JSON.stringify(log.metadata, null, 2).replace(/\\n/g, '\n')
+            : null;
+        return `
+            <tr class="log-row">
+                <td class="col-time">${new Date(log.timestamp).toLocaleString()}</td>
+                <td class="col-level"><span class="level-badge level-${escapeHtml(log.level)}">${escapeHtml(log.level)}</span></td>
+                <td class="col-message">${escapeHtml(log.message)}</td>
+                <td class="col-endpoint">${escapeHtml(log.endpoint)}</td>
+                <td class="col-ip">${escapeHtml(log.ip)}</td>
+                <td class="col-expand">${meta ? `<button class="meta-toggle" data-row="${i}" aria-expanded="false">▶</button>` : ''}</td>
+            </tr>
+            ${meta ? `<tr class="log-meta-row" id="log-meta-${i}" hidden>
+                <td colspan="6" class="col-meta-content"><pre>${escapeHtml(meta)}</pre></td>
+            </tr>` : ''}`;
+    }).join('');
+}
+
 export function renderTable({logs, total, page, pages}, onPageChange) {
     const container = document.getElementById('logs-container');
 
@@ -12,16 +36,6 @@ export function renderTable({logs, total, page, pages}, onPageChange) {
         container.innerHTML = '<div class="admin-empty">No logs found.</div>';
         return;
     }
-
-    const rows = logs.map(log => `
-        <tr>
-            <td class="col-time">${new Date(log.timestamp).toLocaleString()}</td>
-            <td><span class="level-badge level-${escapeHtml(log.level)}">${escapeHtml(log.level)}</span></td>
-            <td>${escapeHtml(log.message)}</td>
-            <td class="col-endpoint">${escapeHtml(log.endpoint)}</td>
-            <td class="col-ip">${escapeHtml(log.ip)}</td>
-            <td class="col-meta"><details><summary>view</summary><pre>${escapeHtml(JSON.stringify(log.metadata, null, 2).replace(/\\n/g, '\n'))}</pre></details></td>
-        </tr>`).join('');
 
     container.innerHTML = `
         <p class="admin-table-summary">Showing ${logs.length} of ${total} logs</p>
@@ -34,10 +48,10 @@ export function renderTable({logs, total, page, pages}, onPageChange) {
                         <th>Message</th>
                         <th>Endpoint</th>
                         <th>IP</th>
-                        <th>Metadata</th>
+                        <th></th>
                     </tr>
                 </thead>
-                <tbody>${rows}</tbody>
+                <tbody>${buildRows(logs)}</tbody>
             </table>
         </div>
         <div class="admin-pagination">
@@ -45,6 +59,17 @@ export function renderTable({logs, total, page, pages}, onPageChange) {
             <span>Page ${page} of ${Math.max(1, pages)}</span>
             ${page < pages ? `<button id="page-next">Next</button>` : ''}
         </div>`;
+
+    container.querySelector('tbody').addEventListener('click', e => {
+        const btn = e.target.closest('.meta-toggle');
+        if (!btn) return;
+        const idx = btn.dataset.row;
+        const metaRow = document.getElementById(`log-meta-${idx}`);
+        const open = btn.getAttribute('aria-expanded') === 'true';
+        metaRow.hidden = open;
+        btn.setAttribute('aria-expanded', String(!open));
+        btn.textContent = open ? '▶' : '▼';
+    });
 
     document.getElementById('page-prev')?.addEventListener('click', () => {
         setPage(page - 1);
