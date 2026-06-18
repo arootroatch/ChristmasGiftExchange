@@ -53,6 +53,23 @@ describe("apiHandler", () => {
         consoleSpy.mockRestore();
     });
 
+    it("logs warn when rate limit is exceeded", async () => {
+        vi.mocked(checkRateLimit).mockResolvedValueOnce({statusCode: 429, body: '{"error":"Too many requests"}'});
+        const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+        const handler = apiHandler("GET", () => ({}), {maxRequests: 3});
+        await handler({httpMethod: "GET", path: "/api/test", headers: {"x-forwarded-for": "1.2.3.4"}});
+        expect(warnSpy).toHaveBeenCalledWith("Rate limit exceeded", expect.objectContaining({endpoint: "GET /api/test", ip: "1.2.3.4"}));
+        warnSpy.mockRestore();
+        vi.mocked(checkRateLimit).mockResolvedValue(null);
+    });
+
+    it("attaches ip to event so handlers can read it", async () => {
+        let capturedIp;
+        const handler = apiHandler("GET", (event) => { capturedIp = event.ip; return {}; });
+        await handler({httpMethod: "GET", path: "/api/test", headers: {"x-forwarded-for": "5.6.7.8"}});
+        expect(capturedIp).toBe("5.6.7.8");
+    });
+
     it("returns 500 when pre-handler infrastructure throws (e.g. rate limit db error)", async () => {
         const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
         vi.mocked(checkRateLimit).mockRejectedValueOnce(new Error("db connection failed"));

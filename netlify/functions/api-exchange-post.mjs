@@ -2,6 +2,7 @@ import {getExchangesCollection, getUsersCollection} from "../shared/db.mjs";
 import {apiHandler, validateBody} from "../shared/middleware.mjs";
 import {badRequest, ok} from "../shared/responses.mjs";
 import {sendBatchEmails} from "../shared/giverNotification.mjs";
+import {logger} from "../shared/logger.mjs";
 import {z} from "zod";
 
 const participantInputSchema = z.object({
@@ -128,6 +129,11 @@ export const handler = apiHandler("POST", async (event) => {
     });
 
     const {emailsFailed} = await sendBatchEmails(data.participants, data.assignments, userByEmail, data.exchangeId);
+
+    logger.info("Exchange created", {endpoint: event.path, ip: event.ip, exchangeId: data.exchangeId, participantCount: data.participants.length});
+    if (emailsFailed.length > 0) {
+        logger.error("Exchange email send failures", {endpoint: event.path, ip: event.ip, exchangeId: data.exchangeId, emailsFailed});
+    }
 
     return ok({...buildResponse(data.exchangeId, data.participants), emailsFailed});
 }, {auth: true, maxRequests: 30, windowMs: 60000});

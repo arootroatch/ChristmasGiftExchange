@@ -4,6 +4,9 @@ import {setupMongo, teardownMongo, cleanCollections} from '../shared/mongoSetup.
 import {makeUser, makeExchange, alex, seedUsers, seedExchange} from '../shared/testData.js';
 import {authCookie, buildEvent} from '../shared/specHelper.js';
 
+vi.mock('../../netlify/shared/logger.mjs');
+import {logger} from '../../netlify/shared/logger.mjs';
+
 describe('api-user-wishlist-put', () => {
     let client, db, handler;
     let mongo;
@@ -160,5 +163,16 @@ describe('api-user-wishlist-put', () => {
         const emailBody = JSON.parse(fetchCall[1].body);
         expect(emailBody.To).toBe('giver@test.com');
         expect(emailBody.HtmlBody).toContain('Whitney');
+    });
+
+    it('logs info when wishlist is first added', async () => {
+        const user = makeUser({email: 'user@test.com', wishlists: [], wishItems: []});
+        await seedUsers(db, user);
+        const cookie = await authCookie(user._id);
+        await handler(buildEvent('PUT', {
+            headers: {cookie},
+            body: {wishlists: [{url: 'https://amazon.com', title: 'My List'}], wishItems: [], currency: 'USD'},
+        }));
+        expect(vi.mocked(logger.info)).toHaveBeenCalledWith('Wishlist first added', expect.objectContaining({userId: user._id.toString()}));
     });
 });

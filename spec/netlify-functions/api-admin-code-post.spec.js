@@ -67,6 +67,11 @@ describe('api-admin-code-post', () => {
         expect(response.statusCode).toBe(429);
     });
 
+    it('logs info when admin code is requested', async () => {
+        await handler(buildEvent('POST'));
+        expect(vi.mocked(logger.info)).toHaveBeenCalledWith('Admin code requested', expect.any(Object));
+    });
+
     it('returns 500 and logs error when ADMIN_EMAIL is not configured', async () => {
         delete process.env.ADMIN_EMAIL;
         const response = await handler(buildEvent('POST'));

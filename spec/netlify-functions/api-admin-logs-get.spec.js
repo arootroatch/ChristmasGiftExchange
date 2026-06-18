@@ -132,6 +132,23 @@ describe("api-admin-logs-get", () => {
         expect(body.distinctEndpoints).toEqual(["GET /api/user", "POST /api/auth"]);
     });
 
+    it("filters by message text (case-insensitive substring)", async () => {
+        await seedUsers(db, adminUser);
+        const col = db.collection("logs");
+        await col.insertMany([
+            {level: "info", message: "Exchange created", endpoint: null, ip: null, metadata: {}, timestamp: new Date()},
+            {level: "info", message: "Login success", endpoint: null, ip: null, metadata: {}, timestamp: new Date()},
+        ]);
+        const event = buildEvent("GET", {
+            headers: {cookie: await authCookie(adminUser._id)},
+            queryStringParameters: {message: "exchange"},
+        });
+        const response = await handler(event);
+        const body = JSON.parse(response.body);
+        expect(body.total).toBe(1);
+        expect(body.logs[0].message).toBe("Exchange created");
+    });
+
     it("paginates results with page size 50", async () => {
         await seedUsers(db, adminUser);
         const col = db.collection("logs");

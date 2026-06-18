@@ -3,6 +3,7 @@ import {apiHandler, validateBody} from "../shared/middleware.mjs";
 import {ok, badRequest, forbidden, notFound} from "../shared/responses.mjs";
 import {sendNotificationEmail, sendBatchEmails} from "../shared/giverNotification.mjs";
 import {getUsersCollection, getExchangesCollection} from "../shared/db.mjs";
+import {logger} from "../shared/logger.mjs";
 
 const requestSchema = z.object({
     exchangeId: z.string(),
@@ -56,7 +57,7 @@ async function alertEmailFailures(emailsFailed, assignments) {
             }
         );
     } catch (err) {
-        console.error("Failed to send error-alert email:", err);
+        logger.error("Failed to send error-alert email", {err: err.message});
     }
 }
 
@@ -96,7 +97,10 @@ export const handler = apiHandler("POST", async (event) => {
     const userByEmail = Object.fromEntries(participantUsers.map(u => [u.email, u]));
     const {emailsFailed} = await sendBatchEmails(participants, assignments, userByEmail, data.exchangeId);
 
+    logger.info("Giver retry initiated", {endpoint: event.path, ip: event.ip, exchangeId: data.exchangeId, sent: assignments.length - emailsFailed.length});
+
     if (emailsFailed.length > 0) {
+        logger.error("Giver retry email failures", {endpoint: event.path, ip: event.ip, exchangeId: data.exchangeId, emailsFailed});
         await alertEmailFailures(emailsFailed, assignments);
     }
 

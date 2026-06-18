@@ -5,6 +5,7 @@ import {buildEvent} from '../shared/specHelper.js';
 import {generateAndStoreCode} from '../../netlify/shared/authCodes.mjs';
 
 vi.mock("../../netlify/shared/logger.mjs");
+import {logger} from "../../netlify/shared/logger.mjs";
 
 describe('api-admin-verify-post', () => {
     let db, handler, mongo;
@@ -54,6 +55,19 @@ describe('api-admin-verify-post', () => {
         const response = await handler(buildEvent('POST', {body: {code}}));
         expect(response.statusCode).toBe(200);
         expect(response.headers['Set-Cookie']).toMatch(/session=/);
+    });
+
+    it('logs warn when admin login fails with invalid code', async () => {
+        await generateAndStoreCode('admin@example.com');
+        await handler(buildEvent('POST', {body: {code: '00000000'}}));
+        expect(vi.mocked(logger.warn)).toHaveBeenCalledWith('Admin login failed - invalid code', expect.any(Object));
+    });
+
+    it('logs info on successful admin login', async () => {
+        await seedUsers(db, adminUser);
+        const code = await generateAndStoreCode('admin@example.com');
+        await handler(buildEvent('POST', {body: {code}}));
+        expect(vi.mocked(logger.info)).toHaveBeenCalledWith('Admin login success', expect.any(Object));
     });
 
     it('returns 200 and creates admin user if not yet in database', async () => {

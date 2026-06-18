@@ -21,6 +21,10 @@ export function renderFilters(container, onSearch) {
                 <select id="filter-endpoint"><option value="">All endpoints</option></select>
             </div>
             <div class="admin-filter-group">
+                <label for="filter-message">Message</label>
+                <input type="text" id="filter-message" placeholder="Search message...">
+            </div>
+            <div class="admin-filter-group">
                 <label for="filter-from">From</label>
                 <input type="datetime-local" id="filter-from">
             </div>
@@ -63,6 +67,7 @@ export function getFilterValues() {
     return {
         level: document.getElementById('filter-level')?.value || '',
         endpoint: document.getElementById('filter-endpoint')?.value || '',
+        message: document.getElementById('filter-message')?.value || '',
         from: fromRaw ? new Date(fromRaw).toISOString() : '',
         to: toRaw ? new Date(toRaw).toISOString() : '',
         page: currentPage,

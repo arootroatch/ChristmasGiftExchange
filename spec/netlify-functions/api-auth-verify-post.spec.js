@@ -4,6 +4,9 @@ import {makeUser, seedUsers} from '../shared/testData.js';
 import {buildEvent} from '../shared/specHelper.js';
 import {generateAndStoreCode} from '../../netlify/shared/authCodes.mjs';
 
+vi.mock('../../netlify/shared/logger.mjs');
+import {logger} from '../../netlify/shared/logger.mjs';
+
 describe('api-auth-verify-post', () => {
     let db, handler, mongo, mockFetch;
 
@@ -131,6 +134,32 @@ describe('api-auth-verify-post', () => {
         expect(response.statusCode).toBe(200);
         const body = JSON.parse(response.body);
         expect(body.success).toBe(true);
+    });
+
+    it('logs warn when login fails with invalid code', async () => {
+        const user = makeUser({email: 'test@test.com'});
+        await seedUsers(db, user);
+        await generateAndStoreCode('test@test.com');
+        await handler(buildEvent('POST', {body: {email: 'test@test.com', code: '00000000'}}));
+        expect(vi.mocked(logger.warn)).toHaveBeenCalledWith('Login failed - invalid code', expect.objectContaining({email: 'test@test.com'}));
+    });
+
+    it('logs info on successful login for existing user', async () => {
+        const user = makeUser({email: 'test@test.com'});
+        await seedUsers(db, user);
+        const code = await generateAndStoreCode('test@test.com');
+        await handler(buildEvent('POST', {body: {email: 'test@test.com', code}}));
+        expect(vi.mocked(logger.info)).toHaveBeenCalledWith('Login success', expect.objectContaining({email: 'test@test.com'}));
+    });
+
+    it('logs info when new user is created on verify', async () => {
+        const code = await generateAndStoreCode('new@test.com');
+        await db.collection('users').insertOne({email: 'new@test.com', name: 'New User', wishlists: [], wishItems: []});
+        const code2 = await generateAndStoreCode('newuser@test.com');
+        await db.collection('users').insertOne({email: 'newuser@test.com', wishlists: [], wishItems: []});
+        const realCode = await generateAndStoreCode('brand@test.com');
+        await handler(buildEvent('POST', {body: {email: 'brand@test.com', code: realCode, name: 'Brand New'}}));
+        expect(vi.mocked(logger.info)).toHaveBeenCalledWith('New user created', expect.objectContaining({email: 'brand@test.com'}));
     });
 
     it('deletes code after successful verification', async () => {

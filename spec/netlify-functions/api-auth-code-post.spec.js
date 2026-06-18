@@ -3,6 +3,9 @@ import {setupMongo, teardownMongo, cleanCollections} from '../shared/mongoSetup.
 import {makeUser, seedUsers} from '../shared/testData.js';
 import {buildEvent} from '../shared/specHelper.js';
 
+vi.mock('../../netlify/shared/logger.mjs');
+import {logger} from '../../netlify/shared/logger.mjs';
+
 describe('api-auth-code-post', () => {
     let db, handler, mongo, mockFetch;
 
@@ -81,6 +84,18 @@ describe('api-auth-code-post', () => {
         const body = JSON.parse(response.body);
         expect(body.sent).toBe(true);
         expect(mockFetch).not.toHaveBeenCalled();
+    });
+
+    it('logs info when auth code sent to existing user', async () => {
+        const user = makeUser({email: 'exists@test.com'});
+        await seedUsers(db, user);
+        await handler(buildEvent('POST', {body: {email: 'exists@test.com'}}));
+        expect(vi.mocked(logger.info)).toHaveBeenCalledWith('Auth code sent', expect.objectContaining({email: 'exists@test.com'}));
+    });
+
+    it('logs info when auth code requested for unknown email', async () => {
+        await handler(buildEvent('POST', {body: {email: 'nobody@test.com'}}));
+        expect(vi.mocked(logger.info)).toHaveBeenCalledWith('Auth code requested - email not found', expect.objectContaining({email: 'nobody@test.com'}));
     });
 
     it('stores a code in authCodes collection when user exists', async () => {

@@ -4,6 +4,7 @@ import {badRequest, unauthorized, okWithHeaders} from "../shared/responses.mjs";
 import {getUsersCollection} from "../shared/db.mjs";
 import {verifyCode} from "../shared/authCodes.mjs";
 import {signSession, buildSessionCookie} from "../shared/jwt.mjs";
+import {logger} from "../shared/logger.mjs";
 
 const requestSchema = z.object({
     email: z.email(),
@@ -17,12 +18,16 @@ export const handler = apiHandler("POST", async (event) => {
 
     const email = data.email.trim();
     const result = await verifyCode(email, data.code);
-    if (!result.valid) return unauthorized(result.error);
+    if (!result.valid) {
+        logger.warn("Login failed - invalid code", {endpoint: event.path, ip: event.ip, email});
+        return unauthorized(result.error);
+    }
 
     const usersCol = await getUsersCollection();
     let user;
 
     if (data.name) {
+        const isNew = !(await usersCol.findOne({email}));
         user = await usersCol.findOneAndUpdate(
             {email},
             {
@@ -31,9 +36,12 @@ export const handler = apiHandler("POST", async (event) => {
             },
             {upsert: true, returnDocument: "after"}
         );
+        if (isNew) logger.info("New user created", {endpoint: event.path, ip: event.ip, email});
+        else logger.info("Login success", {endpoint: event.path, ip: event.ip, email});
     } else {
         user = await usersCol.findOne({email});
         if (!user) return unauthorized("Authentication failed");
+        logger.info("Login success", {endpoint: event.path, ip: event.ip, email});
     }
 
     const jwt = await signSession(user._id.toString());

@@ -42,4 +42,15 @@ describe('logFilters', () => {
         document.getElementById('filter-endpoint').value = 'GET /api/user';
         expect(getFilterValues().endpoint).toBe('GET /api/user');
     });
+
+    it('renders message text input', () => {
+        renderFilters(document.getElementById('filters-container'), vi.fn());
+        expect(document.getElementById('filter-message')).not.toBeNull();
+    });
+
+    it('getFilterValues reads message text input value', () => {
+        renderFilters(document.getElementById('filters-container'), vi.fn());
+        document.getElementById('filter-message').value = 'Exchange created';
+        expect(getFilterValues().message).toBe('Exchange created');
+    });
 });
