@@ -286,38 +286,65 @@ body:has(.admin-page) {
 }
 
 .admin-table .col-time {
+  width: 165px;
   white-space: nowrap;
   color: var(--text-secondary);
   font-size: 0.8rem;
   font-variant-numeric: tabular-nums;
 }
 
-.admin-table .col-endpoint,
-.admin-table .col-ip {
+.admin-table .col-level {
+  width: 80px;
+}
+
+.admin-table .col-endpoint {
+  width: 280px;
   font-size: 0.8rem;
   color: var(--text-secondary);
   font-family: 'Courier New', monospace;
 }
 
-.admin-table .col-meta details summary {
-  cursor: pointer;
+.admin-table .col-ip {
+  width: 110px;
   font-size: 0.8rem;
   color: var(--text-secondary);
-  user-select: none;
+  font-family: 'Courier New', monospace;
 }
 
-.admin-table .col-meta details summary:hover {
+.admin-table .col-expand {
+  width: 32px;
+  padding: 6px 8px;
+  text-align: center;
+}
+
+.meta-toggle {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 0.7rem;
+  padding: 2px 4px;
+  border-radius: 3px;
+  transition: color 0.15s;
+}
+
+.meta-toggle:hover {
   color: var(--text-primary);
 }
 
-.admin-table .col-meta pre {
+.log-meta-row td {
+  padding: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.col-meta-content {
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.col-meta-content pre {
   font-size: 0.75rem;
-  max-width: min(600px, 50vw);
-  overflow: auto;
-  margin: 6px 0 0;
-  padding: 8px;
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: var(--radius-sm);
+  margin: 0;
+  padding: 12px 16px;
   color: var(--text-secondary);
   white-space: pre-wrap;
   word-break: break-word;
