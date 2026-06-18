@@ -13,15 +13,33 @@ export function renderFilters(container, onSearch) {
                 <option value="error">Error</option>
                 <option value="debug">Debug</option>
             </select>
-            <input type="text" id="filter-endpoint" placeholder="Endpoint filter...">
+            <select id="filter-endpoint"><option value="">All endpoints</option></select>
             <label>From <input type="datetime-local" id="filter-from"></label>
             <label>To <input type="datetime-local" id="filter-to"></label>
             <button id="filter-search">Search</button>
         </div>`;
+    document.getElementById('filter-level').addEventListener('change', () => {
+        currentPage = 1;
+        onSearchFn();
+    });
+    document.getElementById('filter-endpoint').addEventListener('change', () => {
+        currentPage = 1;
+        onSearchFn();
+    });
     document.getElementById('filter-search').addEventListener('click', () => {
         currentPage = 1;
         onSearchFn();
     });
+}
+
+export function populateEndpoints(endpoints) {
+    const select = document.getElementById('filter-endpoint');
+    if (!select) return;
+    const current = select.value;
+    select.innerHTML = '<option value="">All endpoints</option>' +
+        [...endpoints].sort().map(ep =>
+            `<option value="${ep}"${ep === current ? ' selected' : ''}>${ep}</option>`
+        ).join('');
 }
 
 export function getFilterValues() {

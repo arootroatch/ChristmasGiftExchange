@@ -117,6 +117,21 @@ describe("api-admin-logs-get", () => {
         expect(body.logs[0].endpoint).toBe("POST /api/auth-code");
     });
 
+    it("returns distinctEndpoints for the time window", async () => {
+        await seedUsers(db, adminUser);
+        const col = db.collection("logs");
+        await col.insertMany([
+            {level: "info", message: "A", endpoint: "GET /api/user", ip: null, metadata: {}, timestamp: new Date()},
+            {level: "warn", message: "B", endpoint: "POST /api/auth", ip: null, metadata: {}, timestamp: new Date()},
+            {level: "info", message: "C", endpoint: "GET /api/user", ip: null, metadata: {}, timestamp: new Date()},
+            {level: "info", message: "D", endpoint: null, ip: null, metadata: {}, timestamp: new Date()},
+        ]);
+        const event = buildEvent("GET", {headers: {cookie: await authCookie(adminUser._id)}});
+        const response = await handler(event);
+        const body = JSON.parse(response.body);
+        expect(body.distinctEndpoints).toEqual(["GET /api/user", "POST /api/auth"]);
+    });
+
     it("paginates results with page size 50", async () => {
         await seedUsers(db, adminUser);
         const col = db.collection("logs");

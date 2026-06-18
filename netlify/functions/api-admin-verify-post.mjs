@@ -18,8 +18,11 @@ export const handler = apiHandler("POST", async (event) => {
     if (!result.valid) return unauthorized(result.error);
 
     const usersCol = await getUsersCollection();
-    const user = await usersCol.findOne({email});
-    if (!user) return unauthorized("Admin user not found");
+    const user = await usersCol.findOneAndUpdate(
+        {email},
+        {$set: {email}, $setOnInsert: {wishlists: [], wishItems: []}},
+        {upsert: true, returnDocument: "after"}
+    );
 
     const jwt = await signSession(user._id.toString());
     return okWithHeaders({success: true}, {"Set-Cookie": buildSessionCookie(jwt)});

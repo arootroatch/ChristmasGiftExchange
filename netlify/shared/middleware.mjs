@@ -106,25 +106,24 @@ export function apiHandler(method, fn, {auth = false, ...rateLimitConfig} = {}) 
         const endpoint = `${event.httpMethod} ${event.path}`;
         const ip = extractClientIp(event);
         logger.info(`[API] ${endpoint}`, {endpoint, ip});
-
-        if (event.httpMethod !== method) return methodNotAllowed();
-        setRequestOrigin(event);
-
-        const originError = validateOrigin(event);
-        if (originError) return originError;
-
-        const limited = await applyRateLimit(event, rateLimitConfig);
-        if (limited) return limited;
-
-        if (auth) {
-            const authError = await requireAuth(event);
-            if (authError) {
-                logger.warn("Auth failed", {endpoint, ip});
-                return authError;
-            }
-        }
-
         try {
+            if (event.httpMethod !== method) return methodNotAllowed();
+            setRequestOrigin(event);
+
+            const originError = validateOrigin(event);
+            if (originError) return originError;
+
+            const limited = await applyRateLimit(event, rateLimitConfig);
+            if (limited) return limited;
+
+            if (auth) {
+                const authError = await requireAuth(event);
+                if (authError) {
+                    logger.warn("Auth failed", {endpoint, ip});
+                    return authError;
+                }
+            }
+
             return await fn(event);
         } catch (error) {
             await reportError(event, error);
