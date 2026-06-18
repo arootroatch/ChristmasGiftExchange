@@ -16,7 +16,10 @@ export const handler = apiHandler("GET", async (event) => {
 
     const query = {timestamp: {$gte: fromDate, $lte: toDate}};
     if (level) query.level = level;
-    if (endpoint) query.endpoint = {$regex: endpoint, $options: "i"};
+    if (endpoint) {
+        const escaped = endpoint.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        query.endpoint = {$regex: escaped, $options: "i"};
+    }
 
     const col = await getLogsCollection();
     const total = await col.countDocuments(query);
