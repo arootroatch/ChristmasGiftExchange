@@ -58,19 +58,18 @@ describe("logger", () => {
     it("calls console.log for info level", async () => {
         // console.log is already mocked by setupMongo
         await logger.info("Request received");
-        expect(mongo.consoleLogSpy).toHaveBeenCalledWith("Request received", undefined);
+        expect(mongo.consoleLogSpy).toHaveBeenCalledWith("Request received");
     });
 
     it("calls console.error for error level", async () => {
         // console.error is already mocked by setupMongo
         await logger.error("Something broke");
-        expect(mongo.consoleErrorSpy).toHaveBeenCalledWith("Something broke", undefined);
+        expect(mongo.consoleErrorSpy).toHaveBeenCalledWith("Something broke");
     });
 
     it("does not throw when DB write fails", async () => {
         // Force a DB error by temporarily breaking the collection
         const mod = await import("../../netlify/shared/db.mjs");
-        const original = mod.getLogsCollection;
         vi.spyOn(mod, 'getLogsCollection').mockRejectedValueOnce(new Error("DB unavailable"));
         await expect(logger.warn("Should not throw")).resolves.not.toThrow();
         vi.restoreAllMocks();

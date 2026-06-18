@@ -3,7 +3,7 @@ import {getLogsCollection} from "./db.mjs";
 async function log(level, message, {endpoint, ip, ...metadata} = {}) {
     const consoleFn = level === 'error' ? console.error : level === 'warn' ? console.warn : console.log;
     const hasExtra = Object.keys(metadata).length > 0 || endpoint != null || ip != null;
-    consoleFn(message, hasExtra ? {endpoint, ip, ...metadata} : undefined);
+    consoleFn(message, ...(hasExtra ? [{endpoint, ip, ...metadata}] : []));
     try {
         const col = await getLogsCollection();
         await col.insertOne({
