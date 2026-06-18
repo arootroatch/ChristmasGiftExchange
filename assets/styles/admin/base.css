@@ -1,0 +1,379 @@
+/* Admin page — scoped to .admin-page */
+
+body:has(.admin-page) {
+  margin: 0;
+  padding: 0;
+  color: var(--text-primary);
+  background: var(--burgundy-deep);
+  background-image: radial-gradient(ellipse at 70% 0%, rgba(90, 35, 36, 0.2) 0%, transparent 50%);
+  background-attachment: fixed;
+  font-family: 'Source Sans 3', 'Segoe UI', sans-serif;
+  min-height: 100vh;
+}
+
+/* ── Layout ─────────────────────────────────────────────────── */
+
+.admin-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 32px 16px;
+  border-bottom: 1px solid var(--frost-border);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.admin-header h1 {
+  margin: 0;
+  font-family: 'Source Sans 3', 'Georgia', serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.01em;
+  text-align: left;
+}
+
+.admin-header-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: rgba(105, 41, 42, 0.5);
+  border: 1px solid rgba(142, 58, 59, 0.4);
+  color: rgba(240, 200, 200, 0.9);
+}
+
+.admin-main {
+  flex: 1;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 28px 32px 60px;
+  box-sizing: border-box;
+}
+
+/* ── Auth Gate ──────────────────────────────────────────────── */
+
+.admin-gate {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 32px;
+  box-sizing: border-box;
+}
+
+.admin-gate-card {
+  background: var(--frost);
+  border: 1px solid var(--frost-border);
+  border-radius: var(--radius-lg);
+  padding: 40px 48px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: var(--shadow-card);
+  animation: pageReveal 0.5s ease-out;
+}
+
+.admin-gate-card h2 {
+  margin: 0 0 8px;
+  font-family: 'Source Sans 3', 'Georgia', serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+  text-align: center;
+}
+
+.admin-gate-card p {
+  margin: 0 0 24px;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.admin-gate-card label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.admin-gate-card input[type="text"] {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-sm);
+  background: rgba(0, 0, 0, 0.3);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 1rem;
+  letter-spacing: 0.15em;
+  box-shadow: var(--shadow-input);
+  box-sizing: border-box;
+  margin-bottom: 16px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.admin-gate-card input[type="text"]:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow: var(--shadow-input), 0 0 0 2px rgba(255, 255, 255, 0.1);
+}
+
+/* ── Buttons ────────────────────────────────────────────────── */
+
+.admin-btn {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  background: var(--burgundy);
+  border: 1px solid var(--burgundy-light);
+  border-radius: var(--radius-sm);
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+  text-align: center;
+}
+
+.admin-btn:hover {
+  background: var(--burgundy-light);
+}
+
+.admin-btn:active {
+  transform: scale(0.99);
+}
+
+.admin-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.admin-btn-inline {
+  display: inline-block;
+  width: auto;
+  padding: 8px 16px;
+  font-size: 0.875rem;
+}
+
+/* ── Filters ────────────────────────────────────────────────── */
+
+.admin-filters {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  margin-bottom: 20px;
+  padding: 16px 20px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--frost-border);
+  border-radius: var(--radius-md);
+}
+
+.admin-filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.admin-filter-group label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  line-height: 1.2;
+}
+
+.admin-filter-group > span[aria-hidden] {
+  font-size: 0.75rem;
+  line-height: 1.2;
+  visibility: hidden;
+}
+
+.admin-filters select,
+.admin-filters input[type="datetime-local"] {
+  padding: 8px 32px 8px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-sm);
+  background: rgba(0, 0, 0, 0.3);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.875rem;
+  box-shadow: var(--shadow-input);
+  cursor: pointer;
+  min-width: 140px;
+  transition: border-color 0.2s;
+}
+
+.admin-filters select:focus,
+.admin-filters input[type="datetime-local"]:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.admin-filters input[type="datetime-local"] {
+  padding-right: 10px;
+  min-width: 180px;
+  color-scheme: dark;
+}
+
+.admin-filter-action {
+  justify-content: flex-end;
+}
+
+/* ── Table ──────────────────────────────────────────────────── */
+
+.admin-table-summary {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+}
+
+.admin-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--frost-border);
+  border-radius: var(--radius-md);
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.admin-table thead tr {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.admin-table th {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--frost-border);
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.admin-table td {
+  padding: 10px 12px;
+  vertical-align: top;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  color: var(--text-primary);
+}
+
+.admin-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.admin-table tbody tr:hover td {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.admin-table .col-time {
+  white-space: nowrap;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.admin-table .col-endpoint,
+.admin-table .col-ip {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  font-family: 'Courier New', monospace;
+}
+
+.admin-table .col-meta details summary {
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  user-select: none;
+}
+
+.admin-table .col-meta details summary:hover {
+  color: var(--text-primary);
+}
+
+.admin-table .col-meta pre {
+  font-size: 0.75rem;
+  max-width: 320px;
+  overflow: auto;
+  margin: 6px 0 0;
+  padding: 8px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* ── Level badges ───────────────────────────────────────────── */
+
+.level-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.level-info  { background: rgba(29, 78, 216, 0.25);  color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.3); }
+.level-warn  { background: rgba(146, 64, 14, 0.3);   color: #fcd34d; border: 1px solid rgba(217, 119, 6, 0.4);  }
+.level-error { background: rgba(153, 27, 27, 0.3);   color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.4);  }
+.level-debug { background: rgba(55, 65, 81, 0.4);    color: #9ca3af; border: 1px solid rgba(107, 114, 128, 0.3); }
+
+/* ── Pagination ─────────────────────────────────────────────── */
+
+.admin-pagination {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-top: 16px;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.admin-pagination button {
+  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--frost-border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.admin-pagination button:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* ── Empty / error states ───────────────────────────────────── */
+
+.admin-empty {
+  padding: 48px 32px;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  border: 1px solid var(--frost-border);
+  border-radius: var(--radius-md);
+}
