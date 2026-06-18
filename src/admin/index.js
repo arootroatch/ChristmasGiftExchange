@@ -2,7 +2,6 @@
 import '../../assets/styles/main.css';
 import * as snackbar from '../Snackbar.js';
 import * as cookieBanner from '../CookieBanner.js';
-import {authGateTemplate, initAuthGate} from '../authGate.js';
 import {loadSession} from '../session.js';
 import {renderFilters, getFilterValues} from './logFilters.js';
 import {renderTable} from './logTable.js';
@@ -45,12 +44,55 @@ function initDashboard() {
     loadLogs();
 }
 
+function adminGateTemplate() {
+    return `
+        <div id="admin-gate" style="max-width:400px;margin:60px auto;padding:24px">
+            <h2>Admin Access</h2>
+            <div id="admin-send-step">
+                <p>Send a verification code to the admin email address.</p>
+                <button id="admin-send-code">Send Verification Code</button>
+            </div>
+            <div id="admin-code-step" style="display:none">
+                <p>Check your email for a verification code.</p>
+                <label>Verification code<input type="text" id="admin-code" inputmode="numeric" maxlength="8" required></label>
+                <button id="admin-verify-code">Verify</button>
+            </div>
+        </div>`;
+}
+
 function showAuthGate() {
     const content = document.getElementById('admin-content');
-    content.innerHTML = authGateTemplate({heading: 'Admin Access'});
-    initAuthGate({
-        onSuccess: () => initDashboard(),
-        onError: (msg) => snackbar.showError(msg),
+    content.innerHTML = adminGateTemplate();
+
+    document.getElementById('admin-send-code').addEventListener('click', async () => {
+        const btn = document.getElementById('admin-send-code');
+        btn.disabled = true;
+        const res = await fetch('/.netlify/functions/api-admin-code-post', {method: 'POST'});
+        if (!res.ok) {
+            btn.disabled = false;
+            snackbar.showError('Failed to send code. Try again.');
+            return;
+        }
+        document.getElementById('admin-send-step').style.display = 'none';
+        document.getElementById('admin-code-step').style.display = '';
+    });
+
+    document.getElementById('admin-verify-code').addEventListener('click', async () => {
+        const code = document.getElementById('admin-code').value.trim();
+        if (!code) return;
+        const btn = document.getElementById('admin-verify-code');
+        btn.disabled = true;
+        const res = await fetch('/.netlify/functions/api-admin-verify-post', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({code}),
+        });
+        if (!res.ok) {
+            btn.disabled = false;
+            snackbar.showError('Invalid code. Try again.');
+            return;
+        }
+        initDashboard();
     });
 }
 
