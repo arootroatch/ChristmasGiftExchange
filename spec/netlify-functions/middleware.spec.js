@@ -6,8 +6,13 @@ vi.mock('../../netlify/shared/giverNotification.mjs', () => ({
     setRequestOrigin: vi.fn(),
 }));
 
+vi.mock('../../netlify/shared/rateLimit.mjs', () => ({
+    checkRateLimit: vi.fn(() => Promise.resolve(null)),
+}));
+
 import {apiHandler, validateBody, validateOrigin} from '../../netlify/shared/middleware.mjs';
 import {sendNotificationEmail} from '../../netlify/shared/giverNotification.mjs';
+import {checkRateLimit} from '../../netlify/shared/rateLimit.mjs';
 
 describe("apiHandler", () => {
     it("logs the error with stack trace on unhandled exception", async () => {
@@ -47,6 +52,16 @@ describe("apiHandler", () => {
         );
         consoleSpy.mockRestore();
     });
+
+    it("returns 500 when pre-handler infrastructure throws (e.g. rate limit db error)", async () => {
+        const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+        vi.mocked(checkRateLimit).mockRejectedValueOnce(new Error("db connection failed"));
+        const handler = apiHandler("GET", () => ({}), {maxRequests: 10});
+        const result = await handler({httpMethod: "GET", path: "/api/test"});
+        expect(result.statusCode).toBe(500);
+        consoleSpy.mockRestore();
+    });
+
 });
 
 describe("validateOrigin", () => {

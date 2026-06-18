@@ -56,6 +56,15 @@ describe('api-admin-verify-post', () => {
         expect(response.headers['Set-Cookie']).toMatch(/session=/);
     });
 
+    it('returns 200 and creates admin user if not yet in database', async () => {
+        const code = await generateAndStoreCode('admin@example.com');
+        const response = await handler(buildEvent('POST', {body: {code}}));
+        expect(response.statusCode).toBe(200);
+        expect(response.headers['Set-Cookie']).toMatch(/session=/);
+        const created = await db.collection('users').findOne({email: 'admin@example.com'});
+        expect(created).not.toBeNull();
+    });
+
     it('returns 429 when rate limit exceeded', async () => {
         await seedUsers(db, adminUser);
         for (let i = 0; i < 5; i++) {

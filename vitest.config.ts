@@ -34,6 +34,7 @@ export default defineConfig({
           include: [
             'spec/wishlistEdit/**/*.spec.js',
             'spec/dashboard/**/*.spec.js',
+            'spec/admin/**/*.spec.js',
             'spec/wishlistView.spec.js',
             'spec/reuse.spec.js',
           ],

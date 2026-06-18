@@ -1,9 +1,8 @@
 // src/admin/index.js
 import '../../assets/styles/main.css';
 import * as snackbar from '../Snackbar.js';
-import * as cookieBanner from '../CookieBanner.js';
 import {loadSession} from '../session.js';
-import {renderFilters, getFilterValues} from './logFilters.js';
+import {renderFilters, getFilterValues, populateEndpoints} from './logFilters.js';
 import {renderTable} from './logTable.js';
 
 function adminLayout() {
@@ -35,6 +34,7 @@ async function loadLogs() {
     }
     const data = await res.json();
     renderTable(data, loadLogs);
+    populateEndpoints(data.distinctEndpoints || []);
 }
 
 function initDashboard() {
@@ -99,7 +99,6 @@ function showAuthGate() {
 export async function main() {
     document.body.style.opacity = '1';
     snackbar.init();
-    cookieBanner.init();
     try {
         const session = await loadSession();
         if (session) {

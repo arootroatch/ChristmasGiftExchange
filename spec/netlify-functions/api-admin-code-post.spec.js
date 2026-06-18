@@ -1,6 +1,7 @@
 import {afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi} from 'vitest';
 import {setupMongo, teardownMongo, cleanCollections} from '../shared/mongoSetup.js';
 import {buildEvent} from '../shared/specHelper.js';
+import {logger} from '../../netlify/shared/logger.mjs';
 
 vi.mock("../../netlify/shared/logger.mjs");
 
@@ -64,5 +65,16 @@ describe('api-admin-code-post', () => {
         for (let i = 0; i < 3; i++) await handler(buildEvent('POST'));
         const response = await handler(buildEvent('POST'));
         expect(response.statusCode).toBe(429);
+    });
+
+    it('returns 500 and logs error when ADMIN_EMAIL is not configured', async () => {
+        delete process.env.ADMIN_EMAIL;
+        const response = await handler(buildEvent('POST'));
+        process.env.ADMIN_EMAIL = 'admin@example.com';
+        expect(response.statusCode).toBe(500);
+        expect(vi.mocked(logger.error)).toHaveBeenCalledWith(
+            'Unhandled error in API handler',
+            expect.objectContaining({stack: expect.stringContaining('ADMIN_EMAIL')})
+        );
     });
 });

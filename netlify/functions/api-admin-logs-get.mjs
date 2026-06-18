@@ -22,13 +22,13 @@ export const handler = apiHandler("GET", async (event) => {
     }
 
     const col = await getLogsCollection();
-    const total = await col.countDocuments(query);
-    const logs = await col
-        .find(query)
-        .sort({timestamp: -1})
-        .skip((pageNum - 1) * pageSize)
-        .limit(pageSize)
-        .toArray();
+    const timeWindow = {timestamp: {$gte: fromDate, $lte: toDate}};
+    const [total, logs, rawEndpoints] = await Promise.all([
+        col.countDocuments(query),
+        col.find(query).sort({timestamp: -1}).skip((pageNum - 1) * pageSize).limit(pageSize).toArray(),
+        col.distinct("endpoint", timeWindow),
+    ]);
+    const distinctEndpoints = rawEndpoints.filter(Boolean).sort();
 
-    return ok({logs, total, page: pageNum, pages: Math.ceil(total / pageSize)});
+    return ok({logs, total, page: pageNum, pages: Math.ceil(total / pageSize), distinctEndpoints});
 }, {auth: true});
