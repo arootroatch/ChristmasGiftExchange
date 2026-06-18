@@ -7,7 +7,7 @@ export const logSchema = z.object({
     message: z.string(),
     endpoint: z.string().nullable(),
     ip: z.string().nullable(),
-    metadata: z.object({}).passthrough(),
+    metadata: z.record(z.string(), z.unknown()),
     timestamp: z.date(),
 });
 
