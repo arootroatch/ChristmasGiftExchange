@@ -54,6 +54,8 @@ jobs:
 
       - name: Run e2e tests
         run: npm run e2e
+        env:
+          DEBUG_E2E: 'true'
 
   deploy-staging:
     needs: [test, e2e]
