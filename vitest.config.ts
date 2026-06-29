@@ -44,6 +44,7 @@ export default defineConfig({
         test: {
           name: 'backend',
           environment: 'node',
+          setupFiles: ['spec/shared/silenceConsole.js'],
           include: [
             'spec/netlify-functions/**/*.spec.js',
             'spec/integration/**/*.spec.js',
