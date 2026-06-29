@@ -68,10 +68,11 @@ describe("logger", () => {
     });
 
     it("does not throw when DB write fails", async () => {
-        // Force a DB error by temporarily breaking the collection
+        const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
         const mod = await import("../../netlify/shared/db.mjs");
-        vi.spyOn(mod, 'getLogsCollection').mockRejectedValueOnce(new Error("DB unavailable"));
+        const spy = vi.spyOn(mod, 'getLogsCollection').mockRejectedValueOnce(new Error("DB unavailable"));
         await expect(logger.warn("Should not throw")).resolves.not.toThrow();
-        vi.restoreAllMocks();
+        spy.mockRestore();
+        warnSpy.mockRestore();
     });
 });

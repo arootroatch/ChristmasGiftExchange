@@ -10,34 +10,32 @@ vi.mock('../../netlify/shared/rateLimit.mjs', () => ({
     checkRateLimit: vi.fn(() => Promise.resolve(null)),
 }));
 
+vi.mock('../../netlify/shared/logger.mjs');
+
 import {apiHandler, validateBody, validateOrigin} from '../../netlify/shared/middleware.mjs';
 import {sendNotificationEmail} from '../../netlify/shared/giverNotification.mjs';
 import {checkRateLimit} from '../../netlify/shared/rateLimit.mjs';
+import {logger} from '../../netlify/shared/logger.mjs';
 
 describe("apiHandler", () => {
     it("logs the error with stack trace on unhandled exception", async () => {
-        const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
         const error = new Error("db exploded");
         const handler = apiHandler("GET", () => { throw error; });
         await handler({httpMethod: "GET", path: "/api/test"});
-        expect(consoleSpy).toHaveBeenCalledWith(
+        expect(vi.mocked(logger.error)).toHaveBeenCalledWith(
             "Unhandled error in API handler",
             expect.objectContaining({stack: expect.stringContaining("db exploded")})
         );
-        consoleSpy.mockRestore();
     });
 
     it("returns 500 with error message on unhandled exception", async () => {
-        const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
         const handler = apiHandler("GET", () => { throw new Error("db exploded"); });
         const result = await handler({httpMethod: "GET"});
         expect(result.statusCode).toBe(500);
         expect(JSON.parse(result.body).error).toBe("Something went wrong");
-        consoleSpy.mockRestore();
     });
 
     it("sends error notification email on unhandled exception", async () => {
-        const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
         const error = new Error("db exploded");
         const handler = apiHandler("GET", () => { throw error; });
         await handler({httpMethod: "GET", path: "/api/test"});
@@ -50,16 +48,13 @@ describe("apiHandler", () => {
                 stackTrace: expect.stringContaining("db exploded"),
             })
         );
-        consoleSpy.mockRestore();
     });
 
     it("logs warn when rate limit is exceeded", async () => {
         vi.mocked(checkRateLimit).mockResolvedValueOnce({statusCode: 429, body: '{"error":"Too many requests"}'});
-        const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
         const handler = apiHandler("GET", () => ({}), {maxRequests: 3});
         await handler({httpMethod: "GET", path: "/api/test", headers: {"x-forwarded-for": "1.2.3.4"}});
-        expect(warnSpy).toHaveBeenCalledWith("Rate limit exceeded", expect.objectContaining({endpoint: "GET /api/test", ip: "1.2.3.4"}));
-        warnSpy.mockRestore();
+        expect(vi.mocked(logger.warn)).toHaveBeenCalledWith("Rate limit exceeded", expect.objectContaining({endpoint: "GET /api/test", ip: "1.2.3.4"}));
         vi.mocked(checkRateLimit).mockResolvedValue(null);
     });
 
@@ -71,12 +66,10 @@ describe("apiHandler", () => {
     });
 
     it("returns 500 when pre-handler infrastructure throws (e.g. rate limit db error)", async () => {
-        const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
         vi.mocked(checkRateLimit).mockRejectedValueOnce(new Error("db connection failed"));
         const handler = apiHandler("GET", () => ({}), {maxRequests: 10});
         const result = await handler({httpMethod: "GET", path: "/api/test"});
         expect(result.statusCode).toBe(500);
-        consoleSpy.mockRestore();
     });
 
 });
@@ -118,14 +111,12 @@ describe("validateOrigin", () => {
 
     it("logs the origin when rejected", () => {
         delete process.env.URL;
-        const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
         const event = {headers: {origin: "https://evil-site.com"}};
         validateOrigin(event);
-        expect(consoleSpy).toHaveBeenCalledWith(
+        expect(vi.mocked(logger.warn)).toHaveBeenCalledWith(
             "Origin rejected",
             expect.objectContaining({origin: "https://evil-site.com"})
         );
-        consoleSpy.mockRestore();
     });
 });
 
