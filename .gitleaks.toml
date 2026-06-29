@@ -1,0 +1,8 @@
+[allowlist]
+  description = "Known safe client-side widget keys"
+  paths = [
+    "index.html",
+  ]
+  regexes = [
+    "data-verifalia-appkey",
+  ]
