@@ -50,7 +50,7 @@ export default async function globalSetup() {
         'netlify', 'dev',
         '--port', String(port),
         '--target-port', String(targetPort),
-        '--command', `npx vite --port ${targetPort}`,
+        '--command', `npx vite --port ${targetPort} --host`,
         '--framework', '#custom',
         '--no-open',
     ], {
