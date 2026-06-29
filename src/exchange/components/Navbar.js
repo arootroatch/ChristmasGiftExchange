@@ -1,5 +1,5 @@
 import {getSessionUser, clearSession} from "../../session.js";
-import {escape} from "../../utils.js";
+import {escape, selectElement} from "../../utils.js";
 import {ExchangeEvents as Events, exchangeEvents as stateEvents} from "../state.js";
 import styles from '../../../assets/styles/exchange/components/navbar.module.css';
 
@@ -27,20 +27,20 @@ function template(user) {
 }
 
 export function init() {
-  const container = document.getElementById("container");
+  const container = selectElement('#container');
   container.insertAdjacentHTML("beforebegin", template(getSessionUser()));
 
-  const logoutBtn = document.getElementById(logoutId);
+  const logoutBtn = selectElement(`#${logoutId}`);
   if (logoutBtn) {
     logoutBtn.addEventListener("click", async () => {
       await fetch("/.netlify/functions/api-auth-logout-post", {method: "POST"});
       clearSession();
-      document.getElementById(navbarId)?.remove();
+      selectElement(`#${navbarId}`)?.remove();
     });
   }
 
   stateEvents.on(Events.EXCHANGE_STARTED, () => {
-    const title = document.getElementById("exchange-title");
+    const title = selectElement('#exchange-title');
     if (title) title.hidden = true;
   });
 }

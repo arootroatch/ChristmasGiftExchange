@@ -1,4 +1,5 @@
 import styles from '../assets/styles/components/cookie-banner.module.css';
+import {addEventListener, selectElement} from './utils.js';
 
 const CONSENT_KEY = "cookie-consent";
 const bannerId = "cookie-banner";
@@ -31,7 +32,7 @@ export function loadBmcWidget() {
 }
 
 function removeBanner() {
-  const banner = document.querySelector(`#${bannerId}`);
+  const banner = selectElement(`#${bannerId}`);
   if (!banner) return;
   banner.classList.add(styles.dismissing);
   banner.addEventListener("animationend", () => banner.remove());
@@ -49,8 +50,8 @@ function reject() {
 }
 
 function attachListeners() {
-  document.querySelector("#cookie-accept").addEventListener("click", accept);
-  document.querySelector("#cookie-reject").addEventListener("click", reject);
+  addEventListener("#cookie-accept", "click", accept);
+  addEventListener("#cookie-reject", "click", reject);
 }
 
 export function isBmcConsented() {

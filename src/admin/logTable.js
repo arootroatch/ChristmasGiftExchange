@@ -1,5 +1,6 @@
 // src/admin/logTable.js
 import {setPage} from './logFilters.js';
+import {addEventListener, selectElement} from '../utils.js';
 
 function escapeHtml(str) {
     return String(str ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -30,7 +31,7 @@ function buildRows(logs) {
 }
 
 export function renderTable({logs, total, page, pages}, onPageChange) {
-    const container = document.getElementById('logs-container');
+    const container = selectElement('#logs-container');
 
     if (!logs.length) {
         container.innerHTML = '<div class="admin-empty">No logs found.</div>';
@@ -64,18 +65,18 @@ export function renderTable({logs, total, page, pages}, onPageChange) {
         const btn = e.target.closest('.meta-toggle');
         if (!btn) return;
         const idx = btn.dataset.row;
-        const metaRow = document.getElementById(`log-meta-${idx}`);
+        const metaRow = selectElement(`#log-meta-${idx}`);
         const open = btn.getAttribute('aria-expanded') === 'true';
         metaRow.hidden = open;
         btn.setAttribute('aria-expanded', String(!open));
         btn.textContent = open ? '▶' : '▼';
     });
 
-    document.getElementById('page-prev')?.addEventListener('click', () => {
+    addEventListener('#page-prev', 'click', () => {
         setPage(page - 1);
         onPageChange();
     });
-    document.getElementById('page-next')?.addEventListener('click', () => {
+    addEventListener('#page-next', 'click', () => {
         setPage(page + 1);
         onPageChange();
     });

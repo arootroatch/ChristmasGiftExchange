@@ -1,4 +1,4 @@
-import {apiFetch, setLoadingState, clearLoadingState} from "./utils.js";
+import {apiFetch, setLoadingState, clearLoadingState, selectElement, addEventListener} from "./utils.js";
 import {setSessionUser} from "./session.js";
 
 export function authGateTemplate({heading, showName, buttonClass = 'button', gateClass = ''} = {}) {
@@ -19,11 +19,8 @@ export function authGateTemplate({heading, showName, buttonClass = 'button', gat
 }
 
 export function initAuthGate({onSuccess, onError, showName} = {}) {
-    const sendBtn = document.getElementById("auth-send-code");
-    const verifyBtn = document.getElementById("auth-verify-code");
-
-    sendBtn.addEventListener("click", () => {
-        const email = document.getElementById("auth-email").value.trim();
+    addEventListener("#auth-send-code", "click", () => {
+        const email = selectElement("#auth-email").value.trim();
         if (!email) return;
         setLoadingState("#auth-send-code");
         apiFetch("/.netlify/functions/api-auth-code-post", {
@@ -31,8 +28,8 @@ export function initAuthGate({onSuccess, onError, showName} = {}) {
             body: {email},
             onSuccess: () => {
                 clearLoadingState("#auth-send-code");
-                document.getElementById("auth-email-step").style.display = "none";
-                document.getElementById("auth-code-step").style.display = "";
+                selectElement("#auth-email-step").style.display = "none";
+                selectElement("#auth-code-step").style.display = "";
             },
             onError: (...args) => {
                 clearLoadingState("#auth-send-code");
@@ -41,10 +38,10 @@ export function initAuthGate({onSuccess, onError, showName} = {}) {
         });
     });
 
-    verifyBtn.addEventListener("click", () => {
-        const email = document.getElementById("auth-email").value.trim();
-        const code = document.getElementById("auth-code").value.trim();
-        const name = showName ? document.getElementById("auth-name")?.value.trim() : undefined;
+    addEventListener("#auth-verify-code", "click", () => {
+        const email = selectElement("#auth-email").value.trim();
+        const code = selectElement("#auth-code").value.trim();
+        const name = showName ? selectElement("#auth-name")?.value.trim() : undefined;
         if (!code) return;
         setLoadingState("#auth-verify-code");
         apiFetch("/.netlify/functions/api-auth-verify-post", {

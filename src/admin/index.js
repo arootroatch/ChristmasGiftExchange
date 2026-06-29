@@ -4,6 +4,7 @@ import * as snackbar from '../Snackbar.js';
 import {loadSession} from '../session.js';
 import {renderFilters, getFilterValues, populateEndpoints} from './logFilters.js';
 import {renderTable} from './logTable.js';
+import {selectElement, addEventListener} from '../utils.js';
 
 function adminLayout() {
     return `
@@ -29,7 +30,7 @@ async function loadLogs() {
 
     const res = await fetch(`/.netlify/functions/api-admin-logs-get?${params}`);
     if (res.status === 403) {
-        document.getElementById('admin-content').innerHTML = '<div class="admin-empty">Access denied.</div>';
+        selectElement('#admin-content').innerHTML = '<div class="admin-empty">Access denied.</div>';
         return;
     }
     if (!res.ok) {
@@ -42,9 +43,9 @@ async function loadLogs() {
 }
 
 function initDashboard() {
-    const content = document.getElementById('admin-content');
+    const content = selectElement('#admin-content');
     content.innerHTML = adminLayout();
-    renderFilters(document.getElementById('filters-container'), loadLogs);
+    renderFilters(selectElement('#filters-container'), loadLogs);
     loadLogs();
 }
 
@@ -69,11 +70,11 @@ function adminGateTemplate() {
 }
 
 function showAuthGate() {
-    const content = document.getElementById('admin-content');
+    const content = selectElement('#admin-content');
     content.innerHTML = adminGateTemplate();
 
-    document.getElementById('admin-send-code').addEventListener('click', async () => {
-        const btn = document.getElementById('admin-send-code');
+    addEventListener('#admin-send-code', 'click', async () => {
+        const btn = selectElement('#admin-send-code');
         btn.disabled = true;
         const res = await fetch('/.netlify/functions/api-admin-code-post', {method: 'POST'});
         if (!res.ok) {
@@ -81,14 +82,14 @@ function showAuthGate() {
             snackbar.showError('Failed to send code. Try again.');
             return;
         }
-        document.getElementById('admin-send-step').style.display = 'none';
-        document.getElementById('admin-code-step').style.display = '';
+        selectElement('#admin-send-step').style.display = 'none';
+        selectElement('#admin-code-step').style.display = '';
     });
 
-    document.getElementById('admin-verify-code').addEventListener('click', async () => {
-        const code = document.getElementById('admin-code').value.trim();
+    addEventListener('#admin-verify-code', 'click', async () => {
+        const code = selectElement('#admin-code').value.trim();
         if (!code) return;
-        const btn = document.getElementById('admin-verify-code');
+        const btn = selectElement('#admin-verify-code');
         btn.disabled = true;
         const res = await fetch('/.netlify/functions/api-admin-verify-post', {
             method: 'POST',

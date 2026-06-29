@@ -1,7 +1,7 @@
 import btnStyles from '../../assets/styles/dashboard/components/buttons.module.css';
 import authGateStyles from '../../assets/styles/dashboard/components/auth-gate.module.css';
 import modalStyles from '../../assets/styles/dashboard/components/modal.module.css';
-import {apiFetch} from '../utils.js';
+import {apiFetch, selectElement, selectElements, addEventListener} from '../utils.js';
 import * as snackbar from '../Snackbar.js';
 import * as cookieBanner from '../CookieBanner.js';
 import {authGateTemplate, initAuthGate} from '../authGate.js';
@@ -49,13 +49,13 @@ function defaultSection() {
 }
 
 function initNavigation() {
-  document.querySelectorAll('.nav-item').forEach(item => {
+  selectElements('.nav-item').forEach(item => {
     item.addEventListener('click', () => navigate(item.dataset.section));
   });
 
-  const hamburger = document.getElementById('hamburger-btn');
-  const backdrop = document.getElementById('sidebar-backdrop');
-  const sidebar = document.getElementById('dashboard-sidebar');
+  const hamburger = selectElement('#hamburger-btn');
+  const backdrop = selectElement('#sidebar-backdrop');
+  const sidebar = selectElement('#dashboard-sidebar');
 
   hamburger.addEventListener('click', () => {
     sidebar.classList.toggle('open');
@@ -75,10 +75,10 @@ function initNavigation() {
 
 function showSection(sectionId) {
   SECTIONS.forEach(s => {
-    document.getElementById(`section-${s}`).hidden = s !== sectionId;
+    selectElement(`#section-${s}`).hidden = s !== sectionId;
   });
 
-  document.querySelectorAll('.nav-item').forEach(item => {
+  selectElements('.nav-item').forEach(item => {
     item.classList.toggle('active', item.dataset.section === sectionId);
   });
 }
@@ -101,13 +101,12 @@ function doNavigate(sectionId) {
   }
 
   // Close mobile sidebar
-  document.getElementById('dashboard-sidebar').classList.remove('open');
-  document.getElementById('sidebar-backdrop').classList.remove('open');
+  selectElement('#dashboard-sidebar').classList.remove('open');
+  selectElement('#sidebar-backdrop').classList.remove('open');
 }
 
 function showUnsavedModal(onLeave) {
-  const existing = document.getElementById('unsaved-modal');
-  if (existing) existing.remove();
+  selectElement('#unsaved-modal')?.remove();
 
   const modal = document.createElement('div');
   modal.id = 'unsaved-modal';
@@ -123,8 +122,8 @@ function showUnsavedModal(onLeave) {
     </div>`;
   document.body.appendChild(modal);
 
-  document.getElementById('modal-cancel').addEventListener('click', () => modal.remove());
-  document.getElementById('modal-leave').addEventListener('click', () => {
+  addEventListener('#modal-cancel', 'click', () => modal.remove());
+  addEventListener('#modal-leave', 'click', () => {
     modal.remove();
     onLeave();
   });
@@ -146,8 +145,8 @@ function initLogout() {
     clearSession();
     window.location.reload();
   };
-  document.getElementById('sidebar-logout').addEventListener('click', handler);
-  document.getElementById('hamburger-logout').addEventListener('click', handler);
+  addEventListener('#sidebar-logout', 'click', handler);
+  addEventListener('#hamburger-logout', 'click', handler);
 }
 
 function initDashboard() {
@@ -161,7 +160,7 @@ function initDashboard() {
 }
 
 function showAuthGate() {
-  const content = document.getElementById('dashboard-content');
+  const content = selectElement('#dashboard-content');
   content.innerHTML = authGateTemplate({heading: 'Verify Your Email', buttonClass: btnStyles.button, gateClass: `${authGateStyles.authGate} card-slide-slow`});
   initAuthGate({
     onSuccess: () => {
@@ -173,7 +172,7 @@ function showAuthGate() {
 }
 
 async function loadData() {
-  const content = document.getElementById('dashboard-content');
+  const content = selectElement('#dashboard-content');
   try {
     const data = await loadSession();
     if (!data) {

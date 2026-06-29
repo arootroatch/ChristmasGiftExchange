@@ -1,4 +1,4 @@
-import {addEventListener, nameListId, selectElement} from "../../utils.js";
+import {addEventListener, nameListId, selectElement, selectElements} from "../../utils.js";
 import {ExchangeEvents as Events, exchangeEvents as stateEvents, addNameToHouse, removeNameFromHouse} from "../state.js";
 import cardStyles from '../../../assets/styles/exchange/components/participant-card.module.css';
 
@@ -6,7 +6,7 @@ export function init() {
   stateEvents.on(Events.PARTICIPANT_ADDED, ({participants, houses}) => updateAllSelects(participants, houses));
   stateEvents.on(Events.PARTICIPANT_REMOVED, ({participants, houses}) => updateAllSelects(participants, houses));
   stateEvents.on(Events.HOUSE_ADDED, ({houseID, participants, houses}) => {
-    const slot = document.querySelector(`[data-slot="select-${houseID}"]`);
+    const slot = selectElement(`[data-slot="select-${houseID}"]`);
     if (slot) renderIntoSlot(slot, participants, houses);
   });
   stateEvents.on(Events.NAME_ADDED_TO_HOUSE, ({participants, houses}) => {
@@ -45,12 +45,12 @@ function updateAllSelects(participants, houses) {
 }
 
 function updateAllHouseSelects(participants, houses) {
-  const slots = document.querySelectorAll('[data-slot^="select-"]');
+  const slots = selectElements('[data-slot^="select-"]');
   slots.forEach(slot => renderIntoSlot(slot, participants, houses));
 }
 
 function updateNameListSelect(participants) {
-  const nameListSelect = document.querySelector('#name-list-select');
+  const nameListSelect = selectElement('#name-list-select');
   if (!nameListSelect) return;
 
   nameListSelect.innerHTML = `

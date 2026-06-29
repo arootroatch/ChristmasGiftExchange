@@ -1,4 +1,6 @@
 // src/admin/logFilters.js
+import {addEventListener, selectElement} from '../utils.js';
+
 let currentPage = 1;
 let onSearchFn;
 
@@ -37,22 +39,22 @@ export function renderFilters(container, onSearch) {
                 <button id="filter-search" class="admin-btn admin-btn-inline">Search</button>
             </div>
         </div>`;
-    document.getElementById('filter-level').addEventListener('change', () => {
+    addEventListener('#filter-level', 'change', () => {
         currentPage = 1;
         onSearchFn();
     });
-    document.getElementById('filter-endpoint').addEventListener('change', () => {
+    addEventListener('#filter-endpoint', 'change', () => {
         currentPage = 1;
         onSearchFn();
     });
-    document.getElementById('filter-search').addEventListener('click', () => {
+    addEventListener('#filter-search', 'click', () => {
         currentPage = 1;
         onSearchFn();
     });
 }
 
 export function populateEndpoints(endpoints) {
-    const select = document.getElementById('filter-endpoint');
+    const select = selectElement('#filter-endpoint');
     if (!select) return;
     const current = select.value;
     select.innerHTML = '<option value="">All endpoints</option>' +
@@ -62,12 +64,12 @@ export function populateEndpoints(endpoints) {
 }
 
 export function getFilterValues() {
-    const fromRaw = document.getElementById('filter-from')?.value;
-    const toRaw = document.getElementById('filter-to')?.value;
+    const fromRaw = selectElement('#filter-from')?.value;
+    const toRaw = selectElement('#filter-to')?.value;
     return {
-        level: document.getElementById('filter-level')?.value || '',
-        endpoint: document.getElementById('filter-endpoint')?.value || '',
-        message: document.getElementById('filter-message')?.value || '',
+        level: selectElement('#filter-level')?.value || '',
+        endpoint: selectElement('#filter-endpoint')?.value || '',
+        message: selectElement('#filter-message')?.value || '',
         from: fromRaw ? new Date(fromRaw).toISOString() : '',
         to: toRaw ? new Date(toRaw).toISOString() : '',
         page: currentPage,
