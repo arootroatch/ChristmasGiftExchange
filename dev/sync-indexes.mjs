@@ -15,9 +15,18 @@ function indexName(keyObj) {
     return Object.entries(keyObj).map(([k, v]) => `${k}_${v}`).join('_');
 }
 
-async function syncCollection(db, collectionName, desiredIndexes) {
+export async function syncCollection(db, collectionName, desiredIndexes) {
     const col = db.collection(collectionName);
-    const existing = await col.indexes();
+    let existing;
+    try {
+        existing = await col.indexes();
+    } catch (err) {
+        if (err.code === 26) {
+            existing = [];
+        } else {
+            throw err;
+        }
+    }
 
     const desiredNames = new Set(desiredIndexes.map(idx => idx.options?.name || indexName(idx.key)));
 
@@ -83,7 +92,9 @@ async function main() {
     }
 }
 
-main().catch(err => {
-    console.error('Index sync failed:', err);
-    process.exit(1);
-});
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+    main().catch(err => {
+        console.error('Index sync failed:', err);
+        process.exit(1);
+    });
+}
