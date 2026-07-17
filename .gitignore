@@ -4,6 +4,7 @@
 # environmental variables
 .env
 .env.local
+.env.local.*
 .env.development
 
 node_modules
@@ -28,6 +29,7 @@ docs/
 
 # Worktrees
 .worktrees/
+.claude/worktrees/
 
 # Build output
 dist/
