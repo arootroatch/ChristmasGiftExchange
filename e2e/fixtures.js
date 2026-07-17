@@ -5,7 +5,8 @@ import path from 'path';
 const state = JSON.parse(readFileSync(path.join(import.meta.dirname, '.e2e-state.json'), 'utf-8'));
 
 export const test = base.extend({
-    baseURL: async (_fixtures, use) => {
+    // eslint-disable-next-line no-empty-pattern -- Playwright parses this destructuring pattern to resolve fixture deps
+    baseURL: async ({}, use) => {
         await use(`http://localhost:${state.port}`);
     },
     page: async ({page}, use) => {
