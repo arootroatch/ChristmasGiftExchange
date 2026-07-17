@@ -1,4 +1,4 @@
-import {apiHandler, validateBody} from "../shared/middleware.mjs";
+import {apiHandler, validateBody, requestEndpoint} from "../shared/middleware.mjs";
 import {ok, badRequest} from "../shared/responses.mjs";
 import {getUsersCollection} from "../shared/db.mjs";
 import {forEachGiverOf, sendNotificationEmail} from "../shared/giverNotification.mjs";
@@ -33,7 +33,7 @@ export const handler = apiHandler("PUT", async (event) => {
             );
         });
         notifiedGivers = true;
-        logger.info("Wishlist first added", {endpoint: event.path, ip: event.ip, userId: user._id.toString()});
+        logger.info("Wishlist first added", {endpoint: requestEndpoint(event), ip: event.ip, userId: user._id.toString()});
     }
 
     return ok({success: true, notifiedGivers});

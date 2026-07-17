@@ -1,5 +1,5 @@
 import {z} from "zod";
-import {apiHandler, validateBody} from "../shared/middleware.mjs";
+import {apiHandler, validateBody, requestEndpoint} from "../shared/middleware.mjs";
 import {ok, badRequest} from "../shared/responses.mjs";
 import {forEachGiverOf, sendNotificationEmail} from "../shared/giverNotification.mjs";
 import {logger} from "../shared/logger.mjs";
@@ -30,6 +30,6 @@ export const handler = apiHandler("POST", async (event) => {
         );
     });
 
-    logger.info("Contact info shared", {endpoint: event.path, ip: event.ip, userId: user._id.toString()});
+    logger.info("Contact info shared", {endpoint: requestEndpoint(event), ip: event.ip, userId: user._id.toString()});
     return ok({success: true});
 }, {auth: true, maxRequests: 5, windowMs: 60000});

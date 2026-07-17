@@ -2,7 +2,6 @@ import {apiHandler} from "../shared/middleware.mjs";
 import {ok} from "../shared/responses.mjs";
 import {generateAndStoreCode} from "../shared/authCodes.mjs";
 import {sendNotificationEmail} from "../shared/giverNotification.mjs";
-import {logger} from "../shared/logger.mjs";
 
 export const handler = apiHandler("POST", async (event) => {
     const email = process.env.ADMIN_EMAIL;
@@ -16,6 +15,5 @@ export const handler = apiHandler("POST", async (event) => {
         {code}
     );
 
-    logger.info("Admin code requested", {endpoint: event.path, ip: event.ip});
     return ok({sent: true});
 }, {maxRequests: 3, windowMs: 60000});

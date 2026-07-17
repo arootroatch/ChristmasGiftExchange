@@ -1,5 +1,5 @@
 import {getExchangesCollection, getUsersCollection} from "../shared/db.mjs";
-import {apiHandler, validateBody} from "../shared/middleware.mjs";
+import {apiHandler, validateBody, requestEndpoint} from "../shared/middleware.mjs";
 import {badRequest, ok} from "../shared/responses.mjs";
 import {sendBatchEmails} from "../shared/giverNotification.mjs";
 import {logger} from "../shared/logger.mjs";
@@ -130,9 +130,9 @@ export const handler = apiHandler("POST", async (event) => {
 
     const {emailsFailed} = await sendBatchEmails(data.participants, data.assignments, userByEmail, data.exchangeId);
 
-    logger.info("Exchange created", {endpoint: event.path, ip: event.ip, exchangeId: data.exchangeId, participantCount: data.participants.length});
+    logger.info("Exchange created", {endpoint: requestEndpoint(event), ip: event.ip, exchangeId: data.exchangeId, participantCount: data.participants.length});
     if (emailsFailed.length > 0) {
-        logger.error("Exchange email send failures", {endpoint: event.path, ip: event.ip, exchangeId: data.exchangeId, emailsFailed});
+        logger.error("Exchange email send failures", {endpoint: requestEndpoint(event), ip: event.ip, exchangeId: data.exchangeId, emailsFailed});
     }
 
     return ok({...buildResponse(data.exchangeId, data.participants), emailsFailed});

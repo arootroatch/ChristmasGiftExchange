@@ -1,18 +1,24 @@
-import {describe, it, expect, beforeAll, afterAll, afterEach, vi} from "vitest";
+import {describe, it, expect, beforeAll, beforeEach, afterAll, afterEach, vi} from "vitest";
 import {setupMongo, teardownMongo, cleanCollections} from '../shared/mongoSetup.js';
 
 describe("logger", () => {
-    let db, mongo, logger;
+    let db, mongo, logger, setLogLevel;
 
     beforeAll(async () => {
         mongo = await setupMongo();
         ({db} = mongo);
         const mod = await import("../../netlify/shared/logger.mjs");
         logger = mod.logger;
+        const settingsMod = await import("../../netlify/shared/settings.mjs");
+        setLogLevel = settingsMod.setLogLevel;
+    });
+
+    beforeEach(async () => {
+        await setLogLevel("debug");
     });
 
     afterEach(async () => {
-        await cleanCollections(db, "logs");
+        await cleanCollections(db, "logs", "settings");
     });
 
     afterAll(async () => {
@@ -74,5 +80,31 @@ describe("logger", () => {
         await expect(logger.warn("Should not throw")).resolves.not.toThrow();
         spy.mockRestore();
         warnSpy.mockRestore();
+    });
+
+    it("skips console output and db insert when level is below threshold", async () => {
+        await setLogLevel("warn");
+        await logger.info("Should be suppressed");
+        expect(mongo.consoleLogSpy).not.toHaveBeenCalledWith("Should be suppressed");
+        const doc = await db.collection("logs").findOne({message: "Should be suppressed"});
+        expect(doc).toBeNull();
+    });
+
+    it("logs when level is at or above threshold", async () => {
+        await setLogLevel("warn");
+        const spy = vi.spyOn(console, "warn").mockImplementation(() => {});
+        await logger.warn("Should be logged");
+        const doc = await db.collection("logs").findOne({message: "Should be logged"});
+        expect(doc).not.toBeNull();
+        spy.mockRestore();
+    });
+
+    it("fails open (logs everything) when settings lookup fails", async () => {
+        const dbMod = await import("../../netlify/shared/db.mjs");
+        const spy = vi.spyOn(dbMod, "getSettingsCollection").mockRejectedValueOnce(new Error("DB down"));
+        await logger.info("Should still log");
+        const doc = await db.collection("logs").findOne({message: "Should still log"});
+        expect(doc).not.toBeNull();
+        spy.mockRestore();
     });
 });

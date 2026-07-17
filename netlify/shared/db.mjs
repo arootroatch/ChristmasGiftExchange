@@ -42,3 +42,8 @@ export async function getLogsCollection() {
     const db = await getDb();
     return db.collection("logs");
 }
+
+export async function getSettingsCollection() {
+    const db = await getDb();
+    return db.collection("settings");
+}

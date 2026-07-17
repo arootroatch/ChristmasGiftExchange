@@ -3,7 +3,7 @@ import {afterAll, beforeAll, describe, expect, it, vi} from 'vitest';
 describe('db utility', () => {
     let consoleLogSpy;
     let consoleErrorSpy;
-    let getDb, getUsersCollection, getExchangesCollection;
+    let getDb, getUsersCollection, getExchangesCollection, getSettingsCollection;
 
     beforeAll(async () => {
         consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
@@ -13,6 +13,7 @@ describe('db utility', () => {
         getDb = module.getDb;
         getUsersCollection = module.getUsersCollection;
         getExchangesCollection = module.getExchangesCollection;
+        getSettingsCollection = module.getSettingsCollection;
     });
 
     afterAll(async () => {
@@ -49,6 +50,14 @@ describe('db utility', () => {
             const collection = await getExchangesCollection();
             expect(collection).toBeDefined();
             expect(collection.collectionName).toBe('exchanges');
+        });
+    });
+
+    describe('getSettingsCollection', () => {
+        it('returns the settings collection', async () => {
+            const collection = await getSettingsCollection();
+            expect(collection).toBeDefined();
+            expect(collection.collectionName).toBe('settings');
         });
     });
 

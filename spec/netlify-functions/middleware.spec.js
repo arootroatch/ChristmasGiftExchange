@@ -12,7 +12,7 @@ vi.mock('../../netlify/shared/rateLimit.mjs', () => ({
 
 vi.mock('../../netlify/shared/logger.mjs');
 
-import {apiHandler, validateBody, validateOrigin} from '../../netlify/shared/middleware.mjs';
+import {apiHandler, validateBody, validateOrigin, requestEndpoint} from '../../netlify/shared/middleware.mjs';
 import {sendNotificationEmail} from '../../netlify/shared/giverNotification.mjs';
 import {checkRateLimit} from '../../netlify/shared/rateLimit.mjs';
 import {logger} from '../../netlify/shared/logger.mjs';
@@ -72,6 +72,12 @@ describe("apiHandler", () => {
         expect(result.statusCode).toBe(500);
     });
 
+});
+
+describe("requestEndpoint", () => {
+    it("combines httpMethod and path", () => {
+        expect(requestEndpoint({httpMethod: "POST", path: "/api/test"})).toBe("POST /api/test");
+    });
 });
 
 describe("validateOrigin", () => {

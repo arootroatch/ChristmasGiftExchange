@@ -37,13 +37,17 @@ export function validateBody(schema, event) {
 
 const ALLOWED_ORIGINS = ["gift-exchange-generator.com", "giftexchangegenerator.netlify.app"];
 
+export function requestEndpoint(event) {
+    return `${event.httpMethod} ${event.path}`;
+}
+
 export function validateOrigin(event) {
     const origin = event.headers?.origin;
     if (!origin) return null;
     if (ALLOWED_ORIGINS.some((allowed) => origin.includes(allowed))) return null;
     if (origin === process.env.URL) return null;
 
-    logger.warn("Origin rejected", {endpoint: event.path, ip: extractClientIp(event), origin});
+    logger.warn("Origin rejected", {endpoint: requestEndpoint(event), ip: extractClientIp(event), origin});
     return forbidden("Forbidden");
 }
 
@@ -84,7 +88,7 @@ async function applyRateLimit(event, rateLimitConfig) {
 
 async function reportError(event, error) {
     logger.error("Unhandled error in API handler", {
-        endpoint: `${event.httpMethod} ${event.path}`,
+        endpoint: requestEndpoint(event),
         stack: error.stack || error.message,
     });
     try {
@@ -93,7 +97,7 @@ async function reportError(event, error) {
             "alex@gift-exchange-generator.com",
             `Server Error: ${error.message}`,
             {
-                endpoint: `${event.httpMethod} ${event.path}`,
+                endpoint: requestEndpoint(event),
                 timestamp: new Date().toISOString(),
                 stackTrace: error.stack || error.message,
             }
@@ -103,7 +107,7 @@ async function reportError(event, error) {
 
 export function apiHandler(method, fn, {auth = false, ...rateLimitConfig} = {}) {
     return async (event) => {
-        const endpoint = `${event.httpMethod} ${event.path}`;
+        const endpoint = requestEndpoint(event);
         const ip = extractClientIp(event);
         event.ip = ip;
         logger.info(`[API] ${endpoint}`, {endpoint, ip});
