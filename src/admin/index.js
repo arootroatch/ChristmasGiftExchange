@@ -12,10 +12,12 @@ function adminLayout() {
         <header class="admin-header">
             <h1>Admin Logs</h1>
             <span class="admin-header-badge">Admin</span>
-            <div id="log-level-container"></div>
         </header>
         <main class="admin-main">
-            <div id="filters-container"></div>
+            <div class="admin-toolbar">
+                <div id="filters-container"></div>
+                <div id="log-level-container"></div>
+            </div>
             <div id="logs-container"></div>
         </main>`;
 }

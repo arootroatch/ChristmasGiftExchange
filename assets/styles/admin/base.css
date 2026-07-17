@@ -172,14 +172,20 @@ body:has(.admin-page) {
 
 .admin-filters {
   display: flex;
+  flex-direction: column;
   gap: 10px;
-  flex-wrap: wrap;
-  align-items: flex-end;
   margin-bottom: 20px;
   padding: 16px 20px;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid var(--frost-border);
   border-radius: var(--radius-md);
+}
+
+.admin-filter-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: flex-end;
 }
 
 .admin-filter-group {
@@ -232,13 +238,35 @@ body:has(.admin-page) {
 
 .admin-filter-action {
   justify-content: flex-end;
+  margin-left: auto;
 }
 
-.admin-header .admin-log-level {
+.admin-filter-grow {
+  flex: 1 1 200px;
+}
+
+.admin-filter-grow input {
+  width: 100%;
+}
+
+.admin-toolbar {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.admin-toolbar .admin-filters {
   margin-bottom: 0;
-  margin-left: auto;
-  padding: 8px 14px;
-  flex-wrap: nowrap;
+}
+
+#filters-container {
+  flex: 1 1 480px;
+}
+
+#log-level-container {
+  flex: 0 0 auto;
 }
 
 /* ── Table ──────────────────────────────────────────────────── */

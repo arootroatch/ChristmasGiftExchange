@@ -4,18 +4,20 @@ import * as snackbar from '../Snackbar.js';
 export function renderLogLevelControl(container) {
     container.innerHTML = `
         <div class="admin-filters admin-log-level">
-            <div class="admin-filter-group">
-                <label for="log-level-select">Log level</label>
-                <select id="log-level-select">
-                    <option value="debug">Debug</option>
-                    <option value="info">Info</option>
-                    <option value="warn">Warn</option>
-                    <option value="error">Error</option>
-                </select>
-            </div>
-            <div class="admin-filter-group admin-filter-action">
-                <span aria-hidden="true"></span>
-                <button id="log-level-save" class="admin-btn admin-btn-inline">Save</button>
+            <div class="admin-filter-row">
+                <div class="admin-filter-group">
+                    <label for="log-level-select">Log level</label>
+                    <select id="log-level-select">
+                        <option value="debug">Debug</option>
+                        <option value="info">Info</option>
+                        <option value="warn">Warn</option>
+                        <option value="error">Error</option>
+                    </select>
+                </div>
+                <div class="admin-filter-group admin-filter-action">
+                    <span aria-hidden="true"></span>
+                    <button id="log-level-save" class="admin-btn admin-btn-inline">Save</button>
+                </div>
             </div>
         </div>`;
 
