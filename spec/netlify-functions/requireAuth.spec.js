@@ -1,6 +1,8 @@
-import {describe, it, expect, beforeAll, afterAll, afterEach} from "vitest";
+import {describe, it, expect, beforeAll, afterAll, afterEach, vi} from "vitest";
 import {setupMongo, teardownMongo, cleanCollections} from '../shared/mongoSetup.js';
 import {makeUser, seedUsers} from '../shared/testData.js';
+
+vi.mock("../../netlify/shared/logger.mjs");
 
 describe("requireAuth", () => {
     let mongo, db, requireAuth, signSession;

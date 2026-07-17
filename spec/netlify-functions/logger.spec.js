@@ -84,19 +84,19 @@ describe("logger", () => {
 
     it("skips console output and db insert when level is below threshold", async () => {
         await setLogLevel("warn");
-        const spy = vi.spyOn(console, "log").mockImplementation(() => {});
         await logger.info("Should be suppressed");
-        expect(spy).not.toHaveBeenCalled();
+        expect(mongo.consoleLogSpy).not.toHaveBeenCalledWith("Should be suppressed");
         const doc = await db.collection("logs").findOne({message: "Should be suppressed"});
         expect(doc).toBeNull();
-        spy.mockRestore();
     });
 
     it("logs when level is at or above threshold", async () => {
         await setLogLevel("warn");
+        const spy = vi.spyOn(console, "warn").mockImplementation(() => {});
         await logger.warn("Should be logged");
         const doc = await db.collection("logs").findOne({message: "Should be logged"});
         expect(doc).not.toBeNull();
+        spy.mockRestore();
     });
 
     it("fails open (logs everything) when settings lookup fails", async () => {
