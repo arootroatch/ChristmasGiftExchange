@@ -30,7 +30,7 @@ function buildRows(logs) {
     }).join('');
 }
 
-export function renderTable({logs, total, page, pages}, onPageChange) {
+export function renderTable({logs, total, page, pages, range}, onPageChange) {
     const container = selectElement('#logs-container');
 
     if (!logs.length) {
@@ -38,8 +38,10 @@ export function renderTable({logs, total, page, pages}, onPageChange) {
         return;
     }
 
+    const rangeText = range ? ` · ${new Date(range.from).toLocaleString()} – ${new Date(range.to).toLocaleString()}` : '';
+
     container.innerHTML = `
-        <p class="admin-table-summary">Showing ${logs.length} of ${total} logs</p>
+        <p class="admin-table-summary">Showing ${logs.length} of ${total} logs${rangeText}</p>
         <div class="admin-table-wrap">
             <table class="admin-table">
                 <thead>
