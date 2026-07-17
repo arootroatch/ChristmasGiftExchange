@@ -34,5 +34,8 @@ export const handler = apiHandler("GET", async (event) => {
     ]);
     const distinctEndpoints = rawEndpoints.filter(Boolean).sort();
 
-    return ok({logs, total, page: pageNum, pages: Math.ceil(total / pageSize), distinctEndpoints});
+    return ok({
+        logs, total, page: pageNum, pages: Math.ceil(total / pageSize), distinctEndpoints,
+        range: {from: fromDate.toISOString(), to: toDate.toISOString()},
+    });
 }, {auth: true});

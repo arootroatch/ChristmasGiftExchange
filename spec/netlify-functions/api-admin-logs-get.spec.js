@@ -69,6 +69,17 @@ describe("api-admin-logs-get", () => {
         expect(body.pages).toBe(0);
     });
 
+    it("returns the resolved query range", async () => {
+        await seedUsers(db, adminUser);
+        const event = buildEvent("GET", {
+            headers: {cookie: await authCookie(adminUser._id)},
+            queryStringParameters: {from: "2026-07-01T00:00:00.000Z", to: "2026-07-02T00:00:00.000Z"},
+        });
+        const response = await handler(event);
+        const body = JSON.parse(response.body);
+        expect(body.range).toEqual({from: "2026-07-01T00:00:00.000Z", to: "2026-07-02T00:00:00.000Z"});
+    });
+
     it("returns logs within default 24h window", async () => {
         await seedUsers(db, adminUser);
         const col = db.collection("logs");
