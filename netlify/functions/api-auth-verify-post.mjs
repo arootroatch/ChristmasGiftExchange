@@ -1,5 +1,5 @@
 import {z} from "zod";
-import {apiHandler, validateBody} from "../shared/middleware.mjs";
+import {apiHandler, validateBody, requestEndpoint} from "../shared/middleware.mjs";
 import {badRequest, unauthorized, okWithHeaders} from "../shared/responses.mjs";
 import {getUsersCollection} from "../shared/db.mjs";
 import {verifyCode} from "../shared/authCodes.mjs";
@@ -19,7 +19,7 @@ export const handler = apiHandler("POST", async (event) => {
     const email = data.email.trim();
     const result = await verifyCode(email, data.code);
     if (!result.valid) {
-        logger.warn("Login failed - invalid code", {endpoint: event.path, ip: event.ip, email});
+        logger.warn("Login failed - invalid code", {endpoint: requestEndpoint(event), ip: event.ip, email});
         return unauthorized(result.error);
     }
 
@@ -36,12 +36,12 @@ export const handler = apiHandler("POST", async (event) => {
             },
             {upsert: true, returnDocument: "after"}
         );
-        if (isNew) logger.info("New user created", {endpoint: event.path, ip: event.ip, email});
-        else logger.info("Login success", {endpoint: event.path, ip: event.ip, email});
+        if (isNew) logger.info("New user created", {endpoint: requestEndpoint(event), ip: event.ip, email});
+        else logger.info("Login success", {endpoint: requestEndpoint(event), ip: event.ip, email});
     } else {
         user = await usersCol.findOne({email});
         if (!user) return unauthorized("Authentication failed");
-        logger.info("Login success", {endpoint: event.path, ip: event.ip, email});
+        logger.info("Login success", {endpoint: requestEndpoint(event), ip: event.ip, email});
     }
 
     const jwt = await signSession(user._id.toString());

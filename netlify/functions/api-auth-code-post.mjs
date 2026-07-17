@@ -1,5 +1,5 @@
 import {z} from "zod";
-import {apiHandler, validateBody} from "../shared/middleware.mjs";
+import {apiHandler, validateBody, requestEndpoint} from "../shared/middleware.mjs";
 import {ok, badRequest} from "../shared/responses.mjs";
 import {getUsersCollection} from "../shared/db.mjs";
 import {generateAndStoreCode} from "../shared/authCodes.mjs";
@@ -21,9 +21,9 @@ export const handler = apiHandler("POST", async (event) => {
     if (user) {
         const code = await generateAndStoreCode(email);
         await sendNotificationEmail("verification-code", email, "Your Gift Exchange Verification Code", {code});
-        logger.info("Auth code sent", {endpoint: event.path, ip: event.ip, email});
+        logger.info("Auth code sent", {endpoint: requestEndpoint(event), ip: event.ip, email});
     } else {
-        logger.info("Auth code requested - email not found", {endpoint: event.path, ip: event.ip, email});
+        logger.info("Auth code requested - email not found", {endpoint: requestEndpoint(event), ip: event.ip, email});
     }
 
     return ok({sent: true});
