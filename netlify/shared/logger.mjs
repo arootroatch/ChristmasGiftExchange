@@ -1,6 +1,12 @@
 import {getLogsCollection} from "./db.mjs";
+import {getLogLevel} from "./settings.mjs";
+
+const LEVEL_ORDER = {debug: 0, info: 1, warn: 2, error: 3};
 
 async function log(level, message, {endpoint, ip, ...metadata} = {}) {
+    const threshold = await getLogLevel();
+    if (LEVEL_ORDER[level] < LEVEL_ORDER[threshold]) return;
+
     const consoleFn = level === 'error' ? console.error : level === 'warn' ? console.warn : console.log;
     const hasExtra = Object.keys(metadata).length > 0 || endpoint != null || ip != null;
     consoleFn(message, ...(hasExtra ? [{endpoint, ip, ...metadata}] : []));
