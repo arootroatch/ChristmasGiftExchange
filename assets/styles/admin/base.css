@@ -234,6 +234,13 @@ body:has(.admin-page) {
   justify-content: flex-end;
 }
 
+.admin-header .admin-log-level {
+  margin-bottom: 0;
+  margin-left: auto;
+  padding: 8px 14px;
+  flex-wrap: nowrap;
+}
+
 /* ── Table ──────────────────────────────────────────────────── */
 
 .admin-table-summary {
