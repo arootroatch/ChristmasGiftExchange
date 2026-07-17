@@ -7,7 +7,7 @@ vi.mock('../../netlify/shared/logger.mjs');
 import {logger} from '../../netlify/shared/logger.mjs';
 
 describe('api-exchange-post', () => {
-    let client, db, handler;
+    let db, handler;
     let mongo;
     let mockFetch;
 
@@ -15,7 +15,7 @@ describe('api-exchange-post', () => {
 
     beforeAll(async () => {
         mongo = await setupMongo();
-        ({client, db} = mongo);
+        ({db} = mongo);
         process.env.URL = 'https://test.netlify.app';
         process.env.POSTMARK_SERVER_TOKEN = 'test-postmark-token';
         process.env.CONTEXT = 'production';

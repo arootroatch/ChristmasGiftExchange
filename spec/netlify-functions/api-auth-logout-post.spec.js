@@ -1,4 +1,4 @@
-import {describe, it, expect, beforeAll, vi} from "vitest";
+import {describe, it, expect, beforeAll} from "vitest";
 import {buildEvent} from "../shared/specHelper.js";
 
 describe("api-auth-logout-post", () => {

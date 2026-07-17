@@ -2,7 +2,7 @@ import {ExchangeEvents as Events, exchangeEvents as stateEvents, getExchangePayl
 import {addEventListener, pushHTML, selectElement, setLoadingState, escapeAttr, apiFetch} from "../../../utils.js";
 import {showError} from "../../../Snackbar.js";
 import {removeFailedEmails, showFailedEmails, resetRetryCount} from "./FailedEmails.js";
-import {confirmId, showConfirmation, removeAll as removeAllSendResults} from "./SendResults.js";
+import {showConfirmation, removeAll as removeAllSendResults} from "./SendResults.js";
 import btnStyles from '../../../../assets/styles/exchange/components/buttons.module.css';
 import dialogStyles from '../../../../assets/styles/exchange/components/email-dialog.module.css';
 import confirmStyles from '../../../../assets/styles/exchange/components/email-confirmation.module.css';

@@ -27,7 +27,7 @@ export async function forEachGiverOf(recipientUser, callback) {
     }
 }
 
-export async function sendBatchEmails(participants, assignments, userByEmail, exchangeId) {
+export async function sendBatchEmails(participants, assignments, _userByEmail, _exchangeId) {
     const messages = assignments.map(assignment => {
         const participant = participants.find(p => p.name === assignment.giver);
         return {

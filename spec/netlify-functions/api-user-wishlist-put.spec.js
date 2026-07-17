@@ -1,5 +1,4 @@
 import {afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi} from 'vitest';
-import {ObjectId} from 'mongodb';
 import {setupMongo, teardownMongo, cleanCollections} from '../shared/mongoSetup.js';
 import {makeUser, makeExchange, alex, seedUsers, seedExchange} from '../shared/testData.js';
 import {authCookie, buildEvent} from '../shared/specHelper.js';
@@ -8,13 +7,13 @@ vi.mock('../../netlify/shared/logger.mjs');
 import {logger} from '../../netlify/shared/logger.mjs';
 
 describe('api-user-wishlist-put', () => {
-    let client, db, handler;
+    let db, handler;
     let mongo;
     let mockFetch;
 
     beforeAll(async () => {
         mongo = await setupMongo();
-        ({client, db} = mongo);
+        ({db} = mongo);
 
         process.env.URL = 'https://test.netlify.app';
         process.env.POSTMARK_SERVER_TOKEN = 'test-postmark-token';

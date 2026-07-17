@@ -1,4 +1,4 @@
-import {beforeAll, beforeEach, describe, expect, it, vi} from "vitest";
+import {beforeAll, beforeEach, describe, expect, it} from "vitest";
 import {ExchangeEvents as Events, exchangeEvents as stateEvents, startExchange} from "../../../src/exchange/state";
 import {init} from "../../../src/exchange/components/CompletionModal";
 import {init as initSnackbar} from "../../../src/Snackbar";

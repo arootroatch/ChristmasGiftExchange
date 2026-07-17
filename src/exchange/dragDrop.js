@@ -172,7 +172,7 @@ export function initDragDrop() {
     dragLeave(e);
   });
 
-  container.addEventListener('dragend', (e) => {
+  container.addEventListener('dragend', () => {
     stopAutoScroll();
     document.body.classList.remove('dragging');
     const source = container.querySelector('.dragging-source');

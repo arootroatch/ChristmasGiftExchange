@@ -1,5 +1,5 @@
 import {describe, it, expect, beforeAll, afterAll, afterEach} from 'vitest';
-import {setupMongo, teardownMongo, cleanCollections} from '../shared/mongoSetup.js';
+import {setupMongo, teardownMongo} from '../shared/mongoSetup.js';
 import {syncCollection} from '../../dev/sync-indexes.mjs';
 
 describe('syncCollection', () => {

@@ -1,6 +1,6 @@
 import {afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi} from 'vitest';
 import {setupMongo, teardownMongo, cleanCollections} from '../shared/mongoSetup.js';
-import {makeUser, makeExchange, alex, whitney, hunter, threePersonExchange, seedUsers, seedExchange} from '../shared/testData.js';
+import {makeUser, alex, whitney, hunter, threePersonExchange, seedUsers, seedExchange} from '../shared/testData.js';
 import {authCookie, buildEvent} from '../shared/specHelper.js';
 
 vi.mock('../../netlify/shared/logger.mjs');

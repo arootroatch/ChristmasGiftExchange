@@ -3,7 +3,7 @@ import {ok} from "../shared/responses.mjs";
 import {generateAndStoreCode} from "../shared/authCodes.mjs";
 import {sendNotificationEmail} from "../shared/giverNotification.mjs";
 
-export const handler = apiHandler("POST", async (event) => {
+export const handler = apiHandler("POST", async (_event) => {
     const email = process.env.ADMIN_EMAIL;
     if (!email) throw new Error("ADMIN_EMAIL not configured");
 

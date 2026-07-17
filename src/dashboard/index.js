@@ -5,8 +5,8 @@ import {apiFetch, selectElement, selectElements, addEventListener} from '../util
 import * as snackbar from '../Snackbar.js';
 import * as cookieBanner from '../CookieBanner.js';
 import {authGateTemplate, initAuthGate} from '../authGate.js';
-import {loadSession, getSessionUser, clearSession} from '../session.js';
-import {setUserData, setRecipientData, isDirty, dashboardEvents, DashboardEvents, resetState} from './state.js';
+import {loadSession, clearSession} from '../session.js';
+import {setUserData, setRecipientData, isDirty, dashboardEvents, DashboardEvents} from './state.js';
 import * as recipientCard from './components/RecipientCard.js';
 import * as wishlistSection from './components/WishlistSection.js';
 import * as contactSection from './components/ContactSection.js';

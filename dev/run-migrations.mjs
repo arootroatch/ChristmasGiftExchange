@@ -152,7 +152,7 @@ export async function acquireLock(db, runId) {
                 );
                 return;
             }
-            throw new Error(`Migration lock held by run ${existing?.runId} (acquired ${existing?.acquiredAt.toISOString()}). If this is stale, wait for expiry or manually remove the migration_lock document.`);
+            throw new Error(`Migration lock held by run ${existing?.runId} (acquired ${existing?.acquiredAt.toISOString()}). If this is stale, wait for expiry or manually remove the migration_lock document.`, {cause: err});
         }
         throw err;
     }

@@ -1,6 +1,6 @@
 import {describe, it, expect, beforeEach} from 'vitest';
 import {JSDOM} from 'jsdom';
-import {dashboardEvents, resetState, setUserData, addItem, setCurrency} from '../../../src/dashboard/state.js';
+import {dashboardEvents, resetState, setUserData, addItem} from '../../../src/dashboard/state.js';
 import {init} from '../../../src/dashboard/components/ItemList.js';
 import {init as initSnackbar} from '../../../src/Snackbar.js';
 import wishStyles from '../../../assets/styles/dashboard/components/wishlist.module.css';

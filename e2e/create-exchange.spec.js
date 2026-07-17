@@ -1,5 +1,5 @@
 import {test, expect} from './fixtures.js';
-import {alex, whitney, makeUser, makeExchange, seedUsers, seedExchange, findUser, findExchange} from '../spec/shared/testData.js';
+import {alex, whitney, makeExchange, seedUsers, seedExchange, findExchange} from '../spec/shared/testData.js';
 import {connectDB, disconnectDB, cleanDB, getDB, authenticateUser, authenticateViaUI} from './helpers.js';
 
 test.describe('Create Exchange → View Wishlist', () => {

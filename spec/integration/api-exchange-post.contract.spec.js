@@ -94,7 +94,7 @@ describe('api-exchange-post contract', () => {
         it('rejects payload missing participants', async () => {
             const organizerId = await insertOrganizer();
             const cookie = await authCookie(organizerId);
-            const {participants, ...incomplete} = fePayload;
+            const {participants: _participants, ...incomplete} = fePayload;
             const event = buildEvent('POST', {body: incomplete, headers: {cookie}});
             const response = await handler(event);
             expect(response.statusCode).toBe(400);
@@ -103,7 +103,7 @@ describe('api-exchange-post contract', () => {
         it('rejects payload missing assignments', async () => {
             const organizerId = await insertOrganizer();
             const cookie = await authCookie(organizerId);
-            const {assignments, ...incomplete} = fePayload;
+            const {assignments: _assignments, ...incomplete} = fePayload;
             const event = buildEvent('POST', {body: incomplete, headers: {cookie}});
             const response = await handler(event);
             expect(response.statusCode).toBe(400);
@@ -112,7 +112,7 @@ describe('api-exchange-post contract', () => {
         it('rejects payload missing exchangeId', async () => {
             const organizerId = await insertOrganizer();
             const cookie = await authCookie(organizerId);
-            const {exchangeId, ...incomplete} = fePayload;
+            const {exchangeId: _exchangeId, ...incomplete} = fePayload;
             const event = buildEvent('POST', {body: incomplete, headers: {cookie}});
             const response = await handler(event);
             expect(response.statusCode).toBe(400);

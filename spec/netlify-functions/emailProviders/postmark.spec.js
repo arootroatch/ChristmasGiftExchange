@@ -1,4 +1,4 @@
-import {describe, expect, it, vi, beforeAll, beforeEach, afterAll, afterEach} from 'vitest';
+import {describe, expect, it, vi, beforeAll, beforeEach, afterAll} from 'vitest';
 import {defmulti} from '../../../netlify/shared/multimethod.mjs';
 
 describe('postmark email provider', () => {
@@ -97,7 +97,7 @@ describe('postmark email provider', () => {
                 ]),
             });
 
-            const result = await sendBatchNotificationEmails(messages);
+            await sendBatchNotificationEmails(messages);
 
             expect(fetch).toHaveBeenCalledTimes(1);
             const [url, options] = fetch.mock.calls[0];

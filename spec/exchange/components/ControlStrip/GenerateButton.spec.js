@@ -10,7 +10,6 @@ import {
   removeAllNames,
   resetDOM,
   resetState,
-  shouldDisplayEmailTable,
   shouldDisplayErrorSnackbar,
   shouldNotSelect
 } from "../../../shared/specHelper";

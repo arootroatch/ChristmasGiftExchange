@@ -17,7 +17,7 @@ import {
 import {addEventListener} from "../../../src/utils";
 import cardStyles from '../../../assets/styles/exchange/components/participant-card.module.css';
 import {insertNameFromSelect} from "../../../src/exchange/components/Select";
-import {addHouseToState, getState} from "../../../src/exchange/state";
+import {getState} from "../../../src/exchange/state";
 import * as stateModule from "../../../src/exchange/state";
 
 window.scrollTo = vi.fn();

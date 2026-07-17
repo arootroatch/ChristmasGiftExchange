@@ -4,12 +4,10 @@ import {
   render as renderInstructions,
 } from "../../../src/exchange/components/Instructions";
 import {
-  addParticipant,
-  assignRecipients,
   startExchange,
   loadExchange,
 } from "../../../src/exchange/state";
-import {installParticipantNames, resetDOM, resetState} from "../../shared/specHelper";
+import {resetDOM} from "../../shared/specHelper";
 
 describe("instructions", () => {
   beforeAll(() => {

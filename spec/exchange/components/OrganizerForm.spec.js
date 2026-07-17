@@ -2,7 +2,6 @@ import {beforeAll, beforeEach, describe, expect, it, vi} from "vitest";
 import {
   installGivers,
   resetState,
-  shouldDisplayErrorSnackbar,
   shouldNotSelect,
   shouldSelect,
 } from "../../shared/specHelper";

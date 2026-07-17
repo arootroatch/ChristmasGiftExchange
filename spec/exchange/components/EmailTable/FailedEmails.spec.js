@@ -6,7 +6,6 @@ import {
   resetRetryCount,
 } from "../../../../src/exchange/components/EmailTable/FailedEmails";
 import * as state from "../../../../src/exchange/state";
-import {shouldDisplaySuccessSnackbar} from "../../../shared/specHelper";
 import {alex} from "../../../shared/testData";
 
 const failedParticipants = [alex];

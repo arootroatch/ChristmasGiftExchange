@@ -36,7 +36,7 @@ function render() {
   const html = `<div id="${containerId}" class="${dialogStyles.organizerFormContainer} show">${authGateTemplate({heading: "Who's organizing this exchange?", showName: true, buttonClass: btnStyles.button})}</div>`;
   document.body.insertAdjacentHTML("beforeend", html);
   initAuthGate({
-    onSuccess: ({email, name}) => {
+    onSuccess: () => {
       selectElement(`#${containerId}`)?.remove();
       setOrganizer();
     },

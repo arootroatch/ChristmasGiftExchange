@@ -1,4 +1,4 @@
-import {beforeEach, describe, expect, it, vi} from "vitest";
+import {beforeEach, describe, expect, it} from "vitest";
 import * as cookieBanner from "../src/CookieBanner";
 import styles from "../assets/styles/components/cookie-banner.module.css";
 

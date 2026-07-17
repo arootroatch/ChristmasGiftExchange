@@ -179,7 +179,7 @@ export function shouldDisplayEmailTable(...names) {
   expect(table.classList).toContain("show");
   expect(table.classList).not.toContain("hidden");
   expect(body.innerHTML).toContain(`class="${dialogStyles.emailDiv}"`);
-  for (let i = 0; i > names.length; i++) {
+  for (let i = 0; i < names.length; i++) {
     expect(body.innerHTML).toContain(`<label for="${i}">${names[i]}</label>`);
   }
 }

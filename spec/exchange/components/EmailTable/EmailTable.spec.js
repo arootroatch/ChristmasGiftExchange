@@ -1,16 +1,14 @@
 import {beforeAll, beforeEach, describe, expect, it, vi} from "vitest";
 import {
   click,
-  expectColor,
   installParticipantNames,
   installGivers,
   resetState,
   shouldDisplayEmailTable,
   shouldDisplayErrorSnackbar,
-  shouldDisplaySuccessSnackbar,
 } from "../../../shared/specHelper";
 import "../../../../src/exchange/components/Name";
-import {assignRecipients, setOrganizer, startExchange, getState, requestEmailResults} from "../../../../src/exchange/state";
+import {assignRecipients, setOrganizer, startExchange, getState} from "../../../../src/exchange/state";
 import * as state from "../../../../src/exchange/state";
 import {alex, whitney, hunter, megan} from "../../../shared/testData";
 import {
@@ -470,7 +468,6 @@ describe('emailTable', () => {
   it("hideEmailTable hides the table and button", () => {
     triggerNonSecretSantaEmailTable();
     const table = document.querySelector("#emailTable");
-    const hideButton = document.querySelector("#hideEmails");
 
     click("#hideEmails");
 

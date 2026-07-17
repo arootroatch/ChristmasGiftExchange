@@ -1,7 +1,7 @@
 import {beforeAll, beforeEach, describe, expect, it, vi} from "vitest";
 import {init, tableStyles} from "../../../src/exchange/components/ResultsTable";
 import {initReactiveSystem, installParticipantNames, resetDOM, resetState} from "../../shared/specHelper";
-import {assignRecipients, startExchange, getState} from "../../../src/exchange/state";
+import {assignRecipients, startExchange} from "../../../src/exchange/state";
 import * as stateModule from "../../../src/exchange/state";
 
 describe('resultsTable', () => {

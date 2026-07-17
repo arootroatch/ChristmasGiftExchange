@@ -1,6 +1,6 @@
-import {describe, it, expect, beforeEach, vi} from 'vitest';
+import {describe, it, expect, beforeEach} from 'vitest';
 import {JSDOM} from 'jsdom';
-import {dashboardEvents, DashboardEvents, resetState, setRecipientData, setRecipientWishlist} from '../../../src/dashboard/state.js';
+import {dashboardEvents, resetState, setRecipientData, setRecipientWishlist} from '../../../src/dashboard/state.js';
 import {init} from '../../../src/dashboard/components/RecipientCard.js';
 
 function setupDOM() {

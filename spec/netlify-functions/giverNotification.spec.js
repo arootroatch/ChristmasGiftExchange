@@ -1,6 +1,5 @@
-import {describe, expect, it, vi, beforeAll, afterAll, afterEach} from 'vitest';
+import {describe, expect, it, beforeAll, afterAll, afterEach} from 'vitest';
 import {setupMongo, teardownMongo, cleanCollections} from '../shared/mongoSetup.js';
-import {ObjectId} from 'mongodb';
 import {makeUser, makeExchange, seedUsers, seedExchange} from '../shared/testData.js';
 
 describe('forEachGiverOf', () => {

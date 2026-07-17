@@ -4,8 +4,8 @@ import {defmulti} from '../../netlify/shared/multimethod.mjs';
 describe('defmulti', () => {
     it('dispatches to registered method based on dispatch function', () => {
         const greet = defmulti((lang) => lang);
-        greet.defmethod('en', (lang) => 'hello');
-        greet.defmethod('es', (lang) => 'hola');
+        greet.defmethod('en', () => 'hello');
+        greet.defmethod('es', () => 'hola');
 
         expect(greet('en')).toBe('hello');
         expect(greet('es')).toBe('hola');

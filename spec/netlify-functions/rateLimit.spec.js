@@ -2,11 +2,11 @@ import {describe, it, expect, beforeAll, afterAll, afterEach} from "vitest";
 import {setupMongo, teardownMongo, cleanCollections} from '../shared/mongoSetup.js';
 
 describe("rateLimit", () => {
-    let client, db, mongo, checkRateLimit;
+    let db, mongo, checkRateLimit;
 
     beforeAll(async () => {
         mongo = await setupMongo();
-        ({client, db} = mongo);
+        ({db} = mongo);
         const mod = await import("../../netlify/shared/rateLimit.mjs");
         checkRateLimit = mod.checkRateLimit;
     });

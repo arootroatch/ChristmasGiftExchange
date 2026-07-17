@@ -1,4 +1,4 @@
-import {afterEach, beforeAll, beforeEach, describe, expect, it, vi} from "vitest";
+import {afterEach, beforeEach, describe, expect, it, vi} from "vitest";
 import * as snackbar from "../src/Snackbar";
 import {shouldDisplayErrorSnackbar, shouldDisplaySuccessSnackbar} from "./shared/specHelper";
 

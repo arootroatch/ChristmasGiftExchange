@@ -1,7 +1,6 @@
 import {afterEach, beforeAll, beforeEach, describe, expect, it, vi} from "vitest";
 import {
   addHouseToDOM,
-  enterName,
   initReactiveSystem,
   installParticipantNames,
   removeAllHouses,

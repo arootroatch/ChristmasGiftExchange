@@ -22,7 +22,7 @@ export const handler = apiHandler("PUT", async (event) => {
 
     let notifiedGivers = false;
     if (wasEmpty && (data.wishlists.length > 0 || data.wishItems.length > 0)) {
-        await forEachGiverOf(user, async ({giver, exchange}) => {
+        await forEachGiverOf(user, async ({giver}) => {
             await sendNotificationEmail(
                 "wishlist-notification",
                 giver.email,

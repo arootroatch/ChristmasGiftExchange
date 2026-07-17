@@ -1,4 +1,4 @@
-import {beforeAll, beforeEach, describe, expect, it, vi} from "vitest";
+import {beforeAll, beforeEach, describe, expect, it} from "vitest";
 import {
   addHouseToDOM,
   addNamesToDOM,
@@ -9,7 +9,6 @@ import {
   shouldBeDraggable,
   shouldNotSelect,
   shouldSelect,
-  stubProperty
 } from "../../shared/specHelper";
 import {getState, addNameToHouse} from "../../../src/exchange/state";
 import cardStyles from '../../../assets/styles/exchange/components/participant-card.module.css';

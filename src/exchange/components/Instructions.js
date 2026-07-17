@@ -1,6 +1,6 @@
 import {ExchangeEvents as Events, exchangeEvents as stateEvents, startExchange} from "../state.js";
 import {leftContainerId, selectElement} from "../../utils.js";
-import {introTemplate, introId} from "../firstScreenTemplates.js";
+import {introTemplate} from "../firstScreenTemplates.js";
 import btnStyles from '../../../assets/styles/exchange/components/buttons.module.css';
 
 export function secretSantaMode() {

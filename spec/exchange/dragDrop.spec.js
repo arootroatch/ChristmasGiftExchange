@@ -1,5 +1,5 @@
 import {afterEach, beforeAll, beforeEach, describe, expect, it, vi} from 'vitest';
-import {allowDrop, drag, dragLeave, drop, initDragDrop} from '../../src/exchange/dragDrop';
+import {drag, drop, initDragDrop} from '../../src/exchange/dragDrop';
 import {getState, addNameToHouse} from '../../src/exchange/state';
 import cardStyles from '../../assets/styles/exchange/components/participant-card.module.css';
 import {

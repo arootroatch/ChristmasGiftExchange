@@ -1,6 +1,6 @@
 import {test, expect} from './fixtures.js';
 import {alex, whitney, makeUser, makeExchange, seedUsers, seedExchange} from '../spec/shared/testData.js';
-import {connectDB, disconnectDB, cleanDB, getDB, authenticateUser, authenticateViaUI} from './helpers.js';
+import {connectDB, disconnectDB, cleanDB, getDB, authenticateViaUI} from './helpers.js';
 
 test.describe('Reuse Exchange', () => {
     let exchangeId;
@@ -32,7 +32,7 @@ test.describe('Reuse Exchange', () => {
         await disconnectDB();
     });
 
-    test('auto-loads past exchange details with Households label', async ({page, baseURL}) => {
+    test('auto-loads past exchange details with Households label', async ({page}) => {
         await page.goto('/dashboard/reuse');
 
         // Auth gate appears first
@@ -47,7 +47,7 @@ test.describe('Reuse Exchange', () => {
         await expect(results).toContainText('Family');
     });
 
-    test('shows inline empty state when no exchanges found', async ({page, baseURL}) => {
+    test('shows inline empty state when no exchanges found', async ({page}) => {
         // Seed a user who has no exchanges
         const carol = makeUser({name: 'Carol', email: 'carol@test.com'});
         await seedUsers(getDB(), carol);
@@ -59,7 +59,7 @@ test.describe('Reuse Exchange', () => {
         await expect(page.locator('#reuse-results')).toContainText('No past exchanges found');
     });
 
-    test('Use This Exchange button stores data in sessionStorage', async ({page, baseURL}) => {
+    test('Use This Exchange button stores data in sessionStorage', async ({page}) => {
         await page.goto('/dashboard/reuse');
         await expect(page.locator('#auth-gate')).toBeVisible();
         await authenticateViaUI(page, alex.email);
@@ -84,7 +84,7 @@ test.describe('Reuse Exchange', () => {
         expect(parsed.exchangeId).toBe(exchangeId);
     });
 
-    test('reusing exchange populates participants, houses, and ghost house', async ({page, baseURL}) => {
+    test('reusing exchange populates participants, houses, and ghost house', async ({page}) => {
         await page.goto('/dashboard/reuse');
         await expect(page.locator('#auth-gate')).toBeVisible();
         await authenticateViaUI(page, alex.email);

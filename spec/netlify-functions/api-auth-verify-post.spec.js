@@ -153,9 +153,9 @@ describe('api-auth-verify-post', () => {
     });
 
     it('logs info when new user is created on verify', async () => {
-        const code = await generateAndStoreCode('new@test.com');
+        await generateAndStoreCode('new@test.com');
         await db.collection('users').insertOne({email: 'new@test.com', name: 'New User', wishlists: [], wishItems: []});
-        const code2 = await generateAndStoreCode('newuser@test.com');
+        await generateAndStoreCode('newuser@test.com');
         await db.collection('users').insertOne({email: 'newuser@test.com', wishlists: [], wishItems: []});
         const realCode = await generateAndStoreCode('brand@test.com');
         await handler(buildEvent('POST', {body: {email: 'brand@test.com', code: realCode, name: 'Brand New'}}));
