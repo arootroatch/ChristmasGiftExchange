@@ -4,6 +4,7 @@ import * as snackbar from '../Snackbar.js';
 import {loadSession} from '../session.js';
 import {renderFilters, getFilterValues, populateEndpoints} from './logFilters.js';
 import {renderTable} from './logTable.js';
+import {renderLogLevelControl} from './logLevelControl.js';
 import {selectElement, addEventListener} from '../utils.js';
 
 function adminLayout() {
@@ -11,6 +12,7 @@ function adminLayout() {
         <header class="admin-header">
             <h1>Admin Logs</h1>
             <span class="admin-header-badge">Admin</span>
+            <div id="log-level-container"></div>
         </header>
         <main class="admin-main">
             <div id="filters-container"></div>
@@ -45,6 +47,7 @@ async function loadLogs() {
 function initDashboard() {
     const content = selectElement('#admin-content');
     content.innerHTML = adminLayout();
+    renderLogLevelControl(selectElement('#log-level-container'));
     renderFilters(selectElement('#filters-container'), loadLogs);
     loadLogs();
 }
