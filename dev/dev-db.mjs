@@ -1,11 +1,21 @@
 import {MongoMemoryServer} from "mongodb-memory-server";
 import {MongoClient} from "mongodb";
 import fs from "node:fs";
+import path from "node:path";
+import {execSync} from "node:child_process";
+import {fileURLToPath} from "node:url";
 import {seed} from "./seed.mjs";
 import {startRepl} from "./repl.mjs";
 
 const DB_NAME = "gift-exchange";
-const ENV_FILE = ".env.local";
+
+export function resolveEnvFilePath() {
+    const gitCommonDir = execSync("git rev-parse --git-common-dir", {encoding: "utf-8"}).trim();
+    const repoRoot = path.dirname(path.resolve(gitCommonDir));
+    return path.join(repoRoot, ".env.local");
+}
+
+const ENV_FILE = resolveEnvFilePath();
 
 function readEnvFile() {
     try {
@@ -41,4 +51,6 @@ async function startMongo() {
     startRepl(db, client, () => mongod.stop());
 }
 
-startMongo().catch(console.error);
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+    startMongo().catch(console.error);
+}
