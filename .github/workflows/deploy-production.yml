@@ -1,0 +1,80 @@
+name: Deploy Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Branch, tag, or SHA to deploy (defaults to main)'
+        required: false
+        default: 'main'
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  check-ci-status:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+    outputs:
+      sha: ${{ steps.resolve.outputs.sha }}
+    steps:
+      - name: Resolve ref to commit SHA
+        id: resolve
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          sha=$(gh api "repos/${{ github.repository }}/commits/${{ inputs.ref }}" --jq '.sha')
+          echo "Resolved ${{ inputs.ref }} -> $sha"
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+
+      - name: Verify Test and Deploy workflow succeeded for this commit
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          sha="${{ steps.resolve.outputs.sha }}"
+          conclusion=$(gh api "repos/${{ github.repository }}/actions/workflows/vitest.yml/runs?head_sha=$sha&status=completed" --jq '.workflow_runs[0].conclusion // "none"')
+          echo "Test and Deploy conclusion for $sha: $conclusion"
+          if [ "$conclusion" != "success" ]; then
+            echo "::error::No successful Test and Deploy run found for commit $sha (found: $conclusion). Refusing to deploy to production."
+            exit 1
+          fi
+
+  deploy-production:
+    needs: check-ci-status
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ needs.check-ci-status.outputs.sha }}
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: lts/*
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run migrations
+        run: node dev/run-migrations.mjs
+        env:
+          MONGO_DB_URI: ${{ secrets.MONGO_DB_URI }}
+          MONGODB_DATABASE: gift-exchange
+
+      - name: Sync indexes
+        run: node dev/sync-indexes.mjs
+        env:
+          MONGO_DB_URI: ${{ secrets.MONGO_DB_URI }}
+          MONGODB_DATABASE: gift-exchange
+
+      - name: Build
+        run: npm run build
+
+      - name: Deploy production to Netlify
+        run: npx netlify-cli deploy --prod --dir=dist --site $NETLIFY_SITE_ID --auth $NETLIFY_AUTH_TOKEN
+        env:
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
