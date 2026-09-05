@@ -1,10 +1,10 @@
 import {afterEach, beforeAll, beforeEach, describe, expect, it, vi} from 'vitest';
 import {getState} from '../../src/exchange/state';
 import {initReactiveSystem, resetDOM} from "../shared/specHelper";
-import {secretSantaMode, render as renderInstructions} from "../../src/exchange/components/Instructions";
+import {namesFromHatMode, secretSantaMode, render as renderInstructions} from "../../src/exchange/components/Instructions";
 
 describe('layout', () => {
-  let letsGoBtn, secretSantaBtn, leftContainer;
+  let letsGoBtn, secretSantaBtn, namesFromHatBtn, leftContainer;
 
   beforeAll(async () => {
     initReactiveSystem();
@@ -15,6 +15,7 @@ describe('layout', () => {
     renderInstructions();
     letsGoBtn = document.querySelector("#letsGo");
     secretSantaBtn = document.querySelector("#secretSantaBtn");
+    namesFromHatBtn = document.querySelector("#namesFromHatBtn");
     leftContainer = document.querySelector("#left-container");
     leftContainer.classList.remove("secret");
   });
@@ -43,6 +44,21 @@ describe('layout', () => {
 
       const resultsTable = document.querySelector("#results-table");
       expect(resultsTable).toBeNull();
+    });
+  });
+
+  describe('namesFromHatMode', () => {
+    it('sets isLinkMode and isSecretSanta state to true', () => {
+      namesFromHatMode();
+
+      expect(getState().isSecretSanta).toBe(true);
+      expect(getState().isLinkMode).toBe(true);
+    });
+
+    it('adds secret class to left-container', () => {
+      namesFromHatMode();
+
+      expect(leftContainer.classList).toContain('secret');
     });
   });
 

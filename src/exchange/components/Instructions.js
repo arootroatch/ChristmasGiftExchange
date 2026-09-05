@@ -1,18 +1,24 @@
 import {ExchangeEvents as Events, exchangeEvents as stateEvents, startExchange} from "../state.js";
 import {leftContainerId, selectElement} from "../../utils.js";
 import {introTemplate} from "../firstScreenTemplates.js";
-import btnStyles from '../../../assets/styles/exchange/components/buttons.module.css';
 
 export function secretSantaMode() {
   selectElement(`#${leftContainerId}`).classList.add("secret");
   startExchange(true);
 }
 
+export function namesFromHatMode() {
+  selectElement(`#${leftContainerId}`).classList.add("secret");
+  startExchange(true, {isLinkMode: true});
+}
+
 function attachButtonHandlers() {
   const letsGo = selectElement("#letsGo");
   const secretSantaBtn = selectElement("#secretSantaBtn");
+  const namesFromHatBtn = selectElement("#namesFromHatBtn");
   if (letsGo) letsGo.onclick = () => startExchange(false);
   if (secretSantaBtn) secretSantaBtn.onclick = secretSantaMode;
+  if (namesFromHatBtn) namesFromHatBtn.onclick = namesFromHatMode;
 }
 
 function onExchangeStarted({isSecretSanta, isReuse}) {
@@ -26,7 +32,7 @@ function onExchangeStarted({isSecretSanta, isReuse}) {
 export function render() {
   const slot = selectElement('[data-slot="instructions"]');
   if (slot) {
-    slot.innerHTML = introTemplate(btnStyles);
+    slot.innerHTML = introTemplate();
     attachButtonHandlers();
   }
 }
