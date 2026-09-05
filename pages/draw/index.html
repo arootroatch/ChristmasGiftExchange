@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Pick your name and see who you're buying a gift for.">
+    <link rel="stylesheet" href="/assets/styles/main.css">
+    <title>Draw Your Name</title>
+</head>
+<body style="opacity: 0">
+<div id="container" class="dashboard-page">
+    <h1>Draw Your Name</h1>
+    <div id="draw-content">
+        <div class="spinner-container"><div class="spinner"></div></div>
+    </div>
+</div>
+<script type="module">
+    import {main} from '/src/draw/index.js';
+    document.body.style.opacity = '1';
+    main();
+</script>
+</body>
+</html>

@@ -35,6 +35,7 @@ export default defineConfig({
             'spec/wishlistEdit/**/*.spec.js',
             'spec/dashboard/**/*.spec.js',
             'spec/admin/**/*.spec.js',
+            'spec/draw/**/*.spec.js',
             'spec/wishlistView.spec.js',
             'spec/reuse.spec.js',
           ],
