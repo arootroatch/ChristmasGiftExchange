@@ -1,6 +1,6 @@
 import {getLinkExchangesCollection} from "../shared/db.mjs";
 import {apiHandler, validateBody} from "../shared/middleware.mjs";
-import {ok, notFound, error} from "../shared/responses.mjs";
+import {ok, notFound, error, badRequest} from "../shared/responses.mjs";
 import {z} from "zod";
 
 const drawRequestSchema = z.object({
@@ -10,7 +10,7 @@ const drawRequestSchema = z.object({
 
 export const handler = apiHandler("POST", async (event) => {
     const {data, error: validationError} = validateBody(drawRequestSchema, event);
-    if (validationError) return notFound("Exchange not found");
+    if (validationError) return badRequest(validationError);
 
     const linkExchangesCol = await getLinkExchangesCollection();
 

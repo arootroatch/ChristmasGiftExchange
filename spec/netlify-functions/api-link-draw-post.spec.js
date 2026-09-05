@@ -69,6 +69,12 @@ describe('api-link-draw-post', () => {
         expect(response.statusCode).toBe(404);
     });
 
+    it('returns 400 when the request body is missing a required field', async () => {
+        const response = await handler(buildEvent('POST', {body: {exchangeId: 'link-exchange-123'}, path: drawPath}));
+        expect(response.statusCode).toBe(400);
+        expect(JSON.parse(response.body).error).toContain('name');
+    });
+
     it('only one of two concurrent draws for the same name succeeds', async () => {
         await seedLinkExchange();
         const event = () => buildEvent('POST', {body: {exchangeId: 'link-exchange-123', name: 'Alex'}, path: drawPath});
