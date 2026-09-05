@@ -52,6 +52,7 @@ export default async function globalSetup() {
         '--target-port', String(targetPort),
         '--command', `npx vite --port ${targetPort} --host`,
         '--framework', '#custom',
+        '--functions', 'netlify/functions',
         '--no-open',
     ], {
         cwd: path.resolve(import.meta.dirname, '..'),

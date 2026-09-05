@@ -1,5 +1,5 @@
-import {describe, it, expect, beforeEach} from "vitest";
-import {prerenderPlugin} from "../src/vitePrerenderPlugin.js";
+import {describe, it, expect, beforeEach, afterEach} from "vitest";
+import {prerenderPlugin, cssModuleClassMap} from "../src/vitePrerenderPlugin.js";
 
 describe("prerenderPlugin", () => {
   let plugin;
@@ -25,7 +25,7 @@ describe("prerenderPlugin", () => {
     it("injects introTemplate into instructions slot on index.html", async () => {
       const result = await plugin.transformIndexHtml(indexHtml, {path: "/index.html"});
       expect(result).toContain('data-slot="instructions"><div id="intro">');
-      expect(result).toContain("Drawing names for a gift exchange");
+      expect(result).toContain("Quick Match");
     });
 
     it("injects dashboardLinkTemplate into dashboard-link slot", async () => {
@@ -36,8 +36,33 @@ describe("prerenderPlugin", () => {
     it("does not inject templates into non-index pages", async () => {
       const pageHtml = `<html><head><meta charset="UTF-8"><title>Other</title><meta name="description" content="Other page."></head><body></body></html>`;
       const result = await plugin.transformIndexHtml(pageHtml, {path: "/pages/reuse/index.html"});
-      expect(result).not.toContain("Drawing names");
+      expect(result).not.toContain("Quick Match");
       expect(result).not.toContain('id="intro"');
+    });
+
+    describe("with populated CSS module maps", () => {
+      afterEach(() => {
+        cssModuleClassMap.clear();
+      });
+
+      it("threads hashed class names from both the buttons and mode-cards CSS modules into the injected templates", async () => {
+        cssModuleClassMap.set(
+          "/abs/path/assets/styles/exchange/components/buttons.module.css",
+          {button: "_button_hash1"}
+        );
+        cssModuleClassMap.set(
+          "/abs/path/assets/styles/exchange/components/mode-cards.module.css",
+          {modeCard: "_modeCard_hash2", modeCardTitle: "_modeCardTitle_hash2", modeCardDesc: "_modeCardDesc_hash2", modesContainer: "_modesContainer_hash2"}
+        );
+
+        const result = await plugin.transformIndexHtml(indexHtml, {path: "/index.html"});
+
+        expect(result).toContain('class="_button_hash1');
+        expect(result).toContain('class="_modeCard_hash2"');
+        expect(result).toContain('class="_modeCardTitle_hash2"');
+        expect(result).toContain('class="_modeCardDesc_hash2"');
+        expect(result).toContain('class="_modesContainer_hash2"');
+      });
     });
   });
 

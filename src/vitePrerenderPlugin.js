@@ -19,11 +19,11 @@ function findClassMap(suffix) {
   return {};
 }
 
-function injectSlots(html, btnStyles) {
+function injectSlots(html, btnStyles, cardStyles) {
   return html
     .replace(
       '<div data-slot="instructions"></div>',
-      `<div data-slot="instructions">${introTemplate(btnStyles)}</div>`
+      `<div data-slot="instructions">${introTemplate(cardStyles)}</div>`
     )
     .replace(
       '<div data-slot="dashboard-link"></div>',
@@ -59,6 +59,7 @@ function injectFavicons(html) {
 }
 
 const BUTTONS_MODULE_SUFFIX = "exchange/components/buttons.module.css";
+const MODE_CARDS_MODULE_SUFFIX = "exchange/components/mode-cards.module.css";
 
 export function prerenderPlugin() {
   let devServer;
@@ -80,9 +81,13 @@ export function prerenderPlugin() {
           try {
             await devServer.ssrLoadModule(`/${BUTTONS_MODULE_SUFFIX.replace("exchange/", "assets/styles/exchange/")}`);
           } catch { /* best-effort warmup */ }
+          try {
+            await devServer.ssrLoadModule(`/${MODE_CARDS_MODULE_SUFFIX.replace("exchange/", "assets/styles/exchange/")}`);
+          } catch { /* best-effort warmup */ }
         }
         const btnStyles = findClassMap(BUTTONS_MODULE_SUFFIX);
-        html = injectSlots(html, btnStyles);
+        const cardStyles = findClassMap(MODE_CARDS_MODULE_SUFFIX);
+        html = injectSlots(html, btnStyles, cardStyles);
       }
 
       html = injectFavicons(html);

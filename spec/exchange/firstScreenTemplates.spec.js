@@ -11,22 +11,32 @@ describe("firstScreenTemplates", () => {
       expect(introTemplate()).toContain(`id="${introId}"`);
     });
 
-    it("contains the instructions text", () => {
-      expect(introTemplate()).toContain("Drawing names for a gift exchange");
-    });
-
-    it("contains Let's go button", () => {
-      expect(introTemplate()).toContain('id="letsGo"');
-    });
-
-    it("contains Secret Santa button", () => {
-      expect(introTemplate()).toContain('id="secretSantaBtn"');
-    });
-
-    it("contains the ordered list of steps", () => {
+    it("contains all three mode buttons", () => {
       const html = introTemplate();
-      expect(html).toContain("Add all participant names");
-      expect(html).toContain("Generate the list");
+      expect(html).toContain('id="letsGo"');
+      expect(html).toContain('id="secretSantaBtn"');
+      expect(html).toContain('id="namesFromHatBtn"');
+    });
+
+    it("labels the Quick Match card", () => {
+      expect(introTemplate()).toContain("Quick Match");
+    });
+
+    it("labels the Secret Santa card with its full toolkit description", () => {
+      const html = introTemplate();
+      expect(html).toContain("Secret Santa Mode");
+      expect(html).toContain("wishlist");
+      expect(html).toContain("lookup page");
+    });
+
+    it("labels the Names from a Hat card", () => {
+      const html = introTemplate();
+      expect(html).toContain("Names from a Hat");
+      expect(html).toContain("No emails needed");
+    });
+
+    it("keeps the privacy note", () => {
+      expect(introTemplate()).toContain("your information will never be shared");
     });
   });
 

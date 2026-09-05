@@ -1,0 +1,40 @@
+.modesContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.modeCard {
+  background-color: var(--burgundy);
+  color: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-sm);
+  transition: 0.2s;
+  padding: 16px 20px;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+}
+
+.modeCard:hover {
+  background-color: #7a3233;
+}
+
+.modeCard:active {
+  background-color: #5a2122;
+}
+
+.modeCardTitle {
+  margin: 0 0 6px 0;
+  font-size: 1.1em;
+}
+
+.modeCardDesc {
+  margin: 0;
+  font-weight: normal;
+  opacity: 0.9;
+  font-size: 0.9em;
+}

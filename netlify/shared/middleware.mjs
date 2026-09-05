@@ -73,6 +73,21 @@ export async function requireAuth(event) {
     return null;
 }
 
+export async function getOptionalUser(event) {
+    const cookies = parseCookies(event.headers?.cookie);
+    if (!cookies.session) return null;
+
+    const payload = await verifySession(cookies.session);
+    if (!payload?.userId) return null;
+
+    try {
+        const usersCol = await getUsersCollection();
+        return await usersCol.findOne({_id: new ObjectId(payload.userId)});
+    } catch {
+        return null;
+    }
+}
+
 function extractClientIp(event) {
     return event.headers?.["x-forwarded-for"]?.split(",")[0]?.trim()
         || event.headers?.["client-ip"]

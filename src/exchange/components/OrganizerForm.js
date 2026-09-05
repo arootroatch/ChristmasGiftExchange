@@ -10,7 +10,7 @@ const containerId = "organizerFormContainer";
 
 export function init() {
   stateEvents.on(Events.RECIPIENTS_ASSIGNED, (state) => {
-    if (state.isSecretSanta) {
+    if (state.isSecretSanta && !state.isLinkMode) {
       renderOrSkip();
     }
   });
