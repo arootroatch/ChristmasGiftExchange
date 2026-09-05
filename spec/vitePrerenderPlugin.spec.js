@@ -25,7 +25,7 @@ describe("prerenderPlugin", () => {
     it("injects introTemplate into instructions slot on index.html", async () => {
       const result = await plugin.transformIndexHtml(indexHtml, {path: "/index.html"});
       expect(result).toContain('data-slot="instructions"><div id="intro">');
-      expect(result).toContain("Drawing names for a gift exchange");
+      expect(result).toContain("Quick Match");
     });
 
     it("injects dashboardLinkTemplate into dashboard-link slot", async () => {
@@ -36,7 +36,7 @@ describe("prerenderPlugin", () => {
     it("does not inject templates into non-index pages", async () => {
       const pageHtml = `<html><head><meta charset="UTF-8"><title>Other</title><meta name="description" content="Other page."></head><body></body></html>`;
       const result = await plugin.transformIndexHtml(pageHtml, {path: "/pages/reuse/index.html"});
-      expect(result).not.toContain("Drawing names");
+      expect(result).not.toContain("Quick Match");
       expect(result).not.toContain('id="intro"');
     });
   });
