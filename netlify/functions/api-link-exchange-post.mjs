@@ -6,13 +6,13 @@ import {z} from "zod";
 
 const houseInputSchema = z.object({
     id: z.string().optional(),
-    name: z.string(),
-    members: z.array(z.string()),
+    name: z.string().max(200),
+    members: z.array(z.string().max(200)).max(100),
 });
 
 const participantInputSchema = z.object({
-    name: z.string(),
-    recipient: z.string(),
+    name: z.string().max(200),
+    recipient: z.string().max(200),
 });
 
 function validateUniqueNames(ctx) {
@@ -32,9 +32,9 @@ function validateRecipientsExist(ctx) {
 }
 
 const linkExchangePostRequestSchema = z.object({
-    exchangeId: z.string(),
-    houses: z.array(houseInputSchema),
-    participants: z.array(participantInputSchema),
+    exchangeId: z.uuid(),
+    houses: z.array(houseInputSchema).max(100),
+    participants: z.array(participantInputSchema).max(100),
 }).check(validateUniqueNames)
   .check(validateRecipientsExist);
 

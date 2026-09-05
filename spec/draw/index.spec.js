@@ -130,7 +130,7 @@ describe("draw and reveal", () => {
     document.querySelector('[data-name="Alex"]').click();
 
     global.fetch = vi.fn(() => Promise.resolve({
-      ok: false, status: 409, json: () => Promise.resolve({error: "Already viewed — ask your organizer"}),
+      ok: false, status: 409, json: () => Promise.resolve({error: "Already viewed — this name has already been drawn"}),
     }));
     document.querySelector("#confirm-draw-btn").click();
     await vi.waitFor(() => expect(getState().screen).toBe("picker"));
@@ -146,7 +146,7 @@ describe("draw and reveal", () => {
 
     global.fetch = vi.fn()
       .mockResolvedValueOnce({
-        ok: false, status: 409, json: () => Promise.resolve({error: "Already viewed — ask your organizer"}),
+        ok: false, status: 409, json: () => Promise.resolve({error: "Already viewed — this name has already been drawn"}),
       })
       .mockResolvedValueOnce({
         ok: true, status: 200,

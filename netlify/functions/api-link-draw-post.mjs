@@ -4,7 +4,7 @@ import {ok, notFound, error, badRequest} from "../shared/responses.mjs";
 import {z} from "zod";
 
 const drawRequestSchema = z.object({
-    exchangeId: z.string(),
+    exchangeId: z.uuid(),
     name: z.string(),
 });
 
@@ -31,5 +31,5 @@ export const handler = apiHandler("POST", async (event) => {
     const participant = exchange.participants.find(p => p.name === data.name);
     if (!participant) return notFound("Name not found");
 
-    return error(409, "Already viewed — ask your organizer");
+    return error(409, "Already viewed — this name has already been drawn");
 }, {maxRequests: 60, windowMs: 60000});

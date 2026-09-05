@@ -1,11 +1,13 @@
 import {ExchangeEvents as Events, exchangeEvents as stateEvents, getExchangePayload, completeExchange} from "../state.js";
-import {selectElement, pushHTML, addEventListener, apiFetch} from "../../utils.js";
+import {selectElement, pushHTML, addEventListener, apiFetch, setLoadingState, clearLoadingState} from "../../utils.js";
 import {showError} from "../../Snackbar.js";
 import {authGateTemplate, initAuthGate} from "../../authGate.js";
+import {getSessionUser} from "../../session.js";
 import btnStyles from '../../../assets/styles/exchange/components/buttons.module.css';
 import confirmStyles from '../../../assets/styles/exchange/components/email-confirmation.module.css';
 
 const containerId = "linkExchangeContainer";
+let isSaving = false;
 
 export function init() {
   stateEvents.on(Events.RECIPIENTS_ASSIGNED, (state) => {
@@ -28,9 +30,38 @@ function promptTemplate() {
 
 function render() {
   selectElement(`#${containerId}`)?.remove();
+  isSaving = false;
   pushHTML("body", promptTemplate());
-  addEventListener("#linkSaveNoBtn", "click", createLinkExchange);
-  addEventListener("#linkSaveYesBtn", "click", showVerifyStep);
+  addEventListener("#linkSaveNoBtn", "click", handleNoThanksClick);
+  addEventListener("#linkSaveYesBtn", "click", handleYesClick);
+}
+
+function setSaveButtonsLoading() {
+  if (selectElement("#linkSaveNoBtn")) setLoadingState("#linkSaveNoBtn");
+  if (selectElement("#linkSaveYesBtn")) setLoadingState("#linkSaveYesBtn");
+}
+
+function clearSaveButtonsLoading() {
+  if (selectElement("#linkSaveNoBtn")) clearLoadingState("#linkSaveNoBtn");
+  if (selectElement("#linkSaveYesBtn")) clearLoadingState("#linkSaveYesBtn");
+}
+
+function handleNoThanksClick() {
+  if (isSaving) return;
+  isSaving = true;
+  setSaveButtonsLoading();
+  createLinkExchange();
+}
+
+function handleYesClick() {
+  if (isSaving) return;
+  isSaving = true;
+  setSaveButtonsLoading();
+  if (getSessionUser()) {
+    createLinkExchange();
+  } else {
+    showVerifyStep();
+  }
 }
 
 function showVerifyStep() {
@@ -60,7 +91,11 @@ async function createLinkExchange() {
       selectElement(`#${containerId}`)?.remove();
       completeExchange("link");
     },
-    onError: (msg) => showError(msg),
+    onError: (msg) => {
+      isSaving = false;
+      clearSaveButtonsLoading();
+      showError(msg);
+    },
     fallbackMessage: "Failed to create link. Please try again.",
   });
 }

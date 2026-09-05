@@ -31,7 +31,7 @@ describe("linkExchangeSchema", () => {
     });
 
     it("rejects missing exchangeId", () => {
-        const {exchangeId, ...rest} = valid;
+        const {exchangeId: _exchangeId, ...rest} = valid;
         expect(linkExchangeSchema.safeParse(rest).success).toBe(false);
     });
 });

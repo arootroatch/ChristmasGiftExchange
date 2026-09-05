@@ -29,8 +29,10 @@ describe('api-link-exchange-post', () => {
         await teardownMongo(mongo);
     });
 
+    const validExchangeId = '55eacc44-5530-4d2b-92b7-19c375e70903';
+
     const payload = {
-        exchangeId: 'link-exchange-123',
+        exchangeId: validExchangeId,
         houses: [{id: 'house1', name: 'Group 1', members: ['Alex', 'Whitney']}],
         participants: [
             {name: 'Alex', recipient: 'Whitney'},
@@ -48,9 +50,9 @@ describe('api-link-exchange-post', () => {
         const response = await handler(event);
 
         expect(response.statusCode).toBe(200);
-        expect(JSON.parse(response.body).exchangeId).toBe('link-exchange-123');
+        expect(JSON.parse(response.body).exchangeId).toBe(validExchangeId);
 
-        const doc = await db.collection('linkExchanges').findOne({exchangeId: 'link-exchange-123'});
+        const doc = await db.collection('linkExchanges').findOne({exchangeId: validExchangeId});
         expect(doc.participants).toHaveLength(2);
         expect(doc.participants.every(p => p.hasDrawn === false)).toBe(true);
         expect(doc.participants.find(p => p.name === 'Alex').recipient).toBe('Whitney');
@@ -66,7 +68,7 @@ describe('api-link-exchange-post', () => {
         const event = buildEvent('POST', {body: payload, path: postPath, headers: {cookie}});
         await handler(event);
 
-        const doc = await db.collection('linkExchanges').findOne({exchangeId: 'link-exchange-123'});
+        const doc = await db.collection('linkExchanges').findOne({exchangeId: validExchangeId});
         expect(doc.organizer.equals(organizer._id)).toBe(true);
     });
 
@@ -94,8 +96,24 @@ describe('api-link-exchange-post', () => {
         expect(response.statusCode).toBe(400);
     });
 
+    it('rejects a non-UUID exchangeId', async () => {
+        const event = buildEvent('POST', {body: {...payload, exchangeId: 'link-exchange-123'}, path: postPath});
+        const response = await handler(event);
+        expect(response.statusCode).toBe(400);
+    });
+
+    it('rejects an oversized participant name', async () => {
+        const oversizedName = 'A'.repeat(201);
+        const event = buildEvent('POST', {
+            body: {...payload, participants: [{name: oversizedName, recipient: oversizedName}]},
+            path: postPath,
+        });
+        const response = await handler(event);
+        expect(response.statusCode).toBe(400);
+    });
+
     it('logs info when a link exchange is created', async () => {
         await handler(buildEvent('POST', {body: payload, path: postPath}));
-        expect(vi.mocked(logger.info)).toHaveBeenCalledWith('Link exchange created', expect.objectContaining({exchangeId: 'link-exchange-123', participantCount: 2}));
+        expect(vi.mocked(logger.info)).toHaveBeenCalledWith('Link exchange created', expect.objectContaining({exchangeId: validExchangeId, participantCount: 2}));
     });
 });

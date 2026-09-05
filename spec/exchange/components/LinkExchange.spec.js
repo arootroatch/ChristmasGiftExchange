@@ -5,6 +5,12 @@ import * as state from "../../../src/exchange/state";
 import {alex, whitney} from "../../shared/testData";
 import {init} from "../../../src/exchange/components/LinkExchange";
 import {init as initSnackbar} from "../../../src/Snackbar";
+import {getSessionUser} from "../../../src/session.js";
+
+vi.mock("../../../src/session.js", () => ({
+  getSessionUser: vi.fn(() => null),
+  setSessionUser: vi.fn(),
+}));
 
 function triggerLinkAssign() {
   getState().isSecretSanta = true;
@@ -32,6 +38,7 @@ describe("LinkExchange", () => {
     resetState();
     document.querySelector("#linkExchangeContainer")?.remove();
     vi.spyOn(state, "completeExchange");
+    getSessionUser.mockReturnValue(null);
   });
 
   it("renders the save prompt on RECIPIENTS_ASSIGNED when isLinkMode", () => {
@@ -87,6 +94,31 @@ describe("LinkExchange", () => {
 
       shouldNotSelect("#linkExchangeContainer");
     });
+
+    it("ignores a second click while the first request is in flight", async () => {
+      document.querySelector("#linkSaveNoBtn").click();
+      document.querySelector("#linkSaveNoBtn").click();
+      await vi.advanceTimersByTimeAsync(0);
+
+      expect(global.fetch).toHaveBeenCalledTimes(1);
+    });
+
+    it("re-enables the buttons and allows retry after a failed request", async () => {
+      global.fetch = vi.fn(() => Promise.resolve({
+        ok: false, status: 400, json: () => Promise.resolve({error: "nope"}),
+      }));
+      document.querySelector("#linkSaveNoBtn").click();
+      await vi.advanceTimersByTimeAsync(0);
+
+      global.fetch = vi.fn(() => Promise.resolve({
+        ok: true, status: 200, json: () => Promise.resolve({exchangeId: getState().exchangeId}),
+      }));
+      document.querySelector("#linkSaveNoBtn").click();
+      await vi.advanceTimersByTimeAsync(0);
+
+      expect(global.fetch).toHaveBeenCalledTimes(1);
+      expect(state.completeExchange).toHaveBeenCalledWith("link");
+    });
   });
 
   describe("Yes, save it path", () => {
@@ -117,6 +149,30 @@ describe("LinkExchange", () => {
       await vi.advanceTimersByTimeAsync(0);
 
       expect(global.fetch).toHaveBeenNthCalledWith(3,
+        "/.netlify/functions/api-link-exchange-post",
+        expect.objectContaining({method: "POST"})
+      );
+      expect(state.completeExchange).toHaveBeenCalledWith("link");
+    });
+  });
+
+  describe("authenticated user bypass", () => {
+    beforeEach(() => {
+      triggerLinkAssign();
+      getSessionUser.mockReturnValue({name: "Alex", email: "alex@test.com"});
+      global.fetch = vi.fn(() => Promise.resolve({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve({exchangeId: getState().exchangeId}),
+      }));
+    });
+
+    it("skips the auth gate and posts directly when a session already exists", async () => {
+      document.querySelector("#linkSaveYesBtn").click();
+      await vi.advanceTimersByTimeAsync(0);
+
+      expect(document.querySelector("#auth-email")).toBeNull();
+      expect(global.fetch).toHaveBeenCalledWith(
         "/.netlify/functions/api-link-exchange-post",
         expect.objectContaining({method: "POST"})
       );
