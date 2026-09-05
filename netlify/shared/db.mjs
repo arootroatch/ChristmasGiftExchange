@@ -47,3 +47,8 @@ export async function getSettingsCollection() {
     const db = await getDb();
     return db.collection("settings");
 }
+
+export async function getLinkExchangesCollection() {
+    const db = await getDb();
+    return db.collection("linkExchanges");
+}
