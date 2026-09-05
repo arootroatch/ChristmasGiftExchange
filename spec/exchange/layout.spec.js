@@ -78,5 +78,12 @@ describe('layout', () => {
 
       expect(getState().isSecretSanta).toBe(true);
     });
+
+    it('namesFromHatBtn button has click listener attached', () => {
+      namesFromHatBtn.click();
+
+      expect(getState().isSecretSanta).toBe(true);
+      expect(getState().isLinkMode).toBe(true);
+    });
   });
 });
