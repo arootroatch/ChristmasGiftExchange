@@ -1,4 +1,4 @@
-import {apiFetch, selectElement, escape} from "../utils.js";
+import {apiFetch, selectElement, escape, escapeAttr} from "../utils.js";
 import {getState, setExchangeId, setNames, setNotFound, selectName, cancelConfirm} from "./state.js";
 
 function notFoundHtml() {
@@ -12,7 +12,7 @@ function loadingHtml() {
 function pickerHtml() {
   const {names, errorMessage} = getState();
   const rows = names.map(({name, hasDrawn}) => `
-    <button data-name="${escape(name)}" ${hasDrawn ? "disabled" : ""}>
+    <button data-name="${escapeAttr(name)}" ${hasDrawn ? "disabled" : ""}>
       ${escape(name)}${hasDrawn ? " (Already viewed)" : ""}
     </button>`).join("");
   return `

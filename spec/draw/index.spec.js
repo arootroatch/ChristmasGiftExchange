@@ -72,4 +72,16 @@ describe("draw page main()", () => {
     expect(document.querySelector("#draw-content").textContent).toContain("Alex");
     expect(document.querySelector("#draw-content").textContent).toContain("only do this once");
   });
+
+  it("does not let a quote in a participant name break the button markup", async () => {
+    setUrl('?id=abc-123');
+    const trickyName = 'Alex "The Great"';
+    stubFetch(true, {names: [{name: trickyName, hasDrawn: false}]});
+
+    await main();
+
+    const buttons = document.querySelectorAll("#draw-content button");
+    expect(buttons.length).toBe(1);
+    expect(buttons[0].dataset.name).toBe(trickyName);
+  });
 });
