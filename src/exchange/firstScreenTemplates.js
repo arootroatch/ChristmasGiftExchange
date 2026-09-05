@@ -1,20 +1,22 @@
-import cardStyles from '../../assets/styles/exchange/components/mode-cards.module.css';
-
 export const introId = "intro";
 
-function modeCard(id, title, description) {
-  return `<button class="${cardStyles.modeCard}" id="${id}">
-    <h3 class="${cardStyles.modeCardTitle}">${title}</h3>
-    <p class="${cardStyles.modeCardDesc}">${description}</p>
+function modeCard(styles, id, title, description) {
+  const card = styles.modeCard || "modeCard";
+  const cardTitle = styles.modeCardTitle || "modeCardTitle";
+  const cardDesc = styles.modeCardDesc || "modeCardDesc";
+  return `<button class="${card}" id="${id}">
+    <h3 class="${cardTitle}">${title}</h3>
+    <p class="${cardDesc}">${description}</p>
   </button>`;
 }
 
-export function introTemplate() {
+export function introTemplate(styles = {}) {
+  const modesContainer = styles.modesContainer || "modesContainer";
   return `<div id="${introId}">
-    <div class="${cardStyles.modesContainer}">
-      ${modeCard("letsGo", "Quick Match", "Draw names for a gift exchange. See the full list right away &mdash; good for grab bags or when keeping it secret doesn't matter.")}
-      ${modeCard("secretSantaBtn", "Secret Santa Mode", "Keep it a surprise, with the full toolkit: we privately email each person their recipient, plus anonymous wishlist sharing, contact info exchange, and a lookup page in case someone missed their email.")}
-      ${modeCard("namesFromHatBtn", "Names from a Hat", "No emails needed. Get one link to share with everyone &mdash; each person opens it, picks their name, and sees who they're buying for.")}
+    <div class="${modesContainer}">
+      ${modeCard(styles, "letsGo", "Quick Match", "Draw names for a gift exchange. See the full list right away &mdash; good for grab bags or when keeping it secret doesn't matter.")}
+      ${modeCard(styles, "secretSantaBtn", "Secret Santa Mode", "Keep it a surprise, with the full toolkit: we privately email each person their recipient, plus anonymous wishlist sharing, contact info exchange, and a lookup page in case someone missed their email.")}
+      ${modeCard(styles, "namesFromHatBtn", "Names from a Hat", "No emails needed. Get one link to share with everyone &mdash; each person opens it, picks their name, and sees who they're buying for.")}
     </div>
     <p>
       This site will always be free to use and your information will never be shared.

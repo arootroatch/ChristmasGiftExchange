@@ -1,6 +1,7 @@
 import {ExchangeEvents as Events, exchangeEvents as stateEvents, startExchange} from "../state.js";
 import {leftContainerId, selectElement} from "../../utils.js";
 import {introTemplate} from "../firstScreenTemplates.js";
+import cardStyles from '../../../assets/styles/exchange/components/mode-cards.module.css';
 
 export function secretSantaMode() {
   selectElement(`#${leftContainerId}`).classList.add("secret");
@@ -32,7 +33,7 @@ function onExchangeStarted({isSecretSanta, isReuse}) {
 export function render() {
   const slot = selectElement('[data-slot="instructions"]');
   if (slot) {
-    slot.innerHTML = introTemplate();
+    slot.innerHTML = introTemplate(cardStyles);
     attachButtonHandlers();
   }
 }
