@@ -31,17 +31,15 @@ body:has(.exchange) {
 }
 
 #intro {
-  background: var(--frost);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--frost-border);
-  color: rgba(255, 255, 255, 0.85);
-  border-radius: var(--radius-lg);
-  line-height: 1.5em;
-  padding: 5px 10px;
   margin: 10px auto;
-  text-align: justify;
   max-width: 600px;
+}
+
+#intro > p {
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.5em;
+  text-align: center;
+  padding: 0 10px;
 }
 
 .dashboardLink {

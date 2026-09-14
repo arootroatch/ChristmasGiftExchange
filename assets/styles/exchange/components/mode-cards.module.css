@@ -8,11 +8,13 @@
 }
 
 .modeCard {
-  background-color: var(--burgundy);
+  background: var(--frost);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   color: rgba(255, 255, 255, 0.9);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: var(--radius-sm);
-  transition: 0.2s;
+  border: 1px solid var(--frost-border);
+  border-radius: var(--radius-lg);
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
   padding: 16px 20px;
   cursor: pointer;
   width: 100%;
@@ -20,11 +22,12 @@
 }
 
 .modeCard:hover {
-  background-color: #7a3233;
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 .modeCard:active {
-  background-color: #5a2122;
+  transform: scale(0.99);
 }
 
 .modeCardTitle {

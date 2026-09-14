@@ -1,5 +1,7 @@
 import {apiFetch, selectElement, escape, escapeAttr} from "../utils.js";
 import {getState, setExchangeId, setNames, setNotFound, selectName, cancelConfirm, setRevealed, setDrawError} from "./state.js";
+import cardStyles from '../../assets/styles/dashboard/components/cards.module.css';
+import btnStyles from '../../assets/styles/dashboard/components/buttons.module.css';
 
 function notFoundHtml() {
   return `<p>This link isn't valid. Check with your organizer.</p>`;
@@ -12,7 +14,7 @@ function loadingHtml() {
 function pickerHtml() {
   const {names, errorMessage} = getState();
   const rows = names.map(({name, hasDrawn}) => `
-    <button data-name="${escapeAttr(name)}" ${hasDrawn ? "disabled" : ""}>
+    <button class="${btnStyles.button}" data-name="${escapeAttr(name)}" ${hasDrawn ? "disabled" : ""}>
       ${escape(name)}${hasDrawn ? " (Already viewed)" : ""}
     </button>`).join("");
   return `
@@ -25,8 +27,8 @@ function confirmHtml() {
   const {selectedName} = getState();
   return `
     <p>You're about to reveal as <strong>${escape(selectedName)}</strong> — you can only do this once. Continue?</p>
-    <button id="confirm-draw-btn">Continue</button>
-    <button id="confirm-back-btn">Back</button>`;
+    <button class="${btnStyles.button} ${btnStyles.primary}" id="confirm-draw-btn">Continue</button>
+    <button class="${btnStyles.button}" id="confirm-back-btn">Back</button>`;
 }
 
 function revealHtml() {
@@ -39,11 +41,13 @@ function revealHtml() {
 function render() {
   const content = selectElement("#draw-content");
   const {screen} = getState();
-  if (screen === "loading") content.innerHTML = loadingHtml();
-  if (screen === "notFound") content.innerHTML = notFoundHtml();
-  if (screen === "picker") content.innerHTML = pickerHtml();
-  if (screen === "confirm") content.innerHTML = confirmHtml();
-  if (screen === "reveal") content.innerHTML = revealHtml();
+  let html = "";
+  if (screen === "loading") html = loadingHtml();
+  if (screen === "notFound") html = notFoundHtml();
+  if (screen === "picker") html = pickerHtml();
+  if (screen === "confirm") html = confirmHtml();
+  if (screen === "reveal") html = revealHtml();
+  content.innerHTML = `<div class="${cardStyles.card} card-slide-slow">${html}</div>`;
   attachListeners();
 }
 

@@ -103,6 +103,16 @@ describe("LinkExchange", () => {
       expect(global.fetch).toHaveBeenCalledTimes(1);
     });
 
+    it("only shows a spinner on the clicked button, not the sibling", () => {
+      document.querySelector("#linkSaveNoBtn").click();
+
+      const clicked = document.querySelector("#linkSaveNoBtn");
+      const sibling = document.querySelector("#linkSaveYesBtn");
+      expect(clicked.querySelector(".spinner")).not.toBeNull();
+      expect(sibling.querySelector(".spinner")).toBeNull();
+      expect(sibling.disabled).toBe(true);
+    });
+
     it("re-enables the buttons and allows retry after a failed request", async () => {
       global.fetch = vi.fn(() => Promise.resolve({
         ok: false, status: 400, json: () => Promise.resolve({error: "nope"}),

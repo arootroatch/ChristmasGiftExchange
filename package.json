@@ -6,6 +6,7 @@
   "main": "main.js",
   "scripts": {
     "dev": "netlify dev",
+    "dev:worktree": "netlify dev --functions netlify/functions",
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest",

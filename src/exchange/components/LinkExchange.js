@@ -8,6 +8,7 @@ import confirmStyles from '../../../assets/styles/exchange/components/email-conf
 
 const containerId = "linkExchangeContainer";
 let isSaving = false;
+let lastClickedId = null;
 
 export function init() {
   stateEvents.on(Events.RECIPIENTS_ASSIGNED, (state) => {
@@ -36,27 +37,33 @@ function render() {
   addEventListener("#linkSaveYesBtn", "click", handleYesClick);
 }
 
-function setSaveButtonsLoading() {
-  if (selectElement("#linkSaveNoBtn")) setLoadingState("#linkSaveNoBtn");
-  if (selectElement("#linkSaveYesBtn")) setLoadingState("#linkSaveYesBtn");
+function setSaveButtonsLoading(clickedId) {
+  const otherId = clickedId === "linkSaveNoBtn" ? "linkSaveYesBtn" : "linkSaveNoBtn";
+  if (selectElement(`#${clickedId}`)) setLoadingState(`#${clickedId}`);
+  const otherBtn = selectElement(`#${otherId}`);
+  if (otherBtn) otherBtn.disabled = true;
 }
 
-function clearSaveButtonsLoading() {
-  if (selectElement("#linkSaveNoBtn")) clearLoadingState("#linkSaveNoBtn");
-  if (selectElement("#linkSaveYesBtn")) clearLoadingState("#linkSaveYesBtn");
+function clearSaveButtonsLoading(clickedId) {
+  const otherId = clickedId === "linkSaveNoBtn" ? "linkSaveYesBtn" : "linkSaveNoBtn";
+  if (selectElement(`#${clickedId}`)) clearLoadingState(`#${clickedId}`);
+  const otherBtn = selectElement(`#${otherId}`);
+  if (otherBtn) otherBtn.disabled = false;
 }
 
 function handleNoThanksClick() {
   if (isSaving) return;
   isSaving = true;
-  setSaveButtonsLoading();
+  lastClickedId = "linkSaveNoBtn";
+  setSaveButtonsLoading(lastClickedId);
   createLinkExchange();
 }
 
 function handleYesClick() {
   if (isSaving) return;
   isSaving = true;
-  setSaveButtonsLoading();
+  lastClickedId = "linkSaveYesBtn";
+  setSaveButtonsLoading(lastClickedId);
   if (getSessionUser()) {
     createLinkExchange();
   } else {
@@ -93,7 +100,7 @@ async function createLinkExchange() {
     },
     onError: (msg) => {
       isSaving = false;
-      clearSaveButtonsLoading();
+      clearSaveButtonsLoading(lastClickedId);
       showError(msg);
     },
     fallbackMessage: "Failed to create link. Please try again.",
