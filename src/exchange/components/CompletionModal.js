@@ -4,6 +4,7 @@ import {resultsTableHtml} from "./EmailTable/SendResults.js";
 import {isBmcConsented} from "../../CookieBanner.js";
 import btnStyles from '../../../assets/styles/exchange/components/buttons.module.css';
 import confirmStyles from '../../../assets/styles/exchange/components/email-confirmation.module.css';
+import dialogStyles from '../../../assets/styles/exchange/components/email-dialog.module.css';
 
 const modalId = "completionModal";
 const newExchangeBtnId = "newExchangeBtn";
@@ -20,6 +21,15 @@ function messageForMode(mode) {
   return `<p>Thanks for using Gift Exchange Generator!</p>`;
 }
 
+function linkSectionHtml(exchangeId) {
+  const url = `${location.origin}/draw?id=${exchangeId}`;
+  return `<div class="${dialogStyles.emailDiv}">
+    <input type="text" id="linkExchangeUrl" value="${url}" readonly>
+    <button class="${btnStyles.button}" id="copyLinkBtn">Copy Link</button>
+  </div>
+  <p>Send this link to everyone in the exchange. Each person opens it, picks their name, and sees their recipient.</p>`;
+}
+
 function bmcButtonHtml() {
   const hint = isBmcConsented()
     ? `<p class="bmc-hint">Or click the coffee cup in the bottom right to contribute without leaving the page.</p>`
@@ -27,10 +37,13 @@ function bmcButtonHtml() {
   return `<div id="${bmcContainerId}"><p>Love the site? Become a supporter! No account necessary.</p><a href="https://buymeacoffee.com/arootroatch" target="_blank"><img src="${bmcImageUrl}" alt="Buy Me A Coffee" style="height:60px;width:217px;"></a>${hint}</div>`;
 }
 
-function template({mode, assignments}) {
+function template({mode, assignments, exchangeId}) {
   let html = `<div id="${modalId}" class="${confirmStyles.sendEmails} show">`;
   if (mode === "results") {
     html += resultsTableHtml({assignments});
+  }
+  if (mode === "link") {
+    html += linkSectionHtml(exchangeId);
   }
   html += messageForMode(mode);
   html += bmcButtonHtml();
@@ -45,6 +58,11 @@ function render(state) {
   addEventListener(`#${newExchangeBtnId}`, "click", () => {
     location.reload();
   });
+  if (state.mode === "link") {
+    addEventListener("#copyLinkBtn", "click", () => {
+      navigator.clipboard?.writeText(selectElement("#linkExchangeUrl").value);
+    });
+  }
 }
 
 function remove() {

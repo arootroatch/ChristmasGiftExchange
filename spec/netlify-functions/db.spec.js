@@ -3,7 +3,7 @@ import {afterAll, beforeAll, describe, expect, it, vi} from 'vitest';
 describe('db utility', () => {
     let consoleLogSpy;
     let consoleErrorSpy;
-    let getDb, getUsersCollection, getExchangesCollection, getSettingsCollection;
+    let getDb, getUsersCollection, getExchangesCollection, getLinkExchangesCollection, getSettingsCollection;
 
     beforeAll(async () => {
         consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
@@ -13,6 +13,7 @@ describe('db utility', () => {
         getDb = module.getDb;
         getUsersCollection = module.getUsersCollection;
         getExchangesCollection = module.getExchangesCollection;
+        getLinkExchangesCollection = module.getLinkExchangesCollection;
         getSettingsCollection = module.getSettingsCollection;
     });
 
@@ -50,6 +51,14 @@ describe('db utility', () => {
             const collection = await getExchangesCollection();
             expect(collection).toBeDefined();
             expect(collection.collectionName).toBe('exchanges');
+        });
+    });
+
+    describe('getLinkExchangesCollection', () => {
+        it('returns the linkExchanges collection', async () => {
+            const collection = await getLinkExchangesCollection();
+            expect(collection).toBeDefined();
+            expect(collection.collectionName).toBe('linkExchanges');
         });
     });
 

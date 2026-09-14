@@ -1,0 +1,43 @@
+.modesContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.modeCard {
+  background: var(--frost);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: rgba(255, 255, 255, 0.9);
+  border: 1px solid var(--frost-border);
+  border-radius: var(--radius-lg);
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+  padding: 16px 20px;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+}
+
+.modeCard:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.modeCard:active {
+  transform: scale(0.99);
+}
+
+.modeCardTitle {
+  margin: 0 0 6px 0;
+  font-size: 1.1em;
+}
+
+.modeCardDesc {
+  margin: 0;
+  font-weight: normal;
+  opacity: 0.9;
+  font-size: 0.9em;
+}

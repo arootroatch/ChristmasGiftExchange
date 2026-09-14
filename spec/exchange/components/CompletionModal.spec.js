@@ -119,6 +119,35 @@ describe("CompletionModal", () => {
     });
   });
 
+  describe("link mode", () => {
+    it("shows the draw page URL", () => {
+      stateEvents.emit(Events.EXCHANGE_COMPLETE, {mode: "link", exchangeId: "abc-123", assignments: []});
+
+      const modal = document.querySelector("#completionModal");
+      const input = modal.querySelector("#linkExchangeUrl");
+      expect(input).not.toBeNull();
+      expect(input.value).toContain("/draw?id=abc-123");
+    });
+
+    it("shows a copy button", () => {
+      stateEvents.emit(Events.EXCHANGE_COMPLETE, {mode: "link", exchangeId: "abc-123", assignments: []});
+
+      expect(document.querySelector("#copyLinkBtn")).not.toBeNull();
+    });
+
+    it("shows instructions to send the link to participants", () => {
+      stateEvents.emit(Events.EXCHANGE_COMPLETE, {mode: "link", exchangeId: "abc-123", assignments: []});
+
+      expect(document.querySelector("#completionModal").textContent).toContain("Send this link to everyone");
+    });
+
+    it("does not show the results table", () => {
+      stateEvents.emit(Events.EXCHANGE_COMPLETE, {mode: "link", exchangeId: "abc-123", assignments: []});
+
+      expect(document.querySelector(`#completionModal .${tableStyles.resultsCard}`)).toBeNull();
+    });
+  });
+
   describe("defensive behavior", () => {
     it("removes existing modal before rendering new one", () => {
       stateEvents.emit(Events.EXCHANGE_COMPLETE, {mode: "success", assignments: []});
