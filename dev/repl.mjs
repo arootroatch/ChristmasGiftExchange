@@ -1,4 +1,4 @@
-import {MongoClient} from "mongodb";
+import {MongoClient, ObjectId} from "mongodb";
 import repl from "node:repl";
 import readline from "node:readline";
 import fs from "node:fs";
@@ -61,10 +61,44 @@ function userExchangeData(r, db, queryOrEmail) {
         .finally(() => r.displayPrompt());
 }
 
+async function printExchangeAssignments(usersCol, ex) {
+    const people = await usersCol.find({_id: {$in: ex.participants}}).toArray();
+    const nameOf = (id) => {
+        const u = people.find(p => p._id.equals(id));
+        return u ? `${u.name} <${u.email}>` : id.toString();
+    };
+
+    console.log(`\n  Exchange: ${ex.exchangeId}`);
+    console.log(`    Created: ${ex.createdAt.toISOString()}  Secret Santa: ${ex.isSecretSanta}`);
+    if (ex.organizer) console.log(`    Organizer: ${nameOf(ex.organizer)}`);
+    for (const h of ex.houses) console.log(`    House "${h.name}": ${h.members.map(nameOf).join(", ")}`);
+    console.log("    Assignments:");
+    for (const a of ex.assignments) console.log(`      ${nameOf(a.giverId)}  →  ${nameOf(a.recipientId)}`);
+}
+
+function exchangeResults(r, db, queryOrEmail, {latestOnly}) {
+    const query = typeof queryOrEmail === "string" ? {email: queryOrEmail} : queryOrEmail;
+    (async () => {
+        const usersCol = db.collection("users");
+        const user = await usersCol.findOne(query);
+        if (!user) { console.log("User not found"); return; }
+        const cursor = db.collection("exchanges").find({participants: user._id}).sort({createdAt: -1});
+        const exs = await (latestOnly ? cursor.limit(1) : cursor).toArray();
+
+        console.log(`\n${user.name} (${user.email})`);
+        if (exs.length === 0) console.log("  No exchanges");
+        for (const ex of exs) await printExchangeAssignments(usersCol, ex);
+        console.log();
+    })().catch(console.error)
+        .finally(() => r.displayPrompt());
+}
+
 export function startRepl(db, client, onExit) {
-    console.log("\nREPL ready. Available: db, users, exchanges, find(), findOne(), userExchangeData()");
+    console.log("\nREPL ready. Available: db, users, exchanges, ObjectId, find(), findOne(), userExchangeData(), latestExchangeResults(), allExchangeResults()");
     console.log("Example: await find(users, {name: 'Alice'})");
-    console.log("Example: userExchangeData('alice@example.com') or userExchangeData({name: 'Alice'})\n");
+    console.log("Example: await find(exchanges, {participants: new ObjectId('...')})");
+    console.log("Example: userExchangeData('alice@example.com') or userExchangeData({name: 'Alice'})");
+    console.log("Example: latestExchangeResults('alice@example.com') or allExchangeResults({name: 'Alice'})\n");
 
     const r = repl.start({prompt: "dev-db> ", useGlobal: true});
     r.context.db = db;
@@ -72,7 +106,10 @@ export function startRepl(db, client, onExit) {
     r.context.exchanges = db.collection("exchanges");
     r.context.find = find;
     r.context.findOne = findOne;
+    r.context.ObjectId = ObjectId;
     r.context.userExchangeData = (queryOrEmail) => userExchangeData(r, db, queryOrEmail);
+    r.context.latestExchangeResults = (queryOrEmail) => exchangeResults(r, db, queryOrEmail, {latestOnly: true});
+    r.context.allExchangeResults = (queryOrEmail) => exchangeResults(r, db, queryOrEmail, {latestOnly: false});
 
     r.on("exit", async () => {
         console.log("\nShutting down...");
