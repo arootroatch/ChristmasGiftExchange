@@ -62,7 +62,7 @@ function userExchangeData(r, db, queryOrEmail) {
 }
 
 async function printExchangeAssignments(usersCol, ex) {
-    const people = await usersCol.find({_id: {$in: ex.participants}}).toArray();
+    const people = await usersCol.find({_id: {$in: [...ex.participants, ex.organizer].filter(Boolean)}}).toArray();
     const nameOf = (id) => {
         const u = people.find(p => p._id.equals(id));
         return u ? `${u.name} <${u.email}>` : id.toString();
@@ -76,13 +76,13 @@ async function printExchangeAssignments(usersCol, ex) {
     for (const a of ex.assignments) console.log(`      ${nameOf(a.giverId)}  →  ${nameOf(a.recipientId)}`);
 }
 
-function exchangeResults(r, db, queryOrEmail, {latestOnly}) {
+function exchangeResults(r, db, queryOrEmail, {latestOnly, role = "participants"}) {
     const query = typeof queryOrEmail === "string" ? {email: queryOrEmail} : queryOrEmail;
     (async () => {
         const usersCol = db.collection("users");
         const user = await usersCol.findOne(query);
         if (!user) { console.log("User not found"); return; }
-        const cursor = db.collection("exchanges").find({participants: user._id}).sort({createdAt: -1});
+        const cursor = db.collection("exchanges").find({[role]: user._id}).sort({createdAt: -1});
         const exs = await (latestOnly ? cursor.limit(1) : cursor).toArray();
 
         console.log(`\n${user.name} (${user.email})`);
@@ -94,11 +94,12 @@ function exchangeResults(r, db, queryOrEmail, {latestOnly}) {
 }
 
 export function startRepl(db, client, onExit) {
-    console.log("\nREPL ready. Available: db, users, exchanges, ObjectId, find(), findOne(), userExchangeData(), latestExchangeResults(), allExchangeResults()");
+    console.log("\nREPL ready. Available: db, users, exchanges, ObjectId, find(), findOne(), userExchangeData(), latestExchangeResults(), allExchangeResults(), latestOrganizedExchangeResults(), allOrganizedExchangeResults()");
     console.log("Example: await find(users, {name: 'Alice'})");
     console.log("Example: await find(exchanges, {participants: new ObjectId('...')})");
     console.log("Example: userExchangeData('alice@example.com') or userExchangeData({name: 'Alice'})");
-    console.log("Example: latestExchangeResults('alice@example.com') or allExchangeResults({name: 'Alice'})\n");
+    console.log("Example: latestExchangeResults('alice@example.com') or allExchangeResults({name: 'Alice'})");
+    console.log("Example: latestOrganizedExchangeResults('alice@example.com') or allOrganizedExchangeResults({name: 'Alice'})\n");
 
     const r = repl.start({prompt: "dev-db> ", useGlobal: true});
     r.context.db = db;
@@ -110,6 +111,8 @@ export function startRepl(db, client, onExit) {
     r.context.userExchangeData = (queryOrEmail) => userExchangeData(r, db, queryOrEmail);
     r.context.latestExchangeResults = (queryOrEmail) => exchangeResults(r, db, queryOrEmail, {latestOnly: true});
     r.context.allExchangeResults = (queryOrEmail) => exchangeResults(r, db, queryOrEmail, {latestOnly: false});
+    r.context.latestOrganizedExchangeResults = (queryOrEmail) => exchangeResults(r, db, queryOrEmail, {latestOnly: true, role: "organizer"});
+    r.context.allOrganizedExchangeResults = (queryOrEmail) => exchangeResults(r, db, queryOrEmail, {latestOnly: false, role: "organizer"});
 
     r.on("exit", async () => {
         console.log("\nShutting down...");
