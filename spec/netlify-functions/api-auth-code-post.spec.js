@@ -86,6 +86,40 @@ describe('api-auth-code-post', () => {
         expect(mockFetch).not.toHaveBeenCalled();
     });
 
+    it('sends a code to an unknown email when the gate allows creating the user', async () => {
+        const event = buildEvent('POST', {body: {email: 'new@test.com', createIfMissing: true}});
+        const response = await handler(event);
+
+        expect(response.statusCode).toBe(200);
+        expect(JSON.parse(response.body).sent).toBe(true);
+        expect(mockFetch).toHaveBeenCalledTimes(1);
+        expect(await db.collection('authCodes').findOne({email: 'new@test.com'})).not.toBeNull();
+    });
+
+    it('sends a code to an existing user when the gate allows creating the user', async () => {
+        await seedUsers(db, makeUser({email: 'exists@test.com'}));
+
+        const event = buildEvent('POST', {body: {email: 'exists@test.com', createIfMissing: true}});
+        await handler(event);
+
+        expect(mockFetch).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not create the user until the code is verified', async () => {
+        const event = buildEvent('POST', {body: {email: 'new@test.com', createIfMissing: true}});
+        await handler(event);
+
+        expect(await db.collection('users').findOne({email: 'new@test.com'})).toBeNull();
+    });
+
+    it('returns 400 when createIfMissing is not a boolean', async () => {
+        const event = buildEvent('POST', {body: {email: 'new@test.com', createIfMissing: 'yes'}});
+        const response = await handler(event);
+
+        expect(response.statusCode).toBe(400);
+        expect(mockFetch).not.toHaveBeenCalled();
+    });
+
     it('logs info when auth code sent to existing user', async () => {
         const user = makeUser({email: 'exists@test.com'});
         await seedUsers(db, user);

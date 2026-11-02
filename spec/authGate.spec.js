@@ -1,5 +1,6 @@
 import {describe, it, expect, beforeEach, vi} from "vitest";
 import {authGateTemplate, initAuthGate} from "../src/authGate.js";
+import {setSessionUser} from "../src/session.js";
 
 vi.mock("../src/session.js", () => ({setSessionUser: vi.fn()}));
 
@@ -64,6 +65,7 @@ describe("authGate", () => {
         it("calls api-auth-code-post on send button click", async () => {
             initAuthGate({onSuccess: vi.fn(), showName: true});
 
+            document.getElementById("auth-name").value = "Alex";
             document.getElementById("auth-email").value = "test@test.com";
             document.getElementById("auth-send-code").click();
 
@@ -77,12 +79,64 @@ describe("authGate", () => {
         it("shows code step after successful code send", async () => {
             initAuthGate({onSuccess: vi.fn(), showName: true});
 
+            document.getElementById("auth-name").value = "Alex";
             document.getElementById("auth-email").value = "test@test.com";
             document.getElementById("auth-send-code").click();
 
             await flush();
             expect(document.getElementById("auth-email-step").style.display).toBe("none");
             expect(document.getElementById("auth-code-step").style.display).toBe("");
+        });
+
+        it("asks to create the user when the gate collects a name", async () => {
+            initAuthGate({onSuccess: vi.fn(), showName: true});
+
+            document.getElementById("auth-name").value = "Alex";
+            document.getElementById("auth-email").value = "test@test.com";
+            document.getElementById("auth-send-code").click();
+
+            await flush();
+            expect(JSON.parse(mockFetch.mock.calls[0][1].body)).toEqual({email: "test@test.com", createIfMissing: true});
+        });
+
+        it("only logs in when the gate does not collect a name", async () => {
+            document.body.innerHTML = authGateTemplate();
+            initAuthGate({onSuccess: vi.fn()});
+
+            document.getElementById("auth-email").value = "test@test.com";
+            document.getElementById("auth-send-code").click();
+
+            await flush();
+            expect(JSON.parse(mockFetch.mock.calls[0][1].body)).toEqual({email: "test@test.com"});
+        });
+
+        it.each(["", "   "])("requires a name when the gate collects one (%j)", async (name) => {
+            const onError = vi.fn();
+            initAuthGate({onSuccess: vi.fn(), onError, showName: true});
+
+            document.getElementById("auth-name").value = name;
+            document.getElementById("auth-email").value = "test@test.com";
+            document.getElementById("auth-send-code").click();
+
+            await flush();
+            expect(mockFetch).not.toHaveBeenCalled();
+            expect(onError).toHaveBeenCalledWith("Please enter your name");
+            expect(document.getElementById("auth-email-step").style.display).toBe("");
+        });
+
+        it("uses the saved name from the server, not the typed one", async () => {
+            stubFetch({success: true, name: "Saved Name"});
+            const onSuccess = vi.fn();
+            initAuthGate({onSuccess, showName: true});
+
+            document.getElementById("auth-email").value = "test@test.com";
+            document.getElementById("auth-code").value = "12345678";
+            document.getElementById("auth-name").value = "Typed Name";
+            document.getElementById("auth-verify-code").click();
+
+            await flush();
+            expect(setSessionUser).toHaveBeenCalledWith({name: "Saved Name", email: "test@test.com"});
+            expect(onSuccess).toHaveBeenCalledWith({email: "test@test.com", name: "Saved Name"});
         });
 
         it("calls api-auth-verify-post on verify button click", async () => {
@@ -103,7 +157,7 @@ describe("authGate", () => {
         });
 
         it("calls onSuccess after successful verification", async () => {
-            stubFetch({success: true});
+            stubFetch({success: true, name: "Alex"});
             const onSuccess = vi.fn();
             initAuthGate({onSuccess, showName: true});
 
@@ -117,8 +171,7 @@ describe("authGate", () => {
         });
 
         it("calls setSessionUser after successful verification", async () => {
-            const {setSessionUser} = await import("../src/session.js");
-            stubFetch({success: true});
+            stubFetch({success: true, name: "Alex"});
             initAuthGate({onSuccess: vi.fn(), showName: true});
 
             document.getElementById("auth-email").value = "test@test.com";
@@ -222,6 +275,7 @@ describe("authGate", () => {
         it("shows loading state on send button during fetch", async () => {
             initAuthGate({onSuccess: vi.fn(), showName: true});
 
+            document.getElementById("auth-name").value = "Alex";
             document.getElementById("auth-email").value = "test@test.com";
             document.getElementById("auth-send-code").click();
 
@@ -233,6 +287,7 @@ describe("authGate", () => {
         it("clears loading state on send button after successful fetch", async () => {
             initAuthGate({onSuccess: vi.fn(), showName: true});
 
+            document.getElementById("auth-name").value = "Alex";
             document.getElementById("auth-email").value = "test@test.com";
             document.getElementById("auth-send-code").click();
             await flush();

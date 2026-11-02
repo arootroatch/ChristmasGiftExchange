@@ -93,17 +93,36 @@ describe('api-auth-verify-post', () => {
         expect(user.wishItems).toEqual([]);
     });
 
-    it('updates name for existing user when name provided', async () => {
-        const user = makeUser({email: 'existing@test.com', name: 'Old Name'});
+    it('keeps the saved name for an existing user when a different name is provided', async () => {
+        const user = makeUser({email: 'existing@test.com', name: 'Saved Name'});
         await seedUsers(db, user);
         const code = await generateAndStoreCode('existing@test.com');
 
-        const event = buildEvent('POST', {body: {email: 'existing@test.com', code, name: 'New Name'}});
+        const event = buildEvent('POST', {body: {email: 'existing@test.com', code, name: 'Typed Name'}});
         const response = await handler(event);
 
         expect(response.statusCode).toBe(200);
         const updated = await db.collection('users').findOne({email: 'existing@test.com'});
-        expect(updated.name).toBe('New Name');
+        expect(updated.name).toBe('Saved Name');
+    });
+
+    it('returns the saved name for an existing user', async () => {
+        await seedUsers(db, makeUser({email: 'existing@test.com', name: 'Saved Name'}));
+        const code = await generateAndStoreCode('existing@test.com');
+
+        const event = buildEvent('POST', {body: {email: 'existing@test.com', code, name: 'Typed Name'}});
+        const response = await handler(event);
+
+        expect(JSON.parse(response.body).name).toBe('Saved Name');
+    });
+
+    it('returns the provided name for a new user', async () => {
+        const code = await generateAndStoreCode('newuser@test.com');
+
+        const event = buildEvent('POST', {body: {email: 'newuser@test.com', code, name: 'New User'}});
+        const response = await handler(event);
+
+        expect(JSON.parse(response.body).name).toBe('New User');
     });
 
     it('sets httpOnly cookie with JWT on success', async () => {

@@ -8,6 +8,7 @@ import {logger} from "../shared/logger.mjs";
 
 const requestSchema = z.object({
     email: z.email(),
+    createIfMissing: z.boolean().optional(),
 });
 
 export const handler = apiHandler("POST", async (event) => {
@@ -18,7 +19,8 @@ export const handler = apiHandler("POST", async (event) => {
     const usersCol = await getUsersCollection();
     const user = await usersCol.findOne({email});
 
-    if (user) {
+    // The user itself is only created by api-auth-verify-post, once the code proves they own the email.
+    if (user || data.createIfMissing) {
         const code = await generateAndStoreCode(email);
         await sendNotificationEmail("verification-code", email, "Your Gift Exchange Verification Code", {code});
         logger.info("Auth code sent", {endpoint: requestEndpoint(event), ip: event.ip, email});
