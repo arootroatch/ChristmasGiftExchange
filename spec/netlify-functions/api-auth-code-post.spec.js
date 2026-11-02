@@ -120,6 +120,56 @@ describe('api-auth-code-post', () => {
         expect(mockFetch).not.toHaveBeenCalled();
     });
 
+    describe('per-email limit', () => {
+        async function requestFromNewIp(body, ip) {
+            return handler(buildEvent('POST', {body, headers: {'x-forwarded-for': ip}}));
+        }
+
+        async function exhaustLimit(body) {
+            for (let i = 0; i < 5; i++) {
+                expect((await requestFromNewIp(body, `10.0.0.${i}`)).statusCode).toBe(200);
+            }
+        }
+
+        it('stops sending to one address even when requests come from different IPs', async () => {
+            const body = {email: 'target@test.com', createIfMissing: true};
+            await exhaustLimit(body);
+            mockFetch.mockClear();
+
+            const response = await requestFromNewIp(body, '10.0.0.99');
+
+            expect(response.statusCode).toBe(429);
+            expect(mockFetch).not.toHaveBeenCalled();
+        });
+
+        it('keeps the last code usable when the limit is hit', async () => {
+            const body = {email: 'target@test.com', createIfMissing: true};
+            await exhaustLimit(body);
+            const before = await db.collection('authCodes').findOne({email: 'target@test.com'});
+
+            await requestFromNewIp(body, '10.0.0.99');
+
+            const after = await db.collection('authCodes').findOne({email: 'target@test.com'});
+            expect(after.codeHash).toBe(before.codeHash);
+        });
+
+        it('limits unknown emails the same as known ones so a 429 does not reveal accounts', async () => {
+            await exhaustLimit({email: 'nobody@test.com'});
+
+            const response = await requestFromNewIp({email: 'nobody@test.com'}, '10.0.0.99');
+
+            expect(response.statusCode).toBe(429);
+        });
+
+        it('does not affect other addresses', async () => {
+            await exhaustLimit({email: 'target@test.com', createIfMissing: true});
+
+            const response = await requestFromNewIp({email: 'other@test.com', createIfMissing: true}, '10.0.0.99');
+
+            expect(response.statusCode).toBe(200);
+        });
+    });
+
     it('logs info when auth code sent to existing user', async () => {
         const user = makeUser({email: 'exists@test.com'});
         await seedUsers(db, user);
