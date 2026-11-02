@@ -12,7 +12,6 @@ export default defineConfig({
         test: {
           name: 'frontend',
           environment: 'jsdom',
-          isolate: false,
           setupFiles: ['spec/shared/setupTests.js'],
           include: [
             'spec/exchange/**/*.spec.js',
