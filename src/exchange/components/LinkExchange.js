@@ -1,8 +1,8 @@
 import {ExchangeEvents as Events, exchangeEvents as stateEvents, getExchangePayload, completeExchange} from "../state.js";
 import {selectElement, pushHTML, addEventListener, apiFetch, setLoadingState, clearLoadingState} from "../../utils.js";
 import {showError} from "../../Snackbar.js";
-import {authGateTemplate, initAuthGate} from "../../authGate.js";
 import {getSessionUser} from "../../session.js";
+import {removeOrganizerGate, showOrganizerGate} from "./organizerGate.js";
 import btnStyles from '../../../assets/styles/exchange/components/buttons.module.css';
 import confirmStyles from '../../../assets/styles/exchange/components/email-confirmation.module.css';
 
@@ -16,6 +16,7 @@ export function init() {
   });
   stateEvents.on(Events.EXCHANGE_STARTED, () => {
     selectElement(`#${containerId}`)?.remove();
+    removeOrganizerGate();
   });
 }
 
@@ -51,33 +52,36 @@ function clearSaveButtonsLoading(clickedId) {
   if (otherBtn) otherBtn.disabled = false;
 }
 
+function saveFrom(clickedId) {
+  isSaving = true;
+  lastClickedId = clickedId;
+  setSaveButtonsLoading(clickedId);
+  createLinkExchange();
+}
+
 function handleNoThanksClick() {
   if (isSaving) return;
-  isSaving = true;
-  lastClickedId = "linkSaveNoBtn";
-  setSaveButtonsLoading(lastClickedId);
-  createLinkExchange();
+  saveFrom("linkSaveNoBtn");
 }
 
 function handleYesClick() {
   if (isSaving) return;
-  isSaving = true;
-  lastClickedId = "linkSaveYesBtn";
-  setSaveButtonsLoading(lastClickedId);
   if (getSessionUser()) {
-    createLinkExchange();
+    saveFrom("linkSaveYesBtn");
   } else {
     showVerifyStep();
   }
 }
 
 function showVerifyStep() {
-  const container = selectElement(`#${containerId}`);
-  container.innerHTML = authGateTemplate({heading: "Verify your email to save this exchange", showName: true, buttonClass: btnStyles.button});
-  initAuthGate({
-    onSuccess: () => createLinkExchange(),
-    onError: (msg) => showError(msg),
-    showName: true,
+  selectElement(`#${containerId}`)?.remove();
+  showOrganizerGate({
+    heading: "Verify your email to save this exchange",
+    onSuccess: () => {
+      // Back to the prompt so a failed save can be retried, now with a session.
+      render();
+      saveFrom("linkSaveYesBtn");
+    },
   });
 }
 

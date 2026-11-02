@@ -69,8 +69,9 @@
 }
 
 .organizerFormContainer {
-  min-width: 400px;
-  width: auto;
+  box-sizing: border-box;
+  width: calc(100% - 40px);
+  max-width: 442px;
   position: fixed;
   left: 50%;
   top: 20px;

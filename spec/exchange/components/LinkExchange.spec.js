@@ -6,6 +6,7 @@ import {alex, whitney} from "../../shared/testData";
 import {init} from "../../../src/exchange/components/LinkExchange";
 import {init as initSnackbar} from "../../../src/Snackbar";
 import {getSessionUser} from "../../../src/session.js";
+import dialogStyles from "../../../assets/styles/exchange/components/email-dialog.module.css";
 
 vi.mock("../../../src/session.js", () => ({
   getSessionUser: vi.fn(() => null),
@@ -134,6 +135,42 @@ describe("LinkExchange", () => {
   describe("Yes, save it path", () => {
     beforeEach(() => {
       triggerLinkAssign();
+    });
+
+    it("shows the same organizer gate as the other modes, with its own heading", () => {
+      document.querySelector("#linkSaveYesBtn").click();
+
+      const gate = document.querySelector("#organizerFormContainer");
+      expect(gate.classList.contains(dialogStyles.organizerFormContainer)).toBe(true);
+      expect(gate.querySelector("h2").textContent).toBe("Verify your email to save this exchange");
+      shouldNotSelect("#linkExchangeContainer");
+    });
+
+    it("removes the gate when a new exchange starts", () => {
+      document.querySelector("#linkSaveYesBtn").click();
+      startExchange(true, {isLinkMode: true});
+
+      shouldNotSelect("#organizerFormContainer");
+    });
+
+    it("offers the save prompt again if saving fails after verifying", async () => {
+      document.querySelector("#linkSaveYesBtn").click();
+      global.fetch = vi.fn()
+        .mockResolvedValueOnce({ok: true, status: 200, json: () => Promise.resolve({sent: true})})
+        .mockResolvedValueOnce({ok: true, status: 200, json: () => Promise.resolve({success: true, name: "Alex"})})
+        .mockResolvedValueOnce({ok: false, status: 400, json: () => Promise.resolve({error: "nope"})});
+
+      document.querySelector("#auth-name").value = "Alex";
+      document.querySelector("#auth-email").value = "alex@test.com";
+      document.querySelector("#auth-send-code").click();
+      await vi.advanceTimersByTimeAsync(0);
+      document.querySelector("#auth-code").value = "123456";
+      document.querySelector("#auth-verify-code").click();
+      await vi.advanceTimersByTimeAsync(0);
+
+      shouldNotSelect("#organizerFormContainer");
+      expect(document.querySelector("#linkSaveYesBtn").disabled).toBe(false);
+      expect(document.querySelector("#linkSaveNoBtn").disabled).toBe(false);
     });
 
     it("shows the auth gate instead of posting immediately", () => {
