@@ -3,7 +3,6 @@
   flex-direction: column;
   gap: 12px;
   width: 100%;
-  max-width: 480px;
   margin: 0 auto;
 }
 
@@ -32,12 +31,13 @@
 
 .modeCardTitle {
   margin: 0 0 6px 0;
-  font-size: 1.1em;
+  font-size: 1.1rem;
 }
 
 .modeCardDesc {
   margin: 0;
   font-weight: normal;
-  opacity: 0.9;
-  font-size: 0.9em;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.75);
 }

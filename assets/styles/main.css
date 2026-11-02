@@ -15,5 +15,8 @@
 @import './dashboard/layout.css';
 @import './dashboard/responsive.css';
 
+/* Draw (global only — modules are imported by JS) */
+@import './draw/base.css';
+
 /* Admin */
 @import './admin/base.css';

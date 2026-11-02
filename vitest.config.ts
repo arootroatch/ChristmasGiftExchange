@@ -16,7 +16,7 @@ export default defineConfig({
           include: [
             'spec/exchange/**/*.spec.js',
             'spec/authGate.spec.js',
-            'spec/CookieBanner.spec.js',
+            'spec/BmcButton.spec.js', 'spec/CookieBanner.spec.js', 'spec/Navbar.spec.js',
             'spec/session.spec.js',
             'spec/Snackbar.spec.js',
             'spec/utils.spec.js',

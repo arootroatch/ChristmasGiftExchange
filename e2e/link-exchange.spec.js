@@ -42,6 +42,9 @@ test.describe('Names from a Hat (link-mode Secret Santa)', () => {
         const drawPage = await context.newPage();
         await drawPage.goto(drawUrl);
 
+        const nameCombobox = drawPage.getByRole('combobox', {name: 'Your name'});
+        await nameCombobox.fill('ale');
+        await expect(drawPage.locator('[data-name="Whitney"]')).toHaveCount(0);
         await drawPage.locator('[data-name="Alex"]').click();
         await drawPage.locator('#confirm-draw-btn').click();
         await expect(drawPage.locator('#draw-content')).toContainText('Whitney');
@@ -49,8 +52,9 @@ test.describe('Names from a Hat (link-mode Secret Santa)', () => {
         // A fresh visit to the same link must show Alex's name as already drawn
         const redrawPage = await context.newPage();
         await redrawPage.goto(drawUrl);
-        const alexButton = redrawPage.locator('[data-name="Alex"]');
-        await expect(alexButton).toBeDisabled();
-        await expect(alexButton).toContainText('Already viewed');
+        await redrawPage.getByRole('combobox', {name: 'Your name'}).click();
+        const alexOption = redrawPage.locator('[data-name="Alex"]');
+        await expect(alexOption).toHaveAttribute('aria-disabled', 'true');
+        await expect(alexOption).toContainText('Already viewed');
     });
 });

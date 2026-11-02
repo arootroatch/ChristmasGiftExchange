@@ -1,0 +1,70 @@
+/* Draw page — a single centered card on the home page's photo background */
+
+body:has(.draw-page) {
+  margin: 0;
+  color: var(--text-primary);
+  font-family: Arial, Helvetica, sans-serif;
+  overscroll-behavior-y: none;
+}
+
+#container.draw-page {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-sizing: border-box;
+  max-width: 632px;
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin: 0 auto;
+  padding: 72px 16px 88px;
+  /* The name dropdown overflows the card; responsive rules for #container would clip it */
+  overflow: visible;
+  animation: pageReveal 0.6s ease-out;
+}
+
+.draw-page h1 {
+  margin: 0 0 20px;
+}
+
+.draw-page button {
+  font-family: inherit;
+}
+
+#draw-content p:first-child {
+  margin-top: 0;
+}
+
+.draw-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.draw-reveal {
+  text-align: center;
+}
+
+.draw-reveal p {
+  margin: 0 0 8px;
+}
+
+.draw-page .draw-recipient {
+  margin: 0;
+  font-size: 2rem;
+  overflow-wrap: anywhere;
+}
+
+#draw-support {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+#draw-support p {
+  margin: 0 0 12px;
+}
+
+#draw-support .bmc-hint {
+  margin: 12px 0 0;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}

@@ -1,5 +1,10 @@
-import {apiFetch, selectElement, escape, escapeAttr} from "../utils.js";
+import {apiFetch, selectElement, escape} from "../utils.js";
 import {getState, setExchangeId, setNames, setNotFound, selectName, cancelConfirm, setRevealed, setDrawError} from "./state.js";
+import {comboboxTemplate, initCombobox} from "./NameCombobox.js";
+import * as navbar from "../Navbar.js";
+import * as cookieBanner from "../CookieBanner.js";
+import {bmcButtonHtml} from "../BmcButton.js";
+import {loadSession} from "../session.js";
 import cardStyles from '../../assets/styles/dashboard/components/cards.module.css';
 import btnStyles from '../../assets/styles/dashboard/components/buttons.module.css';
 
@@ -12,30 +17,30 @@ function loadingHtml() {
 }
 
 function pickerHtml() {
-  const {names, errorMessage} = getState();
-  const rows = names.map(({name, hasDrawn}) => `
-    <button class="${btnStyles.button}" data-name="${escapeAttr(name)}" ${hasDrawn ? "disabled" : ""}>
-      ${escape(name)}${hasDrawn ? " (Already viewed)" : ""}
-    </button>`).join("");
+  const {errorMessage} = getState();
   return `
-    ${errorMessage ? `<p>${escape(errorMessage)}</p>` : ""}
-    <p>Pick your name:</p>
-    ${rows}`;
+    ${errorMessage ? `<p role="alert">${escape(errorMessage)}</p>` : ""}
+    <p>Pick your name to see who you're buying a gift for.</p>
+    ${comboboxTemplate()}`;
 }
 
 function confirmHtml() {
   const {selectedName} = getState();
   return `
     <p>You're about to reveal as <strong>${escape(selectedName)}</strong> — you can only do this once. Continue?</p>
-    <button class="${btnStyles.button} ${btnStyles.primary}" id="confirm-draw-btn">Continue</button>
-    <button class="${btnStyles.button}" id="confirm-back-btn">Back</button>`;
+    <div class="draw-actions">
+      <button class="${btnStyles.button} ${btnStyles.primary}" id="confirm-draw-btn">Continue</button>
+      <button class="${btnStyles.button} ${btnStyles.modalLeave}" id="confirm-back-btn">Back</button>
+    </div>`;
 }
 
 function revealHtml() {
   const {selectedName, recipient} = getState();
   return `
-    <p>${escape(selectedName)}, you're buying a gift for:</p>
-    <h2>${escape(recipient)}</h2>`;
+    <div class="draw-reveal">
+      <p>${escape(selectedName)}, you're buying a gift for:</p>
+      <h2 class="draw-recipient">${escape(recipient)}</h2>
+    </div>`;
 }
 
 function render() {
@@ -54,11 +59,12 @@ function render() {
 function attachListeners() {
   const {screen} = getState();
   if (screen === "picker") {
-    document.querySelectorAll("[data-name]").forEach(btn => {
-      btn.addEventListener("click", () => {
-        selectName(btn.dataset.name);
+    initCombobox({
+      names: getState().names,
+      onSelect: (name) => {
+        selectName(name);
         render();
-      });
+      },
     });
   }
   if (screen === "confirm") {
@@ -113,14 +119,24 @@ function refetchAfterDrawError(exchangeId, msg) {
   });
 }
 
+async function initNavbar() {
+  try { await loadSession(); } catch { /* not logged in — the navbar just omits the user */ }
+  navbar.init();
+}
+
 export async function main() {
+  cookieBanner.init();
+  selectElement("#draw-support").innerHTML = bmcButtonHtml();
+  const navbarReady = initNavbar();
+
   const id = new URLSearchParams(window.location.search).get("id");
   if (!id) {
     setNotFound();
     render();
+    await navbarReady;
     return;
   }
   setExchangeId(id);
   render();
-  await loadNames(id);
+  await Promise.all([navbarReady, loadNames(id)]);
 }

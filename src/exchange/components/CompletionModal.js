@@ -1,15 +1,13 @@
 import {addEventListener, pushHTML, selectElement} from "../../utils.js";
 import {ExchangeEvents as Events, exchangeEvents as stateEvents} from "../state.js";
 import {resultsTableHtml} from "./EmailTable/SendResults.js";
-import {isBmcConsented} from "../../CookieBanner.js";
+import {bmcButtonHtml} from "../../BmcButton.js";
 import btnStyles from '../../../assets/styles/exchange/components/buttons.module.css';
 import confirmStyles from '../../../assets/styles/exchange/components/email-confirmation.module.css';
 import dialogStyles from '../../../assets/styles/exchange/components/email-dialog.module.css';
 
 const modalId = "completionModal";
 const newExchangeBtnId = "newExchangeBtn";
-const bmcContainerId = "bmc-button-container";
-const bmcImageUrl = "https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=☕&slug=arootroatch&button_colour=69292a&font_colour=ffffff&font_family=Arial&outline_colour=ffffff&coffee_colour=FFDD00";
 
 function messageForMode(mode) {
   if (mode === "error") {
@@ -28,13 +26,6 @@ function linkSectionHtml(exchangeId) {
     <button class="${btnStyles.button}" id="copyLinkBtn">Copy Link</button>
   </div>
   <p>Send this link to everyone in the exchange. Each person opens it, picks their name, and sees their recipient.</p>`;
-}
-
-function bmcButtonHtml() {
-  const hint = isBmcConsented()
-    ? `<p class="bmc-hint">Or click the coffee cup in the bottom right to contribute without leaving the page.</p>`
-    : "";
-  return `<div id="${bmcContainerId}"><p>Love the site? Become a supporter! No account necessary.</p><a href="https://buymeacoffee.com/arootroatch" target="_blank"><img src="${bmcImageUrl}" alt="Buy Me A Coffee" style="height:60px;width:217px;"></a>${hint}</div>`;
 }
 
 function template({mode, assignments, exchangeId}) {
