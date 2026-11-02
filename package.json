@@ -55,6 +55,9 @@
     "minimatch": "^11.0.1"
   },
   "allowScripts": {
-    "mongodb-memory-server@11.0.1": true
+    "mongodb-memory-server@11.0.1": true,
+    "fsevents@2.3.3": true,
+    "fsevents@2.3.2": true,
+    "esbuild@0.28.2": true
   }
 }
