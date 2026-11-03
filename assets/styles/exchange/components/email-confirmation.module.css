@@ -14,7 +14,7 @@
   padding: 20px;
   text-align: center;
   z-index: 10;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--shadow-popup);
   box-sizing: border-box;
   overflow: auto;
   max-height: calc(100vh - 40px);
