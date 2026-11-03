@@ -64,6 +64,20 @@ describe("firstScreenTemplates", () => {
       expect(html.indexOf("modeCardTag")).toBeLessThan(html.indexOf('id="letsGo"'));
     });
 
+    it("asks how to draw names above the mode cards", () => {
+      const html = introTemplate();
+      expect(html).toContain('<h2 class="modesHeading">How do you want to draw names?</h2>');
+      expect(html.indexOf("modesHeading")).toBeLessThan(html.indexOf('id="namesFromHatBtn"'));
+    });
+
+    it("shows an arrow on every mode card, hidden from screen readers", () => {
+      const arrows = new DOMParser()
+        .parseFromString(introTemplate(), "text/html")
+        .querySelectorAll("button .modeCardArrow");
+      expect(arrows).toHaveLength(3);
+      arrows.forEach((arrow) => expect(arrow.getAttribute("aria-hidden")).toBe("true"));
+    });
+
     it("keeps the privacy note", () => {
       expect(introTemplate()).toContain("your information will never be shared");
     });
