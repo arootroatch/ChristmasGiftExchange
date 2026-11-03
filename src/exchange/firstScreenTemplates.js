@@ -25,8 +25,8 @@ export function introTemplate(styles = {}) {
     <h2 class="${modesHeading}">How do you want to draw names?</h2>
     <div class="${modesContainer}">
       ${modeCard(styles, "namesFromHatBtn", "Names from a Hat", "No emails needed. Get one link to share with everyone &mdash; each person opens it, picks their name, and sees who they're buying for.", {featured: true, isNew: true, tag: "No contact or personal info required"})}
-      ${modeCard(styles, "letsGo", "Quick Match", "Draw names for a gift exchange. See the full list right away &mdash; good for grab bags or when keeping it secret doesn't matter.")}
       ${modeCard(styles, "secretSantaBtn", "Secret Santa Mode", "Keep it a surprise, with the full toolkit: we privately email each person their recipient, plus anonymous wishlist sharing, contact info exchange, and a lookup page in case someone missed their email.")}
+      ${modeCard(styles, "letsGo", "Quick Match", "See the full list right away. Draw again as many times as you like, then email the results to yourself or to the participants. Good for grab bags or when keeping it secret doesn't matter.")}
     </div>
     <p>
       This site will always be free to use and your information will never be shared.

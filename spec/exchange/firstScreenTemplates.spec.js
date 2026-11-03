@@ -22,6 +22,14 @@ describe("firstScreenTemplates", () => {
       expect(introTemplate()).toContain("Quick Match");
     });
 
+    it("notes that Quick Match can redraw and email the results", () => {
+      const card = new DOMParser()
+        .parseFromString(introTemplate(), "text/html")
+        .querySelector("#letsGo").textContent;
+      expect(card).toContain("Draw again as many times as you like");
+      expect(card).toContain("email the results to yourself or to the participants");
+    });
+
     it("labels the Secret Santa card with its full toolkit description", () => {
       const html = introTemplate();
       expect(html).toContain("Secret Santa Mode");
@@ -35,12 +43,11 @@ describe("firstScreenTemplates", () => {
       expect(html).toContain("No emails needed");
     });
 
-    it("lists the Names from a Hat card first", () => {
-      const html = introTemplate();
-      const hat = html.indexOf('id="namesFromHatBtn"');
-      expect(hat).toBeGreaterThan(-1);
-      expect(hat).toBeLessThan(html.indexOf('id="letsGo"'));
-      expect(hat).toBeLessThan(html.indexOf('id="secretSantaBtn"'));
+    it("orders the cards Names from a Hat, Secret Santa, then Quick Match", () => {
+      const cards = new DOMParser()
+        .parseFromString(introTemplate(), "text/html")
+        .querySelectorAll("button");
+      expect([...cards].map((card) => card.id)).toEqual(["namesFromHatBtn", "secretSantaBtn", "letsGo"]);
     });
 
     it("emphasizes only the Names from a Hat card", () => {
@@ -54,14 +61,14 @@ describe("firstScreenTemplates", () => {
       const html = introTemplate();
       expect(html).toContain('<span class="modeCardNewBadge">New</span>');
       expect(html.match(/modeCardNewBadge/g)).toHaveLength(1);
-      expect(html.indexOf("modeCardNewBadge")).toBeLessThan(html.indexOf('id="letsGo"'));
+      expect(html.indexOf("modeCardNewBadge")).toBeLessThan(html.indexOf('id="secretSantaBtn"'));
     });
 
     it("tags only the Names from a Hat card as needing no contact or personal info", () => {
       const html = introTemplate();
       expect(html).toContain('<span class="modeCardTag">No contact or personal info required</span>');
       expect(html.match(/modeCardTag/g)).toHaveLength(1);
-      expect(html.indexOf("modeCardTag")).toBeLessThan(html.indexOf('id="letsGo"'));
+      expect(html.indexOf("modeCardTag")).toBeLessThan(html.indexOf('id="secretSantaBtn"'));
     });
 
     it("asks how to draw names above the mode cards", () => {
