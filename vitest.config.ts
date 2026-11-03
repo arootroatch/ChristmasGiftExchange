@@ -37,6 +37,7 @@ export default defineConfig({
             'spec/draw/**/*.spec.js',
             'spec/wishlistView.spec.js',
             'spec/reuse.spec.js',
+            'spec/seo.spec.js',
           ],
         },
       },
