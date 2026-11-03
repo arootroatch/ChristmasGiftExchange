@@ -12,7 +12,7 @@ const newExchangeBtnId = "newExchangeBtn";
 const iconAttrs = `viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"`;
 const copyIcon = `<svg ${iconAttrs} data-icon="copy"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
 const checkIcon = `<svg ${iconAttrs} data-icon="check"><polyline points="20 6 9 17 4 12"/></svg>`;
-const copiedResetMs = 2000;
+const copiedResetMs = 3000;
 let copiedTimer;
 
 function messageForMode(mode) {
@@ -31,6 +31,7 @@ function linkSectionHtml(exchangeId) {
     <input type="text" id="linkExchangeUrl" aria-label="Exchange link. Click to copy." title="Click to copy" value="${url}" readonly>
     <button type="button" class="${dialogStyles.linkCopyBtn}" id="copyLinkBtn" aria-label="Copy link" title="Copy link">${copyIcon}</button>
   </div>
+  <p id="linkCopiedMsg" class="${dialogStyles.linkCopiedMsg}" role="status"></p>
   <p>Send this link to everyone in the exchange. Each person opens it, picks their name, and sees their recipient.</p>`;
 }
 
@@ -55,20 +56,29 @@ function setCopyButton(button, icon, label) {
   button.title = label;
 }
 
-function showCopied() {
-  const button = selectElement("#copyLinkBtn");
+function resetCopied(button, message) {
+  setCopyButton(button, copyIcon, "Copy link");
+  message.textContent = "";
+}
+
+function showCopied(button, message) {
   setCopyButton(button, checkIcon, "Link copied");
+  message.textContent = "Link copied to clipboard!";
   clearTimeout(copiedTimer);
-  copiedTimer = setTimeout(() => setCopyButton(button, copyIcon, "Copy link"), copiedResetMs);
+  copiedTimer = setTimeout(() => resetCopied(button, message), copiedResetMs);
 }
 
 async function copyLink() {
   const input = selectElement("#linkExchangeUrl");
+  const button = selectElement("#copyLinkBtn");
+  const message = selectElement("#linkCopiedMsg");
   input.select(); // Left selected so the link can be copied by hand if the clipboard fails.
   try {
     await navigator.clipboard.writeText(input.value);
-    showCopied();
+    showCopied(button, message);
   } catch {
+    clearTimeout(copiedTimer);
+    resetCopied(button, message);
     showError("Couldn't copy the link. Please copy it manually.");
   }
 }

@@ -176,16 +176,28 @@ describe("CompletionModal", () => {
       expect(button.querySelector("[data-icon='check']")).not.toBeNull();
     });
 
-    it("restores the copy icon after a moment", async () => {
+    it("announces in text that the link was copied", async () => {
+      stubClipboard();
+      renderLinkModal().click();
+
+      const message = document.querySelector("#linkCopiedMsg");
+      await vi.waitFor(() => expect(message.textContent).toBe("Link copied to clipboard!"));
+      expect(message.getAttribute("role")).toBe("status");
+    });
+
+    it("restores the copy icon and clears the message after a moment", async () => {
       vi.useFakeTimers();
       try {
         stubClipboard();
         renderLinkModal().click();
-        await vi.advanceTimersByTimeAsync(2000);
+        await vi.advanceTimersByTimeAsync(2999);
+        expect(document.querySelector("#linkCopiedMsg").textContent).not.toBe("");
+        await vi.advanceTimersByTimeAsync(1);
 
         const button = document.querySelector("#copyLinkBtn");
         expect(button.getAttribute("aria-label")).toBe("Copy link");
         expect(button.querySelector("[data-icon='copy']")).not.toBeNull();
+        expect(document.querySelector("#linkCopiedMsg").textContent).toBe("");
       } finally {
         vi.useRealTimers();
       }
@@ -198,6 +210,20 @@ describe("CompletionModal", () => {
 
       await vi.waitFor(() => shouldDisplayErrorSnackbar("Couldn't copy the link"));
       expect(input.selectionEnd - input.selectionStart).toBe(input.value.length);
+    });
+
+    it("drops the copied confirmation when a later copy fails", async () => {
+      const writeText = stubClipboard();
+      const input = renderLinkModal();
+      const message = document.querySelector("#linkCopiedMsg");
+      input.click();
+      await vi.waitFor(() => expect(message.textContent).not.toBe(""));
+
+      writeText.mockRejectedValue(new Error("denied"));
+      input.click();
+
+      await vi.waitFor(() => expect(message.textContent).toBe(""));
+      expect(document.querySelector("#copyLinkBtn").getAttribute("aria-label")).toBe("Copy link");
     });
 
     it("shows an error when the clipboard is unavailable", async () => {
