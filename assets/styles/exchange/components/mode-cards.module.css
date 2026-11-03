@@ -29,6 +29,17 @@
   transform: scale(0.99);
 }
 
+.modeCardFeatured {
+  background: rgba(242, 193, 78, 0.1);
+  border-color: var(--gold);
+  box-shadow: 0 0 0 1px var(--gold), 0 0 18px rgba(242, 193, 78, 0.25);
+}
+
+.modeCardFeatured:hover {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 1px var(--gold), 0 0 26px rgba(242, 193, 78, 0.4);
+}
+
 .modeCardTitle {
   margin: 0 0 6px 0;
   font-size: 1.1rem;
@@ -40,4 +51,29 @@
   font-size: 0.95rem;
   line-height: 1.5;
   color: rgba(255, 255, 255, 0.75);
+}
+
+.modeCardNewBadge {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--gold);
+  color: var(--burgundy-deep);
+  font-size: 0.7rem;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  vertical-align: middle;
+}
+
+.modeCardTag {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  font-size: 0.85rem;
+  font-weight: bold;
 }

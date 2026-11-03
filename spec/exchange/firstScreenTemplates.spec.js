@@ -35,6 +35,35 @@ describe("firstScreenTemplates", () => {
       expect(html).toContain("No emails needed");
     });
 
+    it("lists the Names from a Hat card first", () => {
+      const html = introTemplate();
+      const hat = html.indexOf('id="namesFromHatBtn"');
+      expect(hat).toBeGreaterThan(-1);
+      expect(hat).toBeLessThan(html.indexOf('id="letsGo"'));
+      expect(hat).toBeLessThan(html.indexOf('id="secretSantaBtn"'));
+    });
+
+    it("emphasizes only the Names from a Hat card", () => {
+      const html = introTemplate();
+      expect(html).toContain('class="modeCard modeCardFeatured" id="namesFromHatBtn"');
+      expect(html).toContain('class="modeCard" id="letsGo"');
+      expect(html).toContain('class="modeCard" id="secretSantaBtn"');
+    });
+
+    it("marks only the Names from a Hat card as new", () => {
+      const html = introTemplate();
+      expect(html).toContain('<span class="modeCardNewBadge">New</span>');
+      expect(html.match(/modeCardNewBadge/g)).toHaveLength(1);
+      expect(html.indexOf("modeCardNewBadge")).toBeLessThan(html.indexOf('id="letsGo"'));
+    });
+
+    it("tags only the Names from a Hat card as needing no contact or personal info", () => {
+      const html = introTemplate();
+      expect(html).toContain('<span class="modeCardTag">No contact or personal info required</span>');
+      expect(html.match(/modeCardTag/g)).toHaveLength(1);
+      expect(html.indexOf("modeCardTag")).toBeLessThan(html.indexOf('id="letsGo"'));
+    });
+
     it("keeps the privacy note", () => {
       expect(introTemplate()).toContain("your information will never be shared");
     });

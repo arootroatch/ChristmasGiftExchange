@@ -52,7 +52,7 @@ describe("prerenderPlugin", () => {
         );
         cssModuleClassMap.set(
           "/abs/path/assets/styles/exchange/components/mode-cards.module.css",
-          {modeCard: "_modeCard_hash2", modeCardTitle: "_modeCardTitle_hash2", modeCardDesc: "_modeCardDesc_hash2", modesContainer: "_modesContainer_hash2"}
+          {modeCard: "_modeCard_hash2", modeCardTitle: "_modeCardTitle_hash2", modeCardDesc: "_modeCardDesc_hash2", modesContainer: "_modesContainer_hash2", modeCardFeatured: "_modeCardFeatured_hash2", modeCardNewBadge: "_modeCardNewBadge_hash2", modeCardTag: "_modeCardTag_hash2"}
         );
 
         const result = await plugin.transformIndexHtml(indexHtml, {path: "/index.html"});
@@ -62,6 +62,9 @@ describe("prerenderPlugin", () => {
         expect(result).toContain('class="_modeCardTitle_hash2"');
         expect(result).toContain('class="_modeCardDesc_hash2"');
         expect(result).toContain('class="_modesContainer_hash2"');
+        expect(result).toContain('class="_modeCard_hash2 _modeCardFeatured_hash2"');
+        expect(result).toContain('class="_modeCardNewBadge_hash2"');
+        expect(result).toContain('class="_modeCardTag_hash2"');
       });
     });
   });
