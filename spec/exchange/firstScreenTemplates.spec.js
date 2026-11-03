@@ -27,7 +27,7 @@ describe("firstScreenTemplates", () => {
         .parseFromString(introTemplate(), "text/html")
         .querySelector("#letsGo").textContent;
       expect(card).toContain("Draw again as many times as you like");
-      expect(card).toContain("email the results to yourself or to the participants");
+      expect(card).toContain("(optionally) email the results to yourself or to the participants");
     });
 
     it("labels the Secret Santa card with its full toolkit description", () => {
@@ -64,11 +64,12 @@ describe("firstScreenTemplates", () => {
       expect(html.indexOf("modeCardNewBadge")).toBeLessThan(html.indexOf('id="secretSantaBtn"'));
     });
 
-    it("tags only the Names from a Hat card as needing no contact or personal info", () => {
-      const html = introTemplate();
-      expect(html).toContain('<span class="modeCardTag">No contact or personal info required</span>');
-      expect(html.match(/modeCardTag/g)).toHaveLength(1);
-      expect(html.indexOf("modeCardTag")).toBeLessThan(html.indexOf('id="secretSantaBtn"'));
+    it("tags each card with the contact info it needs", () => {
+      const doc = new DOMParser().parseFromString(introTemplate(), "text/html");
+      const tagOn = (id) => doc.querySelector(`#${id} .modeCardTag`).textContent;
+      expect(tagOn("namesFromHatBtn")).toBe("No contact or personal info required");
+      expect(tagOn("secretSantaBtn")).toBe("Email addresses required");
+      expect(tagOn("letsGo")).toBe("No contact or personal info required");
     });
 
     it("asks how to draw names above the mode cards", () => {

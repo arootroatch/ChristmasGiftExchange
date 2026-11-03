@@ -1,5 +1,7 @@
 export const introId = "intro";
 
+const noContactInfoTag = "No contact or personal info required";
+
 const arrowIcon = `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>`;
 
 function modeCard(styles, id, title, description, {featured = false, isNew = false, tag = null} = {}) {
@@ -24,9 +26,9 @@ export function introTemplate(styles = {}) {
   return `<div id="${introId}">
     <h2 class="${modesHeading}">How do you want to draw names?</h2>
     <div class="${modesContainer}">
-      ${modeCard(styles, "namesFromHatBtn", "Names from a Hat", "No emails needed. Get one link to share with everyone &mdash; each person opens it, picks their name, and sees who they're buying for.", {featured: true, isNew: true, tag: "No contact or personal info required"})}
-      ${modeCard(styles, "secretSantaBtn", "Secret Santa Mode", "Keep it a surprise, with the full toolkit: we privately email each person their recipient, plus anonymous wishlist sharing, contact info exchange, and a lookup page in case someone missed their email.")}
-      ${modeCard(styles, "letsGo", "Quick Match", "See the full list right away. Draw again as many times as you like, then email the results to yourself or to the participants. Good for grab bags or when keeping it secret doesn't matter.")}
+      ${modeCard(styles, "namesFromHatBtn", "Names from a Hat", "No emails needed. Get one link to share with everyone &mdash; each person opens it, picks their name, and sees who they're buying for.", {featured: true, isNew: true, tag: noContactInfoTag})}
+      ${modeCard(styles, "secretSantaBtn", "Secret Santa Mode", "Keep it a surprise, with the full toolkit: we privately email each person their recipient, plus anonymous wishlist sharing, contact info exchange, and a lookup page in case someone missed their email.", {tag: "Email addresses required"})}
+      ${modeCard(styles, "letsGo", "Quick Match", "See the full list right away. Draw again as many times as you like, then (optionally) email the results to yourself or to the participants. Good for grab bags or when keeping it secret doesn't matter.", {tag: noContactInfoTag})}
     </div>
     <p>
       This site will always be free to use and your information will never be shared.
