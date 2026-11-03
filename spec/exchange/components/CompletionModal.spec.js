@@ -1,9 +1,10 @@
-import {beforeAll, beforeEach, describe, expect, it} from "vitest";
+import {beforeAll, beforeEach, describe, expect, it, vi} from "vitest";
 import {ExchangeEvents as Events, exchangeEvents as stateEvents, startExchange} from "../../../src/exchange/state";
 import {init} from "../../../src/exchange/components/CompletionModal";
 import {init as initSnackbar} from "../../../src/Snackbar";
 import confirmStyles from '../../../assets/styles/exchange/components/email-confirmation.module.css';
 import {tableStyles} from "../../../src/exchange/components/ResultsTable";
+import {shouldDisplayErrorSnackbar} from "../../shared/specHelper";
 
 describe("CompletionModal", () => {
   beforeAll(() => {
@@ -129,10 +130,81 @@ describe("CompletionModal", () => {
       expect(input.value).toContain("/draw?id=abc-123");
     });
 
-    it("shows a copy button", () => {
+    it("shows an icon-only copy button with an accessible label", () => {
       stateEvents.emit(Events.EXCHANGE_COMPLETE, {mode: "link", exchangeId: "abc-123", assignments: []});
 
-      expect(document.querySelector("#copyLinkBtn")).not.toBeNull();
+      const button = document.querySelector("#copyLinkBtn");
+      expect(button.querySelector("svg")).not.toBeNull();
+      expect(button.getAttribute("aria-label")).toBe("Copy link");
+      expect(button.textContent.trim()).toBe("");
+    });
+
+    function stubClipboard(writeText = vi.fn().mockResolvedValue()) {
+      Object.defineProperty(navigator, "clipboard", {value: {writeText}, configurable: true});
+      return writeText;
+    }
+
+    function renderLinkModal() {
+      stateEvents.emit(Events.EXCHANGE_COMPLETE, {mode: "link", exchangeId: "abc-123", assignments: []});
+      return document.querySelector("#linkExchangeUrl");
+    }
+
+    it("copies the link when the link field is clicked", () => {
+      const writeText = stubClipboard();
+      const input = renderLinkModal();
+
+      input.click();
+
+      expect(writeText).toHaveBeenCalledWith(input.value);
+    });
+
+    it("copies the link when the icon button is clicked", () => {
+      const writeText = stubClipboard();
+      const input = renderLinkModal();
+
+      document.querySelector("#copyLinkBtn").click();
+
+      expect(writeText).toHaveBeenCalledWith(input.value);
+    });
+
+    it("confirms on the icon button when the link has been copied", async () => {
+      stubClipboard();
+      renderLinkModal().click();
+
+      const button = document.querySelector("#copyLinkBtn");
+      await vi.waitFor(() => expect(button.getAttribute("aria-label")).toBe("Link copied"));
+      expect(button.querySelector("[data-icon='check']")).not.toBeNull();
+    });
+
+    it("restores the copy icon after a moment", async () => {
+      vi.useFakeTimers();
+      try {
+        stubClipboard();
+        renderLinkModal().click();
+        await vi.advanceTimersByTimeAsync(2000);
+
+        const button = document.querySelector("#copyLinkBtn");
+        expect(button.getAttribute("aria-label")).toBe("Copy link");
+        expect(button.querySelector("[data-icon='copy']")).not.toBeNull();
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+
+    it("shows an error and selects the link when copying is rejected", async () => {
+      stubClipboard(vi.fn().mockRejectedValue(new Error("denied")));
+      const input = renderLinkModal();
+      input.click();
+
+      await vi.waitFor(() => shouldDisplayErrorSnackbar("Couldn't copy the link"));
+      expect(input.selectionEnd - input.selectionStart).toBe(input.value.length);
+    });
+
+    it("shows an error when the clipboard is unavailable", async () => {
+      Object.defineProperty(navigator, "clipboard", {value: undefined, configurable: true});
+      renderLinkModal().click();
+
+      await vi.waitFor(() => shouldDisplayErrorSnackbar("Couldn't copy the link"));
     });
 
     it("shows instructions to send the link to participants", () => {
