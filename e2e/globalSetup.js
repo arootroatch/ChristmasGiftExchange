@@ -1,8 +1,8 @@
 import {setup as startMongo, teardown as stopMongo} from '../spec/shared/mongoSetup.js';
-import {spawn, execSync} from 'child_process';
+import {execSync} from 'child_process';
 import {writeFileSync, unlinkSync, readFileSync} from 'fs';
 import path from 'path';
-import net from 'net';
+import {createServerDir, findAvailablePort, internalFunctionsSnapshot, removeServerDir, startE2eServer} from './netlifyDevServer.js';
 
 const STATE_FILE = path.join(import.meta.dirname, '.e2e-state.json');
 
@@ -10,19 +10,9 @@ function cleanupStaleRun() {
     try {
         const state = JSON.parse(readFileSync(STATE_FILE, 'utf-8'));
         unlinkSync(STATE_FILE);
+        if (state.serverDir) removeServerDir(state.serverDir);
         if (state.port) execSync(`lsof -ti :${state.port} | xargs kill -9 2>/dev/null || true`);
     } catch { /* no stale state */ }
-}
-
-function findAvailablePort() {
-    return new Promise((resolve, reject) => {
-        const server = net.createServer();
-        server.once('error', reject);
-        server.listen(0, () => {
-            const {port} = server.address();
-            server.close(() => resolve(port));
-        });
-    });
 }
 
 async function waitForServer(url, timeoutMs = 60000) {
@@ -46,22 +36,17 @@ export default async function globalSetup() {
     ]);
     const mongoUri = process.env.MONGO_DB_URI;
 
-    const netlifyDev = spawn('npx', [
-        'netlify', 'dev',
-        '--port', String(port),
-        '--target-port', String(targetPort),
-        '--command', `npx vite --port ${targetPort} --host`,
-        '--framework', '#custom',
-        '--no-open',
-    ], {
-        cwd: path.resolve(import.meta.dirname, '..'),
+    const internalFunctionsBeforeStart = internalFunctionsSnapshot();
+    const serverDir = createServerDir();
+    const netlifyDev = startE2eServer({
+        serverDir,
+        port,
+        targetPort,
         env: {
-            ...process.env,
             MONGO_DB_URI: mongoUri,
             MONGODB_DATABASE: 'e2e-test-db',
             JWT_SECRET: 'e2e-test-jwt-secret',
         },
-        stdio: 'pipe',
     });
 
     netlifyDev.stdout.on('data', (data) => {
@@ -73,11 +58,12 @@ export default async function globalSetup() {
 
     await waitForServer(`http://localhost:${port}`);
 
-    writeFileSync(STATE_FILE, JSON.stringify({mongoUri, port}));
+    writeFileSync(STATE_FILE, JSON.stringify({mongoUri, port, serverDir, internalFunctionsBeforeStart}));
 
     return async () => {
         netlifyDev.kill('SIGTERM');
         await stopMongo();
+        removeServerDir(serverDir);
         try { unlinkSync(STATE_FILE); } catch {}
     };
 }

@@ -10,6 +10,7 @@ import * as generateButton from "./components/ControlStrip/GenerateButton.js";
 import * as instructions from "./components/Instructions.js";
 import * as organizerForm from "./components/OrganizerForm.js";
 import * as emailTable from "./components/EmailTable/EmailTable.js";
+import * as linkExchange from "./components/LinkExchange.js";
 import * as dashboardLink from "./components/DashboardLink.js";
 import * as completionModal from "./components/CompletionModal.js";
 import * as snackbar from "../Snackbar.js";
@@ -36,6 +37,7 @@ export default async function main() {
 
   organizerForm.init();
   emailTable.init();
+  linkExchange.init();
   completionModal.init();
   dashboardLink.init();
 

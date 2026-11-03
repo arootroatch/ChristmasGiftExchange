@@ -91,6 +91,16 @@ describe("OrganizerForm", () => {
       shouldNotSelect("#organizerFormContainer");
     });
 
+    it("does not render on RECIPIENTS_ASSIGNED when isLinkMode", () => {
+      getState().isSecretSanta = true;
+      getState().isLinkMode = true;
+      installGivers([{...alex}, {...whitney}]);
+      assignRecipients(["Whitney", "Alex"]);
+
+      shouldNotSelect("#organizerFormContainer");
+      expect(state.setOrganizer).not.toHaveBeenCalled();
+    });
+
     it("renders on EMAIL_RESULTS_REQUESTED", () => {
       triggerNonSecretSantaEmailResults();
 

@@ -552,3 +552,28 @@ describe('state helper functions', () => {
     });
   });
 });
+
+describe('isLinkMode flag', () => {
+  it("defaults isLinkMode to false", () => {
+    startExchange(true);
+    expect(getState().isLinkMode).toBe(false);
+  });
+
+  it("sets isLinkMode when passed", () => {
+    startExchange(true, {isLinkMode: true});
+    expect(getState().isLinkMode).toBe(true);
+  });
+
+  it("includes isLinkMode in the EXCHANGE_STARTED payload", () => {
+    let payload;
+    const unsubscribe = stateEvents.on(Events.EXCHANGE_STARTED, (p) => { payload = p; });
+    startExchange(true, {isLinkMode: true});
+    expect(payload.isLinkMode).toBe(true);
+    unsubscribe();
+  });
+
+  it("carries isLinkMode through loadExchange", () => {
+    loadExchange({isSecretSanta: true, isLinkMode: true, participants: [], houses: []});
+    expect(getState().isLinkMode).toBe(true);
+  });
+});

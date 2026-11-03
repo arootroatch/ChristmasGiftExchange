@@ -60,11 +60,6 @@
   width: fit-content;
 }
 
-#secretSantaBtn {
-  display: block;
-  margin-top: 10px;
-}
-
 /* Secret Santa Mode Layout */
 #left-container.secret {
   flex: 1 1 0%;

@@ -20,17 +20,17 @@ import {insertNameFromSelect} from "../../../src/exchange/components/Select";
 import {getState} from "../../../src/exchange/state";
 import * as stateModule from "../../../src/exchange/state";
 
+vi.mock(import("/src/utils.js"), async (importOriginal) => {
+  const original = await importOriginal();
+  return {
+    ...original,
+    addEventListener: vi.fn(original.addEventListener),
+  };
+});
+
 window.scrollTo = vi.fn();
 
 describe('addHouse', () => {
-  vi.mock(import("/src/utils.js"), async (importOriginal) => {
-    const original = await importOriginal();
-    return {
-      ...original,
-      addEventListener: vi.fn(original.addEventListener),
-    };
-  });
-
   beforeAll(() => {
     initReactiveSystem();
   });
@@ -57,6 +57,9 @@ describe('addHouse', () => {
   });
 
   it('adds change event listener to name select', () => {
+    removeAllHouses();
+    resetState();
+    addHouseToDOM();
     expect(addEventListener).toHaveBeenCalledWith("#house-0-select", "change", insertNameFromSelect);
   });
 

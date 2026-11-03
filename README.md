@@ -20,9 +20,10 @@ Drawing names from a hat doesn't work when your family is scattered across the c
 ## Features
 
 ### Name Drawing
-- Add participants and optionally group them into households
-- Groups prevent members from drawing each other
-- Secret Santa Mode emails each participant their assignment privately
+- **Names from a Hat:** share one link with no emails needed. Each person picks their name and sees their recipient once
+- **Secret Santa Mode:** emails each participant their assignment privately
+- **Quick Match:** see the full list right away, redraw as often as you like, and optionally email the results
+- Add participants and optionally group them into households, so couples and housemates can't draw each other
 - Drag-and-drop reassignment of generated results
 
 ### Wishlists

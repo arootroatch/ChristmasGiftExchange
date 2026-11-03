@@ -31,8 +31,7 @@ export const handler = apiHandler("POST", async (event) => {
         user = await usersCol.findOneAndUpdate(
             {email},
             {
-                $set: {name: data.name, email},
-                $setOnInsert: {wishlists: [], wishItems: []},
+                $setOnInsert: {name: data.name, wishlists: [], wishItems: []},
             },
             {upsert: true, returnDocument: "after"}
         );
@@ -46,7 +45,7 @@ export const handler = apiHandler("POST", async (event) => {
 
     const jwt = await signSession(user._id.toString());
     return okWithHeaders(
-        {success: true},
+        {success: true, name: user.name},
         {"Set-Cookie": buildSessionCookie(jwt)}
     );
 }, {maxRequests: 5, windowMs: 60000});

@@ -23,7 +23,7 @@ describe("instructions", () => {
     it("renders intro content into the instructions slot on init", () => {
       const slot = document.querySelector('[data-slot="instructions"]');
       expect(slot.querySelector("#intro")).not.toBeNull();
-      expect(slot.innerHTML).toContain("Drawing names for a gift exchange");
+      expect(slot.innerHTML).toContain("Quick Match");
     });
 
     it("renders Let's go button", () => {
@@ -32,6 +32,10 @@ describe("instructions", () => {
 
     it("renders Secret Santa button", () => {
       expect(document.querySelector("#secretSantaBtn")).not.toBeNull();
+    });
+
+    it("renders Names from a Hat button", () => {
+      expect(document.querySelector("#namesFromHatBtn")).not.toBeNull();
     });
 
     it("does not mention cookies", () => {
@@ -48,6 +52,11 @@ describe("instructions", () => {
 
     it("removes intro block from DOM in secret santa mode", () => {
       startExchange(true);
+      expect(document.querySelector("#intro")).toBeNull();
+    });
+
+    it("removes intro block from DOM in names from a hat mode", () => {
+      startExchange(true, {isLinkMode: true});
       expect(document.querySelector("#intro")).toBeNull();
     });
 

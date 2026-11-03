@@ -15,7 +15,7 @@ describe("api-my-exchanges-get", () => {
     });
 
     afterEach(async () => {
-        await cleanCollections(db, "users", "exchanges", "rateLimits");
+        await cleanCollections(db, "users", "exchanges", "rateLimits", "linkExchanges");
     });
 
     afterAll(async () => {
@@ -135,5 +135,47 @@ describe("api-my-exchanges-get", () => {
         expect(body).toHaveLength(2);
         expect(body[0].exchangeId).toBe("exchange-2024");
         expect(body[1].exchangeId).toBe("exchange-2023");
+    });
+
+    it('includes linkExchanges owned by the organizer, tagged isLinkMode', async () => {
+        const organizer = makeUser({email: 'organizer@test.com'});
+        await seedUsers(db, organizer);
+        await db.collection('linkExchanges').insertOne({
+            exchangeId: 'link-1',
+            organizer: organizer._id,
+            createdAt: new Date('2025-12-05'),
+            houses: [{name: 'Family', members: ['Alex', 'Whitney']}],
+            participants: [
+                {name: 'Alex', recipient: 'Whitney', hasDrawn: true},
+                {name: 'Whitney', recipient: 'Alex', hasDrawn: false},
+            ],
+        });
+
+        const cookie = await authCookie(organizer._id);
+        const response = await handler(buildEvent('GET', {headers: {cookie}}));
+        const body = JSON.parse(response.body);
+
+        const linkEntry = body.find(ex => ex.exchangeId === 'link-1');
+        expect(linkEntry).toBeDefined();
+        expect(linkEntry.isLinkMode).toBe(true);
+        expect(linkEntry.participantNames).toEqual(['Alex', 'Whitney']);
+        expect(linkEntry.participants.every(p => p.email === undefined)).toBe(true);
+    });
+
+    it('sorts merged exchanges and linkExchanges by createdAt descending', async () => {
+        const {alexId} = await setupExchanges();
+        await db.collection('linkExchanges').insertOne({
+            exchangeId: 'link-newest',
+            organizer: alexId,
+            createdAt: new Date('2025-12-20'),
+            houses: [],
+            participants: [{name: 'Alex', recipient: 'Alex', hasDrawn: false}],
+        });
+
+        const cookie = await authCookie(alexId);
+        const response = await handler(buildEvent('GET', {headers: {cookie}}));
+        const body = JSON.parse(response.body);
+
+        expect(body[0].exchangeId).toBe('link-newest');
     });
 });

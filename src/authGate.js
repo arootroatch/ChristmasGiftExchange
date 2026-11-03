@@ -22,10 +22,14 @@ export function initAuthGate({onSuccess, onError, showName} = {}) {
     addEventListener("#auth-send-code", "click", () => {
         const email = selectElement("#auth-email").value.trim();
         if (!email) return;
+        if (showName && !selectElement("#auth-name").value.trim()) {
+            (onError || (() => {}))("Please enter your name");
+            return;
+        }
         setLoadingState("#auth-send-code");
         apiFetch("/.netlify/functions/api-auth-code-post", {
             method: "POST",
-            body: {email},
+            body: {email, ...(showName && {createIfMissing: true})},
             onSuccess: () => {
                 clearLoadingState("#auth-send-code");
                 selectElement("#auth-email-step").style.display = "none";
@@ -47,10 +51,10 @@ export function initAuthGate({onSuccess, onError, showName} = {}) {
         apiFetch("/.netlify/functions/api-auth-verify-post", {
             method: "POST",
             body: {email, code, ...(name && {name})},
-            onSuccess: () => {
+            onSuccess: (data) => {
                 clearLoadingState("#auth-verify-code");
-                setSessionUser({name, email});
-                onSuccess({email, name});
+                setSessionUser({name: data.name, email});
+                onSuccess({email, name: data.name});
             },
             onError: (...args) => {
                 clearLoadingState("#auth-verify-code");

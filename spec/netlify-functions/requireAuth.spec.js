@@ -83,3 +83,51 @@ describe("validateOrigin", () => {
         expect(validateOrigin(event)).toBeNull();
     });
 });
+
+describe("getOptionalUser", () => {
+    let mongo, db, getOptionalUser, signSession;
+
+    beforeAll(async () => {
+        mongo = await setupMongo();
+        ({db} = mongo);
+        process.env.JWT_SECRET = "test-secret-key";
+        const middlewareMod = await import("../../netlify/shared/middleware.mjs");
+        getOptionalUser = middlewareMod.getOptionalUser;
+        const jwtMod = await import("../../netlify/shared/jwt.mjs");
+        signSession = jwtMod.signSession;
+    });
+
+    afterEach(async () => {
+        await cleanCollections(db, "users");
+    });
+
+    afterAll(async () => {
+        delete process.env.JWT_SECRET;
+        await teardownMongo(mongo);
+    });
+
+    it("returns null when no cookie present", async () => {
+        const result = await getOptionalUser({headers: {}});
+        expect(result).toBeNull();
+    });
+
+    it("returns null for an invalid JWT", async () => {
+        const result = await getOptionalUser({headers: {cookie: "session=invalid.jwt"}});
+        expect(result).toBeNull();
+    });
+
+    it("returns null when user not found in DB", async () => {
+        const {ObjectId} = await import("mongodb");
+        const jwt = await signSession(new ObjectId().toString());
+        const result = await getOptionalUser({headers: {cookie: `session=${jwt}`}});
+        expect(result).toBeNull();
+    });
+
+    it("returns the user for a valid session", async () => {
+        const user = makeUser({name: "Test", email: "test@test.com"});
+        await seedUsers(db, user);
+        const jwt = await signSession(user._id.toString());
+        const result = await getOptionalUser({headers: {cookie: `session=${jwt}`}});
+        expect(result.name).toBe("Test");
+    });
+});
