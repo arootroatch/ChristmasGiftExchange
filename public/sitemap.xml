@@ -4,4 +4,13 @@
     <loc>https://gift-exchange-generator.com/</loc>
     <priority>1.0</priority>
   </url>
+  <url>
+    <loc>https://gift-exchange-generator.com/family-gift-exchange</loc>
+  </url>
+  <url>
+    <loc>https://gift-exchange-generator.com/office-secret-santa</loc>
+  </url>
+  <url>
+    <loc>https://gift-exchange-generator.com/privacy</loc>
+  </url>
 </urlset>
