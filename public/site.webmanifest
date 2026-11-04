@@ -1,7 +1,7 @@
 {
   "name": "Gift Exchange Generator",
   "short_name": "Gift Exchange",
-  "description": "No personal information required. Draw names online with one shareable link, set exclusions for couples and households, or email assignments with wishlists.",
+  "description": "Free online Secret Santa generator with no ads, tracking or accounts. Keep households from drawing each other and share wishlists anonymously.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#150808",

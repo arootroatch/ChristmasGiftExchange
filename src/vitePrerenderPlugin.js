@@ -1,4 +1,5 @@
 import {introTemplate, dashboardLinkTemplate} from "./exchange/firstScreenTemplates.js";
+import {siteFooterTemplate} from "./siteFooter.js";
 
 const BASE_URL = "https://gift-exchange-generator.com";
 const OG_IMAGE = `${BASE_URL}/Gift-Giving-Banner.webp`;
@@ -90,6 +91,7 @@ export function prerenderPlugin() {
         html = injectSlots(html, btnStyles, cardStyles);
       }
 
+      html = html.replace('<div data-slot="site-footer"></div>', siteFooterTemplate());
       html = injectFavicons(html);
 
       const ogTags = generateOgTags(html, filePath);

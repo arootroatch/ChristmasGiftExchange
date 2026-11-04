@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="What Gift Exchange Generator stores in each mode, how long it's kept, and which services help run the site. No ads, no analytics, and nothing is sold.">
+    <link rel="stylesheet" href="/assets/styles/main.css">
+    <title>Privacy | Gift Exchange Generator</title>
+</head>
+<body>
+<div id="background"></div>
+<div id="container" class="content-page">
+    <main class="content-page-body">
+        <h1>Privacy</h1>
+        <p><em>Last updated November 3, 2026</em></p>
+        <p>The short version: this site has no ads and no analytics, and your information is never sold. It keeps only what's needed to run your exchange. Here's exactly what that means. <a href="/">Back to the generator</a>.</p>
+
+        <h2>What's stored in each mode</h2>
+        <ul>
+            <li><strong>Names from a Hat:</strong> the names you enter, your household groups, who drew whom and whether each person has drawn yet. If you choose to save the exchange for next year, it's also linked to your email address.</li>
+            <li><strong>Secret Santa Mode:</strong> each person's name and email address, the exchange's household groups and matches, and any wishlists, wish items and contact or shipping details people choose to add.</li>
+            <li><strong>Quick Match:</strong> nothing leaves your browser unless you choose to email the results. Emailing them to yourself stores your name and email address, but not the results. Emailing them to participants stores the same details as Secret Santa Mode.</li>
+        </ul>
+        <p>This information is kept until you ask us to delete it, so that reuse and lookup keep working from year to year.</p>
+
+        <h2>What's stored automatically</h2>
+        <ul>
+            <li><strong>Server logs:</strong> records of requests to the site's functions, which can include your IP address, are deleted after 30 days. They're used for fixing problems and preventing abuse.</li>
+            <li><strong>Rate limiting:</strong> short-lived records, which can be based on your IP address or email address, stop people from flooding the site. They're deleted within a day.</li>
+            <li><strong>Sign-in codes:</strong> one-time email codes expire automatically.</li>
+        </ul>
+
+        <h2>Cookies and browser storage</h2>
+        <p>If you verify your email, the site sets one session cookie to keep you signed in. Your browser also remembers your cookie choice and temporary details like an exchange you're reusing. Buy Me a Coffee's support widget and its cookies load only if you accept them in the cookie banner.</p>
+
+        <h2>Services that help run the site</h2>
+        <ul>
+            <li><strong>Netlify</strong> hosts the site and runs its server functions.</li>
+            <li><strong>MongoDB</strong> is the database that holds the information above.</li>
+            <li><strong>Postmark</strong> delivers emails, so it receives the addresses and contents of those emails.</li>
+            <li><strong>Verifalia</strong> provides an email address checker used on the home page.</li>
+            <li><strong>Font Awesome, Google Fonts and unpkg</strong> supply icons, fonts and scripts, so they receive your IP address when your browser loads them.</li>
+            <li><strong>Buy Me a Coffee</strong> supplies the images on its logo and button, even before you make a cookie choice. Tips are handled on its own site, under its own privacy policy.</li>
+        </ul>
+        <p>Your information is shared with these services only so they can do these jobs. It's never sold or used for advertising.</p>
+
+        <h2>Deleting your information</h2>
+        <p>To have your information deleted, or to ask anything about this page, email <a href="mailto:alex@gift-exchange-generator.com">alex@gift-exchange-generator.com</a>.</p>
+        <div data-slot="site-footer"></div>
+    </main>
+</div>
+<script type="module">
+    import {init} from '/src/Navbar.js';
+    init();
+</script>
+</body>
+</html>

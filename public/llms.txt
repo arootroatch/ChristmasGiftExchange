@@ -1,0 +1,18 @@
+# Gift Exchange Generator
+
+> A free online Secret Santa and gift exchange name generator with no ads, no tracking and no account or password to create. It keeps households from drawing each other and supports anonymous wishlists.
+
+Secret Santa, Kris Kringle, Pollyanna and Amigo Secreto are all names for the kind of exchange this site runs.
+
+## Ways to draw names
+
+- Names from a Hat: the organizer shares one link, and each person picks their name and sees who they're buying for. No email addresses are needed.
+- Secret Santa Mode: each person is privately emailed their recipient. Includes anonymous wishlists, contact and shipping info sharing, and a dashboard for looking up assignments. Requires email addresses, and the organizer verifies theirs with a one-time code.
+- Quick Match: shows the whole list right away and can be redrawn as often as you like. No email addresses are needed unless you email the results.
+
+## Pages
+
+- [Secret Santa Generator](https://gift-exchange-generator.com/): the name-drawing tool and FAQ
+- [Family Gift Exchange](https://gift-exchange-generator.com/family-gift-exchange): household exclusions and long-distance families
+- [Office Secret Santa](https://gift-exchange-generator.com/office-secret-santa): one-link draws for coworkers and remote teams
+- [Privacy](https://gift-exchange-generator.com/privacy): what's stored in each mode and for how long

@@ -18,5 +18,8 @@
 /* Draw (global only — modules are imported by JS) */
 @import './draw/base.css';
 
+/* Content pages and home page guide */
+@import './content-pages.css';
+
 /* Admin */
 @import './admin/base.css';
