@@ -1,6 +1,7 @@
 import {describe, it, expect, beforeAll, afterAll, afterEach, vi} from "vitest";
 import {setupMongo, teardownMongo, cleanCollections} from '../shared/mongoSetup.js';
 import {makeUser, seedUsers} from '../shared/testData.js';
+import {ObjectId} from "mongodb";
 
 vi.mock("../../netlify/shared/logger.mjs");
 
@@ -56,6 +57,82 @@ describe("requireAuth", () => {
         expect(result).toBeNull();
         expect(event.user).toBeDefined();
         expect(event.user.name).toBe("Test");
+    });
+});
+
+describe("requireAuth with view-as", () => {
+    let mongo, db, requireAuth, requireRealUser, signSession, signViewAs;
+
+    const admin = makeUser({name: "Admin", email: "admin@example.com"});
+    const target = makeUser({name: "Target", email: "target@example.com"});
+
+    const cookieFor = async (viewAsTargetId) => {
+        const session = await signSession(admin._id.toString());
+        if (!viewAsTargetId) return `session=${session}`;
+        const viewAs = await signViewAs(admin._id.toString(), viewAsTargetId);
+        return `session=${session}; viewAs=${viewAs}`;
+    };
+
+    beforeAll(async () => {
+        mongo = await setupMongo();
+        ({db} = mongo);
+        process.env.JWT_SECRET = "test-secret-key";
+        process.env.ADMIN_EMAIL = "admin@example.com";
+        ({requireAuth, requireRealUser} = await import("../../netlify/shared/middleware.mjs"));
+        ({signSession, signViewAs} = await import("../../netlify/shared/jwt.mjs"));
+    });
+
+    afterEach(async () => {
+        await cleanCollections(db, "users");
+    });
+
+    afterAll(async () => {
+        delete process.env.JWT_SECRET;
+        delete process.env.ADMIN_EMAIL;
+        await teardownMongo(mongo);
+    });
+
+    it("sets event.user to target and event.viewer to admin when view-as is active", async () => {
+        await seedUsers(db, admin, target);
+        const event = {headers: {cookie: await cookieFor(target._id.toString())}};
+
+        const result = await requireAuth(event);
+
+        expect(result).toBeNull();
+        expect(event.user.email).toBe("target@example.com");
+        expect(event.viewer.email).toBe("admin@example.com");
+    });
+
+    it("leaves event.viewer undefined when no viewAs cookie", async () => {
+        await seedUsers(db, admin, target);
+        const event = {headers: {cookie: await cookieFor()}};
+
+        await requireAuth(event);
+
+        expect(event.user.email).toBe("admin@example.com");
+        expect(event.viewer).toBeUndefined();
+    });
+
+    it("requireRealUser keeps event.user as the admin even when view-as is active", async () => {
+        await seedUsers(db, admin, target);
+        const event = {headers: {cookie: await cookieFor(target._id.toString())}};
+
+        const result = await requireRealUser(event);
+
+        expect(result).toBeNull();
+        expect(event.user.email).toBe("admin@example.com");
+        expect(event.viewer).toBeUndefined();
+    });
+
+    it("uses the admin as event.user when the viewAs target no longer exists", async () => {
+        await seedUsers(db, admin);
+        const event = {headers: {cookie: await cookieFor(new ObjectId().toString())}};
+
+        const result = await requireAuth(event);
+
+        expect(result).toBeNull();
+        expect(event.user.email).toBe("admin@example.com");
+        expect(event.viewer).toBeUndefined();
     });
 });
 
@@ -129,5 +206,41 @@ describe("getOptionalUser", () => {
         const jwt = await signSession(user._id.toString());
         const result = await getOptionalUser({headers: {cookie: `session=${jwt}`}});
         expect(result.name).toBe("Test");
+    });
+});
+
+describe("getOptionalUser with view-as", () => {
+    let mongo, db, getOptionalUser, signSession, signViewAs;
+
+    const admin = makeUser({name: "Admin", email: "admin@example.com"});
+    const target = makeUser({name: "Target", email: "target@example.com"});
+
+    beforeAll(async () => {
+        mongo = await setupMongo();
+        ({db} = mongo);
+        process.env.JWT_SECRET = "test-secret-key";
+        process.env.ADMIN_EMAIL = "admin@example.com";
+        ({getOptionalUser} = await import("../../netlify/shared/middleware.mjs"));
+        ({signSession, signViewAs} = await import("../../netlify/shared/jwt.mjs"));
+    });
+
+    afterEach(async () => {
+        await cleanCollections(db, "users");
+    });
+
+    afterAll(async () => {
+        delete process.env.JWT_SECRET;
+        delete process.env.ADMIN_EMAIL;
+        await teardownMongo(mongo);
+    });
+
+    it("returns the target when view-as is active", async () => {
+        await seedUsers(db, admin, target);
+        const session = await signSession(admin._id.toString());
+        const viewAs = await signViewAs(admin._id.toString(), target._id.toString());
+
+        const result = await getOptionalUser({headers: {cookie: `session=${session}; viewAs=${viewAs}`}});
+
+        expect(result.email).toBe("target@example.com");
     });
 });

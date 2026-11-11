@@ -1,10 +1,9 @@
 import {methodNotAllowed, serverError, unauthorized, forbidden} from "./responses.mjs";
 import {sendNotificationEmail, setRequestOrigin} from "./giverNotification.mjs";
 import {checkRateLimit} from "./rateLimit.mjs";
-import {verifySession, parseCookies} from "./jwt.mjs";
-import {getUsersCollection} from "./db.mjs";
+import {getSessionUser} from "./sessionUser.mjs";
+import {resolveViewAs} from "./viewAs.mjs";
 import {logger} from "./logger.mjs";
-import {ObjectId} from "mongodb";
 
 export function formatZodError(zodError) {
     const issue = zodError.issues[0];
@@ -51,38 +50,32 @@ export function validateOrigin(event) {
     return forbidden("Forbidden");
 }
 
-export async function requireAuth(event) {
-    const cookies = parseCookies(event.headers?.cookie);
-    if (!cookies.session) return unauthorized("Authentication required");
-
-    const payload = await verifySession(cookies.session);
-    if (!payload?.userId) return unauthorized("Invalid session");
-
-    let userId;
-    try {
-        userId = new ObjectId(payload.userId);
-    } catch {
-        return unauthorized("Invalid session");
-    }
-
-    const usersCol = await getUsersCollection();
-    const user = await usersCol.findOne({_id: userId});
-    if (!user) return unauthorized("User not found");
+export async function requireRealUser(event) {
+    const {user, error} = await getSessionUser(event);
+    if (error) return unauthorized(error);
 
     event.user = user;
     return null;
 }
 
+export async function requireAuth(event) {
+    const authError = await requireRealUser(event);
+    if (authError) return authError;
+
+    const viewAs = await resolveViewAs(event);
+    if (viewAs) {
+        event.user = viewAs.target;
+        event.viewer = viewAs.admin;
+    }
+    return null;
+}
+
 export async function getOptionalUser(event) {
-    const cookies = parseCookies(event.headers?.cookie);
-    if (!cookies.session) return null;
-
-    const payload = await verifySession(cookies.session);
-    if (!payload?.userId) return null;
-
     try {
-        const usersCol = await getUsersCollection();
-        return await usersCol.findOne({_id: new ObjectId(payload.userId)});
+        const viewAs = await resolveViewAs(event);
+        if (viewAs) return viewAs.target;
+        const {user} = await getSessionUser(event);
+        return user ?? null;
     } catch {
         return null;
     }
