@@ -1,0 +1,31 @@
+.banner {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 8px 16px;
+  background: #f5a623;
+  color: #1a1a1a;
+  font-size: 0.9rem;
+  font-weight: 600;
+  box-sizing: border-box;
+}
+
+.exitBtn {
+  padding: 4px 14px;
+  border: 2px solid #1a1a1a;
+  border-radius: 6px;
+  background: transparent;
+  color: #1a1a1a;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.exitBtn:hover {
+  background: #1a1a1a;
+  color: #f5a623;
+}

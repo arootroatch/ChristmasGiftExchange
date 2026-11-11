@@ -3,12 +3,14 @@ import '../../assets/styles/main.css';
 import * as snackbar from '../Snackbar.js';
 import {loadSession} from '../session.js';
 import * as logsSection from './logsSection.js';
+import * as usersSection from './usersSection.js';
+import * as viewAsBanner from '../ViewAsBanner.js';
 import {sectionFromPath, sidebarNavItemsTemplate, sectionContainersTemplate, initSidebarNav} from '../sidebarNav.js';
 import {selectElement, addEventListener} from '../utils.js';
 
 const SECTIONS = ['logs', 'users'];
 const LABELS = {logs: 'Logs', users: 'Users'};
-const RENDERERS = {logs: logsSection.render};
+const RENDERERS = {logs: logsSection.render, users: usersSection.render};
 
 function adminLayout() {
     const active = sectionFromPath(SECTIONS, 'logs');
@@ -109,6 +111,7 @@ export async function main() {
     snackbar.init();
     try {
         const session = await loadSession();
+        viewAsBanner.init();
         if (session) {
             initDashboard();
         } else {

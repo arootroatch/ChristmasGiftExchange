@@ -6,6 +6,7 @@ import * as snackbar from '../Snackbar.js';
 import * as cookieBanner from '../CookieBanner.js';
 import {authGateTemplate, initAuthGate} from '../authGate.js';
 import {loadSession, clearSession} from '../session.js';
+import * as viewAsBanner from '../ViewAsBanner.js';
 import {sectionFromPath, sidebarNavItemsTemplate, sectionContainersTemplate, initSidebarNav} from '../sidebarNav.js';
 import {setUserData, setRecipientData, isDirty, dashboardEvents, DashboardEvents} from './state.js';
 import * as recipientCard from './components/RecipientCard.js';
@@ -123,6 +124,7 @@ async function loadData() {
   const content = selectElement('#dashboard-content');
   try {
     const data = await loadSession();
+    viewAsBanner.init();
     if (!data) {
       showAuthGate();
       return;

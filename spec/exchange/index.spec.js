@@ -3,6 +3,7 @@ import main from '../../src/exchange/index';
 
 vi.mock('../../src/session', () => ({
   loadSession: vi.fn().mockResolvedValue(null),
+  getViewingAs: vi.fn(() => null),
 }));
 
 vi.mock('../../src/exchange/components/Navbar.js', () => ({init: vi.fn()}));

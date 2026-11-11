@@ -6,6 +6,7 @@ import {getSessionUser, loadSession} from "../../src/session";
 vi.mock("../../src/session.js", () => ({
   loadSession: vi.fn(() => Promise.resolve(null)),
   getSessionUser: vi.fn(() => null),
+  getViewingAs: vi.fn(() => null),
   clearSession: vi.fn(),
 }));
 

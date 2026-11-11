@@ -28,6 +28,7 @@ function stubFetch({session = {name: 'Admin', email: 'a@test.com'}} = {}) {
   globalThis.fetch = vi.fn((url) => {
     if (url.includes('api-user-get')) return Promise.resolve(json(session));
     if (url.includes('api-admin-logs-get')) return Promise.resolve(json({logs: [], distinctEndpoints: [], page: 1, totalPages: 1, total: 0}));
+    if (url.includes('api-admin-users-get')) return Promise.resolve(json({users: []}));
     return Promise.resolve(json({logLevel: 'warn'}));
   });
 }
