@@ -41,4 +41,4 @@ export const handler = apiHandler("POST", async (event) => {
     }
 
     return ok({sent: true});
-}, {maxRequests: 3, windowMs: 60000});
+}, {allowDuringViewAs: true, maxRequests: 3, windowMs: 60000});

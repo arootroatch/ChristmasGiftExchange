@@ -137,6 +137,89 @@ describe("apiHandler admin option", () => {
     });
 });
 
+describe("apiHandler read-only enforcement", () => {
+    let mongo, db, signSession, signViewAs;
+    const admin = makeUser({name: "Admin", email: "admin@example.com"});
+    const target = makeUser({name: "Target", email: "target@example.com"});
+    const regular = makeUser({name: "Regular", email: "regular@example.com"});
+
+    beforeAll(async () => {
+        mongo = await setupMongo();
+        ({db} = mongo);
+        process.env.JWT_SECRET = "test-secret-key";
+        process.env.ADMIN_EMAIL = "admin@example.com";
+        ({signSession, signViewAs} = await import("../../netlify/shared/jwt.mjs"));
+    });
+
+    afterEach(async () => {
+        await cleanCollections(db, "users");
+    });
+
+    afterAll(async () => {
+        delete process.env.JWT_SECRET;
+        delete process.env.ADMIN_EMAIL;
+        await teardownMongo(mongo);
+    });
+
+    async function viewAsCookie(sessionUser = admin) {
+        const session = await signSession(sessionUser._id.toString());
+        const viewAs = await signViewAs(admin._id.toString(), target._id.toString());
+        return `session=${session}; viewAs=${viewAs}`;
+    }
+
+    it("blocks a POST with 403 View-only mode while view-as is active", async () => {
+        await seedUsers(db, admin, target);
+        const fn = vi.fn();
+        const handler = apiHandler("POST", fn, {auth: true});
+        const response = await handler(buildEvent("POST", {headers: {cookie: await viewAsCookie()}}));
+        expect(response.statusCode).toBe(403);
+        expect(JSON.parse(response.body).error).toBe("View-only mode");
+        expect(fn).not.toHaveBeenCalled();
+    });
+
+    it("allows GET while view-as is active", async () => {
+        await seedUsers(db, admin, target);
+        const fn = vi.fn(() => ({statusCode: 200, body: "{}"}));
+        const handler = apiHandler("GET", fn, {auth: true});
+        const response = await handler(buildEvent("GET", {headers: {cookie: await viewAsCookie()}}));
+        expect(response.statusCode).toBe(200);
+        expect(fn).toHaveBeenCalled();
+    });
+
+    it("allows POST on an allowDuringViewAs endpoint", async () => {
+        await seedUsers(db, admin, target);
+        const fn = vi.fn(() => ({statusCode: 200, body: "{}"}));
+        const handler = apiHandler("POST", fn, {allowDuringViewAs: true});
+        const response = await handler(buildEvent("POST", {headers: {cookie: await viewAsCookie()}}));
+        expect(response.statusCode).toBe(200);
+        expect(fn).toHaveBeenCalled();
+    });
+
+    it("does not pass allowDuringViewAs through to the rate limiter", async () => {
+        const handler = apiHandler("POST", () => ({statusCode: 200, body: "{}"}), {allowDuringViewAs: true, maxRequests: 3, windowMs: 1000});
+        await handler(buildEvent("POST"));
+        expect(vi.mocked(checkRateLimit).mock.lastCall[2]).not.toHaveProperty("allowDuringViewAs");
+    });
+
+    it("allows POST on an admin endpoint", async () => {
+        await seedUsers(db, admin, target);
+        const fn = vi.fn(() => ({statusCode: 200, body: "{}"}));
+        const handler = apiHandler("POST", fn, {admin: true});
+        const response = await handler(buildEvent("POST", {headers: {cookie: await viewAsCookie()}}));
+        expect(response.statusCode).toBe(200);
+        expect(fn).toHaveBeenCalled();
+    });
+
+    it("does not block a non-admin whose browser has a stale viewAs cookie", async () => {
+        await seedUsers(db, admin, target, regular);
+        const fn = vi.fn(() => ({statusCode: 200, body: "{}"}));
+        const handler = apiHandler("POST", fn, {auth: true});
+        const response = await handler(buildEvent("POST", {headers: {cookie: await viewAsCookie(regular)}}));
+        expect(response.statusCode).toBe(200);
+        expect(fn).toHaveBeenCalled();
+    });
+});
+
 describe("requestEndpoint", () => {
     it("combines httpMethod and path", () => {
         expect(requestEndpoint({httpMethod: "POST", path: "/api/test"})).toBe("POST /api/test");

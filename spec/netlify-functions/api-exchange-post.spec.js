@@ -79,6 +79,26 @@ describe('api-exchange-post', () => {
         expect(response.statusCode).toBe(401);
     });
 
+    it('returns 403 and creates no exchange while admin is viewing as a user', async () => {
+        process.env.ADMIN_EMAIL = 'admin@test.com';
+        try {
+            const {signSession, signViewAs} = await import('../../netlify/shared/jwt.mjs');
+            const admin = makeUser({name: 'Admin', email: 'admin@test.com'});
+            const target = makeUser({name: 'Target', email: 'target@test.com'});
+            await seedUsers(db, admin, target);
+            const session = await signSession(admin._id.toString());
+            const viewAs = await signViewAs(admin._id.toString(), target._id.toString());
+            const event = buildEvent('POST', {body: exchangePayload, path: postPath, headers: {cookie: `session=${session}; viewAs=${viewAs}`}});
+            const response = await handler(event);
+
+            expect(response.statusCode).toBe(403);
+            expect(JSON.parse(response.body).error).toBe('View-only mode');
+            expect(await db.collection('exchanges').countDocuments()).toBe(0);
+        } finally {
+            delete process.env.ADMIN_EMAIL;
+        }
+    });
+
     it('upserts users by email and creates exchange document', async () => {
         const organizerId = await insertOrganizer();
         const cookie = await authCookie(organizerId);

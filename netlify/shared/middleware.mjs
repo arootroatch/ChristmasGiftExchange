@@ -113,7 +113,7 @@ async function reportError(event, error) {
     } catch {}
 }
 
-export function apiHandler(method, fn, {auth = false, admin = false, ...rateLimitConfig} = {}) {
+export function apiHandler(method, fn, {auth = false, admin = false, allowDuringViewAs = false, ...rateLimitConfig} = {}) {
     return async (event) => {
         const endpoint = requestEndpoint(event);
         const ip = extractClientIp(event);
@@ -130,6 +130,11 @@ export function apiHandler(method, fn, {auth = false, admin = false, ...rateLimi
             if (limited) {
                 logger.warn("Rate limit exceeded", {endpoint, ip});
                 return limited;
+            }
+
+            if (method !== "GET" && !admin && !allowDuringViewAs && await resolveViewAs(event)) {
+                logger.warn("Write blocked in view-only mode", {endpoint, ip});
+                return forbidden("View-only mode");
             }
 
             if (admin) {
