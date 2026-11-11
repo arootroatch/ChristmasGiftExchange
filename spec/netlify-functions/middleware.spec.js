@@ -138,7 +138,7 @@ describe("apiHandler admin option", () => {
 });
 
 describe("apiHandler read-only enforcement", () => {
-    let mongo, db, signSession, signViewAs;
+    let mongo, db, signViewAs;
     const admin = makeUser({name: "Admin", email: "admin@example.com"});
     const target = makeUser({name: "Target", email: "target@example.com"});
     const regular = makeUser({name: "Regular", email: "regular@example.com"});
@@ -148,7 +148,7 @@ describe("apiHandler read-only enforcement", () => {
         ({db} = mongo);
         process.env.JWT_SECRET = "test-secret-key";
         process.env.ADMIN_EMAIL = "admin@example.com";
-        ({signSession, signViewAs} = await import("../../netlify/shared/jwt.mjs"));
+        ({signViewAs} = await import("../../netlify/shared/jwt.mjs"));
     });
 
     afterEach(async () => {
@@ -208,7 +208,7 @@ describe("apiHandler read-only enforcement", () => {
         await seedUsers(db, admin, target, regular);
         const fn = vi.fn(() => ({statusCode: 200, body: "{}"}));
         const handler = apiHandler("POST", fn, {auth: true});
-        const response = await handler(buildEvent("POST", {headers: {cookie: await viewAsCookie(regular._id, target._id)}}));
+        const response = await handler(buildEvent("POST", {headers: {cookie: `${await authCookie(regular._id)}; viewAs=${await signViewAs(admin._id.toString(), target._id.toString())}`}}));
         expect(response.statusCode).toBe(200);
         expect(fn).toHaveBeenCalled();
     });
