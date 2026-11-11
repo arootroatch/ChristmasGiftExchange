@@ -1,7 +1,7 @@
 import {afterAll, afterEach, beforeAll, describe, expect, it, vi} from 'vitest';
 import {setupMongo, teardownMongo, cleanCollections} from '../shared/mongoSetup.js';
 import {makeUser, seedUsers} from '../shared/testData.js';
-import {authCookie, buildEvent} from '../shared/specHelper.js';
+import {authCookie, viewAsCookie, buildEvent} from '../shared/specHelper.js';
 
 vi.mock('../../netlify/shared/logger.mjs');
 import {logger} from '../../netlify/shared/logger.mjs';
@@ -77,6 +77,23 @@ describe('api-exchange-post', () => {
         const event = buildEvent('POST', {body: exchangePayload, path: postPath});
         const response = await handler(event);
         expect(response.statusCode).toBe(401);
+    });
+
+    it('returns 403 and creates no exchange while admin is viewing as a user', async () => {
+        process.env.ADMIN_EMAIL = 'admin@test.com';
+        try {
+            const admin = makeUser({name: 'Admin', email: 'admin@test.com'});
+            const target = makeUser({name: 'Target', email: 'target@test.com'});
+            await seedUsers(db, admin, target);
+            const event = buildEvent('POST', {body: exchangePayload, path: postPath, headers: {cookie: await viewAsCookie(admin._id, target._id)}});
+            const response = await handler(event);
+
+            expect(response.statusCode).toBe(403);
+            expect(JSON.parse(response.body).error).toBe('View-only mode');
+            expect(await db.collection('exchanges').countDocuments()).toBe(0);
+        } finally {
+            delete process.env.ADMIN_EMAIL;
+        }
     });
 
     it('upserts users by email and creates exchange document', async () => {

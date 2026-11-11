@@ -37,3 +37,12 @@ export function serverError(msg) {
 export function tooManyRequests(msg) {
     return error(429, msg);
 }
+
+export function okWithCookies(data = {}, cookies = []) {
+    return {
+        statusCode: 200,
+        headers: {"Content-Type": "application/json"},
+        multiValueHeaders: {"Set-Cookie": cookies},
+        body: JSON.stringify(data),
+    };
+}

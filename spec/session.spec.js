@@ -1,7 +1,8 @@
 import {describe, it, expect, vi, beforeEach} from "vitest";
+import {stubFetch} from "./shared/specHelper.js";
 
 describe("session", () => {
-  let loadSession, getSessionUser, setSessionUser, clearSession;
+  let loadSession, getSessionUser, getViewingAs, setSessionUser, clearSession;
 
   beforeEach(async () => {
     vi.resetModules();
@@ -10,6 +11,7 @@ describe("session", () => {
     getSessionUser = mod.getSessionUser;
     setSessionUser = mod.setSessionUser;
     clearSession = mod.clearSession;
+    getViewingAs = mod.getViewingAs;
   });
 
   describe("loadSession", () => {
@@ -87,6 +89,25 @@ describe("session", () => {
       clearSession();
 
       expect(getSessionUser()).toBeNull();
+    });
+  });
+
+  describe("getViewingAs", () => {
+    it("returns viewingAs from api-user-get", async () => {
+      stubFetch(true, 200, {name: "Bob", email: "bob@test.com", viewingAs: {name: "Bob", email: "bob@test.com"}});
+
+      await loadSession();
+
+      expect(getViewingAs()).toEqual({name: "Bob", email: "bob@test.com"});
+    });
+
+    it("is null after clearSession", async () => {
+      stubFetch(true, 200, {name: "Bob", email: "bob@test.com", viewingAs: {name: "Bob", email: "bob@test.com"}});
+      await loadSession();
+
+      clearSession();
+
+      expect(getViewingAs()).toBeNull();
     });
   });
 });

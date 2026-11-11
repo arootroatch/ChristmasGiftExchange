@@ -1,7 +1,7 @@
 import {apiHandler} from "../shared/middleware.mjs";
-import {okWithHeaders} from "../shared/responses.mjs";
-import {clearSessionCookie} from "../shared/jwt.mjs";
+import {okWithCookies} from "../shared/responses.mjs";
+import {clearSessionCookie, clearViewAsCookie} from "../shared/jwt.mjs";
 
 export const handler = apiHandler("POST", async () => {
-    return okWithHeaders({success: true}, {"Set-Cookie": clearSessionCookie()});
-});
+    return okWithCookies({success: true}, [clearSessionCookie(), clearViewAsCookie()]);
+}, {allowDuringViewAs: true});

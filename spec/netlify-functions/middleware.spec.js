@@ -1,4 +1,7 @@
-import {afterEach, describe, it, expect, vi} from 'vitest';
+import {afterAll, afterEach, beforeAll, describe, it, expect, vi} from 'vitest';
+import {setupMongo, teardownMongo, cleanCollections} from '../shared/mongoSetup.js';
+import {makeUser, seedUsers} from '../shared/testData.js';
+import {authCookie, viewAsCookie, buildEvent} from '../shared/specHelper.js';
 import {z} from "zod";
 
 vi.mock('../../netlify/shared/giverNotification.mjs', () => ({
@@ -72,6 +75,143 @@ describe("apiHandler", () => {
         expect(result.statusCode).toBe(500);
     });
 
+});
+
+describe("apiHandler admin option", () => {
+    let mongo, db, signSession, signViewAs;
+    const admin = makeUser({name: "Admin", email: "admin@example.com"});
+    const target = makeUser({name: "Target", email: "target@example.com"});
+    const regular = makeUser({name: "Regular", email: "regular@example.com"});
+
+    beforeAll(async () => {
+        mongo = await setupMongo();
+        ({db} = mongo);
+        process.env.JWT_SECRET = "test-secret-key";
+        process.env.ADMIN_EMAIL = "admin@example.com";
+        ({signSession, signViewAs} = await import("../../netlify/shared/jwt.mjs"));
+    });
+
+    afterEach(async () => {
+        await cleanCollections(db, "users");
+    });
+
+    afterAll(async () => {
+        delete process.env.JWT_SECRET;
+        delete process.env.ADMIN_EMAIL;
+        await teardownMongo(mongo);
+    });
+
+    it("returns 403 for a non-admin session", async () => {
+        await seedUsers(db, regular);
+        const handler = apiHandler("GET", () => ({statusCode: 200, body: "{}"}), {admin: true});
+        const response = await handler(buildEvent("GET", {headers: {cookie: await authCookie(regular._id)}}));
+        expect(response.statusCode).toBe(403);
+        expect(JSON.parse(response.body).error).toBe("Forbidden");
+    });
+
+    it("returns 401 without a session", async () => {
+        const handler = apiHandler("GET", () => ({statusCode: 200, body: "{}"}), {admin: true});
+        const response = await handler(buildEvent("GET"));
+        expect(response.statusCode).toBe(401);
+    });
+
+    it("passes the real admin as event.user even when view-as is active", async () => {
+        await seedUsers(db, admin, target);
+        const session = await signSession(admin._id.toString());
+        const viewAs = await signViewAs(admin._id.toString(), target._id.toString());
+        let seen;
+        const handler = apiHandler("GET", (event) => {
+            seen = event.user;
+            return {statusCode: 200, body: "{}"};
+        }, {admin: true});
+        const response = await handler(buildEvent("GET", {headers: {cookie: `session=${session}; viewAs=${viewAs}`}}));
+        expect(response.statusCode).toBe(200);
+        expect(seen.email).toBe("admin@example.com");
+    });
+
+    it("does not pass admin through to the rate limiter", async () => {
+        await seedUsers(db, admin);
+        const handler = apiHandler("GET", () => ({statusCode: 200, body: "{}"}), {admin: true, maxRequests: 3, windowMs: 1000});
+        await handler(buildEvent("GET", {headers: {cookie: await authCookie(admin._id)}}));
+        expect(vi.mocked(checkRateLimit).mock.lastCall[2]).not.toHaveProperty("admin");
+    });
+});
+
+describe("apiHandler read-only enforcement", () => {
+    let mongo, db, signViewAs;
+    const admin = makeUser({name: "Admin", email: "admin@example.com"});
+    const target = makeUser({name: "Target", email: "target@example.com"});
+    const regular = makeUser({name: "Regular", email: "regular@example.com"});
+
+    beforeAll(async () => {
+        mongo = await setupMongo();
+        ({db} = mongo);
+        process.env.JWT_SECRET = "test-secret-key";
+        process.env.ADMIN_EMAIL = "admin@example.com";
+        ({signViewAs} = await import("../../netlify/shared/jwt.mjs"));
+    });
+
+    afterEach(async () => {
+        await cleanCollections(db, "users");
+    });
+
+    afterAll(async () => {
+        delete process.env.JWT_SECRET;
+        delete process.env.ADMIN_EMAIL;
+        await teardownMongo(mongo);
+    });
+
+    it("blocks a POST with 403 View-only mode while view-as is active", async () => {
+        await seedUsers(db, admin, target);
+        const fn = vi.fn();
+        const handler = apiHandler("POST", fn, {auth: true});
+        const response = await handler(buildEvent("POST", {headers: {cookie: await viewAsCookie(admin._id, target._id)}}));
+        expect(response.statusCode).toBe(403);
+        expect(JSON.parse(response.body).error).toBe("View-only mode");
+        expect(fn).not.toHaveBeenCalled();
+    });
+
+    it("allows GET while view-as is active", async () => {
+        await seedUsers(db, admin, target);
+        const fn = vi.fn(() => ({statusCode: 200, body: "{}"}));
+        const handler = apiHandler("GET", fn, {auth: true});
+        const response = await handler(buildEvent("GET", {headers: {cookie: await viewAsCookie(admin._id, target._id)}}));
+        expect(response.statusCode).toBe(200);
+        expect(fn).toHaveBeenCalled();
+    });
+
+    it("allows POST on an allowDuringViewAs endpoint", async () => {
+        await seedUsers(db, admin, target);
+        const fn = vi.fn(() => ({statusCode: 200, body: "{}"}));
+        const handler = apiHandler("POST", fn, {allowDuringViewAs: true});
+        const response = await handler(buildEvent("POST", {headers: {cookie: await viewAsCookie(admin._id, target._id)}}));
+        expect(response.statusCode).toBe(200);
+        expect(fn).toHaveBeenCalled();
+    });
+
+    it("does not pass allowDuringViewAs through to the rate limiter", async () => {
+        const handler = apiHandler("POST", () => ({statusCode: 200, body: "{}"}), {allowDuringViewAs: true, maxRequests: 3, windowMs: 1000});
+        await handler(buildEvent("POST"));
+        expect(vi.mocked(checkRateLimit).mock.lastCall[2]).not.toHaveProperty("allowDuringViewAs");
+    });
+
+    it("allows POST on an admin endpoint", async () => {
+        await seedUsers(db, admin, target);
+        const fn = vi.fn(() => ({statusCode: 200, body: "{}"}));
+        const handler = apiHandler("POST", fn, {admin: true});
+        const response = await handler(buildEvent("POST", {headers: {cookie: await viewAsCookie(admin._id, target._id)}}));
+        expect(response.statusCode).toBe(200);
+        expect(fn).toHaveBeenCalled();
+    });
+
+    it("does not block a non-admin whose browser has a stale viewAs cookie", async () => {
+        await seedUsers(db, admin, target, regular);
+        const fn = vi.fn(() => ({statusCode: 200, body: "{}"}));
+        const handler = apiHandler("POST", fn, {auth: true});
+        const response = await handler(buildEvent("POST", {headers: {cookie: `${await authCookie(regular._id)}; viewAs=${await signViewAs(admin._id.toString(), target._id.toString())}`}}));
+        expect(response.statusCode).toBe(200);
+        expect(fn).toHaveBeenCalled();
+    });
 });
 
 describe("requestEndpoint", () => {

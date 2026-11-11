@@ -1,11 +1,15 @@
 import {describe, it, expect, beforeAll, afterAll} from "vitest";
 
 describe("jwt", () => {
-    let signSession, verifySession, buildSessionCookie, clearSessionCookie, parseCookies;
+    let signViewAs, verifyViewAs, buildViewAsCookie, clearViewAsCookie, signSession, verifySession, buildSessionCookie, clearSessionCookie, parseCookies;
 
     beforeAll(async () => {
         process.env.JWT_SECRET = "test-secret-key-for-jwt";
         const mod = await import("../../netlify/shared/jwt.mjs");
+        signViewAs = mod.signViewAs;
+        verifyViewAs = mod.verifyViewAs;
+        buildViewAsCookie = mod.buildViewAsCookie;
+        clearViewAsCookie = mod.clearViewAsCookie;
         signSession = mod.signSession;
         verifySession = mod.verifySession;
         buildSessionCookie = mod.buildSessionCookie;
@@ -23,6 +27,39 @@ describe("jwt", () => {
         expect(payload.userId).toBe("user-id-123");
         expect(payload.exp).toBeDefined();
         expect(payload.iat).toBeDefined();
+    });
+
+    it("verifyViewAs returns adminId and targetUserId for a viewAs token", async () => {
+        const jwt = await signViewAs("a1", "t1");
+        expect(await verifyViewAs(jwt)).toMatchObject({adminId: "a1", targetUserId: "t1"});
+    });
+
+    it("verifySession rejects a viewAs token", async () => {
+        expect(await verifySession(await signViewAs("a", "t"))).toBeNull();
+    });
+
+    it("verifyViewAs rejects a session token", async () => {
+        expect(await verifyViewAs(await signSession("a"))).toBeNull();
+    });
+
+    it("viewAs token expires in 1 hour", async () => {
+        const {exp, iat} = await verifyViewAs(await signViewAs("a", "t"));
+        expect(exp - iat).toBe(3600);
+    });
+
+    it("buildViewAsCookie sets HttpOnly, SameSite=Strict, Path=/, Max-Age=3600", () => {
+        const cookie = buildViewAsCookie("tok");
+        expect(cookie).toContain("viewAs=tok;");
+        expect(cookie).toContain("HttpOnly");
+        expect(cookie).toContain("SameSite=Strict");
+        expect(cookie).toContain("Path=/");
+        expect(cookie).toContain("Max-Age=3600");
+    });
+
+    it("clearViewAsCookie sets Max-Age=0", () => {
+        const cookie = clearViewAsCookie();
+        expect(cookie).toContain("viewAs=;");
+        expect(cookie).toContain("Max-Age=0");
     });
 
     it("rejects an invalid JWT", async () => {

@@ -31,4 +31,4 @@ export const handler = apiHandler("POST", async (event) => {
     logger.info("Admin login success", {endpoint: requestEndpoint(event), ip: event.ip});
     const jwt = await signSession(user._id.toString());
     return okWithHeaders({success: true}, {"Set-Cookie": buildSessionCookie(jwt)});
-}, {maxRequests: 5, windowMs: 60000});
+}, {allowDuringViewAs: true, maxRequests: 5, windowMs: 60000});

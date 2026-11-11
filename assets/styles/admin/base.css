@@ -439,3 +439,15 @@ body:has(.admin-page) {
   border: 1px solid var(--frost-border);
   border-radius: var(--radius-md);
 }
+
+/* ── Portal shell (reuses dashboard sidebar styles) ─────────── */
+
+.admin-page .admin-portal-main {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+.admin-page .dashboard-section {
+  animation: none;
+}
