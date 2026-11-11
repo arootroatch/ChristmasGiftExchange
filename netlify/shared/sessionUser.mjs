@@ -14,7 +14,13 @@ export async function findUserById(id) {
 }
 
 // Resolves the real user behind the `session` cookie. Returns {user} or {error} (the 401 message).
+// Memoized on the event so the session user is looked up at most once per request.
 export async function getSessionUser(event) {
+    if (!event._sessionUser) event._sessionUser = await lookupSessionUser(event);
+    return event._sessionUser;
+}
+
+async function lookupSessionUser(event) {
     const cookies = parseCookies(event.headers?.cookie);
     if (!cookies.session) return {error: "Authentication required"};
 

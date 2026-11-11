@@ -2,11 +2,11 @@ import {verifyViewAs, parseCookies} from "./jwt.mjs";
 import {getSessionUser, findUserById} from "./sessionUser.mjs";
 
 async function lookupViewAs(event) {
-    const {user: admin} = await getSessionUser(event);
-    if (!admin || !process.env.ADMIN_EMAIL || admin.email !== process.env.ADMIN_EMAIL) return null;
-
     const token = parseCookies(event.headers?.cookie).viewAs;
     if (!token) return null;
+
+    const {user: admin} = await getSessionUser(event);
+    if (!admin || !process.env.ADMIN_EMAIL || admin.email !== process.env.ADMIN_EMAIL) return null;
 
     const payload = await verifyViewAs(token);
     if (!payload || payload.adminId !== admin._id.toString()) return null;

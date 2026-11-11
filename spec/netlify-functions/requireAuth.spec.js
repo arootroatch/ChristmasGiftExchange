@@ -1,7 +1,7 @@
 import {describe, it, expect, beforeAll, afterAll, afterEach, vi} from "vitest";
 import {setupMongo, teardownMongo, cleanCollections} from '../shared/mongoSetup.js';
 import {makeUser, seedUsers} from '../shared/testData.js';
-import {ObjectId} from "mongodb";
+import {ObjectId, Collection} from "mongodb";
 
 vi.mock("../../netlify/shared/logger.mjs");
 
@@ -124,6 +124,28 @@ describe("requireAuth with view-as", () => {
         expect(event.viewer).toBeUndefined();
     });
 
+    it("looks up the session user only once when there is no viewAs cookie", async () => {
+        await seedUsers(db, admin);
+        const event = {headers: {cookie: await cookieFor()}};
+        const findOne = vi.spyOn(Collection.prototype, "findOne");
+
+        await requireAuth(event);
+
+        expect(findOne).toHaveBeenCalledTimes(1);
+        findOne.mockRestore();
+    });
+
+    it("looks up the session user only once when view-as is active (plus the target)", async () => {
+        await seedUsers(db, admin, target);
+        const event = {headers: {cookie: await cookieFor(target._id.toString())}};
+        const findOne = vi.spyOn(Collection.prototype, "findOne");
+
+        await requireAuth(event);
+
+        expect(findOne).toHaveBeenCalledTimes(2);
+        findOne.mockRestore();
+    });
+
     it("uses the admin as event.user when the viewAs target no longer exists", async () => {
         await seedUsers(db, admin);
         const event = {headers: {cookie: await cookieFor(new ObjectId().toString())}};
@@ -232,6 +254,17 @@ describe("getOptionalUser with view-as", () => {
         delete process.env.JWT_SECRET;
         delete process.env.ADMIN_EMAIL;
         await teardownMongo(mongo);
+    });
+
+    it("looks up the session user only once when there is no viewAs cookie", async () => {
+        await seedUsers(db, admin);
+        const session = await signSession(admin._id.toString());
+        const findOne = vi.spyOn(Collection.prototype, "findOne");
+
+        await getOptionalUser({headers: {cookie: `session=${session}`}});
+
+        expect(findOne).toHaveBeenCalledTimes(1);
+        findOne.mockRestore();
     });
 
     it("returns the target when view-as is active", async () => {
