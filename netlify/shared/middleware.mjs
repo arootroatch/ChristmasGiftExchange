@@ -113,7 +113,7 @@ async function reportError(event, error) {
     } catch {}
 }
 
-export function apiHandler(method, fn, {auth = false, ...rateLimitConfig} = {}) {
+export function apiHandler(method, fn, {auth = false, admin = false, ...rateLimitConfig} = {}) {
     return async (event) => {
         const endpoint = requestEndpoint(event);
         const ip = extractClientIp(event);
@@ -132,7 +132,17 @@ export function apiHandler(method, fn, {auth = false, ...rateLimitConfig} = {}) 
                 return limited;
             }
 
-            if (auth) {
+            if (admin) {
+                const authError = await requireRealUser(event);
+                if (authError) {
+                    logger.warn("Auth failed", {endpoint, ip});
+                    return authError;
+                }
+                if (event.user.email !== process.env.ADMIN_EMAIL) {
+                    logger.warn("Admin check failed", {endpoint, ip});
+                    return forbidden("Forbidden");
+                }
+            } else if (auth) {
                 const authError = await requireAuth(event);
                 if (authError) {
                     logger.warn("Auth failed", {endpoint, ip});

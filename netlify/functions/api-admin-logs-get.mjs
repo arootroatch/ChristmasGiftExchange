@@ -1,12 +1,8 @@
 import {apiHandler} from "../shared/middleware.mjs";
 import {getLogsCollection} from "../shared/db.mjs";
-import {ok, forbidden} from "../shared/responses.mjs";
+import {ok} from "../shared/responses.mjs";
 
 export const handler = apiHandler("GET", async (event) => {
-    if (event.user.email !== process.env.ADMIN_EMAIL) {
-        return forbidden("Forbidden");
-    }
-
     const {level, endpoint, message, from, to, page = "1"} = event.queryStringParameters ?? {};
     const pageNum = Math.max(1, parseInt(page) || 1);
     const pageSize = 50;
@@ -38,4 +34,4 @@ export const handler = apiHandler("GET", async (event) => {
         logs, total, page: pageNum, pages: Math.ceil(total / pageSize), distinctEndpoints,
         range: {from: fromDate.toISOString(), to: toDate.toISOString()},
     });
-}, {auth: true});
+}, {admin: true});
