@@ -1,7 +1,7 @@
 import {afterAll, afterEach, beforeAll, describe, it, expect, vi} from 'vitest';
 import {setupMongo, teardownMongo, cleanCollections} from '../shared/mongoSetup.js';
 import {makeUser, seedUsers} from '../shared/testData.js';
-import {authCookie, buildEvent} from '../shared/specHelper.js';
+import {authCookie, viewAsCookie, buildEvent} from '../shared/specHelper.js';
 import {z} from "zod";
 
 vi.mock('../../netlify/shared/giverNotification.mjs', () => ({
@@ -161,17 +161,11 @@ describe("apiHandler read-only enforcement", () => {
         await teardownMongo(mongo);
     });
 
-    async function viewAsCookie(sessionUser = admin) {
-        const session = await signSession(sessionUser._id.toString());
-        const viewAs = await signViewAs(admin._id.toString(), target._id.toString());
-        return `session=${session}; viewAs=${viewAs}`;
-    }
-
     it("blocks a POST with 403 View-only mode while view-as is active", async () => {
         await seedUsers(db, admin, target);
         const fn = vi.fn();
         const handler = apiHandler("POST", fn, {auth: true});
-        const response = await handler(buildEvent("POST", {headers: {cookie: await viewAsCookie()}}));
+        const response = await handler(buildEvent("POST", {headers: {cookie: await viewAsCookie(admin._id, target._id)}}));
         expect(response.statusCode).toBe(403);
         expect(JSON.parse(response.body).error).toBe("View-only mode");
         expect(fn).not.toHaveBeenCalled();
@@ -181,7 +175,7 @@ describe("apiHandler read-only enforcement", () => {
         await seedUsers(db, admin, target);
         const fn = vi.fn(() => ({statusCode: 200, body: "{}"}));
         const handler = apiHandler("GET", fn, {auth: true});
-        const response = await handler(buildEvent("GET", {headers: {cookie: await viewAsCookie()}}));
+        const response = await handler(buildEvent("GET", {headers: {cookie: await viewAsCookie(admin._id, target._id)}}));
         expect(response.statusCode).toBe(200);
         expect(fn).toHaveBeenCalled();
     });
@@ -190,7 +184,7 @@ describe("apiHandler read-only enforcement", () => {
         await seedUsers(db, admin, target);
         const fn = vi.fn(() => ({statusCode: 200, body: "{}"}));
         const handler = apiHandler("POST", fn, {allowDuringViewAs: true});
-        const response = await handler(buildEvent("POST", {headers: {cookie: await viewAsCookie()}}));
+        const response = await handler(buildEvent("POST", {headers: {cookie: await viewAsCookie(admin._id, target._id)}}));
         expect(response.statusCode).toBe(200);
         expect(fn).toHaveBeenCalled();
     });
@@ -205,7 +199,7 @@ describe("apiHandler read-only enforcement", () => {
         await seedUsers(db, admin, target);
         const fn = vi.fn(() => ({statusCode: 200, body: "{}"}));
         const handler = apiHandler("POST", fn, {admin: true});
-        const response = await handler(buildEvent("POST", {headers: {cookie: await viewAsCookie()}}));
+        const response = await handler(buildEvent("POST", {headers: {cookie: await viewAsCookie(admin._id, target._id)}}));
         expect(response.statusCode).toBe(200);
         expect(fn).toHaveBeenCalled();
     });
@@ -214,7 +208,7 @@ describe("apiHandler read-only enforcement", () => {
         await seedUsers(db, admin, target, regular);
         const fn = vi.fn(() => ({statusCode: 200, body: "{}"}));
         const handler = apiHandler("POST", fn, {auth: true});
-        const response = await handler(buildEvent("POST", {headers: {cookie: await viewAsCookie(regular)}}));
+        const response = await handler(buildEvent("POST", {headers: {cookie: await viewAsCookie(regular._id, target._id)}}));
         expect(response.statusCode).toBe(200);
         expect(fn).toHaveBeenCalled();
     });

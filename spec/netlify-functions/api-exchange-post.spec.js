@@ -1,7 +1,7 @@
 import {afterAll, afterEach, beforeAll, describe, expect, it, vi} from 'vitest';
 import {setupMongo, teardownMongo, cleanCollections} from '../shared/mongoSetup.js';
 import {makeUser, seedUsers} from '../shared/testData.js';
-import {authCookie, buildEvent} from '../shared/specHelper.js';
+import {authCookie, viewAsCookie, buildEvent} from '../shared/specHelper.js';
 
 vi.mock('../../netlify/shared/logger.mjs');
 import {logger} from '../../netlify/shared/logger.mjs';
@@ -82,13 +82,10 @@ describe('api-exchange-post', () => {
     it('returns 403 and creates no exchange while admin is viewing as a user', async () => {
         process.env.ADMIN_EMAIL = 'admin@test.com';
         try {
-            const {signSession, signViewAs} = await import('../../netlify/shared/jwt.mjs');
             const admin = makeUser({name: 'Admin', email: 'admin@test.com'});
             const target = makeUser({name: 'Target', email: 'target@test.com'});
             await seedUsers(db, admin, target);
-            const session = await signSession(admin._id.toString());
-            const viewAs = await signViewAs(admin._id.toString(), target._id.toString());
-            const event = buildEvent('POST', {body: exchangePayload, path: postPath, headers: {cookie: `session=${session}; viewAs=${viewAs}`}});
+            const event = buildEvent('POST', {body: exchangePayload, path: postPath, headers: {cookie: await viewAsCookie(admin._id, target._id)}});
             const response = await handler(event);
 
             expect(response.statusCode).toBe(403);
