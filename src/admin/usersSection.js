@@ -54,11 +54,17 @@ function usersTable(users) {
 }
 
 async function viewAs(userId) {
-    const res = await fetch('/.netlify/functions/api-admin-view-as-post', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({userId}),
-    });
+    let res;
+    try {
+        res = await fetch('/.netlify/functions/api-admin-view-as-post', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({userId}),
+        });
+    } catch {
+        snackbar.showError('Failed to view as user');
+        return;
+    }
     if (!res.ok) {
         let message = 'Failed to view as user';
         try { message = (await res.json()).error || message; } catch { /* keep default */ }
@@ -73,7 +79,13 @@ let latestRequest = 0;
 async function loadUsers(q) {
     const requestId = ++latestRequest;
     const target = selectElement('#users-container');
-    const res = await fetch(`/.netlify/functions/api-admin-users-get?q=${encodeURIComponent(q)}`);
+    let res;
+    try {
+        res = await fetch(`/.netlify/functions/api-admin-users-get?q=${encodeURIComponent(q)}`);
+    } catch {
+        if (requestId === latestRequest) snackbar.showError('Failed to load users');
+        return;
+    }
     if (requestId !== latestRequest) return;
     if (res.status === 403) {
         target.innerHTML = '<div class="admin-empty">Access denied.</div>';

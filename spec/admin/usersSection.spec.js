@@ -78,6 +78,41 @@ describe('usersSection', () => {
     expect(locationMock.href).toBe('');
   });
 
+  it('shows an error when the search fetch is rejected', async () => {
+    globalThis.fetch = vi.fn(() => Promise.reject(new Error('offline')));
+    render(container());
+    await vi.waitFor(() => expect(document.body.textContent).toContain('Failed to load users'));
+  });
+
+  it('does not show an error when a superseded search fetch is rejected', async () => {
+    const rejecters = {};
+    globalThis.fetch = vi.fn((url) => new Promise((resolve, reject) => {
+      const q = decodeURIComponent(url.split('q=')[1]);
+      rejecters[q] = {resolve, reject};
+    }));
+    render(container());
+    const input = container().querySelector('input[type="search"]');
+    input.value = 'al';
+    input.dispatchEvent(new Event('input'));
+    await vi.waitFor(() => expect(rejecters.al).toBeDefined());
+    rejecters.al.resolve(json({users: [user({name: 'Alan'})]}));
+    await vi.waitFor(() => expect(container().textContent).toContain('Alan'));
+    rejecters[''].reject(new Error('offline'));
+    await flush();
+    expect(document.body.textContent).not.toContain('Failed to load users');
+  });
+
+  it('shows an error and stays put when the View as request is rejected', async () => {
+    globalThis.fetch = vi.fn((url) => url.includes('api-admin-users-get')
+      ? Promise.resolve(json({users: [user()]}))
+      : Promise.reject(new Error('offline')));
+    render(container());
+    await vi.waitFor(() => expect(container().querySelector('[data-user-id]')).not.toBeNull());
+    container().querySelector('[data-user-id="u1"]').click();
+    await vi.waitFor(() => expect(document.body.textContent).toContain('Failed to view as user'));
+    expect(locationMock.href).toBe('');
+  });
+
   it("disables View as on the admin's own row", async () => {
     stubFetch([user({_id: 'a', isAdmin: true}), user()]);
     render(container());

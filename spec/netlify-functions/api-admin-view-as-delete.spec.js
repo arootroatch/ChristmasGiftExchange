@@ -1,7 +1,7 @@
 import {describe, it, expect, beforeAll, afterAll, afterEach, vi} from "vitest";
 import {setupMongo, teardownMongo, cleanCollections} from '../shared/mongoSetup.js';
 import {makeUser, seedUsers} from "../shared/testData.js";
-import {authCookie, buildEvent} from "../shared/specHelper.js";
+import {authCookie, buildEvent, viewAsCookie} from "../shared/specHelper.js";
 
 vi.mock("../../netlify/shared/logger.mjs", () => ({
     logger: {
@@ -59,6 +59,22 @@ describe("api-admin-view-as-delete", () => {
     it("logs that view-as ended", async () => {
         await seedUsers(db, admin);
         await del(admin);
-        expect(logger.info).toHaveBeenCalledWith("View-as ended", expect.any(Object));
+        expect(logger.info).toHaveBeenCalledWith("View-as ended", expect.objectContaining({
+            adminId: admin._id.toString(),
+            adminEmail: "admin@example.com",
+        }));
+        expect(logger.info.mock.calls[0][1]).not.toHaveProperty("targetUserId");
+    });
+
+    it("clears the cookie and logs the target when a viewAs cookie is active", async () => {
+        await seedUsers(db, admin, regularUser);
+        const response = await handler(buildEvent("DELETE", {headers: {cookie: await viewAsCookie(admin._id, regularUser._id)}}));
+        expect(response.statusCode).toBe(200);
+        expect(response.headers["Set-Cookie"]).toContain("Max-Age=0");
+        expect(logger.info).toHaveBeenCalledWith("View-as ended", expect.objectContaining({
+            adminId: admin._id.toString(),
+            adminEmail: "admin@example.com",
+            targetUserId: regularUser._id.toString(),
+        }));
     });
 });

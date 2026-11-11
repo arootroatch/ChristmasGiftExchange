@@ -102,6 +102,12 @@ function showAuthGate() {
             snackbar.showError('Invalid code. Try again.');
             return;
         }
+        try {
+            await loadSession();
+            viewAsBanner.init();
+        } catch {
+            // banner is optional; the portal still works without it
+        }
         initDashboard();
     });
 }

@@ -1,4 +1,5 @@
 import {getViewingAs} from "./session.js";
+import * as snackbar from "./Snackbar.js";
 import {escape, selectElement} from "./utils.js";
 import styles from '../assets/styles/components/viewAsBanner.module.css';
 
@@ -12,13 +13,19 @@ function template({name, email}) {
 }
 
 async function exitViewAs() {
-  await fetch("/.netlify/functions/api-admin-view-as-delete", {method: "DELETE"});
+  try {
+    const res = await fetch("/.netlify/functions/api-admin-view-as-delete", {method: "DELETE"});
+    if (!res.ok) throw new Error("Exit failed");
+  } catch {
+    snackbar.showError("Failed to exit view-as mode. Try again.");
+    return;
+  }
   window.location.href = "/admin/users";
 }
 
 export function init() {
   const viewingAs = getViewingAs();
-  if (!viewingAs) return;
+  if (!viewingAs || document.getElementById(bannerId)) return;
   document.body.insertAdjacentHTML("afterbegin", template(viewingAs));
   selectElement(`#${bannerId} button`).addEventListener("click", exitViewAs);
 }

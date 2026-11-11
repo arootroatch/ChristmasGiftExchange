@@ -5,6 +5,7 @@ vi.mock("../src/session.js", () => ({
 }));
 
 import {getViewingAs} from "../src/session.js";
+import * as snackbar from "../src/Snackbar.js";
 import {init} from "../src/ViewAsBanner.js";
 
 describe("ViewAsBanner", () => {
@@ -43,6 +44,33 @@ describe("ViewAsBanner", () => {
     document.querySelector("#view-as-banner button").click();
     await vi.waitFor(() => expect(locationMock.href).toBe("/admin/users"));
     expect(globalThis.fetch).toHaveBeenCalledWith("/.netlify/functions/api-admin-view-as-delete", {method: "DELETE"});
+  });
+
+  it("stays on the page and shows an error when exit fails", async () => {
+    snackbar.init();
+    getViewingAs.mockReturnValue({name: "Jane", email: "jane@x.com"});
+    globalThis.fetch = vi.fn(() => Promise.resolve({ok: false}));
+    init();
+    document.querySelector("#view-as-banner button").click();
+    await vi.waitFor(() => expect(document.body.textContent).toContain("Failed to exit"));
+    expect(locationMock.href).toBe("");
+  });
+
+  it("stays on the page and shows an error when the exit request is rejected", async () => {
+    snackbar.init();
+    getViewingAs.mockReturnValue({name: "Jane", email: "jane@x.com"});
+    globalThis.fetch = vi.fn(() => Promise.reject(new Error("offline")));
+    init();
+    document.querySelector("#view-as-banner button").click();
+    await vi.waitFor(() => expect(document.body.textContent).toContain("Failed to exit"));
+    expect(locationMock.href).toBe("");
+  });
+
+  it("does not insert a second banner when init is called twice", () => {
+    getViewingAs.mockReturnValue({name: "Jane", email: "jane@x.com"});
+    init();
+    init();
+    expect(document.querySelectorAll("#view-as-banner").length).toBe(1);
   });
 
   it("escapes the name", () => {

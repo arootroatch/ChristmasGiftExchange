@@ -89,6 +89,8 @@ describe("api-admin-view-as-post", () => {
         expect(logger.info).toHaveBeenCalledWith("View-as started", expect.objectContaining({
             targetUserId: target._id.toString(),
             targetEmail: "target@example.com",
+            adminId: admin._id.toString(),
+            adminEmail: "admin@example.com",
         }));
     });
 

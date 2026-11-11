@@ -78,4 +78,24 @@ describe('Admin portal', () => {
     expect(document.querySelector('#admin-send-code')).not.toBeNull();
     expect(document.querySelector('.nav-item')).toBeNull();
   });
+
+  it('shows the view-as banner after logging in through the gate', async () => {
+    let loggedIn = false;
+    globalThis.fetch = vi.fn((url) => {
+      if (url.includes('api-user-get')) {
+        return Promise.resolve(json(loggedIn ? {name: 'Admin', email: 'a@test.com', viewingAs: {name: 'Jane', email: 'jane@x.com'}} : null));
+      }
+      if (url.includes('api-admin-verify-post')) { loggedIn = true; return Promise.resolve(json({success: true})); }
+      if (url.includes('api-admin-logs-get')) return Promise.resolve(json({logs: [], distinctEndpoints: [], page: 1, totalPages: 1, total: 0}));
+      if (url.includes('api-admin-users-get')) return Promise.resolve(json({users: []}));
+      return Promise.resolve(json({logLevel: 'warn'}));
+    });
+    await loadMain();
+    expect(document.querySelector('#view-as-banner')).toBeNull();
+    document.querySelector('#admin-code').value = '123456';
+    document.querySelector('#admin-verify-code').click();
+    await vi.waitFor(() => expect(document.querySelector('#view-as-banner')).not.toBeNull());
+    expect(document.querySelectorAll('#view-as-banner').length).toBe(1);
+    expect(document.querySelector('.nav-item')).not.toBeNull();
+  });
 });

@@ -22,6 +22,6 @@ export const handler = apiHandler("POST", async (event) => {
     if (targetUserId === adminId) return badRequest("Cannot view as yourself");
 
     const jwt = await signViewAs(adminId, targetUserId);
-    logger.info("View-as started", {endpoint: requestEndpoint(event), ip: event.ip, targetUserId, targetEmail: target.email});
+    logger.info("View-as started", {endpoint: requestEndpoint(event), ip: event.ip, adminId, adminEmail: event.user.email, targetUserId, targetEmail: target.email});
     return okWithHeaders({success: true}, {"Set-Cookie": buildViewAsCookie(jwt)});
 }, {admin: true, maxRequests: 10, windowMs: 60000});
