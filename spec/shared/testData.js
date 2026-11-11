@@ -25,6 +25,16 @@ export function makeExchange({exchangeId, organizer, participants, assignments, 
     };
 }
 
+export function makeLinkExchange({exchangeId, organizer, createdAt, participants, houses} = {}) {
+    return {
+        exchangeId: exchangeId ?? crypto.randomUUID(),
+        organizer: organizer ?? new ObjectId(),
+        createdAt: createdAt ?? new Date(),
+        participants: participants ?? [],
+        houses: houses ?? [],
+    };
+}
+
 //endregion
 
 //region Shared Test Data
@@ -90,6 +100,10 @@ export function seedUsers(db, ...users) {
 
 export function seedExchange(db, exchange) {
     return db.collection('exchanges').insertOne(exchange);
+}
+
+export function seedLinkExchange(db, exchange) {
+    return db.collection('linkExchanges').insertOne(exchange);
 }
 
 export function findUser(db, query) {

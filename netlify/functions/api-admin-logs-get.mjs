@@ -1,5 +1,6 @@
 import {apiHandler} from "../shared/middleware.mjs";
 import {getLogsCollection} from "../shared/db.mjs";
+import {escapeRegex} from "../shared/regex.mjs";
 import {ok} from "../shared/responses.mjs";
 
 export const handler = apiHandler("GET", async (event) => {
@@ -13,11 +14,11 @@ export const handler = apiHandler("GET", async (event) => {
     const query = {timestamp: {$gte: fromDate, $lte: toDate}};
     if (level) query.level = level;
     if (endpoint) {
-        const escaped = endpoint.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const escaped = escapeRegex(endpoint);
         query.endpoint = {$regex: escaped, $options: "i"};
     }
     if (message) {
-        const escaped = message.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const escaped = escapeRegex(message);
         query.message = {$regex: escaped, $options: "i"};
     }
 
