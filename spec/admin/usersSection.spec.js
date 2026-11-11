@@ -93,4 +93,22 @@ describe('usersSection', () => {
     expect(container().querySelector('tbody img')).toBeNull();
     expect(container().querySelector('tbody tr').textContent).toContain('<img src=x');
   });
+
+  it('ignores a stale response that resolves after a newer one', async () => {
+    const pending = {};
+    globalThis.fetch = vi.fn((url) => new Promise((resolve) => {
+      pending[decodeURIComponent(url.split('q=')[1])] = resolve;
+    }));
+    render(container());
+    const input = container().querySelector('input[type="search"]');
+    input.value = 'al';
+    input.dispatchEvent(new Event('input'));
+    await vi.waitFor(() => expect(pending.al).toBeDefined());
+    pending.al(json({users: [user({name: 'Alan'})]}));
+    await vi.waitFor(() => expect(container().textContent).toContain('Alan'));
+    pending[''](json({users: [user({name: 'Everyone'})]}));
+    await flush();
+    expect(container().textContent).toContain('Alan');
+    expect(container().textContent).not.toContain('Everyone');
+  });
 });

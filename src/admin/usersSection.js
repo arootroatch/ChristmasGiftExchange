@@ -68,9 +68,13 @@ async function viewAs(userId) {
     window.location.href = '/dashboard';
 }
 
+let latestRequest = 0;
+
 async function loadUsers(q) {
+    const requestId = ++latestRequest;
     const target = selectElement('#users-container');
     const res = await fetch(`/.netlify/functions/api-admin-users-get?q=${encodeURIComponent(q)}`);
+    if (requestId !== latestRequest) return;
     if (res.status === 403) {
         target.innerHTML = '<div class="admin-empty">Access denied.</div>';
         return;
@@ -80,6 +84,7 @@ async function loadUsers(q) {
         return;
     }
     const {users} = await res.json();
+    if (requestId !== latestRequest) return;
     target.innerHTML = usersTable(users);
 }
 
