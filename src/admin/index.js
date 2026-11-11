@@ -2,56 +2,50 @@
 import '../../assets/styles/main.css';
 import * as snackbar from '../Snackbar.js';
 import {loadSession} from '../session.js';
-import {renderFilters, getFilterValues, populateEndpoints} from './logFilters.js';
-import {renderTable} from './logTable.js';
-import {renderLogLevelControl} from './logLevelControl.js';
+import * as logsSection from './logsSection.js';
+import {sectionFromPath, sidebarNavItemsTemplate, sectionContainersTemplate, initSidebarNav} from '../sidebarNav.js';
 import {selectElement, addEventListener} from '../utils.js';
 
+const SECTIONS = ['logs', 'users'];
+const LABELS = {logs: 'Logs', users: 'Users'};
+const RENDERERS = {logs: logsSection.render};
+
 function adminLayout() {
+    const active = sectionFromPath(SECTIONS, 'logs');
     return `
-        <header class="admin-header">
-            <h1>Admin Logs</h1>
-            <span class="admin-header-badge">Admin</span>
-        </header>
-        <main class="admin-main">
-            <div class="admin-toolbar">
-                <div id="filters-container"></div>
-                <div id="log-level-container"></div>
-            </div>
-            <div id="logs-container"></div>
-        </main>`;
-}
-
-async function loadLogs() {
-    const {level, endpoint, message, from, to, page} = getFilterValues();
-    const params = new URLSearchParams();
-    if (level) params.set('level', level);
-    if (endpoint) params.set('endpoint', endpoint);
-    if (message) params.set('message', message);
-    if (from) params.set('from', from);
-    if (to) params.set('to', to);
-    params.set('page', String(page));
-
-    const res = await fetch(`/.netlify/functions/api-admin-logs-get?${params}`);
-    if (res.status === 403) {
-        selectElement('#admin-content').innerHTML = '<div class="admin-empty">Access denied.</div>';
-        return;
-    }
-    if (!res.ok) {
-        snackbar.showError('Failed to load logs');
-        return;
-    }
-    const data = await res.json();
-    renderTable(data, loadLogs);
-    populateEndpoints(data.distinctEndpoints || []);
+        <div class="hamburger-bar">
+            <button class="hamburger-btn" id="hamburger-btn" aria-label="Toggle menu">&#9776;</button>
+            <span class="dashboard-welcome"><strong>Admin</strong> Portal</span>
+        </div>
+        <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+        <div class="dashboard-layout">
+            <nav class="dashboard-sidebar" id="dashboard-sidebar">
+                <a class="sidebar-title" href="/"><img src="/favicon-32x32.png" alt="" width="24" height="24"> Gift Exchange Generator</a>
+                <div class="sidebar-welcome"><strong>Admin</strong> Portal</div>
+                <div class="sidebar-nav">
+                    ${sidebarNavItemsTemplate(SECTIONS, LABELS, active)}
+                    <a class="sidebar-back" href="/">Back to Exchange Generator</a>
+                </div>
+            </nav>
+            <main class="dashboard-main admin-portal-main">
+                ${sectionContainersTemplate(SECTIONS, active)}
+            </main>
+        </div>`;
 }
 
 function initDashboard() {
-    const content = selectElement('#admin-content');
-    content.innerHTML = adminLayout();
-    renderLogLevelControl(selectElement('#log-level-container'));
-    renderFilters(selectElement('#filters-container'), loadLogs);
-    loadLogs();
+    selectElement('#admin-content').innerHTML = adminLayout();
+    const rendered = new Set();
+    initSidebarNav({
+        sections: SECTIONS,
+        basePath: '/admin',
+        fallback: 'logs',
+        onShow: (sectionId) => {
+            if (rendered.has(sectionId)) return;
+            rendered.add(sectionId);
+            RENDERERS[sectionId]?.(selectElement(`#section-${sectionId}`));
+        },
+    });
 }
 
 function adminGateTemplate() {

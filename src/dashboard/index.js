@@ -1,11 +1,12 @@
 import btnStyles from '../../assets/styles/dashboard/components/buttons.module.css';
 import authGateStyles from '../../assets/styles/dashboard/components/auth-gate.module.css';
 import modalStyles from '../../assets/styles/dashboard/components/modal.module.css';
-import {apiFetch, selectElement, selectElements, addEventListener} from '../utils.js';
+import {apiFetch, selectElement, addEventListener} from '../utils.js';
 import * as snackbar from '../Snackbar.js';
 import * as cookieBanner from '../CookieBanner.js';
 import {authGateTemplate, initAuthGate} from '../authGate.js';
 import {loadSession, clearSession} from '../session.js';
+import {sectionFromPath, sidebarNavItemsTemplate, sectionContainersTemplate, initSidebarNav} from '../sidebarNav.js';
 import {setUserData, setRecipientData, isDirty, dashboardEvents, DashboardEvents} from './state.js';
 import * as recipientCard from './components/RecipientCard.js';
 import * as wishlistSection from './components/WishlistSection.js';
@@ -28,81 +29,28 @@ function dashboardLayout(userName) {
         <a class="sidebar-title" href="/"><img src="/favicon-32x32.png" alt="" width="24" height="24"> Gift Exchange Generator</a>
         <div class="sidebar-welcome"><strong>${userName}'s</strong> Dashboard</div>
         <div class="sidebar-nav">
-          ${SECTIONS.map(s =>
-            `<a class="nav-item${s === defaultSection() ? ' active' : ''}" data-section="${s}">${LABELS[s]}</a>`
-          ).join('')}
+          ${sidebarNavItemsTemplate(SECTIONS, LABELS, defaultSection())}
           <a class="sidebar-back" href="/">Back to Exchange Generator</a>
         </div>
         <a class="sidebar-logout" id="sidebar-logout" href="#">Log out</a>
       </nav>
       <main class="dashboard-main">
-        ${SECTIONS.map(s =>
-          `<div class="dashboard-section" id="section-${s}"${s !== defaultSection() ? ' hidden' : ''}></div>`
-        ).join('')}
+        ${sectionContainersTemplate(SECTIONS, defaultSection())}
       </main>
     </div>`;
 }
 
 function defaultSection() {
-  const segment = window.location.pathname.split('/').filter(Boolean).pop();
-  return SECTIONS.includes(segment) && segment !== 'dashboard' ? segment : 'recipient';
+  return sectionFromPath(SECTIONS, 'recipient');
 }
 
 function initNavigation() {
-  selectElements('.nav-item').forEach(item => {
-    item.addEventListener('click', () => navigate(item.dataset.section));
+  initSidebarNav({
+    sections: SECTIONS,
+    basePath: '/dashboard',
+    fallback: 'recipient',
+    guard: (proceed) => isDirty() ? showUnsavedModal(proceed) : proceed(),
   });
-
-  const hamburger = selectElement('#hamburger-btn');
-  const backdrop = selectElement('#sidebar-backdrop');
-  const sidebar = selectElement('#dashboard-sidebar');
-
-  hamburger.addEventListener('click', () => {
-    sidebar.classList.toggle('open');
-    backdrop.classList.toggle('open');
-  });
-
-  backdrop.addEventListener('click', () => {
-    sidebar.classList.remove('open');
-    backdrop.classList.remove('open');
-  });
-
-  window.addEventListener('popstate', () => {
-    const section = defaultSection();
-    showSection(section);
-  });
-}
-
-function showSection(sectionId) {
-  SECTIONS.forEach(s => {
-    selectElement(`#section-${s}`).hidden = s !== sectionId;
-  });
-
-  selectElements('.nav-item').forEach(item => {
-    item.classList.toggle('active', item.dataset.section === sectionId);
-  });
-}
-
-function navigate(sectionId) {
-  if (isDirty()) {
-    showUnsavedModal(() => doNavigate(sectionId));
-    return;
-  }
-  doNavigate(sectionId);
-}
-
-function doNavigate(sectionId) {
-  showSection(sectionId);
-
-  try {
-    history.pushState(null, '', `/dashboard/${sectionId}`);
-  } catch {
-    // history.pushState may not be available in all environments
-  }
-
-  // Close mobile sidebar
-  selectElement('#dashboard-sidebar').classList.remove('open');
-  selectElement('#sidebar-backdrop').classList.remove('open');
 }
 
 function showUnsavedModal(onLeave) {
