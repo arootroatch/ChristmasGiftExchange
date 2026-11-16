@@ -45,6 +45,13 @@ describe("instructions", () => {
   });
 
   describe("exchange started", () => {
+    it("hides the home page guide so it doesn't sit below the exchange", () => {
+      document.body.insertAdjacentHTML("beforeend", '<main id="home-guide"></main>');
+      startExchange(false);
+      expect(document.querySelector("#home-guide").hidden).toBe(true);
+      document.querySelector("#home-guide").remove();
+    });
+
     it("removes intro block from DOM after exchange starts", () => {
       startExchange(false);
       expect(document.querySelector("#intro")).toBeNull();

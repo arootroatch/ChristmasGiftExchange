@@ -87,7 +87,7 @@ describe("firstScreenTemplates", () => {
     });
 
     it("keeps the privacy note", () => {
-      expect(introTemplate()).toContain("your information will never be shared");
+      expect(introTemplate()).toContain("your information will never be sold");
     });
   });
 

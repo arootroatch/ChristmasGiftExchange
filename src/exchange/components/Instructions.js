@@ -28,6 +28,8 @@ function onExchangeStarted({isSecretSanta, isReuse}) {
   }
   const slot = selectElement('[data-slot="instructions"]');
   if (slot) slot.innerHTML = "";
+  const guide = selectElement("#home-guide");
+  if (guide) guide.hidden = true;
 }
 
 export function render() {

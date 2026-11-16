@@ -31,7 +31,7 @@ export function introTemplate(styles = {}) {
       ${modeCard(styles, "letsGo", "Quick Match", "See the full list right away. Draw again as many times as you like, then (optionally) email the results to yourself or to the participants. Good for grab bags or when keeping it secret doesn't matter.", {tag: noContactInfoTag})}
     </div>
     <p>
-      This site will always be free to use and your information will never be shared.
+      This site will always be free to use and your information will never be sold.
     </p>
   </div>`;
 }

@@ -33,6 +33,14 @@ describe("prerenderPlugin", () => {
       expect(result).toContain('data-slot="dashboard-link"><div class="dashboardLink"');
     });
 
+    it("fills the site footer slot on any page", async () => {
+      const pageHtml = `<html><head><meta charset="UTF-8"></head><body><div data-slot="site-footer"></div></body></html>`;
+      const result = await plugin.transformIndexHtml(pageHtml, {path: "/pages/privacy/index.html"});
+      expect(result).toContain('<a href="/privacy">');
+      expect(result).toContain('<a href="/family-gift-exchange">');
+      expect(result).toContain('<a href="/office-secret-santa">');
+    });
+
     it("does not inject templates into non-index pages", async () => {
       const pageHtml = `<html><head><meta charset="UTF-8"><title>Other</title><meta name="description" content="Other page."></head><body></body></html>`;
       const result = await plugin.transformIndexHtml(pageHtml, {path: "/pages/reuse/index.html"});
