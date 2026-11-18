@@ -12,6 +12,7 @@ const emailTableBodyId = "emailTableBody";
 const hideEmailsId = "hideEmails";
 const submitEmailsId = "submitEmails";
 const sendResultsBtnId = "sendResultsBtn";
+const twoColumnThreshold = 10;
 
 export function init() {
   stateEvents.on(Events.ORGANIZER_SET, (state) => {
@@ -28,10 +29,12 @@ export function init() {
 
 function template({participants, heading, showDismiss = false, showSendResults = false}) {
   return `
-    <div id="${emailTableId}" class="${dialogStyles.emailTable} show">
+    <div id="${emailTableId}" class="${dialogStyles.emailTable}${participants.length > twoColumnThreshold ? ` ${dialogStyles.twoColumn}` : ""} show">
       <h3>${heading}</h3>
       <form id="${emailTableBodyId}">
-      ${participants.map((participant, i) => emailInput(participant, i)).join("")}
+        <div class="${dialogStyles.emailFields}">
+          ${participants.map((participant, i) => emailInput(participant, i)).join("")}
+        </div>
         <div id="emailBtnDiv" class="${dialogStyles.emailBtnDiv}">
           ${showDismiss ? `<button class="${btnStyles.button} ${confirmStyles.hideEmails}" id="${hideEmailsId}">Dismiss</button>` : ""}
           <button type="submit" class="${btnStyles.button}" id="${submitEmailsId}">Submit Emails</button>

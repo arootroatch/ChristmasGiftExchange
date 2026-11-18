@@ -15,7 +15,27 @@
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--frost-border);
   box-shadow: var(--shadow-popup);
-  overflow: hidden;
+  max-height: calc(100vh - 40px);
+  max-height: calc(100dvh - 40px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.twoColumn {
+  width: min(900px, calc(100vw - 40px));
+}
+
+.twoColumn .emailFields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 16px;
+}
+
+@media screen and (max-width: 760px) {
+  .twoColumn .emailFields {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 .emailTable h3 {

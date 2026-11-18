@@ -423,6 +423,21 @@ describe('emailTable', () => {
       expect(table.textContent).toContain("Alex");
     });
 
+    it("uses a single column for 10 or fewer participants", () => {
+      const participants = Array.from({length: 10}, (_, i) => ({name: `P${i}`}));
+      renderWithSubset(participants, []);
+
+      expect(document.querySelector("#emailTable").classList.contains(dialogStyles.twoColumn)).toBe(false);
+    });
+
+    it("uses two columns for more than 10 participants", () => {
+      const participants = Array.from({length: 11}, (_, i) => ({name: `P${i}`}));
+      renderWithSubset(participants, []);
+
+      expect(document.querySelector("#emailTable").classList.contains(dialogStyles.twoColumn)).toBe(true);
+      expect(document.querySelectorAll(`#emailTable .${dialogStyles.emailFields} .emailInput`).length).toBe(11);
+    });
+
     it("does not show the Send Me the Results section", () => {
       renderWithSubset(subsetParticipants, subsetAssignments);
 
