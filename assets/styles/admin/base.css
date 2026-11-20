@@ -451,3 +451,8 @@ body:has(.admin-page) {
 .admin-page .dashboard-section {
   animation: none;
 }
+
+.admin-users-search {
+  flex: 1 1 320px;
+  max-width: 480px;
+}
