@@ -5,6 +5,7 @@ import * as navbar from "../Navbar.js";
 import * as cookieBanner from "../CookieBanner.js";
 import {bmcButtonHtml} from "../BmcButton.js";
 import {loadSession} from "../session.js";
+import * as viewAsBanner from "../ViewAsBanner.js";
 import cardStyles from '../../assets/styles/dashboard/components/cards.module.css';
 import btnStyles from '../../assets/styles/dashboard/components/buttons.module.css';
 
@@ -121,6 +122,7 @@ function refetchAfterDrawError(exchangeId, msg) {
 
 async function initNavbar() {
   try { await loadSession(); } catch { /* not logged in — the navbar just omits the user */ }
+  viewAsBanner.init();
   navbar.init();
 }
 

@@ -24,6 +24,11 @@
   [redirects.query]
 
 [[redirects]]
+  from = "/admin/*"
+  to = "/admin/index.html"
+  status = 200
+
+[[redirects]]
   from = "/dashboard/*"
   to = "/dashboard/index.html"
   status = 200

@@ -277,6 +277,13 @@ export async function authCookie(userId) {
     return `session=${jwt}`;
 }
 
+export async function viewAsCookie(adminId, targetUserId) {
+    const {signSession, signViewAs} = await import("../../netlify/shared/jwt.mjs");
+    const session = await signSession(adminId.toString());
+    const viewAs = await signViewAs(adminId.toString(), targetUserId.toString());
+    return `session=${session}; viewAs=${viewAs}`;
+}
+
 export function buildEvent(httpMethod, {body, path, queryStringParameters, headers} = {}) {
     return {
         httpMethod,

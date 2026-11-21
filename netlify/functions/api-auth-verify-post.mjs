@@ -48,4 +48,4 @@ export const handler = apiHandler("POST", async (event) => {
         {success: true, name: user.name},
         {"Set-Cookie": buildSessionCookie(jwt)}
     );
-}, {maxRequests: 5, windowMs: 60000});
+}, {allowDuringViewAs: true, maxRequests: 5, windowMs: 60000});

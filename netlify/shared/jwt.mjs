@@ -1,6 +1,7 @@
 import {SignJWT, jwtVerify} from "jose";
 
 const SESSION_MAX_AGE = 172800; // 48 hours in seconds
+const VIEW_AS_MAX_AGE = 3600; // 1 hour in seconds
 
 function getSecret() {
     return new TextEncoder().encode(process.env.JWT_SECRET);
@@ -17,7 +18,24 @@ export async function signSession(userId) {
 export async function verifySession(token) {
     try {
         const {payload} = await jwtVerify(token, getSecret());
-        return payload;
+        return payload.type === "viewAs" ? null : payload;
+    } catch {
+        return null;
+    }
+}
+
+export async function signViewAs(adminId, targetUserId) {
+    return new SignJWT({type: "viewAs", adminId, targetUserId})
+        .setProtectedHeader({alg: "HS256"})
+        .setIssuedAt()
+        .setExpirationTime(`${VIEW_AS_MAX_AGE}s`)
+        .sign(getSecret());
+}
+
+export async function verifyViewAs(token) {
+    try {
+        const {payload} = await jwtVerify(token, getSecret());
+        return payload.type === "viewAs" ? payload : null;
     } catch {
         return null;
     }
@@ -33,6 +51,14 @@ export function buildSessionCookie(jwt) {
 
 export function clearSessionCookie() {
     return `session=; HttpOnly${secureFlag()}; SameSite=Strict; Path=/; Max-Age=0`;
+}
+
+export function buildViewAsCookie(jwt) {
+    return `viewAs=${jwt}; HttpOnly${secureFlag()}; SameSite=Strict; Path=/; Max-Age=${VIEW_AS_MAX_AGE}`;
+}
+
+export function clearViewAsCookie() {
+    return `viewAs=; HttpOnly${secureFlag()}; SameSite=Strict; Path=/; Max-Age=0`;
 }
 
 export function parseCookies(cookieHeader) {

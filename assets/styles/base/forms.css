@@ -14,6 +14,7 @@ select,
 input[type="email"],
 input[type="url"],
 input[type="text"],
+input[type="search"],
 input[type="tel"],
 input[type="number"],
 textarea {
@@ -27,6 +28,16 @@ textarea {
   box-shadow: var(--shadow-input);
   transition: border-color 0.2s, box-shadow 0.2s;
   box-sizing: border-box;
+}
+
+input[type="search"] {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+input[type="search"]::-webkit-search-cancel-button {
+  filter: invert(0.85);
+  cursor: pointer;
 }
 
 input::placeholder, textarea::placeholder {

@@ -1,7 +1,7 @@
 import {describe, it, expect, beforeAll, afterAll, afterEach} from "vitest";
 import {setupMongo, teardownMongo, cleanCollections} from '../shared/mongoSetup.js';
 import {makeUser, alex, seedUsers} from "../shared/testData.js";
-import {authCookie, buildEvent} from "../shared/specHelper.js";
+import {authCookie, viewAsCookie, buildEvent} from "../shared/specHelper.js";
 
 describe("api-user-get", () => {
     let db, handler, mongo;
@@ -68,5 +68,33 @@ describe("api-user-get", () => {
         const body = JSON.parse(response.body);
         expect(body.token).toBeUndefined();
         expect(body._id).toBeUndefined();
+    });
+
+    it("returns the target's data with viewingAs when admin is viewing as a user", async () => {
+        process.env.ADMIN_EMAIL = "admin@test.com";
+        try {
+            const admin = makeUser({name: "Admin", email: "admin@test.com"});
+            const target = makeUser({name: "Target", email: "target@test.com"});
+            await seedUsers(db, admin, target);
+
+            const event = buildEvent("GET", {headers: {cookie: await viewAsCookie(admin._id, target._id)}});
+            const response = await handler(event);
+            expect(response.statusCode).toBe(200);
+
+            const body = JSON.parse(response.body);
+            expect(body.email).toBe(target.email);
+            expect(body.viewingAs).toEqual({name: target.name, email: target.email});
+        } finally {
+            delete process.env.ADMIN_EMAIL;
+        }
+    });
+
+    it("omits viewingAs for a normal session", async () => {
+        await seedUsers(db, alex);
+
+        const event = buildEvent("GET", {headers: {cookie: await authCookie(alex._id)}});
+        const response = await handler(event);
+
+        expect(JSON.parse(response.body)).not.toHaveProperty("viewingAs");
     });
 });

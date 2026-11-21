@@ -21,8 +21,19 @@ describe("api-auth-logout-post", () => {
         });
         const response = await handler(event);
         expect(response.statusCode).toBe(200);
-        expect(response.headers["Set-Cookie"]).toContain("session=;");
-        expect(response.headers["Set-Cookie"]).toContain("Max-Age=0");
+        const cookies = response.multiValueHeaders["Set-Cookie"];
+        expect(cookies.find(c => c.startsWith("session=;"))).toContain("Max-Age=0");
+    });
+
+    it("clears both session and viewAs cookies", async () => {
+        const event = buildEvent("POST", {
+            headers: {origin: "https://gift-exchange-generator.com"},
+        });
+        const response = await handler(event);
+        const cookies = response.multiValueHeaders["Set-Cookie"];
+        expect(cookies).toHaveLength(2);
+        expect(cookies.find(c => c.startsWith("session=;"))).toContain("Max-Age=0");
+        expect(cookies.find(c => c.startsWith("viewAs=;"))).toContain("Max-Age=0");
     });
 
     it("returns success body", async () => {
