@@ -1,4 +1,5 @@
 import {methodNotAllowed, serverError, unauthorized, forbidden} from "./responses.mjs";
+import {isAdminEmail} from "./email.mjs";
 import {sendNotificationEmail, setRequestOrigin} from "./giverNotification.mjs";
 import {checkRateLimit} from "./rateLimit.mjs";
 import {getSessionUser} from "./sessionUser.mjs";
@@ -143,7 +144,7 @@ export function apiHandler(method, fn, {auth = false, admin = false, allowDuring
                     logger.warn("Auth failed", {endpoint, ip});
                     return authError;
                 }
-                if (event.user.email !== process.env.ADMIN_EMAIL) {
+                if (!isAdminEmail(event.user.email)) {
                     logger.warn("Admin check failed", {endpoint, ip});
                     return forbidden("Forbidden");
                 }

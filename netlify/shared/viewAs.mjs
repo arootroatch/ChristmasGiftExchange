@@ -1,4 +1,5 @@
 import {verifyViewAs, parseCookies} from "./jwt.mjs";
+import {isAdminEmail} from "./email.mjs";
 import {getSessionUser, findUserById} from "./sessionUser.mjs";
 
 async function lookupViewAs(event) {
@@ -6,7 +7,7 @@ async function lookupViewAs(event) {
     if (!token) return null;
 
     const {user: admin} = await getSessionUser(event);
-    if (!admin || !process.env.ADMIN_EMAIL || admin.email !== process.env.ADMIN_EMAIL) return null;
+    if (!admin || !isAdminEmail(admin.email)) return null;
 
     const payload = await verifyViewAs(token);
     if (!payload || payload.adminId !== admin._id.toString()) return null;

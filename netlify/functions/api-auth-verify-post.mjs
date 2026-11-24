@@ -1,4 +1,5 @@
 import {z} from "zod";
+import {emailInputSchema} from "../shared/email.mjs";
 import {apiHandler, validateBody, requestEndpoint} from "../shared/middleware.mjs";
 import {badRequest, unauthorized, okWithHeaders} from "../shared/responses.mjs";
 import {getUsersCollection} from "../shared/db.mjs";
@@ -7,7 +8,7 @@ import {signSession, buildSessionCookie} from "../shared/jwt.mjs";
 import {logger} from "../shared/logger.mjs";
 
 const requestSchema = z.object({
-    email: z.email(),
+    email: emailInputSchema,
     code: z.string(),
     name: z.string().optional(),
 });
@@ -16,7 +17,7 @@ export const handler = apiHandler("POST", async (event) => {
     const {data, error} = validateBody(requestSchema, event);
     if (error) return badRequest(error);
 
-    const email = data.email.trim();
+    const {email} = data;
     const result = await verifyCode(email, data.code);
     if (!result.valid) {
         logger.warn("Login failed - invalid code", {endpoint: requestEndpoint(event), ip: event.ip, email});

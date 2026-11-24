@@ -4,10 +4,11 @@ import {badRequest, ok} from "../shared/responses.mjs";
 import {sendBatchEmails} from "../shared/giverNotification.mjs";
 import {logger} from "../shared/logger.mjs";
 import {z} from "zod";
+import {emailInputSchema} from "../shared/email.mjs";
 
 const participantInputSchema = z.object({
     name: z.string(),
-    email: z.email(),
+    email: emailInputSchema,
 });
 
 const assignmentInputSchema = z.object({
@@ -42,7 +43,7 @@ function validateAssignmentNamesExist(ctx) {
 }
 
 function validateUniqueEmails(ctx) {
-    const emails = ctx.value.participants.map(p => p.email.toLowerCase());
+    const emails = ctx.value.participants.map(p => p.email);
     const seen = new Set();
     for (const email of emails) {
         if (seen.has(email)) {

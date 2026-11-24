@@ -80,6 +80,19 @@ describe('api-admin-verify-post', () => {
         expect(created.name).toBe('Admin');
     });
 
+    it('reuses the stored admin user when ADMIN_EMAIL differs only by case', async () => {
+        await seedUsers(db, adminUser);
+        process.env.ADMIN_EMAIL = 'Admin@Example.com';
+        try {
+            const code = await generateAndStoreCode('admin@example.com');
+            const response = await handler(buildEvent('POST', {body: {code}}));
+            expect(response.statusCode).toBe(200);
+            expect(await db.collection('users').countDocuments()).toBe(1);
+        } finally {
+            process.env.ADMIN_EMAIL = 'admin@example.com';
+        }
+    });
+
     it('returns 429 when rate limit exceeded', async () => {
         await seedUsers(db, adminUser);
         for (let i = 0; i < 5; i++) {

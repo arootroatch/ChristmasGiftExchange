@@ -127,6 +127,19 @@ describe('api-giver-retry-post', () => {
         expect(body[0].To).toBe('alex@test.com');
     });
 
+    it('matches participantEmails regardless of case', async () => {
+        mockBatchResponse(['alex@test.com']);
+        const event = buildEvent('POST', {body: {
+            exchangeId: exchange.exchangeId,
+            participantEmails: ['Alex@Test.com'],
+        }, headers: {cookie: await authCookie(alex._id)}});
+        const response = await handler(event);
+
+        expect(response.statusCode).toBe(200);
+        const body = JSON.parse(mockFetch.mock.calls[0][1].body);
+        expect(body.map(m => m.To)).toEqual(['alex@test.com']);
+    });
+
     it('rejects participantEmails that do not exist in the exchange', async () => {
         const event = buildEvent('POST', {body: {
             exchangeId: exchange.exchangeId,
