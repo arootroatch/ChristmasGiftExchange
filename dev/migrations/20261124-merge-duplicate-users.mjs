@@ -1,8 +1,5 @@
 export const description = 'Merge users whose emails differ only by case/whitespace, and lowercase all emails';
 
-// Every change is snapshotted here first so down() can restore it.
-const BACKUP = 'userMergeBackup';
-
 // Inlined (not imported from netlify/shared) so this migration stays frozen if app code changes.
 function normalizeEmail(email) {
     return email.trim().toLowerCase();
@@ -61,17 +58,6 @@ async function mergeGroup(db, email, group) {
     const otherIds = others.map(u => u._id);
 
     const exchanges = await db.collection('exchanges').find(referencesQuery(otherIds)).toArray();
-    const linkExchanges = await db.collection('linkExchanges')
-        .find({organizer: {$in: otherIds}}, {projection: {organizer: 1}})
-        .toArray();
-    await db.collection(BACKUP).insertOne({
-        type: 'merge',
-        survivorBefore: survivor,
-        removedUsers: others,
-        exchangesBefore: exchanges,
-        linkExchangesBefore: linkExchanges,
-    });
-
     for (const exchange of exchanges) {
         await db.collection('exchanges').replaceOne({_id: exchange._id}, repointExchange(exchange, otherIds, survivor._id));
     }
@@ -101,9 +87,6 @@ function mergedFields(email, survivor, others) {
 // Batched: thousands of users only need lowercasing, and one round trip each is too slow for CI.
 async function normalizeUsers(db, pending) {
     if (pending.length === 0) return;
-    await db.collection(BACKUP).insertMany(
-        pending.map(({user}) => ({type: 'normalize', userId: user._id, originalEmail: user.email})),
-    );
     await db.collection('users').bulkWrite(
         pending.map(({email, user}) => ({updateOne: {filter: {_id: user._id}, update: {$set: {email}}}})),
         {ordered: false},
@@ -113,46 +96,21 @@ async function normalizeUsers(db, pending) {
 export async function up(db) {
     const users = await db.collection('users').find().toArray();
     const pending = [];
+    let merged = 0, removed = 0;
     for (const [email, group] of groupByNormalizedEmail(users)) {
-        if (group.length > 1) await mergeGroup(db, email, group);
-        else if (group[0].email !== email) pending.push({email, user: group[0]});
+        if (group.length > 1) {
+            await mergeGroup(db, email, group);
+            merged++;
+            removed += group.length - 1;
+        } else if (group[0].email !== email) {
+            pending.push({email, user: group[0]});
+        }
     }
     await normalizeUsers(db, pending);
-    console.log(`Merged ${mergeCount(users, pending)}; lowercased ${pending.length} other users`);
+    console.log(`Merged ${merged} duplicate groups (${removed} users removed); lowercased ${pending.length} other users`);
 }
 
-function mergeCount(users, pending) {
-    const groups = [...groupByNormalizedEmail(users).values()].filter(g => g.length > 1);
-    return `${groups.length} duplicate groups (${groups.reduce((n, g) => n + g.length - 1, 0)} users removed)`;
-}
-
-async function restoreMerge(db, backup) {
-    await db.collection('users').replaceOne({_id: backup.survivorBefore._id}, backup.survivorBefore, {upsert: true});
-    for (const user of backup.removedUsers) {
-        await db.collection('users').replaceOne({_id: user._id}, user, {upsert: true});
-    }
-    for (const exchange of backup.exchangesBefore) {
-        await db.collection('exchanges').replaceOne({_id: exchange._id}, exchange);
-    }
-    for (const {_id, organizer} of backup.linkExchangesBefore) {
-        await db.collection('linkExchanges').updateOne({_id}, {$set: {organizer}});
-    }
-}
-
-// Best effort: merged users and their exchanges are restored from snapshots, so any edits made to
-// them after up() (e.g. wishlist changes) are overwritten. Exchanges created after up() keep
-// pointing at the survivor.
-export async function down(db) {
-    const backups = await db.collection(BACKUP).find().sort({_id: -1}).toArray();
-    for (const backup of backups) {
-        if (backup.type === 'merge') await restoreMerge(db, backup);
-    }
-    const normalized = backups.filter(b => b.type === 'normalize');
-    if (normalized.length > 0) {
-        await db.collection('users').bulkWrite(
-            normalized.map(b => ({updateOne: {filter: {_id: b.userId}, update: {$set: {email: b.originalEmail}}}})),
-            {ordered: false},
-        );
-    }
-    await db.collection(BACKUP).deleteMany({});
+// Intentionally irreversible: this repairs data corrupted by case-sensitive email handling,
+// and that state should never be recreated.
+export async function down() {
 }
