@@ -1,4 +1,5 @@
 import {apiHandler} from "../shared/middleware.mjs";
+import {isAdminEmail} from "../shared/email.mjs";
 import {getUsersCollection} from "../shared/db.mjs";
 import {escapeRegex} from "../shared/regex.mjs";
 import {computeUserStats} from "../shared/userStats.mjs";
@@ -17,7 +18,7 @@ export const handler = apiHandler("GET", async (event) => {
     return ok({
         users: users.map(({_id, name, email}) => ({
             _id, name, email,
-            isAdmin: email === process.env.ADMIN_EMAIL,
+            isAdmin: isAdminEmail(email),
             ...stats.get(_id.toString()),
         })),
     });

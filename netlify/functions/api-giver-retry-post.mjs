@@ -1,4 +1,5 @@
 import {z} from "zod";
+import {emailInputSchema} from "../shared/email.mjs";
 import {apiHandler, validateBody, requestEndpoint} from "../shared/middleware.mjs";
 import {ok, badRequest, forbidden, notFound} from "../shared/responses.mjs";
 import {sendNotificationEmail, sendBatchEmails} from "../shared/giverNotification.mjs";
@@ -7,7 +8,7 @@ import {logger} from "../shared/logger.mjs";
 
 const requestSchema = z.object({
     exchangeId: z.string(),
-    participantEmails: z.array(z.email()).optional(),
+    participantEmails: z.array(emailInputSchema).optional(),
 });
 
 function buildIdToUser(users) {

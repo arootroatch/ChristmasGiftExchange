@@ -145,6 +145,30 @@ describe('api-exchange-post', () => {
         expect(user.wishlists[0].url).toBe('https://amazon.com/wishlist');
     });
 
+    it('matches existing users regardless of email case and whitespace', async () => {
+        const organizerId = await insertOrganizer();
+        const cookie = await authCookie(organizerId);
+        const existing = makeUser({name: 'Alex', email: 'alex@test.com'});
+        await seedUsers(db, existing);
+        const payload = {
+            ...exchangePayload,
+            participants: [
+                {name: 'Alex', email: ' Alex@Test.com '},
+                ...exchangePayload.participants.slice(1),
+            ],
+        };
+
+        const event = buildEvent('POST', {body: payload, path: postPath, headers: {cookie}});
+        const response = await handler(event);
+
+        expect(response.statusCode).toBe(200);
+        const alexUsers = await db.collection('users').find({email: /alex@test\.com/i}).toArray();
+        expect(alexUsers).toHaveLength(1);
+        expect(alexUsers[0].email).toBe('alex@test.com');
+        const exchange = await db.collection('exchanges').findOne({exchangeId: payload.exchangeId});
+        expect(exchange.participants.map(String)).toContain(existing._id.toString());
+    });
+
     it('creates exchange document with user ObjectIds', async () => {
         const organizerId = await insertOrganizer();
         const cookie = await authCookie(organizerId);

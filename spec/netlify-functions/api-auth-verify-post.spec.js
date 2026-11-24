@@ -106,6 +106,18 @@ describe('api-auth-verify-post', () => {
         expect(updated.name).toBe('Saved Name');
     });
 
+    it('logs in an existing user when the email is typed with different case or whitespace', async () => {
+        await seedUsers(db, makeUser({email: 'existing@test.com', name: 'Saved Name'}));
+        const code = await generateAndStoreCode('existing@test.com');
+
+        const event = buildEvent('POST', {body: {email: ' Existing@Test.COM ', code}});
+        const response = await handler(event);
+
+        expect(response.statusCode).toBe(200);
+        expect(JSON.parse(response.body).name).toBe('Saved Name');
+        expect(await db.collection('users').countDocuments()).toBe(1);
+    });
+
     it('returns the saved name for an existing user', async () => {
         await seedUsers(db, makeUser({email: 'existing@test.com', name: 'Saved Name'}));
         const code = await generateAndStoreCode('existing@test.com');

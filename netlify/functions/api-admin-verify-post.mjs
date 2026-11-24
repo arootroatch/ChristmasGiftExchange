@@ -1,4 +1,5 @@
 import {z} from "zod";
+import {adminEmail} from "../shared/email.mjs";
 import {apiHandler, validateBody, requestEndpoint} from "../shared/middleware.mjs";
 import {badRequest, unauthorized, okWithHeaders} from "../shared/responses.mjs";
 import {getUsersCollection} from "../shared/db.mjs";
@@ -14,7 +15,7 @@ export const handler = apiHandler("POST", async (event) => {
     const {data, error} = validateBody(requestSchema, event);
     if (error) return badRequest(error);
 
-    const email = process.env.ADMIN_EMAIL;
+    const email = adminEmail();
     const result = await verifyCode(email, data.code);
     if (!result.valid) {
         logger.warn("Admin login failed - invalid code", {endpoint: requestEndpoint(event), ip: event.ip});

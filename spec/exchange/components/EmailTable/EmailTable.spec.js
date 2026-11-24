@@ -191,6 +191,25 @@ describe('emailTable', () => {
 
   })
 
+  describe("submitEmails email normalization", () => {
+    it("lowercases and trims emails before posting", () => {
+      triggerEmailTableRender();
+      const body = document.querySelector("#emailTableBody");
+      body.querySelectorAll(`.${dialogStyles.emailDiv}`).forEach(el => el.remove());
+      getState().participants = [];
+      installParticipantNames("Alex", "Whitney");
+      renderEmailTableInputs([
+        {name: "Alex", email: " Alex@Test.COM "},
+        {name: "Whitney", email: whitney.email},
+      ]);
+
+      submitEmailForm();
+
+      const posted = JSON.parse(global.fetch.mock.calls[0][1].body);
+      expect(posted.participants.map(p => p.email).sort()).toEqual(["alex@test.com", whitney.email]);
+    });
+  })
+
   describe("submitEmails error handling", () => {
     beforeEach(() => {
       global.fetch = vi.fn(() => Promise.resolve({

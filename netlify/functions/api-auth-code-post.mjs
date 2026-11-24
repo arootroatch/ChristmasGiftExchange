@@ -1,4 +1,5 @@
 import {z} from "zod";
+import {emailInputSchema} from "../shared/email.mjs";
 import {apiHandler, validateBody, requestEndpoint} from "../shared/middleware.mjs";
 import {ok, badRequest} from "../shared/responses.mjs";
 import {getUsersCollection} from "../shared/db.mjs";
@@ -14,7 +15,7 @@ const EMAIL_LIMIT = {
 };
 
 const requestSchema = z.object({
-    email: z.email(),
+    email: emailInputSchema,
     createIfMissing: z.boolean().optional(),
 });
 
@@ -22,7 +23,7 @@ export const handler = apiHandler("POST", async (event) => {
     const {data, error} = validateBody(requestSchema, event);
     if (error) return badRequest(error);
 
-    const email = data.email.trim();
+    const {email} = data;
 
     // Counts every request, known email or not, so a 429 can't reveal which emails have accounts.
     const limited = await checkEmailRateLimit(email, "api-auth-code-post", EMAIL_LIMIT);

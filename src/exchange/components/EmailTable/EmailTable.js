@@ -107,11 +107,16 @@ function hideEmailTable() {
   }, 500);
 }
 
+// Matches the server's normalization so emailsFailed lines up with what we sent.
+function normalizedEmail(input) {
+  return input.value.trim().toLowerCase();
+}
+
 function findDuplicateEmails() {
   const inputs = Array.from(document.getElementsByClassName("emailInput"));
   const emailCounts = {};
   inputs.forEach(input => {
-    const email = input.value.trim().toLowerCase();
+    const email = normalizedEmail(input);
     emailCounts[email] = (emailCounts[email] || 0) + 1;
   });
   const duplicates = new Set(
@@ -125,7 +130,7 @@ function validateAndCollectEmails(event) {
   const {inputs, duplicates} = findDuplicateEmails();
   if (duplicates.size > 0) {
     inputs.forEach(input => {
-      if (duplicates.has(input.value.trim().toLowerCase())) {
+      if (duplicates.has(normalizedEmail(input))) {
         input.classList.add("duplicate-email");
       }
     });
@@ -187,7 +192,7 @@ function getEmails() {
   return emailInputs.map((input) => {
     return {
       name: input.name,
-      email: input.value.trim(),
+      email: normalizedEmail(input),
       index: input.id
     };
   });

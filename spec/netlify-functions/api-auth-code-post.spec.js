@@ -76,6 +76,17 @@ describe('api-auth-code-post', () => {
         expect(mockFetch).toHaveBeenCalledTimes(1);
     });
 
+    it('finds an existing user when the email is typed with different case or whitespace', async () => {
+        await seedUsers(db, makeUser({email: 'exists@test.com'}));
+
+        const event = buildEvent('POST', {body: {email: ' Exists@Test.COM '}});
+        const response = await handler(event);
+
+        expect(response.statusCode).toBe(200);
+        expect(mockFetch).toHaveBeenCalledTimes(1);
+        expect(await db.collection('authCodes').findOne({email: 'exists@test.com'})).not.toBeNull();
+    });
+
     it('returns {sent: true} for non-existent email but does NOT send email', async () => {
         const event = buildEvent('POST', {body: {email: 'nobody@test.com'}});
         const response = await handler(event);
