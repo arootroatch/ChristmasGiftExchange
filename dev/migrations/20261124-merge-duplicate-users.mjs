@@ -98,17 +98,32 @@ function mergedFields(email, survivor, others) {
     };
 }
 
-async function normalizeUser(db, email, user) {
-    await db.collection(BACKUP).insertOne({type: 'normalize', userId: user._id, originalEmail: user.email});
-    await db.collection('users').updateOne({_id: user._id}, {$set: {email}});
+// Batched: thousands of users only need lowercasing, and one round trip each is too slow for CI.
+async function normalizeUsers(db, pending) {
+    if (pending.length === 0) return;
+    await db.collection(BACKUP).insertMany(
+        pending.map(({user}) => ({type: 'normalize', userId: user._id, originalEmail: user.email})),
+    );
+    await db.collection('users').bulkWrite(
+        pending.map(({email, user}) => ({updateOne: {filter: {_id: user._id}, update: {$set: {email}}}})),
+        {ordered: false},
+    );
 }
 
 export async function up(db) {
     const users = await db.collection('users').find().toArray();
+    const pending = [];
     for (const [email, group] of groupByNormalizedEmail(users)) {
         if (group.length > 1) await mergeGroup(db, email, group);
-        else if (group[0].email !== email) await normalizeUser(db, email, group[0]);
+        else if (group[0].email !== email) pending.push({email, user: group[0]});
     }
+    await normalizeUsers(db, pending);
+    console.log(`Merged ${mergeCount(users, pending)}; lowercased ${pending.length} other users`);
+}
+
+function mergeCount(users, pending) {
+    const groups = [...groupByNormalizedEmail(users).values()].filter(g => g.length > 1);
+    return `${groups.length} duplicate groups (${groups.reduce((n, g) => n + g.length - 1, 0)} users removed)`;
 }
 
 async function restoreMerge(db, backup) {
@@ -131,7 +146,13 @@ export async function down(db) {
     const backups = await db.collection(BACKUP).find().sort({_id: -1}).toArray();
     for (const backup of backups) {
         if (backup.type === 'merge') await restoreMerge(db, backup);
-        else await db.collection('users').updateOne({_id: backup.userId}, {$set: {email: backup.originalEmail}});
+    }
+    const normalized = backups.filter(b => b.type === 'normalize');
+    if (normalized.length > 0) {
+        await db.collection('users').bulkWrite(
+            normalized.map(b => ({updateOne: {filter: {_id: b.userId}, update: {$set: {email: b.originalEmail}}}})),
+            {ordered: false},
+        );
     }
     await db.collection(BACKUP).deleteMany({});
 }
