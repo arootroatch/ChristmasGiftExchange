@@ -7,6 +7,7 @@ import * as cookieBanner from '../CookieBanner.js';
 import {authGateTemplate, initAuthGate} from '../authGate.js';
 import {loadSession, clearSession} from '../session.js';
 import * as viewAsBanner from '../ViewAsBanner.js';
+import * as announcementBanner from '../AnnouncementBanner.js';
 import {sectionFromPath, sidebarNavItemsTemplate, sectionContainersTemplate, initSidebarNav} from '../sidebarNav.js';
 import {setUserData, setRecipientData, isDirty, dashboardEvents, DashboardEvents} from './state.js';
 import * as recipientCard from './components/RecipientCard.js';
@@ -149,6 +150,7 @@ function loadRecipient() {
 }
 
 export function main() {
+  announcementBanner.init();
   document.body.style.opacity = '1';
   snackbar.init();
   cookieBanner.init();

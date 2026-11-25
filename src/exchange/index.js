@@ -19,8 +19,10 @@ import * as navbar from "./components/Navbar.js";
 import {loadExchange} from "./state.js";
 import {loadSession} from "../session.js";
 import * as viewAsBanner from "../ViewAsBanner.js";
+import * as announcementBanner from "../AnnouncementBanner.js";
 
 export default async function main() {
+  announcementBanner.init();
   document.body.style.opacity = '1';
   try { await loadSession(); } catch { /* not authenticated or server error — organizer form will handle it */ }
   viewAsBanner.init();

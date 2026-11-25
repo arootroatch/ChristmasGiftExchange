@@ -6,6 +6,7 @@ import * as cookieBanner from "../CookieBanner.js";
 import {bmcButtonHtml} from "../BmcButton.js";
 import {loadSession} from "../session.js";
 import * as viewAsBanner from "../ViewAsBanner.js";
+import * as announcementBanner from "../AnnouncementBanner.js";
 import cardStyles from '../../assets/styles/dashboard/components/cards.module.css';
 import btnStyles from '../../assets/styles/dashboard/components/buttons.module.css';
 
@@ -127,6 +128,7 @@ async function initNavbar() {
 }
 
 export async function main() {
+  announcementBanner.init();
   cookieBanner.init();
   selectElement("#draw-support").innerHTML = bmcButtonHtml();
   const navbarReady = initNavbar();
