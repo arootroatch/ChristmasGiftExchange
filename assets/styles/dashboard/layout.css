@@ -22,7 +22,7 @@
   border-right: 1px solid var(--frost-border);
   padding: 24px 0;
   position: fixed;
-  top: 0;
+  top: var(--announcement-offset, 0px);
   left: 0;
   bottom: 0;
   overflow-y: auto;

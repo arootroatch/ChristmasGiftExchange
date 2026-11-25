@@ -7,8 +7,8 @@ const storageKey = "dismissedAnnouncement";
 
 function template(message) {
   return `<div id="${bannerId}" class="${styles.banner}" role="status">
-    <span>${escape(message)}</span>
-    <button type="button" class="${styles.dismissBtn}" aria-label="Dismiss announcement">✕</button>
+    <span class="${styles.message}">${escape(message).replace(/\r?\n/g, "<br>")}</span>
+    <button type="button" class="${styles.dismissBtn}">Got it, thanks!</button>
   </div>`;
 }
 
@@ -39,6 +39,24 @@ function endOfExpiresDay(expires) {
   return new Date(y, m - 1, d + 1);
 }
 
+// The navbar and dashboard sidebar are fixed to the top of the viewport. Push them below
+// the banner while any of it is on screen, so the banner never sits underneath them.
+function trackOffset(banner) {
+  const root = document.documentElement;
+  const update = () => {
+    const visible = Math.max(0, banner.getBoundingClientRect().bottom);
+    root.style.setProperty("--announcement-offset", `${visible}px`);
+  };
+  update();
+  window.addEventListener("scroll", update, {passive: true});
+  window.addEventListener("resize", update);
+  return () => {
+    window.removeEventListener("scroll", update);
+    window.removeEventListener("resize", update);
+    root.style.removeProperty("--announcement-offset");
+  };
+}
+
 export function init({announcement = defaultAnnouncement, now = new Date()} = {}) {
   const {message, expires} = announcement;
   if (!message?.trim() || document.getElementById(bannerId)) return;
@@ -50,8 +68,10 @@ export function init({announcement = defaultAnnouncement, now = new Date()} = {}
   if (viewAsBanner) viewAsBanner.insertAdjacentHTML("afterend", template(message));
   else document.body.insertAdjacentHTML("afterbegin", template(message));
   const banner = document.getElementById(bannerId);
+  const stopTracking = trackOffset(banner);
   banner.querySelector("button").addEventListener("click", () => {
     writeDismissed(message);
+    stopTracking();
     banner.remove();
   });
 }

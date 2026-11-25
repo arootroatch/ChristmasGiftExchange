@@ -11,13 +11,21 @@ function banner() {
   return document.getElementById("announcement-banner");
 }
 
+function offset() {
+  return document.documentElement.style.getPropertyValue("--announcement-offset");
+}
+
 describe("AnnouncementBanner", () => {
   beforeEach(() => {
     document.body.innerHTML = '<div id="container"></div>';
     localStorage.clear();
   });
 
-  afterEach(() => vi.restoreAllMocks());
+  afterEach(() => {
+    vi.restoreAllMocks();
+    banner()?.querySelector("button").click();
+    document.documentElement.style.removeProperty("--announcement-offset");
+  });
 
   it("renders the message when active", () => {
     initWith({message: "Emails fixed", expires: "2026-12-01"});
@@ -97,5 +105,45 @@ describe("AnnouncementBanner", () => {
     initWith({message: "Emails fixed", expires: "2026-12-01"});
     expect(document.body.firstElementChild.id).toBe("view-as-banner");
     expect(document.body.children[1].id).toBe("announcement-banner");
+  });
+
+  it("turns newlines in the message into line breaks", () => {
+    initWith({message: "Line one\nLine two\r\nLine three", expires: "2026-12-01"});
+    expect(banner().querySelectorAll("br").length).toBe(2);
+    expect(banner().textContent).toContain("Line one");
+    expect(banner().textContent).toContain("Line three");
+  });
+
+  it("labels the dismiss button Got it, thanks!", () => {
+    initWith({message: "Emails fixed", expires: "2026-12-01"});
+    const button = banner().querySelector("button");
+    expect(button.textContent.trim()).toBe("Got it, thanks!");
+  });
+
+  it("offsets fixed top elements by the visible banner height", () => {
+    vi.spyOn(document.defaultView.Element.prototype, "getBoundingClientRect").mockReturnValue({bottom: 120});
+    initWith({message: "Emails fixed", expires: "2026-12-01"});
+    expect(offset()).toBe("120px");
+  });
+
+  it("shrinks the offset as the banner scrolls out of view", () => {
+    const rect = vi.spyOn(document.defaultView.Element.prototype, "getBoundingClientRect").mockReturnValue({bottom: 120});
+    initWith({message: "Emails fixed", expires: "2026-12-01"});
+    rect.mockReturnValue({bottom: 30});
+    window.dispatchEvent(new Event("scroll"));
+    expect(offset()).toBe("30px");
+    rect.mockReturnValue({bottom: -50});
+    window.dispatchEvent(new Event("scroll"));
+    expect(offset()).toBe("0px");
+  });
+
+  it("clears the offset when dismissed", () => {
+    const rect = vi.spyOn(document.defaultView.Element.prototype, "getBoundingClientRect").mockReturnValue({bottom: 120});
+    initWith({message: "Emails fixed", expires: "2026-12-01"});
+    banner().querySelector("button").click();
+    expect(offset()).toBe("");
+    rect.mockReturnValue({bottom: 60});
+    window.dispatchEvent(new Event("scroll"));
+    expect(offset()).toBe("");
   });
 });
