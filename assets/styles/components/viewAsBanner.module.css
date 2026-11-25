@@ -1,6 +1,6 @@
 .banner {
   position: sticky;
-  top: 0;
+  top: var(--announcement-offset, 0px);
   z-index: 1000;
   display: flex;
   align-items: center;

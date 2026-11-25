@@ -39,21 +39,20 @@ function endOfExpiresDay(expires) {
   return new Date(y, m - 1, d + 1);
 }
 
-// The navbar and dashboard sidebar are fixed to the top of the viewport. Push them below
-// the banner while any of it is on screen, so the banner never sits underneath them.
-function trackOffset(banner) {
+// The banner is pinned to the top of the viewport. Push the page content and the other
+// fixed top elements (navbar, dashboard sidebar, view-as banner) down by its height.
+function reserveSpace(banner) {
   const root = document.documentElement;
   const update = () => {
-    const visible = Math.max(0, banner.getBoundingClientRect().bottom);
-    root.style.setProperty("--announcement-offset", `${visible}px`);
+    root.style.setProperty("--announcement-offset", `${banner.getBoundingClientRect().height}px`);
   };
   update();
-  window.addEventListener("scroll", update, {passive: true});
+  document.body.style.paddingTop = "var(--announcement-offset)";
   window.addEventListener("resize", update);
   return () => {
-    window.removeEventListener("scroll", update);
     window.removeEventListener("resize", update);
     root.style.removeProperty("--announcement-offset");
+    document.body.style.paddingTop = "";
   };
 }
 
@@ -63,15 +62,15 @@ export function init({announcement = defaultAnnouncement, now = new Date()} = {}
   const end = endOfExpiresDay(expires);
   if (!end || now >= end) return;
   if (readDismissed() === message) return;
-  // The sticky view-as banner stays on top if it rendered first.
+  // Keep DOM order matching what renders: the view-as banner sits just below this one.
   const viewAsBanner = document.getElementById("view-as-banner");
   if (viewAsBanner) viewAsBanner.insertAdjacentHTML("afterend", template(message));
   else document.body.insertAdjacentHTML("afterbegin", template(message));
   const banner = document.getElementById(bannerId);
-  const stopTracking = trackOffset(banner);
+  const releaseSpace = reserveSpace(banner);
   banner.querySelector("button").addEventListener("click", () => {
     writeDismissed(message);
-    stopTracking();
+    releaseSpace();
     banner.remove();
   });
 }

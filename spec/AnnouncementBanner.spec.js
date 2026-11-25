@@ -120,30 +120,36 @@ describe("AnnouncementBanner", () => {
     expect(button.textContent.trim()).toBe("Got it, thanks!");
   });
 
-  it("offsets fixed top elements by the visible banner height", () => {
-    vi.spyOn(document.defaultView.Element.prototype, "getBoundingClientRect").mockReturnValue({bottom: 120});
+  it("offsets the page and fixed top elements by the banner height", () => {
+    vi.spyOn(document.defaultView.Element.prototype, "getBoundingClientRect").mockReturnValue({height: 120});
     initWith({message: "Emails fixed", expires: "2026-12-01"});
+    expect(offset()).toBe("120px");
+    expect(document.body.style.paddingTop).toBe("var(--announcement-offset)");
+  });
+
+  it("keeps the offset while scrolling", () => {
+    vi.spyOn(document.defaultView.Element.prototype, "getBoundingClientRect").mockReturnValue({height: 120});
+    initWith({message: "Emails fixed", expires: "2026-12-01"});
+    window.dispatchEvent(new Event("scroll"));
     expect(offset()).toBe("120px");
   });
 
-  it("shrinks the offset as the banner scrolls out of view", () => {
-    const rect = vi.spyOn(document.defaultView.Element.prototype, "getBoundingClientRect").mockReturnValue({bottom: 120});
+  it("updates the offset when the window resizes", () => {
+    const rect = vi.spyOn(document.defaultView.Element.prototype, "getBoundingClientRect").mockReturnValue({height: 120});
     initWith({message: "Emails fixed", expires: "2026-12-01"});
-    rect.mockReturnValue({bottom: 30});
-    window.dispatchEvent(new Event("scroll"));
-    expect(offset()).toBe("30px");
-    rect.mockReturnValue({bottom: -50});
-    window.dispatchEvent(new Event("scroll"));
-    expect(offset()).toBe("0px");
+    rect.mockReturnValue({height: 240});
+    window.dispatchEvent(new Event("resize"));
+    expect(offset()).toBe("240px");
   });
 
-  it("clears the offset when dismissed", () => {
-    const rect = vi.spyOn(document.defaultView.Element.prototype, "getBoundingClientRect").mockReturnValue({bottom: 120});
+  it("clears the offset and page padding when dismissed", () => {
+    const rect = vi.spyOn(document.defaultView.Element.prototype, "getBoundingClientRect").mockReturnValue({height: 120});
     initWith({message: "Emails fixed", expires: "2026-12-01"});
     banner().querySelector("button").click();
     expect(offset()).toBe("");
-    rect.mockReturnValue({bottom: 60});
-    window.dispatchEvent(new Event("scroll"));
+    expect(document.body.style.paddingTop).toBe("");
+    rect.mockReturnValue({height: 60});
+    window.dispatchEvent(new Event("resize"));
     expect(offset()).toBe("");
   });
 });
