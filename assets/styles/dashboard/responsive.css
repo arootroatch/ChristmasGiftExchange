@@ -51,7 +51,7 @@
   .dashboard-sidebar {
     display: none;
     position: fixed;
-    top: 0;
+    top: var(--announcement-offset, 0px);
     left: 0;
     bottom: 0;
     width: 260px;

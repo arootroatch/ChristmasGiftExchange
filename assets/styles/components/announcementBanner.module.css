@@ -1,0 +1,39 @@
+.banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1001;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: #1f4e79;
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  box-sizing: border-box;
+}
+
+.message {
+  width: 100%;
+  max-width: 720px;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.dismissBtn {
+  padding: 4px 14px;
+  border: 2px solid #fff;
+  border-radius: 6px;
+  background: transparent;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.dismissBtn:hover {
+  background: #fff;
+  color: #1f4e79;
+}

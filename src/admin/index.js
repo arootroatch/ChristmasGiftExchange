@@ -5,6 +5,7 @@ import {loadSession} from '../session.js';
 import * as logsSection from './logsSection.js';
 import * as usersSection from './usersSection.js';
 import * as viewAsBanner from '../ViewAsBanner.js';
+import * as announcementBanner from '../AnnouncementBanner.js';
 import {sectionFromPath, sidebarNavItemsTemplate, sectionContainersTemplate, initSidebarNav} from '../sidebarNav.js';
 import {selectElement, addEventListener} from '../utils.js';
 
@@ -113,6 +114,7 @@ function showAuthGate() {
 }
 
 export async function main() {
+    announcementBanner.init();
     document.body.style.opacity = '1';
     snackbar.init();
     try {

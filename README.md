@@ -105,6 +105,18 @@ A custom snackbar notification system handles user-facing errors:
 
 ![Error Message](/assets/ErrorMessage.png)
 
+## Site Announcements
+
+To show a site-wide message (e.g. a bug fix or outage notice), edit `src/announcement.json`:
+
+```json
+{"message": "Result emails are working again.", "expires": "2026-12-01"}
+```
+
+- `message` is plain text. An empty message disables the banner.
+- `expires` is a `YYYY-MM-DD` date. The banner shows through the end of that day in the visitor's local time; a missing or invalid date shows nothing.
+- Push to deploy. Visitors can dismiss the banner; changing the message text shows it again.
+
 ## Contributing
 
 ### Clone the repo

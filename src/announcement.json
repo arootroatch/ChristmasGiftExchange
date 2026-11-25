@@ -1,0 +1,4 @@
+{
+  "message": "Have you had trouble with the participant dashboard?\nThere was a bug where alex@example.com and Alex@example.com were being treated as separate emails, thus creating separate accounts for the same user.\nThese accounts have been merged and emails are now handled correctly.\nSorry for the inconvenience!",
+  "expires": "2026-12-25"
+}
