@@ -1,4 +1,5 @@
-import {selectElement, escape, escapeAttr, apiFetch} from '../../utils.js';
+import {selectElement, escape, escapeAttr} from '../../utils.js';
+import {loadMyExchanges} from '../myExchanges.js';
 import btnStyles from '../../../assets/styles/dashboard/components/buttons.module.css';
 import cardStyles from '../../../assets/styles/dashboard/components/cards.module.css';
 
@@ -13,20 +14,16 @@ export function init() {
 }
 
 async function loadExchanges() {
-  await apiFetch('/.netlify/functions/api-my-exchanges-get', {
-    method: 'GET',
-    onSuccess: (data) => {
-      if (data.length === 0) {
-        selectElement('#reuse-results').innerHTML = '<p class="empty-state">No past exchanges found.</p>';
-        return;
-      }
-      renderResults(data);
-    },
-    onError: (msg) => {
-      selectElement('#reuse-results').innerHTML = `<p class="empty-state">${escape(msg || 'Failed to load exchanges')}</p>`;
-    },
-    fallbackMessage: 'Failed to load exchanges. Please try again.',
-  });
+  try {
+    const data = await loadMyExchanges();
+    if (data.length === 0) {
+      selectElement('#reuse-results').innerHTML = '<p class="empty-state">No past exchanges found.</p>';
+      return;
+    }
+    renderResults(data);
+  } catch (error) {
+    selectElement('#reuse-results').innerHTML = `<p class="empty-state">${escape(error.message || 'Failed to load exchanges')}</p>`;
+  }
 }
 
 function renderResults(exchanges) {

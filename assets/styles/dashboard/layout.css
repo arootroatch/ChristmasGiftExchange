@@ -75,6 +75,10 @@
   cursor: pointer;
 }
 
+.nav-item[hidden] {
+  display: none;
+}
+
 .nav-item:hover {
   background: rgba(255, 255, 255, 0.04);
   color: var(--text-primary);

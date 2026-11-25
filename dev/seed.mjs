@@ -43,6 +43,7 @@ export async function seed(db) {
         exchangeId: "e0000000-0000-4000-a000-000000000001",
         createdAt: new Date(),
         isSecretSanta: true,
+        organizer: userIds[0],
         houses: [
             {name: "Family 1", members: [userIds[0], userIds[1]]},
             {name: "Family 2", members: [userIds[2], userIds[3]]},
