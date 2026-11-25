@@ -1,6 +1,7 @@
 import {describe, it, expect, beforeEach, vi} from 'vitest';
 import {JSDOM} from 'jsdom';
 import {init} from '../../../src/dashboard/components/ReuseSection.js';
+import {_resetMyExchanges} from '../../../src/dashboard/myExchanges.js';
 import cardStyles from '../../../assets/styles/dashboard/components/cards.module.css';
 
 const flush = () => new Promise(r => setTimeout(r, 0));
@@ -8,6 +9,7 @@ const flush = () => new Promise(r => setTimeout(r, 0));
 let locationMock;
 
 function setupDOM() {
+  _resetMyExchanges();
   const dom = new JSDOM(`<!DOCTYPE html><html><body>
     <div id="section-reuse"></div>
   </body></html>`, {url: 'http://localhost/dashboard'});
