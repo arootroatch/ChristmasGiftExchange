@@ -1,6 +1,7 @@
 import {afterAll, afterEach, beforeAll, describe, expect, it} from "vitest";
 import {setupMongo, teardownMongo, cleanCollections} from '../shared/mongoSetup.js';
-import {makeUser, makeExchange, alex, whitney, hunter, seedUsers, seedExchange} from "../shared/testData.js";
+import {ObjectId} from "mongodb";
+import {makeUser, makeExchange, makeLinkExchange, alex, whitney, hunter, seedUsers, seedExchange, seedLinkExchange} from "../shared/testData.js";
 import {authCookie, buildEvent} from "../shared/specHelper.js";
 
 describe("api-my-exchanges-get", () => {
@@ -177,5 +178,138 @@ describe("api-my-exchanges-get", () => {
         const body = JSON.parse(response.body);
 
         expect(body[0].exchangeId).toBe('link-newest');
+    });
+    describe("organizer results", () => {
+        async function seedOrganizedSecretSanta(overrides = {}) {
+            await seedUsers(db, alex, whitney, hunter);
+            const exchange = makeExchange({
+                exchangeId: "organized",
+                organizer: alex._id,
+                isSecretSanta: true,
+                participants: [alex._id, whitney._id, hunter._id],
+                assignments: [
+                    {giverId: alex._id, recipientId: whitney._id},
+                    {giverId: whitney._id, recipientId: hunter._id},
+                    {giverId: hunter._id, recipientId: alex._id},
+                ],
+                ...overrides,
+            });
+            await seedExchange(db, exchange);
+            return exchange;
+        }
+
+        async function getBody(userId) {
+            const response = await handler(buildEvent("GET", {headers: {cookie: await authCookie(userId)}}));
+            return JSON.parse(response.body);
+        }
+
+        it("includes results for exchanges the user organized", async () => {
+            await seedOrganizedSecretSanta();
+
+            const [exchange] = await getBody(alex._id);
+
+            expect(exchange.isOrganizer).toBe(true);
+            expect(exchange.results).toEqual([
+                {giverName: "Alex", giverEmail: "alex@test.com", recipientName: "Whitney", recipientIsYou: false},
+                {giverName: "Whitney", giverEmail: "whitney@test.com", recipientName: "Hunter", recipientIsYou: false},
+                {giverName: "Hunter", giverEmail: "hunter@test.com", recipientName: "Alex", recipientIsYou: true},
+            ]);
+            expect(exchange).not.toHaveProperty("assignments");
+        });
+
+        it("omits results for exchanges the user only participates in", async () => {
+            await seedOrganizedSecretSanta({organizer: whitney._id});
+
+            const [exchange] = await getBody(alex._id);
+
+            expect(exchange.isOrganizer).toBe(false);
+            expect(exchange.results).toBeUndefined();
+        });
+
+        it("omits results when exchange has no organizer", async () => {
+            const seeded = await seedOrganizedSecretSanta();
+            await db.collection("exchanges").updateOne({_id: seeded._id}, {$unset: {organizer: ""}});
+
+            const [exchange] = await getBody(alex._id);
+
+            expect(exchange.isOrganizer).toBe(false);
+            expect(exchange).not.toHaveProperty("results");
+        });
+
+        it("uses Unknown for missing users", async () => {
+            const ghostId = new ObjectId();
+            await seedOrganizedSecretSanta({
+                participants: [alex._id, whitney._id, ghostId],
+                assignments: [
+                    {giverId: alex._id, recipientId: ghostId},
+                    {giverId: ghostId, recipientId: whitney._id},
+                    {giverId: whitney._id, recipientId: alex._id},
+                ],
+            });
+
+            const [exchange] = await getBody(alex._id);
+
+            expect(exchange.results[0].recipientName).toBe("Unknown");
+            expect(exchange.results[1]).toEqual({
+                giverName: "Unknown", giverEmail: "", recipientName: "Whitney", recipientIsYou: false,
+            });
+        });
+
+        async function seedOrganizedLinkExchange(participants) {
+            await seedUsers(db, alex);
+            await seedLinkExchange(db, makeLinkExchange({organizer: alex._id, participants}));
+        }
+
+        it("link exchange: hides recipients of participants who have not drawn", async () => {
+            await seedOrganizedLinkExchange([
+                {name: "Whitney", recipient: "Hunter", hasDrawn: false},
+                {name: "Hunter", recipient: "Whitney", hasDrawn: true},
+            ]);
+
+            const [exchange] = await getBody(alex._id);
+
+            expect(exchange.isOrganizer).toBe(true);
+            expect(exchange.results).toEqual([
+                {giverName: "Whitney", hasDrawn: false, recipientName: null, recipientIsYou: false},
+                {giverName: "Hunter", hasDrawn: true, recipientName: "Whitney", recipientIsYou: false},
+            ]);
+        });
+
+        it("link exchange: flags the row whose recipient is the organizer", async () => {
+            await seedOrganizedLinkExchange([
+                {name: "Alex", recipient: "Hunter", hasDrawn: true},
+                {name: "Whitney", recipient: "Alex", hasDrawn: true},
+                {name: "Hunter", recipient: "Whitney", hasDrawn: true},
+            ]);
+
+            const [exchange] = await getBody(alex._id);
+
+            expect(exchange.organizerMatched).toBe(true);
+            expect(exchange.results.map(r => r.recipientIsYou)).toEqual([false, true, false]);
+        });
+
+        it("matches organizer name case-insensitively", async () => {
+            await seedOrganizedLinkExchange([
+                {name: " alex ", recipient: "Whitney", hasDrawn: true},
+                {name: "Whitney", recipient: " alex ", hasDrawn: true},
+            ]);
+
+            const [exchange] = await getBody(alex._id);
+
+            expect(exchange.organizerMatched).toBe(true);
+            expect(exchange.results.map(r => r.recipientIsYou)).toEqual([false, true]);
+        });
+
+        it("link exchange: organizerMatched false when no participant matches", async () => {
+            await seedOrganizedLinkExchange([
+                {name: "Whitney", recipient: "Hunter", hasDrawn: true},
+                {name: "Hunter", recipient: "Whitney", hasDrawn: true},
+            ]);
+
+            const [exchange] = await getBody(alex._id);
+
+            expect(exchange.organizerMatched).toBe(false);
+            expect(exchange.results.every(r => r.recipientIsYou === false)).toBe(true);
+        });
     });
 });
