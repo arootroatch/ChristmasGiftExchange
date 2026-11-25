@@ -139,7 +139,7 @@ describe('Dashboard index', () => {
 
     it('renders sidebar navigation items', () => {
       const navItems = document.querySelectorAll('.nav-item');
-      expect(navItems.length).toBe(4);
+      expect(navItems.length).toBe(5);
     });
 
     it('renders recipient section as active by default', () => {

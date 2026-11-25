@@ -13,9 +13,10 @@ import * as recipientCard from './components/RecipientCard.js';
 import * as wishlistSection from './components/WishlistSection.js';
 import * as contactSection from './components/ContactSection.js';
 import * as reuseSection from './components/ReuseSection.js';
+import * as organizedSection from './components/OrganizedSection.js';
 
-const SECTIONS = ['recipient', 'wishlist', 'contact', 'reuse'];
-const LABELS = {recipient: 'Your Recipient', wishlist: 'Your Wishlist', contact: 'Contact Info', reuse: 'Reuse Exchange'};
+const SECTIONS = ['recipient', 'organized', 'wishlist', 'contact', 'reuse'];
+const LABELS = {recipient: 'Your Recipient', organized: 'Exchanges You Organized', wishlist: 'Your Wishlist', contact: 'Contact Info', reuse: 'Reuse Exchange'};
 
 function dashboardLayout(userName) {
   return `
@@ -105,6 +106,7 @@ function initDashboard() {
   recipientCard.init();
   wishlistSection.init();
   contactSection.init();
+  organizedSection.init();
   reuseSection.init();
 }
 
