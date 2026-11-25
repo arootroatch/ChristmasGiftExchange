@@ -33,9 +33,9 @@ function secretSanta(overrides = {}) {
     isSecretSanta: true,
     isOrganizer: true,
     results: [
-      {giverName: 'Alex', giverEmail: 'alex@test.com', recipientName: 'Whitney', recipientIsYou: false},
-      {giverName: 'Whitney', giverEmail: 'whitney@test.com', recipientName: 'Hunter', recipientIsYou: false},
-      {giverName: 'Hunter', giverEmail: 'hunter@test.com', recipientName: 'Alex', recipientIsYou: true},
+      {giverName: 'Alex', giverEmail: 'alex@test.com', recipientName: 'Whitney', recipientEmail: 'whitney@test.com', recipientIsYou: false},
+      {giverName: 'Whitney', giverEmail: 'whitney@test.com', recipientName: 'Hunter', recipientEmail: 'hunter@test.com', recipientIsYou: false},
+      {giverName: 'Hunter', giverEmail: 'hunter@test.com', recipientName: 'Alex', recipientEmail: 'alex@test.com', recipientIsYou: true},
     ],
     ...overrides,
   };
@@ -93,9 +93,9 @@ describe('OrganizedSection', () => {
 
     const texts = [...rows()].map(r => r.textContent.replace(/\s+/g, ' ').trim());
     expect(texts).toEqual([
-      'Alex alex@test.com → Whitney',
-      'Whitney whitney@test.com → Hunter',
-      'Hunter hunter@test.com → You',
+      'Alex alex@test.com → Whitney whitney@test.com',
+      'Whitney whitney@test.com → Hunter hunter@test.com',
+      'Hunter hunter@test.com → Alex alex@test.com',
     ]);
   });
 
@@ -107,7 +107,7 @@ describe('OrganizedSection', () => {
     expect(blurred[0]).toBe(rows()[2]);
     const blurredTexts = [...blurred[0].querySelectorAll(`.${styles.blurred}`)].map(el => el.textContent);
     expect(blurredTexts).toEqual(['Hunter', 'hunter@test.com']);
-    expect(blurred[0].textContent).toContain('You');
+    expect(blurred[0].textContent.replace(/\s+/g, ' ')).toContain('→ Alex alex@test.com');
     expect(blurred[0].querySelector('button.reveal-btn')).not.toBeNull();
   });
 
@@ -160,12 +160,28 @@ describe('OrganizedSection', () => {
 
   it('escapes names and emails', async () => {
     await renderWith([secretSanta({
-      results: [{giverName: '<b>x</b>', giverEmail: '<b>e</b>@test.com', recipientName: '<b>y</b>', recipientIsYou: false}],
+      results: [{giverName: '<b>x</b>', giverEmail: '<b>e</b>@test.com', recipientName: '<b>y</b>', recipientEmail: '<b>r</b>@test.com', recipientIsYou: false}],
     })]);
 
     expect(section().querySelector('b')).toBeNull();
     expect(rows()[0].textContent).toContain('<b>x</b>');
     expect(rows()[0].textContent).toContain('<b>y</b>');
+    expect(rows()[0].textContent).toContain('<b>r</b>@test.com');
+  });
+
+  it('labels the giver and recipient columns on each card', async () => {
+    await renderWith([secretSanta(), linkDraw()]);
+
+    cards().forEach(card => {
+      const header = card.querySelector(`.${styles.header}`);
+      expect([...header.children].map(el => el.textContent)).toEqual(['Giver', '', 'Recipient']);
+    });
+  });
+
+  it('link draw: shows no emails', async () => {
+    await renderWith([linkDraw()]);
+
+    expect(section().querySelectorAll(`.${styles.email}`)).toHaveLength(0);
   });
 
   it('shows the error message when loading fails', async () => {

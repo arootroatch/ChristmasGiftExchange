@@ -21,6 +21,25 @@
   margin-left: 8px;
 }
 
+.header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 12px;
+  padding: 0 12px;
+  margin-bottom: 6px;
+}
+
+.header span {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.header span:last-child {
+  text-align: right;
+}
+
 .rows {
   list-style: none;
   padding: 0;
@@ -28,10 +47,10 @@
 }
 
 .row {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
-  gap: 4px 10px;
+  gap: 12px;
   padding: 8px 12px;
   margin-bottom: 6px;
   background: rgba(0, 0, 0, 0.2);
@@ -40,6 +59,23 @@
   font-size: 0.9rem;
   color: var(--text-primary);
   overflow-wrap: anywhere;
+}
+
+.giverCell,
+.recipientCell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.giverCell {
+  align-items: flex-start;
+}
+
+.recipientCell {
+  align-items: flex-end;
+  text-align: right;
 }
 
 .giver {
@@ -68,9 +104,18 @@
   user-select: none;
 }
 
+.nameLine {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+}
+
 .revealButton {
-  margin-left: auto;
-  padding: 2px 10px;
+  flex-shrink: 0;
+  margin: 0;
+  padding: 0 8px;
+  line-height: 1.4;
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: var(--radius-sm);
   background: transparent;

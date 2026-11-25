@@ -9,10 +9,12 @@ function organizerResults(exchange, usersById, user) {
     const lookup = id => usersById.get(id.toString()) ?? UNKNOWN_USER;
     return exchange.assignments.map(({giverId, recipientId}) => {
         const giver = lookup(giverId);
+        const recipient = lookup(recipientId);
         return {
             giverName: giver.name,
             giverEmail: giver.email,
-            recipientName: lookup(recipientId).name,
+            recipientName: recipient.name,
+            recipientEmail: recipient.email,
             recipientIsYou: recipientId.equals(user._id),
         };
     });

@@ -52,6 +52,7 @@ function cardTemplate(exchange) {
   return `
     <div class="${styles.card} card-slide">
       <h3>${new Date(exchange.createdAt).toLocaleDateString()}<span class="${styles.mode}">${modeLabel(exchange)}</span></h3>
+      <div class="${styles.header}" aria-hidden="true"><span>Giver</span><span></span><span>Recipient</span></div>
       <ul class="${styles.rows}">${exchange.results.map(r => rowTemplate(exchange, r)).join('')}</ul>
     </div>`;
 }
@@ -64,21 +65,35 @@ const revealButton = `<button type="button" class="${styles.revealButton} reveal
 
 function recipientTemplate(result) {
   if (result.hasDrawn === false) return `<span class="${styles.pending}">hasn't drawn yet</span>`;
-  return result.recipientIsYou ? 'You' : escape(result.recipientName);
+  return escape(result.recipientName);
 }
 
 function rowTemplate(exchange, result) {
   const blurGiver = result.recipientIsYou && (exchange.isSecretSanta || exchange.isLinkMode);
   const blurRecipient = exchange.isLinkMode && exchange.organizerMatched === false && result.hasDrawn;
-  const email = exchange.isLinkMode
-    ? ''
-    : `<span class="${styles.email}${blurClass(blurGiver)}">${escape(result.giverEmail)}</span>`;
+  const showEmails = !exchange.isLinkMode;
+  const giverEmail = showEmails
+    ? `<span class="${styles.email}${blurClass(blurGiver)}">${escape(result.giverEmail)}</span>`
+    : '';
+  const recipientEmail = showEmails
+    ? `<span class="${styles.email}">${escape(result.recipientEmail)}</span>`
+    : '';
   return `
     <li class="${styles.row}">
-      <span class="${styles.giver}${blurClass(blurGiver)}">${escape(result.giverName)}</span>
-      ${email}
+      <div class="${styles.giverCell}">
+        <div class="${styles.nameLine}">
+          <span class="${styles.giver}${blurClass(blurGiver)}">${escape(result.giverName)}</span>
+          ${blurGiver ? revealButton : ''}
+        </div>
+        ${giverEmail}
+      </div>
       <span class="${styles.arrow}" aria-label="gives to">→</span>
-      <span class="${styles.recipient}${blurClass(blurRecipient)}">${recipientTemplate(result)}</span>
-      ${blurGiver || blurRecipient ? revealButton : ''}
+      <div class="${styles.recipientCell}">
+        <div class="${styles.nameLine}">
+          ${blurRecipient ? revealButton : ''}
+          <span class="${styles.recipient}${blurClass(blurRecipient)}">${recipientTemplate(result)}</span>
+        </div>
+        ${recipientEmail}
+      </div>
     </li>`;
 }

@@ -210,9 +210,9 @@ describe("api-my-exchanges-get", () => {
 
             expect(exchange.isOrganizer).toBe(true);
             expect(exchange.results).toEqual([
-                {giverName: "Alex", giverEmail: "alex@test.com", recipientName: "Whitney", recipientIsYou: false},
-                {giverName: "Whitney", giverEmail: "whitney@test.com", recipientName: "Hunter", recipientIsYou: false},
-                {giverName: "Hunter", giverEmail: "hunter@test.com", recipientName: "Alex", recipientIsYou: true},
+                {giverName: "Alex", giverEmail: "alex@test.com", recipientName: "Whitney", recipientEmail: "whitney@test.com", recipientIsYou: false},
+                {giverName: "Whitney", giverEmail: "whitney@test.com", recipientName: "Hunter", recipientEmail: "hunter@test.com", recipientIsYou: false},
+                {giverName: "Hunter", giverEmail: "hunter@test.com", recipientName: "Alex", recipientEmail: "alex@test.com", recipientIsYou: true},
             ]);
             expect(exchange).not.toHaveProperty("assignments");
         });
@@ -249,9 +249,9 @@ describe("api-my-exchanges-get", () => {
 
             const [exchange] = await getBody(alex._id);
 
-            expect(exchange.results[0].recipientName).toBe("Unknown");
+            expect(exchange.results[0]).toMatchObject({recipientName: "Unknown", recipientEmail: ""});
             expect(exchange.results[1]).toEqual({
-                giverName: "Unknown", giverEmail: "", recipientName: "Whitney", recipientIsYou: false,
+                giverName: "Unknown", giverEmail: "", recipientName: "Whitney", recipientEmail: "whitney@test.com", recipientIsYou: false,
             });
         });
 
